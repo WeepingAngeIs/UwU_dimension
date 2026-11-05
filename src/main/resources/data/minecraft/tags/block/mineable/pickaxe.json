@@ -6,6 +6,12 @@
     "uwudimension:heartsill",
     "uwudimension:petal_quilt",
     "uwudimension:rosette_mosaic",
-    "uwudimension:midnight_lace"
+    "uwudimension:midnight_lace",
+    "uwudimension:sakura_roof_tile",
+    "uwudimension:sakura_roof_tile_slab",
+    "uwudimension:sakura_roof_tile_stairs",
+    "uwudimension:mulberry_roof_tile",
+    "uwudimension:mulberry_roof_tile_slab",
+    "uwudimension:mulberry_roof_tile_stairs"
   ]
 }

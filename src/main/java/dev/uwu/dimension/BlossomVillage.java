@@ -25,7 +25,7 @@ public final class BlossomVillage {
     private static final Map<ServerLevel,Map<Key,Optional<Plan>>> CACHE=new WeakHashMap<>();
     private static synchronized Map<Key,Optional<Plan>> cache(ServerLevel level){return CACHE.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
     private static final Block[] JOBS={Blocks.COMPOSTER,Blocks.LOOM,Blocks.BARREL,Blocks.LECTERN,Blocks.SMITHING_TABLE,Blocks.FLETCHING_TABLE,Blocks.CARTOGRAPHY_TABLE,Blocks.STONECUTTER};
-    private static final int HALF=29;
+    private static final int HALF=32;
     private static int ground(ServerLevel level,GroveSites.Site s,int x,int z){return GroveSites.height(level,s.wx(x,z),s.wz(x,z));}
     public static Optional<Plan> plan(ServerLevel level,GroveSites.Site s,boolean dusk){
         if(!GroveSites.settlement(level,s,dusk))return Optional.empty();
@@ -62,15 +62,18 @@ public final class BlossomVillage {
             }
             if(!dry)continue;
             List<House> houses=new ArrayList<>();
+            int firstStyle=random.nextInt(VillageHouse.STYLES.size());
             for(int side:new int[]{-1,1})for(int lot=0;lot<4;lot++){
-                int hx=x-22+lot*14+random.nextInt(3),width=3+random.nextInt(2),depth=3+random.nextInt(2);
-                int hz=z+bends[hx-x+HALF]+side*(depth+5+random.nextInt(3)),floor=ground(level,site,hx,hz-side*depth);
+                int style=(firstStyle+houses.size())%VillageHouse.STYLES.size();
+                var template=VillageHouse.STYLES.get(style);
+                int hx=x-24+lot*16,width=template.width,depth=template.depth;
+                int hz=z+bends[hx-x+HALF]+side*(depth+6+random.nextInt(3)),floor=ground(level,site,hx,hz-side*depth);
                 int roadY=road[hx-x+HALF];boolean fits=Math.abs(floor-roadY)<=2;
                 for(int ex:new int[]{-width,0,width})for(int ez:new int[]{-depth,0,depth}){
                     int earth=ground(level,site,hx+ex,hz+ez);
                     if(earth<64||Math.abs(earth-floor)>3||!GroveSites.cherry(level,site.wx(hx+ex,hz+ez),earth+1,site.wz(hx+ex,hz+ez)))fits=false;
                 }
-                if(fits)houses.add(new House(hx,hz,floor,width,depth,side,random.nextInt(4),JOBS[houses.size()%JOBS.length]));
+                if(fits)houses.add(new House(hx,hz,floor,width,depth,side,style,JOBS[houses.size()%JOBS.length]));
             }
             if(houses.size()>=6)return Optional.of(new Plan(site,x,z,center,road,bends,List.copyOf(houses),dusk));
         }
@@ -89,6 +92,8 @@ public final class BlossomVillage {
             }
             home(v,p,h);
         }
+        int gateIndex=p.dusk()?p.road().length-3:2;
+        gate(v,p.x()+gateIndex-HALF,p.road()[gateIndex],p.z()+p.bends()[gateIndex],p.dusk());
         boolean dark=p.dusk();
         for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)road(v,p.x()+dx,p.y(),p.z()+dz,dark);
         v.block(p.x(),p.y(),p.z(),dark?HeartwaterFeature.LACE.get():HeartwaterFeature.QUILT.get());
@@ -103,6 +108,19 @@ public final class BlossomVillage {
                 warden.bindVillage(at);warden.setPersistenceRequired();v.level.addFreshEntity(warden);
             }
         }
+    }
+    private static void gate(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
+        Block post=dark?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_MANGROVE_LOG;
+        Block cap=PinkRoofTiles.slab(dark);
+        for(int dz:new int[]{-3,3}){
+            floor(v,x,y,z+dz,Blocks.STONE_BRICKS);
+            v.box(x,y+1,z+dz,x,y+4,z+dz,post);
+            v.block(x,y+1,z+dz,Blocks.POLISHED_BLACKSTONE);
+        }
+        v.box(x,y+3,z-3,x,y+3,z+3,post);
+        v.box(x,y+5,z-4,x,y+5,z+4,post);
+        v.box(x,y+6,z-4,x,y+6,z+4,cap);
+        for(int end:new int[]{-5,5})v.block(x,y+6,z+end,cap);
     }
     private static void floor(HeartwaterFeature.Valley v,int x,int y,int z,Block finish){
         if(!v.inside(x,z))return;
@@ -122,48 +140,33 @@ public final class BlossomVillage {
     }
     private static void road(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
         if(!v.inside(x,z))return;
-        clear(v,x,y+1,z);floor(v,x,y,z,dark?Blocks.TUFF_BRICKS:Blocks.DIRT_PATH);
+        int patch=Math.floorMod(HeartwaterFeature.Valley.mix(x,z,v.seed),13);
+        Block surface=patch<2?Blocks.COBBLESTONE:patch<4?Blocks.ANDESITE:patch==4?Blocks.MOSSY_STONE_BRICKS:
+                dark?Blocks.TUFF_BRICKS:Blocks.DIRT_PATH;
+        clear(v,x,y+1,z);floor(v,x,y,z,surface);
     }
     private static void home(HeartwaterFeature.Valley v,Plan p,House h){
         int x=h.x(),z=h.z(),y=h.floor(),w=h.width(),d=h.depth(),side=h.side(),front=z-side*d;
-        if(!v.overlaps(x-w-1,z-d-1,x+w+1,z+d+1))return;
+        var house=VillageHouse.STYLES.get(h.style());
+        if(!v.overlaps(x-house.radiusX,z-house.radiusZ,x+house.radiusX,z+house.radiusZ))return;
         boolean dark=p.dusk();
-        Block wall=dark?(h.style()%2==0?Blocks.DEEPSLATE_BRICKS:Blocks.DARK_OAK_PLANKS):(h.style()%2==0?Blocks.CALCITE:Blocks.CHERRY_PLANKS);
-        Block timber=dark?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_CHERRY_LOG;
-        Block roof=dark?Blocks.DEEPSLATE_TILE_STAIRS:(h.style()==2?Blocks.BRICK_STAIRS:Blocks.CHERRY_STAIRS);
         Direction inward=side>0?Direction.SOUTH:Direction.NORTH;
-        for(int dx=-w-1;dx<=w+1;dx++)for(int dz=-d-1;dz<=d+1;dz++){
+        Block boards=dark?Blocks.DARK_OAK_PLANKS:Blocks.OAK_PLANKS;
+        for(int dx=-house.radiusX;dx<=house.radiusX;dx++)for(int dz=-house.radiusZ;dz<=house.radiusZ;dz++){
             clear(v,x+dx,y+1,z+dz);
-            if(Math.abs(dx)>w||Math.abs(dz)>d)continue;
-            floor(v,x+dx,y,z+dz,dark?Blocks.SPRUCE_PLANKS:Blocks.BIRCH_PLANKS);
-            if(Math.abs(dx)==w||Math.abs(dz)==d)v.box(x+dx,y+1,z+dz,x+dx,y+4,z+dz,Math.abs(dx)==w&&Math.abs(dz)==d?timber:wall);
+            boolean interior=Math.abs(dx)<=w&&Math.abs(dz)<=d;
+            boolean veranda=Math.abs(dx)<=w+1&&dz*side==-d-1;
+            if(interior||veranda)floor(v,x+dx,y,z+dz,veranda?boards:dark?Blocks.POLISHED_ANDESITE:Blocks.SMOOTH_SANDSTONE);
         }
-        // Both gables and a stepped, overhanging pitched roof, with the stair backs toward the ridge.
-        for(int dx=-w-1;dx<=w+1;dx++){
-            int roofY=y+4+w+1-Math.abs(dx);
-            for(int dz:new int[]{-d,d})if(Math.abs(dx)<=w)v.box(x+dx,y+4,z+dz,x+dx,roofY-1,z+dz,wall);
-            if(dx==0)v.box(x,roofY,z-d-1,x,roofY,z+d+1,dark?Blocks.POLISHED_BLACKSTONE:Blocks.MANGROVE_PLANKS);
-            else v.box(x+dx,roofY,z-d-1,x+dx,roofY,z+d+1,v.stair(roof,dx<0?Direction.EAST:Direction.WEST));
-        }
-        for(int dx:new int[]{-w,w})v.box(x+dx,y+2,z-1,x+dx,y+3,z+1,dark?Blocks.PURPLE_STAINED_GLASS_PANE:Blocks.PINK_STAINED_GLASS_PANE);
-        for(int dx:new int[]{-2,2})v.block(x+dx,y+2,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.ROSETTE.get());
-        v.block(x,y+3,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.QUILT.get());
+        house.place(v,h,dark);
+        // Frame the original entrance and put the settlement's crest on its lintel.
+        v.block(x,y+3,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.ROSETTE.get());
         DoorBlock door=(DoorBlock)(dark?Blocks.DARK_OAK_DOOR:Blocks.CHERRY_DOOR);
         var ds=door.defaultBlockState().setValue(DoorBlock.FACING,v.face(inward));
-        v.put(x,y+1,front,ds);v.put(x,y+2,front,ds.setValue(DoorBlock.HALF,DoubleBlockHalf.UPPER));
-        if(h.style()==0){ // a glass-fronted florist's window
-            v.put(x+w,y+1,z,Blocks.GLASS.defaultBlockState());
-            v.block(x+w-1,y+1,z,dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_FLOWERING_AZALEA);
-        } else if(h.style()==1){ // a faience chimney rises through the far roof slope
-            v.box(x+w-1,y+3,z+side*(d-1),x+w-1,y+8,z+side*(d-1),dark?Blocks.POLISHED_BLACKSTONE_BRICKS:Blocks.BRICKS);
-            v.block(x+w-1,y+9,z+side*(d-1),dark?Blocks.BLACKSTONE_WALL:Blocks.BRICK_WALL);
-        } else if(h.style()==2){ // a hanging lantern marks the porch
-            v.block(x,y+4,front-side,timber);
-            v.put(x,y+3,front-side,(dark?Blocks.SOUL_LANTERN:Blocks.LANTERN).defaultBlockState().setValue(LanternBlock.HANGING,true));
-        } else { // an illuminated rose window fills the upper gable
-            v.block(x,y+5,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.ROSETTE.get());
-            v.block(x,y+6,front,dark?Blocks.PURPLE_STAINED_GLASS:Blocks.PINK_STAINED_GLASS);
-        }
+        // Keep both the street landing and the central interior aisle walkable.
+        for(int dz=0;dz<=d+2;dz++)if(dz!=d)v.box(x,y+1,z-side*dz,x,y+2,z-side*dz,v.air);
+        v.put(x,y+1,front,ds);
+        v.put(x,y+2,front,ds.setValue(DoorBlock.HALF,DoubleBlockHalf.UPPER));
         // Bed foot faces the head. The aisle is level from the door to the workbench.
         var bed=(dark?Blocks.PURPLE_BED:Blocks.PINK_BED).defaultBlockState().setValue(BedBlock.FACING,v.face(inward));
         v.put(x-1,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));

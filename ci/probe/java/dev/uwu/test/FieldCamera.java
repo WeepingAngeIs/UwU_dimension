@@ -30,7 +30,7 @@ public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef"} :
-            SEED==152045?new String[]{"arrival","village","village-hillside","offsite-terrain","mirror-court"}:
+            SEED==152045?new String[]{"arrival","village","village-hillside","dusk-village","offsite-terrain","mirror-court"}:
             new String[]{"arrival","village","village-hillside"};
     private static volatile String state="menu";
     private static volatile SeaWatch.View view;
@@ -72,14 +72,27 @@ public final class FieldCamera {
             l.getBlockState(bell).useWithoutItem(l,p,new BlockHitResult(point(bell),net.minecraft.core.Direction.UP,bell,false));
             return frame(name,point(site.pos(-7,-16,142)),point(site.pos(-7,-16,151)));
         }
-        var village=BlossomVillage.first(l,false);var ctr=village.plaza();var vs=village.site();
-        var house=village.houses().get(village.houses().size()/2);
-        if(name.equals("village")){
-            var door=village.doorway(house);
-            var lane=vs.pos(house.x()+4,village.road()[house.x()-village.x()+29]+2,village.z());
-            return frame(name,point(lane),point(door.above()));
+        var village=BlossomVillage.first(l,name.equals("dusk-village"));var ctr=village.plaza();var vs=village.site();
+        if(name.equals("village") || name.equals("dusk-village")){
+            var houses=village.houses();
+            for(var house:houses){
+                var door=village.doorway(house);
+                var target=point(door.above(3));
+                for(int offset:new int[]{13,-13,10,-10,7,-7}){
+                    int x=house.x()+offset, i=x-village.x()+village.road().length/2;
+                    if(i<0||i>=village.road().length)continue;
+                    var lane=vs.pos(x,village.road()[i]+2,village.z()+village.bends()[i]);
+                    l.getChunkAt(lane);l.getChunkAt(door);
+                    var eye=point(lane);
+                    // Keep the street in the foreground and a clear view of the entrance and roof.
+                    var aim=point(door.relative(net.minecraft.core.Direction.UP,2));
+                    var hit=l.clip(new ClipContext(eye,aim,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,p));
+                    if(hit.getLocation().distanceToSqr(aim)<9) return frame(name,eye,target);
+                }
+            }
+            throw new AssertionError("No unobstructed view along the generated village street at "+ctr);
         }
-        return frame(name,point(vs.pos(village.x()-15,ctr.getY()+21,village.z()-24)),point(ctr.above(2)));
+        return frame(name,point(vs.pos(village.x()-23,ctr.getY()+25,village.z()-32)),point(ctr.above(3)));
     }
     private static boolean sceneryReady(Minecraft mc) {
         var here=BlockPos.containing(view.eye());

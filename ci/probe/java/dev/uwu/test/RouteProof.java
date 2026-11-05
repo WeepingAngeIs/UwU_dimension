@@ -125,6 +125,7 @@ public final class RouteProof {
         supportedTrees(level,v.plaza(),48,true,"SETTLEMENT");
         for(var h:v.houses()){
             styles.add(h.style());
+            verifyVillageHouse(level,v,h);
             var bed=v.bedHead(h);var door=v.doorway(h);
             if(!(level.getBlockState(bed).getBlock() instanceof BedBlock) || !(level.getBlockState(door).getBlock() instanceof DoorBlock)
                     || !level.getBlockState(v.workstation(h)).is(h.job()))throw new AssertionError("Incomplete house at "+door);
@@ -133,7 +134,27 @@ public final class RouteProof {
                 if(!level.getBlockState(below).isSolidRender(level,below))throw new AssertionError("Floating house foundation "+below);
             }
         }
+        if(styles.size()!=4)throw new AssertionError("Missing a Japanese house design at "+v.plaza());
         System.out.println("NATURAL GROVE VILLAGE "+v.plaza()+" houses="+v.houses().size()+" styles="+styles+" faction="+v.dusk()+" real beds/jobs/doors and foundations");
+    }
+    private static void verifyVillageHouse(ServerLevel level,BlossomVillage.Plan v,BlossomVillage.House h){
+        int pink=0,stairs=0,slabs=0,plaster=0,posts=0;
+        String glaze=(v.dusk()?"mulberry":"sakura")+"_roof_tile";
+        for(int dx=-7;dx<=7;dx++)for(int dz=-7;dz<=7;dz++)for(int dy=1;dy<=18;dy++){
+            var p=v.site().pos(h.x()+dx,h.floor()+dy,h.z()+dz);
+            var state=level.getBlockState(p);
+            if(state.is(Blocks.PINK_CONCRETE)||state.is(Blocks.PINK_TERRACOTTA))pink++;
+            if(state.is(Blocks.WHITE_CONCRETE))plaster++;
+            if(state.is(v.dusk()?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_CHERRY_LOG))posts++;
+            var id=BuiltInRegistries.BLOCK.getKey(state.getBlock());
+            if(id.getNamespace().equals("uwudimension")){
+                if(id.getPath().equals(glaze+"_stairs"))stairs++;
+                if(id.getPath().equals(glaze+"_slab"))slabs++;
+            }
+        }
+        if(pink<20||stairs<75||slabs<8||plaster<45||posts<95)
+            throw new AssertionError("Incomplete Japanese house style "+h.style()+" at "+v.doorway(h)+
+                    " pink masonry="+pink+" shaped eaves="+stairs+"/"+slabs+" plaster="+plaster+" timber="+posts);
     }
     private double worldX(double x,double z){return cx+.5+switch(turns){case 1->-z;case 2->-x;case 3->z;default->x;};}
     private double worldZ(double x,double z){return cz+.5+switch(turns){case 1->x;case 2->-z;case 3->-x;default->z;};}
