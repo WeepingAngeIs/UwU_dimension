@@ -22,12 +22,16 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
-    private static int phase, ticks;
+    private static int phase, ticks, heartbeat;
     private static final double[][] VIEWS = {{0.5,81,0.5,0,-12},{0.5,53,55.5,0,-4},{-8.5,53,84.5,-17,3},{38.5,1,110.5,-43,-18}};
     private static final String[] FILES = {"01-flowering-cliffs","02-lantern-water","03-bathhouse","04-hanging-shrine"};
 
     @SubscribeEvent public static void step(ClientTickEvent.Post event) {
         Minecraft mc=Minecraft.getInstance();
+        if (++heartbeat%400==0) {
+            System.out.println("FIELD CAMERA phase="+phase+" screen="+(mc.screen==null?"in game":mc.screen.getClass()+" "+mc.screen.getTitle().getString()));
+            if(mc.screen!=null) for(var child:mc.screen.children()) if(child instanceof Button b) System.out.println("FIELD BUTTON "+b.getMessage().getString());
+        }
         if (phase==0 && mc.screen instanceof TitleScreen title) {
             phase=1;
             var settings=new LevelSettings("Field Visit",GameType.SURVIVAL,false,Difficulty.NORMAL,true,new GameRules(),WorldDataConfiguration.DEFAULT);

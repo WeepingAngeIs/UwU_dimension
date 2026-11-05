@@ -3,6 +3,7 @@ package dev.uwu.test;
 import com.mojang.authlib.GameProfile;
 import dev.uwu.dimension.Arsenal;
 import dev.uwu.dimension.HeartArrow;
+import dev.uwu.dimension.Bellwake;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -77,8 +78,21 @@ public final class ArsenalProof {
             wand.use(level,keeper,InteractionHand.MAIN_HAND);
             var rabbits = level.getEntitiesOfClass(Rabbit.class, keeper.getBoundingBox().inflate(8), r -> r.getTags().contains("uwudimension.hare_caller"));
             require(rabbits.size() == 1 && zombie.getTarget() == rabbits.getFirst(), "Ribbonhare spawn and thump must draw zombie aggro");
-            rabbits.getFirst().discard();
-            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14–24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure.");
+            Rabbit lure = rabbits.getFirst();
+            level.getChunkAt(new BlockPos(42, 1, 115));
+            keeper.moveTo(42.5, 2, 118.5);
+            lure.moveTo(42.5, 1, 115.5);
+            // The hare is in its first thump tick. Run it at the deep lake, then at its
+            // next thump interval; both pass through the ordinary summon event handler.
+            NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(lure));
+            var lake = lure.getBoundingBox().inflate(24);
+            var wakes = level.getEntitiesOfClass(Bellwake.class, lake);
+            require(wakes.size() == 1, "Lake failed to answer the summoned hare");
+            lure.getPersistentData().putLong("uwudimension.hare_end", level.getGameTime() + 140);
+            NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(lure));
+            require(level.getEntitiesOfClass(Bellwake.class, lake).size() == 1, "Second thump duplicated the Bellwake");
+            lure.discard();
+            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14â€“24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure; single Bellwake encounter after successive lake thumps.");
         } finally {
             level.setBlockAndUpdate(marker, priorBlock);
             zombie.discard();

@@ -47,7 +47,9 @@ jobs:
       - name: Visit UwU Dimension in the Minecraft client
         run: |
           bash ci/get-mods.sh
-          mkdir -p run
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
           printf 'onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
           timeout 15m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log

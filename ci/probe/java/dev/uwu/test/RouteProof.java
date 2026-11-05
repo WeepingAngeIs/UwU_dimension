@@ -93,10 +93,11 @@ public final class RouteProof {
         walk(41,109);walk(41,126);walk(48,126);walk(48,112);walk(53,112);walk(53,120);walk(54,120);chest(55,9,120);
         walk(53,120);walk(53,112);walk(48,112);walk(48,126);walk(41,126);walk(41,110);walk(16,110);
         walk(16,148);walk(23,148);chest(23,-18,147);
-        walk(16,148);walk(16,110);walk(40,110);walk(40,66);walk(0,66);walk(0,0);
+        walk(16,148);walk(16,127);walk(-23,127);walk(16,127);walk(16,110);walk(40,110);walk(40,66);walk(0,66);walk(0,0);
         stairs(0,76,29,Direction.NORTH);stairs(21,48,66,Direction.WEST);stairs(40,24,85,Direction.NORTH);
-        stairs(35,-4,110,Direction.EAST);stairs(41,4,121,Direction.SOUTH);
+        stairs(10,-23,127,Direction.EAST);stairs(35,-4,110,Direction.EAST);stairs(41,4,121,Direction.SOUTH);
         shell(-14,51,82,14,62,106,0,52);shell(5,-20,139,27,-10,150,16,-19);shell(50,7,115,57,15,123,53,8);
         System.out.println("ROUTE PROOF rotation="+turns+" origin="+cx+","+cz+" player-body samples="+samples+" three single-opening obsidian shells and three reward sites passed");
     }
 }
+

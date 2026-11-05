@@ -20,26 +20,43 @@ import java.util.UUID;
 @Mod("heartwater_probe")
 public class Expedition {
     private boolean completed;
+    private boolean warming;
+    private int waitTicks;
     public Expedition() { NeoForge.EVENT_BUS.addListener(this::tick); }
 
     private void tick(ServerTickEvent.Post event) {
         if (!event.getServer().isDedicatedServer() || completed || event.getServer().getTickCount() < 10) return;
-        completed = true;
         var server = event.getServer();
         try {
             var key = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater"));
             ServerLevel level = server.getLevel(key);
             if (level == null) throw new IllegalStateException("Dimension failed to load");
+            if (!warming) {
+                warming = true;
+                // Cobblemon requires entity-loaded chunks throughout a 48-block square.
+                // A synchronous getChunk loads terrain but entity sections load on following ticks.
+                for (int x=-5;x<=3;x++) for (int z=-4;z<=10;z++) level.setChunkForced(x,z,true);
+                return;
+            }
+            if (++waitTicks<160) return;
+            for (int x=-5;x<=3;x++) for(int z=-4;z<=10;z++) {
+                if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(x,z))) {
+                    if (waitTicks<1800) return;
+                    throw new AssertionError("Spawn-test entity sections did not load at "+x+","+z);
+                }
+            }
+            completed = true;
             RouteProof.run(level);
             ChestProof.run(level, new BlockPos(0,53,103));
             ArsenalProof.run(level);
             testHabitats(level);
             System.out.println("HEARTWATER EXPEDITION PASSED");
         } catch (Throwable error) {
+            completed = true;
             System.err.println("HEARTWATER EXPEDITION FAILED");
             error.printStackTrace();
         } finally {
-            server.halt(false);
+            if (completed) server.halt(false);
         }
     }
 
@@ -50,6 +67,9 @@ public class Expedition {
         var spawner = PlayerSpawnerFactory.INSTANCE.create(visitor);
         // Each sample uses Cobblemon's actual player spawner, selectors, terrain and cap checks.
         // Choose areas explicitly to cover strata without a networked client wandering randomly.
+        long entries=spawner.getSpawnPool().getDetails().stream().filter(d->d.getId().startsWith("heartwater-")).count();
+        System.out.println("HEARTWATER NATIVE POOL contains "+entries+" dimension-specific definitions");
+        if (entries!=19) throw new AssertionError("Spawn pool missing native entries");
         int found = 0;
         int[][] regions = {{-32,77,-16,12,10,12},{-12,47,63,12,10,11},{8,-24,125,12,10,10},{-45,78,-17,12,9,12}};
         String[] names={"flowering surface","upper lake","deep lake","settlement outskirts"};
@@ -72,7 +92,7 @@ public class Expedition {
             }
             if (!seen) System.out.println("HEARTWATER NO SAMPLE "+names[i]);
         }
-        if (found<2) throw new AssertionError("Only "+found+" native Cobblemon habitat samples");
+        if (found<4) throw new AssertionError("Only "+found+" native Cobblemon habitat samples");
     }
 }
 

@@ -35,7 +35,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     static final DeferredBlock<Block> GLASS = stone("tideglass", 11);
     static final DeferredBlock<Block> HEART = stone("heartsill", 5);
     static final DeferredBlock<Blossom> BLOSSOM = BLOCKS.register("drift_blossom", Blossom::new);
-    static { ITEMS.registerSimpleBlockItem("drift_blossom", BLOSSOM); }
+    static { ITEMS.register("drift_blossom", () -> new net.minecraft.world.item.PlaceOnWaterBlockItem(BLOSSOM.get(), new net.minecraft.world.item.Item.Properties())); }
     public static final class Blossom extends WaterlilyBlock {
         public Blossom(){super(BlockBehaviour.Properties.of().instabreak().noCollission().noOcclusion().sound(SoundType.LILY_PAD));}
     }
@@ -99,7 +99,10 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         boolean inside(int x,int z){return x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;}
         boolean overlaps(int a,int b,int c,int d){return a<=maxX&&c>=minX&&b<=maxZ&&d>=minZ;}
         void put(int x,int y,int z, BlockState s){
-            if(inside(x,z))chunk.setBlockState(cursor.set(wx(x,z),y,wz(x,z)),s,false);
+            if(!inside(x,z))return;
+            cursor.set(wx(x,z),y,wz(x,z));
+            BlockState before=chunk.setBlockState(cursor,s,false);
+            if(before!=null && before.hasBlockEntity() && before.getBlock()!=s.getBlock())chunk.removeBlockEntity(cursor);
         }
         void block(int x,int y,int z,Block b){put(x,y,z,b.defaultBlockState());}
         void box(int x1,int y1,int z1,int x2,int y2,int z2,BlockState s){
@@ -408,6 +411,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 }
+
+
 
 
 
