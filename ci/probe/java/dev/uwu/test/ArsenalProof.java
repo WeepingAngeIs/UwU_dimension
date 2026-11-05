@@ -33,7 +33,7 @@ public final class ArsenalProof {
             require(damage[0] == kind.damage && damage[0] >= 14 && damage[0] <= 24, "Damage for " + kind + " = " + damage[0]);
         }
 
-        BlockPos platform = new BlockPos(6, level.getMaxBuildHeight() - 18, 6);
+        BlockPos platform = dev.uwu.dimension.GroveSites.first(level).pos(42, level.getMaxBuildHeight() - 18, 115);
         level.getChunkAt(platform);
         var marker = platform.offset(0, 0, 4);
         var priorBlock = level.getBlockState(marker);
@@ -85,9 +85,12 @@ public final class ArsenalProof {
             var rabbits = level.getEntitiesOfClass(Rabbit.class, keeper.getBoundingBox().inflate(8), r -> r.getTags().contains("uwudimension.hare_caller"));
             require(rabbits.size() == 1 && zombie.getTarget() == rabbits.getFirst(), "Ribbonhare spawn and thump must draw zombie aggro");
             Rabbit lure = rabbits.getFirst();
-            level.getChunkAt(new BlockPos(42, 1, 115));
-            keeper.moveTo(42.5, 2, 118.5);
-            lure.moveTo(42.5, 1, 115.5);
+            var site = dev.uwu.dimension.GroveSites.first(level);
+            var pool = site.pos(42,1,115);
+            var bank = site.pos(42,2,118);
+            level.getChunkAt(pool);
+            keeper.moveTo(bank.getX()+.5,bank.getY(),bank.getZ()+.5);
+            lure.moveTo(pool.getX()+.5,pool.getY(),pool.getZ()+.5);
             // The hare is in its first thump tick. Run it at the deep lake, then at its
             // next thump interval; both pass through the ordinary summon event handler.
             NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(lure));
@@ -98,7 +101,7 @@ public final class ArsenalProof {
             NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(lure));
             require(level.getEntitiesOfClass(Bellwake.class, lake).size() == 1, "Second thump duplicated the Bellwake");
             lure.discard();
-            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14Ã¢â‚¬â€œ24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure; single Bellwake encounter after successive lake thumps.");
+            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14-24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure; single Bellwake encounter after successive lake thumps.");
         } finally {
             level.setBlockAndUpdate(marker, priorBlock);
             zombie.discard();
@@ -151,7 +154,7 @@ public final class ArsenalProof {
                 if (bow) stack.releaseUsing(level, archer, stack.getUseDuration(archer) - 20);
                 if (bow || kind == Arsenal.Relic.LANTERN_SPEAR || kind == Arsenal.Relic.TIDELACE_TRIDENT) {
                     var shots = level.getEntitiesOfClass(Projectile.class, archer.getBoundingBox().inflate(2), e -> e.getOwner() == archer);
-                    require(shots.size() == 1, "Could not identify the launched projectile for " + kind);
+                    require(shots.size() == 1, "Expected one "+kind+" projectile in tracked arena at "+archer.blockPosition()+", observed "+shots.size());
                     Projectile shot = shots.getFirst();
                     for (int tick=0; tick<6 && shot.isAlive(); tick++) shot.tick();
                     require(!shot.isAlive(), "Projectile missed its unarmored target: " + kind);

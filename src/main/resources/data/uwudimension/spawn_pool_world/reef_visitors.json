@@ -1,0 +1,151 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-reef-finneon",
+      "pokemon": "finneon",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "5-29",
+      "weight": 12,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-horsea",
+      "pokemon": "horsea",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "5-29",
+      "weight": 9,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-remoraid",
+      "pokemon": "remoraid",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "5-29",
+      "weight": 8,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-shellder",
+      "pokemon": "shellder",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "5-29",
+      "weight": 8,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-wishiwashi",
+      "pokemon": "wishiwashi",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "5-29",
+      "weight": 7,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-corsola",
+      "pokemon": "corsola",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "uncommon",
+      "level": "5-29",
+      "weight": 7,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-mantyke",
+      "pokemon": "mantyke",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "uncommon",
+      "level": "5-29",
+      "weight": 5,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-reef-alomomola",
+      "pokemon": "alomomola",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "rare",
+      "level": "5-29",
+      "weight": 3,
+      "condition": {
+        "dimensions": [
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
+        ]
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ final class HeartwaterAmbience {
     static void tick(PlayerTickEvent.Post event){
         if(!(event.getEntity() instanceof ServerPlayer p) || p.isSpectator())return;
         var level=p.serverLevel();
-        if(!level.dimension().location().toString().equals("uwudimension:heartwater"))return;
+        if(!level.dimension().location().toString().equals("uwudimension:heartwater") && !ReefLife.isReach(level))return;
         long t=level.getGameTime();
         if(t%5!=0)return;
         var random=p.getRandom();

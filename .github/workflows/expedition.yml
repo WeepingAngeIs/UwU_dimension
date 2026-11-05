@@ -1,16 +1,27 @@
-name: Heartwater build and expedition
+name: UwU Dimension 1.1 expedition
 on:
   push:
-    branches: [feature/heartwater-adventure, main]
+    branches: [feature/blossom-villages-1.1, main]
   workflow_dispatch:
+concurrency:
+  group: expedition-${{ github.sha }}
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [152045, 4372191]
+    env:
+      UWU_FIELD_SEED: ${{ matrix.seed }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -20,23 +31,44 @@ jobs:
           cache-read-only: false
       - run: ./gradlew build --stacktrace
       - uses: actions/upload-artifact@v4
+        if: matrix.seed == 152045
         with:
-          name: UwU-Dimension-1.21.1
+          name: UwU-Dimension-1.1.0
           path: build/libs/*.jar
           if-no-files-found: error
       - name: Run the packaged mod with Cobblemon and Lootr in a fresh world
-        run: bash ci/expedition.sh
+        run: |
+          bash ci/thread-samples.sh build/thread-samples &
+          sampler=$!
+          trap 'kill "$sampler" 2>/dev/null || true' EXIT
+          bash ci/expedition.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: expedition-log
+          name: expedition-log-${{ matrix.seed }}
           path: |
+            build/thread-samples
             build/field-server/expedition.log
+            build/field-server/mirror-restart.log
+            build/field-server/logs/latest.log
             build/field-server/crash-reports
           if-no-files-found: ignore
   client:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [152045, 4372191]
+        visit: [land, sea]
+        include:
+          - seed: 152045
+            visit: village
+          - seed: 152045
+            visit: furnishing
+    env:
+      UWU_VISIT: ${{ matrix.visit }}
+      UWU_FIELD_SEED: ${{ matrix.seed }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -46,20 +78,30 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Visit UwU Dimension in the Minecraft client
         run: |
+          set -euo pipefail
           bash ci/get-mods.sh
           mkdir -p run/config/cobblemon/spawning
           cp ci/natural-spawning.json run/config/cobblemon/main.json
           cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
-          printf 'onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'onboardAccessibility:false\nrenderDistance:10\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
-          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
-          timeout 15m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          bash ci/thread-samples.sh run/thread-samples &
+          sampler=$!
+          trap 'kill "$sampler" 2>/dev/null || true' EXIT
+          timeout 22m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'HEARTWATER CLIENT ROUND TRIP PASSED' client-visit.log
+          if [[ "$UWU_VISIT" == furnishing ]]; then
+            for photo in petal-tea-room pastel-glass-windows pink-glass-skylight dusk-reading-room bathhouse-bench archive-study; do
+              test -s "run/screenshots/$photo.png"
+            done
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: client-field-visit
+          name: client-field-visit-${{ matrix.seed }}-${{ matrix.visit }}
           path: |
+            run/thread-samples
             run/screenshots
             run/logs/latest.log
             run/crash-reports

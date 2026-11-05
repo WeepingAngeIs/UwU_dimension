@@ -21,9 +21,13 @@ public final class People {
     public static final DeferredHolder<SoundEvent, SoundEvent> PETAL_VOICE = voice("petal_voice");
     public static final DeferredHolder<SoundEvent, SoundEvent> DUSK_VOICE = voice("dusk_voice");
 
+    public static final DeferredHolder<EntityType<?>,EntityType<BlossomWarden>> BLOSSOM_WARDEN =
+            TYPES.register("blossom_warden", () -> EntityType.Builder.<BlossomWarden>of(BlossomWarden::new, MobCategory.CREATURE)
+                    .sized(1.45F, 2.7F).clientTrackingRange(12).build(MOD + ":blossom_warden"));
+
     private static DeferredHolder<EntityType<?>, EntityType<Keeper>> keeper(String name) {
         return TYPES.register(name, () -> EntityType.Builder.<Keeper>of(Keeper::new, MobCategory.CREATURE)
-                .sized(0.65F, 1.81F).clientTrackingRange(8).build(MOD + ":" + name));
+                .sized(0.65F, 1.78F).eyeHeight(1.62F).clientTrackingRange(8).build(MOD + ":" + name));
     }
 
     private static DeferredHolder<SoundEvent, SoundEvent> voice(String name) {
@@ -37,11 +41,16 @@ public final class People {
     }
 
     private static void attributes(EntityAttributeCreationEvent event) {
-        var stats = Keeper.createMobAttributes().add(Attributes.MAX_HEALTH, 30)
+        var stats = Keeper.createAttributes().add(Attributes.MAX_HEALTH, 30)
                 .add(Attributes.MOVEMENT_SPEED, 0.31).add(Attributes.ATTACK_DAMAGE, 5)
                 .add(Attributes.FOLLOW_RANGE, 24).build();
+        event.put(BLOSSOM_WARDEN.get(), BlossomWarden.createMobAttributes()
+                .add(Attributes.MAX_HEALTH,320).add(Attributes.ARMOR,24).add(Attributes.ARMOR_TOUGHNESS,12)
+                .add(Attributes.KNOCKBACK_RESISTANCE,1).add(Attributes.MOVEMENT_SPEED,.17)
+                .add(Attributes.FOLLOW_RANGE,64).add(Attributes.STEP_HEIGHT,1.2).build());
         event.put(PETAL_KEEPER.get(), stats);
         event.put(DUSK_KEEPER.get(), stats);
     }
 }
+
 

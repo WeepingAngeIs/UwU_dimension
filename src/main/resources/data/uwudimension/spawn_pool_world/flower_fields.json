@@ -16,13 +16,16 @@
       "weight": 8,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
           "uwudimension:ribbon_bluffs",
           "uwudimension:velvet_highlands",
-          "uwudimension:lantern_fens"
+          "uwudimension:lantern_fens",
+          "minecraft:cherry_grove"
         ]
       }
     },
@@ -39,13 +42,16 @@
       "weight": 7,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
           "uwudimension:ribbon_bluffs",
           "uwudimension:velvet_highlands",
-          "uwudimension:lantern_fens"
+          "uwudimension:lantern_fens",
+          "minecraft:cherry_grove"
         ]
       }
     },
@@ -62,13 +68,16 @@
       "weight": 6,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
           "uwudimension:ribbon_bluffs",
           "uwudimension:velvet_highlands",
-          "uwudimension:lantern_fens"
+          "uwudimension:lantern_fens",
+          "minecraft:cherry_grove"
         ]
       }
     },
@@ -85,13 +94,16 @@
       "weight": 5,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
           "uwudimension:ribbon_bluffs",
           "uwudimension:velvet_highlands",
-          "uwudimension:lantern_fens"
+          "uwudimension:lantern_fens",
+          "minecraft:cherry_grove"
         ]
       }
     },
@@ -108,13 +120,16 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
           "uwudimension:ribbon_bluffs",
           "uwudimension:velvet_highlands",
-          "uwudimension:lantern_fens"
+          "uwudimension:lantern_fens",
+          "minecraft:cherry_grove"
         ]
       }
     }

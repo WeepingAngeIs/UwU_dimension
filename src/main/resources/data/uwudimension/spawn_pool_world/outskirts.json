@@ -14,7 +14,9 @@
       "weight": 4,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,
         "neededBaseBlocks": [
@@ -35,7 +37,9 @@
       "weight": 4,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,
         "neededBaseBlocks": [
@@ -56,7 +60,9 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater"
+          "uwudimension:heartwater",
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,
         "neededBaseBlocks": [

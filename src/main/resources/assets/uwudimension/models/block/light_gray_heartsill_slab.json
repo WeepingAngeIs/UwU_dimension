@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "top": "uwudimension:block/light_gray_heartsill",
+    "bottom": "uwudimension:block/light_gray_heartsill",
+    "side": "uwudimension:block/light_gray_heartsill"
+  }
+}

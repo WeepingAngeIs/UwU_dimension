@@ -35,10 +35,21 @@ final class HeartwaterLocket extends Item {
         ServerLevel destination;
         Vec3 spot;
         float yaw;
-        if (level.dimension().equals(HEARTWATER)) {
+        if (level.dimension().equals(ReefLife.REACH) && player.isShiftKeyDown()) {
+            BlockPos reef = ReefCharts.nearest(player.serverLevel(), player.blockPosition(), 0);
+            player.displayClientMessage(Component.literal(reef==null ? "The locket cannot find reef waters nearby."
+                    : "Blush Reef waters · X " + reef.getX() + "  Z " + reef.getZ()), false);
+            player.getCooldowns().addCooldown(this,80);
+            return InteractionResultHolder.success(stack);
+        }
+        if (level.dimension().equals(HEARTWATER) || ReefLife.isReach(level)) {
+            if(level.dimension().equals(ReefLife.PREVIEW)){
+                tag.putLong("previewVisit",player.blockPosition().asLong());
+                stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+            }
             ResourceLocation origin = ResourceLocation.tryParse(tag.getString("origin"));
             destination = origin == null ? null : server.getLevel(ResourceKey.create(Registries.DIMENSION, origin));
-            if (destination == null || destination.dimension().equals(HEARTWATER)) {
+            if (destination == null || destination.dimension().equals(HEARTWATER) || ReefLife.isReach(destination)) {
                 destination = server.overworld();
                 spot = Vec3.atBottomCenterOf(destination.getSharedSpawnPos());
             } else {
@@ -51,14 +62,28 @@ final class HeartwaterLocket extends Item {
             }
             yaw = tag.getFloat("yaw");
         } else {
-            destination = server.getLevel(HEARTWATER);
+            boolean legacy=player.isShiftKeyDown();
+            boolean preview=legacy && player.getOffhandItem().is(Items.PINK_PETALS);
+            destination = server.getLevel(preview ? ReefLife.PREVIEW : legacy ? HEARTWATER : ReefLife.REACH);
             if (destination == null) return InteractionResultHolder.fail(stack);
             tag.putString("origin", level.dimension().location().toString());
             tag.putDouble("x", player.getX()); tag.putDouble("y", player.getY()); tag.putDouble("z", player.getZ());
             tag.putFloat("yaw", player.getYRot());
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-            spot = new Vec3(0.5, 81, 0.5);
-            yaw = 0;
+            if (legacy) {
+                BlockPos oldGate=preview ? (tag.contains("previewVisit") ? BlockPos.of(tag.getLong("previewVisit")) : previewGate(destination))
+                        : new BlockPos(0,81,0);
+                destination.getChunkAt(oldGate);
+                if(!destination.getBlockState(oldGate.below()).isSolid()
+                        || !destination.getBlockState(oldGate).getCollisionShape(destination,oldGate).isEmpty()
+                        || !destination.getBlockState(oldGate.above()).getCollisionShape(destination,oldGate.above()).isEmpty())
+                    oldGate=destination.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,oldGate);
+                spot = Vec3.atBottomCenterOf(oldGate);
+                yaw = 0;
+            } else {
+                spot = Vec3.atBottomCenterOf(GroveSites.arrival(destination));
+                yaw = GroveSites.first(destination).turns()*90F;
+            }
         }
         destination.getChunkAt(BlockPos.containing(spot));
         player.stopRiding();
@@ -66,13 +91,27 @@ final class HeartwaterLocket extends Item {
         player.fallDistance = 0;
         player.setDeltaMovement(Vec3.ZERO);
         player.getCooldowns().addCooldown(this, 45);
-        if (destination.dimension().equals(HEARTWATER))
-            player.displayClientMessage(Component.literal("UwU Dimension  ·  Heartwater  ·  Where the blossoms slip behind the falls"), true);
+        if (destination.dimension().equals(ReefLife.REACH)) {
+            player.displayClientMessage(Component.literal("UwU Dimension  ·  Blossom Reach"), true);
+            BlockPos plaza=BlossomVillage.first(destination,false).plaza();
+            player.displayClientMessage(Component.literal("The Petal village bell is at X " + plaza.getX() + ", Z " + plaza.getZ() + "."),false);
+        }
         return InteractionResultHolder.success(stack);
+    }
+
+    // Match the first usable valley chosen by the early playtest version of the locket.
+    private static BlockPos previewGate(ServerLevel level) {
+        for(int ring=0;ring<=18;ring++)for(int x=-ring;x<=ring;x++)for(int z=-ring;z<=ring;z++){
+            if(Math.max(Math.abs(x),Math.abs(z))!=ring)continue;
+            var site=GroveSites.site(level,x,z);
+            if(site.usable())return site.pos(0,site.entryY()+1,site.lip()-9);
+        }
+        return level.getSharedSpawnPos();
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flags) {
-        lines.add(Component.literal("Use to visit Heartwater. Use again to retrace your steps.").withStyle(ChatFormatting.LIGHT_PURPLE));
+        lines.add(Component.literal("Use to visit Blossom Reach, then use again to return.").withStyle(ChatFormatting.LIGHT_PURPLE));
+        lines.add(Component.literal("Sneak-use outside for old Heartwater, or inside the Reach for reef bearings.").withStyle(ChatFormatting.GRAY));
     }
 }

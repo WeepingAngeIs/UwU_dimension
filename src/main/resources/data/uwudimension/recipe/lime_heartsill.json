@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "uwudimension:heartsill",
+  "pattern": [
+    " C ",
+    "CDC",
+    " C "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:calcite"
+    },
+    "D": {
+      "item": "minecraft:lime_dye"
+    }
+  },
+  "result": {
+    "id": "uwudimension:lime_heartsill",
+    "count": 4
+  }
+}

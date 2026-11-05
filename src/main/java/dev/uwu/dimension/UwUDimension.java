@@ -17,11 +17,15 @@ public final class UwUDimension {
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
     public UwUDimension(IEventBus bus) {
+        HeartFloor.register(bus);
+        PinkRoofTiles.register(bus);
+        ReefLife.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);
         Arsenal.register(bus);
         People.register(bus);
+        MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);
         bus.addListener(UwUDimension::creative);
     }
@@ -34,3 +38,4 @@ public final class UwUDimension {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) event.accept(LOCKET.get());
     }
 }
+

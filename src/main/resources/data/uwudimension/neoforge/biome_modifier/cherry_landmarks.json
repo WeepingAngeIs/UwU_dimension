@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "minecraft:cherry_grove",
+    "minecraft:lush_caves",
+    "uwudimension:blush_reef"
+  ],
+  "features": "uwudimension:heartwater_landscape",
+  "step": "top_layer_modification"
+}
