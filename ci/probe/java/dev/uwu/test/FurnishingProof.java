@@ -18,6 +18,17 @@ final class FurnishingProof {
                 furniture(level, inside(village,house,1-house.width(),1,0), wood+"_chair");
                 furniture(level, inside(village,house,house.width()-1,1,house.depth()-1), wood+"_drawer");
                 furniture(level, inside(village,house,house.width()-1,2,house.depth()-1), dusk?"purple_lamp":"pink_lamp");
+                var accent = inside(village,house,house.width()-1,1,0);
+                switch(house.style()) {
+                    case 0 -> furniture(level,accent,dusk?"purple_sofa":"pink_sofa");
+                    case 1 -> {
+                        if (!level.getBlockState(accent).is(net.minecraft.world.level.block.Blocks.CRAFTING_TABLE))
+                            throw new AssertionError("Missing workshop bench at "+accent);
+                    }
+                    case 2 -> furniture(level,accent,"bamboo_table");
+                    case 3 -> furniture(level,accent,wood+"_bench");
+                    default -> throw new AssertionError("Unknown house style "+house.style());
+                }
                 var colors = palette(dusk);
                 for (int lane=-1; lane<=1; lane++) {
                     for (int dy=2; dy<=3; dy++) {

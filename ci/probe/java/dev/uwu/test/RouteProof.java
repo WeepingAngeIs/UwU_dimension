@@ -170,7 +170,7 @@ public final class RouteProof {
         }
         var floor=v.site().pos(h.x(),h.floor(),h.z());
         var carpet=v.site().pos(h.x()-h.width()+2,h.floor()+1,h.z());
-        var shelf=v.site().pos(h.x()+h.width()-1,h.floor()+1,h.z());
+        var shelf=v.site().pos(h.x()-h.width()+1,h.floor()+1,h.z()+h.side());
         if(!BuiltInRegistries.BLOCK.getKey(level.getBlockState(floor).getBlock()).toString().equals("uwudimension:heartsill")
                 || !(level.getBlockState(carpet).getBlock() instanceof net.minecraft.world.level.block.CarpetBlock)
                 || !(level.getBlockState(shelf).getBlock() instanceof net.minecraft.world.level.block.SlabBlock))

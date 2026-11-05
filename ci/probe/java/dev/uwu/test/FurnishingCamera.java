@@ -49,7 +49,12 @@ final class FurnishingCamera {
             FurnishingProof.furniture(level,table,wood+"_table");
             FurnishingProof.furniture(level,chair,wood+"_chair");
             FurnishingProof.furniture(level,drawer,wood+"_drawer");
-            if (dusk) { subjects.add(drawer); subjects.add(drawer.above()); }
+            if (dusk) {
+                var sofa=FurnishingProof.inside(village,house,house.width()-1,1,0);
+                FurnishingProof.furniture(level,sofa,"purple_sofa");
+                subjects.add(sofa);
+                subjects.add(FurnishingProof.inside(village,house,house.width()-1,2,1));
+            }
             else { subjects.add(table); subjects.add(chair); }
             for (int dx : new int[]{0,1,2,-1,-2,3,-3}) for (int dz : new int[]{-3,2,3,-2,0}) {
                 eyes.add(Vec3.atCenterOf(FurnishingProof.inside(village,house,dx,3,dz)));
