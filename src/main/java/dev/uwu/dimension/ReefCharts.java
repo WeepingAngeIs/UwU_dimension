@@ -10,6 +10,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 public final class ReefCharts {
     private ReefCharts() {}
     public static BlockPos nearest(ServerLevel level, BlockPos origin, int skipRadius) {
+        return nearest(level,origin,skipRadius,null,0);
+    }
+    public static BlockPos nearest(ServerLevel level,BlockPos origin,int skipRadius,BlockPos exclude,int excludeRadius) {
         var gen=level.getChunkSource().getGenerator();
         var noise=level.getChunkSource().randomState();
         int grid=64, sea=gen.getSeaLevel();
@@ -17,6 +20,7 @@ public final class ReefCharts {
             for(int dx=-ring;dx<=ring;dx++) for(int dz=-ring;dz<=ring;dz++) {
                 if(Math.max(Math.abs(dx),Math.abs(dz))!=ring || ((double)dx*dx+dz*dz)*grid*grid<(double)skipRadius*skipRadius)continue;
                 int x=origin.getX()+dx*grid,z=origin.getZ()+dz*grid;
+                if(exclude!=null&&Math.hypot((double)x-exclude.getX(),(double)z-exclude.getZ())<excludeRadius)continue;
                 if(!gen.getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x),QuartPos.fromBlock(sea-5),QuartPos.fromBlock(z),noise.sampler()).is(ReefLife.REEF))continue;
                 int estimate=gen.getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,level,noise);
                 if(estimate>sea-8)continue;

@@ -60,9 +60,9 @@ final class SeaWatch {
         }
         throw new AssertionError("Could not find open grove water near "+origin);
     }
-    static View reef(ServerPlayer p,BlockPos origin,String name) {
+    static View reef(ServerPlayer p,BlockPos origin,BlockPos previous,String name) {
         ServerLevel l=p.serverLevel();
-        BlockPos near=ReefCharts.nearest(l,origin,256);
+        BlockPos near=ReefCharts.nearest(l,origin,256,previous,644);
         if(near==null)throw new AssertionError("No natural reef within chart range of "+origin);
         // Inspect actual generated coral heads, then choose a clear stretch of water to photograph them.
         for(int cx=(near.getX()-34)>>4;cx<=(near.getX()+34)>>4;cx++)

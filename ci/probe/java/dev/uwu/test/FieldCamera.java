@@ -58,7 +58,7 @@ public final class FieldCamera {
         if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
         if(name.endsWith("reef")){
             var origin=previousReef==null?arrival.offset(725,0,349):previousReef.offset(1050,0,-1120);
-            var reef=SeaWatch.reef(p,origin,name);
+            var reef=SeaWatch.reef(p,origin,previousReef,name);
             if(previousReef!=null && previousReef.distSqr(BlockPos.containing(reef.eye()))<512*512)throw new AssertionError("Duplicate field sites");
             previousReef=BlockPos.containing(reef.eye());SeaWatch.reset();return reef;
         }

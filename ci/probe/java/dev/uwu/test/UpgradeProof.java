@@ -21,8 +21,11 @@ final class UpgradeProof {
         if(keepers.isEmpty() && server.getTickCount()<250)return false;
         if(keepers.size()!=1)throw new AssertionError("Original keeper missing or duplicated");
         var tag=keepers.getFirst().saveWithoutId(new CompoundTag());
-        if(!tag.getBoolean("Settled")||!tag.hasUUID("Companion"))throw new AssertionError("Legacy recruit lost ownership");
-        if(old.getBlockEntity(new BlockPos(0,53,103))==null)throw new AssertionError("Legacy reward missing");
+        if(!tag.getBoolean("Settled")||!tag.hasUUID("Companion")||!tag.getUUID("Companion").equals(new java.util.UUID(0x100000002L,0x300000004L)))throw new AssertionError("Legacy recruit lost ownership");
+        var reward=new BlockPos(0,53,103);
+        if(old.getBlockEntity(reward)==null||!net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                .getKey(old.getBlockState(reward).getBlock()).getNamespace().equals("lootr"))
+            throw new AssertionError("Legacy Lootr reward missing");
         System.out.println("UPGRADE PASS | 1.0.0 saved marker, keeper owner and generated chest survived replacement");
         return true;
     }
