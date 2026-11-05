@@ -1,7 +1,7 @@
-name: Heartwater build and expedition
+name: UwU Dimension 1.1 expedition
 on:
   push:
-    branches: [feature/heartwater-adventure, main]
+    branches: [feature/blossom-villages-1.1, main]
   workflow_dispatch:
 permissions:
   contents: read
