@@ -24,8 +24,9 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 public final class FieldCamera {
     private static int phase, ticks, heartbeat;
     private static long poseTime;
-    private static final double[][] VIEWS = {{0.5,81,0.5,0,-12},{0.5,53,55.5,0,-4},{-8.5,53,84.5,-17,3},{38.5,1,110.5,-43,-18}};
-    private static final String[] FILES = {"01-flowering-cliffs","02-lantern-water","03-bathhouse","04-hanging-shrine"};
+    private static final java.util.Set<String> HABITATS=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private static final double[][] VIEWS = {{0.5,81,0.5,0,-12},{0.5,53,55.5,0,-4},{-8.5,53,84.5,-17,3},{38.5,1,110.5,-43,-18},{-33.5,81,-12.5,165,0},{-23.5,-47,127.5,90,-6}};
+    private static final String[] FILES = {"01-flowering-cliffs","02-lantern-water","03-bathhouse","04-hanging-shrine","05-petal-village","06-deep-spring"};
 
     @SubscribeEvent public static void step(ClientTickEvent.Post event) {
         Minecraft mc=Minecraft.getInstance();
@@ -46,14 +47,20 @@ public final class FieldCamera {
             }
         }
         if (phase<1 || mc.player==null || mc.getSingleplayerServer()==null || mc.level==null) return;
-        if (phase>=2 && ticks==80) {
+        if (phase>=2 && heartbeat%60==0) {
             var observed=mc.getSingleplayerServer();
             UUID observerId=mc.player.getUUID();
             observed.execute(()->{
                 var player=observed.getPlayerList().getPlayer(observerId);
-                if (player==null) return;
+                if (player==null || !player.level().dimension().location().toString().equals("uwudimension:heartwater")) return;
                 var wild=player.serverLevel().getEntitiesOfClass(PokemonEntity.class,player.getBoundingBox().inflate(80));
-                for (var mon:wild) System.out.println("NATURAL CLIENT VISIT | "+mon.getPokemon().getSpecies().getName()+" at "+mon.blockPosition());
+                for (var mon:wild) {
+                    var pos=mon.blockPosition();
+                    String habitat=mon.isInWater()?"water":pos.getY()<13?"deep":mon.level().getBrightness(LightLayer.SKY,pos)>7?"surface":"cave";
+                    if (pos.getY()>=80 && Math.abs(pos.getX()+35)<20 && Math.abs(pos.getZ()+22)<20) HABITATS.add("settlement");
+                    if (HABITATS.add(habitat+"|"+mon.getPokemon().getSpecies().getName()))
+                        System.out.println("NATURAL CLIENT VISIT | "+habitat+" | "+mon.getPokemon().getSpecies().getName()+" at "+pos);
+                }
             });
         }
         if (ticks++<130) return;
@@ -102,7 +109,9 @@ public final class FieldCamera {
                 p.getMainHandItem().use(p.level(),p,InteractionHand.MAIN_HAND);
             });
         } else if (mc.level.dimension().equals(Level.OVERWORLD)) {
-            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED");
+            long observed=HABITATS.stream().filter(x->x.contains("|")).count();
+            if (observed<3) throw new AssertionError("Insufficient natural Cobblemon sightings "+HABITATS);
+            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED with natural populations "+HABITATS);
             mc.stop();
         }
     }
