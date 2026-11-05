@@ -17,7 +17,8 @@
       "condition": {
         "dimensions": [
           "uwudimension:heartwater",
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
@@ -42,7 +43,8 @@
       "condition": {
         "dimensions": [
           "uwudimension:heartwater",
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
@@ -67,7 +69,8 @@
       "condition": {
         "dimensions": [
           "uwudimension:heartwater",
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
@@ -92,7 +95,8 @@
       "condition": {
         "dimensions": [
           "uwudimension:heartwater",
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [
@@ -117,7 +121,8 @@
       "condition": {
         "dimensions": [
           "uwudimension:heartwater",
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
         "biomes": [

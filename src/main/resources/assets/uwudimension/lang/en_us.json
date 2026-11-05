@@ -29,7 +29,7 @@
   "block.uwudimension.nacre_rose": "Rose Nacre",
   "entity.uwudimension.ribbon_dolphin": "Ribbon Dolphin",
   "biome.uwudimension.blush_reef": "Blush Reef",
-  "dimension.uwudimension.blossom_reach": "UwU Dimension · Blossom Reach",
+  "dimension.uwudimension.blossom_reach": "Blossom Reach (Playtest)",
   "block.uwudimension.petal_quilt": "Petal Quilt",
   "block.uwudimension.rosette_mosaic": "Rosette Mosaic",
   "block.uwudimension.midnight_lace": "Midnight Lace",
@@ -48,5 +48,6 @@
   "block.uwudimension.sakura_roof_tile_stairs": "Sakura Roof Tile Stairs",
   "block.uwudimension.mulberry_roof_tile": "Mulberry Roof Tile",
   "block.uwudimension.mulberry_roof_tile_slab": "Mulberry Roof Tile Slab",
-  "block.uwudimension.mulberry_roof_tile_stairs": "Mulberry Roof Tile Stairs"
+  "block.uwudimension.mulberry_roof_tile_stairs": "Mulberry Roof Tile Stairs",
+  "dimension.uwudimension.sakura_reach": "Blossom Reach"
 }

@@ -29,6 +29,11 @@ public final class BlossomVillage {
     private static int ground(ServerLevel level,GroveSites.Site s,int x,int z){return GroveSites.height(level,s.wx(x,z),s.wz(x,z));}
     public static Optional<Plan> plan(ServerLevel level,GroveSites.Site s,boolean dusk){
         if(!GroveSites.settlement(level,s,dusk))return Optional.empty();
+        return survey(level,s,dusk);
+    }
+    // Pure terrain survey used while choosing the arrival site. Never asks whether this
+    // region will host a settlement: that decision itself depends on the arrival site.
+    static Optional<Plan> survey(ServerLevel level,GroveSites.Site s,boolean dusk){
         var db=cache(level);if(db.size()>5000)db.clear();
         return db.computeIfAbsent(new Key(s.gx(),s.gz(),dusk),k->design(level,s,dusk));
     }

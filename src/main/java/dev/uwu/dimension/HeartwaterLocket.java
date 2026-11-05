@@ -42,10 +42,14 @@ final class HeartwaterLocket extends Item {
             player.getCooldowns().addCooldown(this,80);
             return InteractionResultHolder.success(stack);
         }
-        if (level.dimension().equals(HEARTWATER) || level.dimension().equals(ReefLife.REACH)) {
+        if (level.dimension().equals(HEARTWATER) || ReefLife.isReach(level)) {
+            if(level.dimension().equals(ReefLife.PREVIEW)){
+                tag.putLong("previewVisit",player.blockPosition().asLong());
+                stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+            }
             ResourceLocation origin = ResourceLocation.tryParse(tag.getString("origin"));
             destination = origin == null ? null : server.getLevel(ResourceKey.create(Registries.DIMENSION, origin));
-            if (destination == null || destination.dimension().equals(HEARTWATER) || destination.dimension().equals(ReefLife.REACH)) {
+            if (destination == null || destination.dimension().equals(HEARTWATER) || ReefLife.isReach(destination)) {
                 destination = server.overworld();
                 spot = Vec3.atBottomCenterOf(destination.getSharedSpawnPos());
             } else {
@@ -59,14 +63,16 @@ final class HeartwaterLocket extends Item {
             yaw = tag.getFloat("yaw");
         } else {
             boolean legacy=player.isShiftKeyDown();
-            destination = server.getLevel(legacy ? HEARTWATER : ReefLife.REACH);
+            boolean preview=legacy && player.getOffhandItem().is(Items.PINK_PETALS);
+            destination = server.getLevel(preview ? ReefLife.PREVIEW : legacy ? HEARTWATER : ReefLife.REACH);
             if (destination == null) return InteractionResultHolder.fail(stack);
             tag.putString("origin", level.dimension().location().toString());
             tag.putDouble("x", player.getX()); tag.putDouble("y", player.getY()); tag.putDouble("z", player.getZ());
             tag.putFloat("yaw", player.getYRot());
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
             if (legacy) {
-                BlockPos oldGate=new BlockPos(0,81,0);
+                BlockPos oldGate=preview ? (tag.contains("previewVisit") ? BlockPos.of(tag.getLong("previewVisit")) : previewGate(destination))
+                        : new BlockPos(0,81,0);
                 destination.getChunkAt(oldGate);
                 if(!destination.getBlockState(oldGate.below()).isSolid()
                         || !destination.getBlockState(oldGate).getCollisionShape(destination,oldGate).isEmpty()
@@ -91,6 +97,16 @@ final class HeartwaterLocket extends Item {
             player.displayClientMessage(Component.literal("The Petal village bell is at X " + plaza.getX() + ", Z " + plaza.getZ() + "."),false);
         }
         return InteractionResultHolder.success(stack);
+    }
+
+    // Match the first usable valley chosen by the early playtest version of the locket.
+    private static BlockPos previewGate(ServerLevel level) {
+        for(int ring=0;ring<=18;ring++)for(int x=-ring;x<=ring;x++)for(int z=-ring;z<=ring;z++){
+            if(Math.max(Math.abs(x),Math.abs(z))!=ring)continue;
+            var site=GroveSites.site(level,x,z);
+            if(site.usable())return site.pos(0,site.entryY()+1,site.lip()-9);
+        }
+        return level.getSharedSpawnPos();
     }
 
     @Override

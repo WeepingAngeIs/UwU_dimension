@@ -193,8 +193,18 @@ public final class FieldCamera {
         if(state.equals("legacy")&&mc.level.dimension().location().toString().equals("uwudimension:heartwater")&&ticks>60){
             enter("last-return");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
-        if(state.equals("last-return")&&mc.level.dimension().equals(Level.OVERWORLD)){
-            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED seed="+SEED+" with legacy locket access");enter("done");mc.stop();
+        if(state.equals("last-return")&&mc.level.dimension().equals(Level.OVERWORLD)&&ticks>60){
+            enter("preview");server.execute(()->{
+                var p=server.getPlayerList().getPlayer(id);
+                p.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(net.minecraft.world.item.Items.PINK_PETALS));
+                use(p,true);
+            });return;
+        }
+        if(state.equals("preview")&&mc.level.dimension().equals(ReefLife.PREVIEW)&&ticks>60){
+            enter("preview-return");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
+        }
+        if(state.equals("preview-return")&&mc.level.dimension().equals(Level.OVERWORLD)){
+            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED seed="+SEED+" with 1.0 and early-playtest locket access");enter("done");mc.stop();
         }
     }
 }

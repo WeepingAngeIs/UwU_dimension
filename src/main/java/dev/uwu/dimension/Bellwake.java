@@ -39,7 +39,7 @@ public final class Bellwake extends Axolotl {
     private static final int[][] POOLS={{42,0,115,23},{16,-19,129,22},{-26,-48,127,20}};
     static void reveal(ServerLevel level,Entity rabbit,Entity keeper){
         boolean legacy=level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater"));
-        if(!legacy && !level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath("uwudimension","blossom_reach")))return;
+        if(!legacy && !ReefLife.isReach(level))return;
         int rx=rabbit.getBlockX(),rz=rabbit.getBlockZ();
         int cx,cz,t;
         if(legacy){
@@ -47,7 +47,7 @@ public final class Bellwake extends Axolotl {
             t=cx==0&&cz==0?0:HeartwaterFeature.Valley.mix(cx,cz,level.getSeed())&3;
         } else {
             var site=GroveSites.forChunk(level,new ChunkPos(rabbit.blockPosition()));
-            if(!site.usable()||!GroveSites.adventure(level,site))return;
+            if(!site.usable()||(!level.dimension().equals(ReefLife.PREVIEW)&&!GroveSites.adventure(level,site)))return;
             cx=site.x();cz=site.z();t=site.turns();
         }
         for(int i=0;i<POOLS.length;i++){

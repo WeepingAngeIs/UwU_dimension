@@ -71,9 +71,29 @@ public final class GroveSites {
         for(int ring=0;ring<=18;ring++)for(int gx=-ring;gx<=ring;gx++)for(int gz=-ring;gz<=ring;gz++){
             if(Math.max(Math.abs(gx),Math.abs(gz))!=ring)continue;
             Site s=site(level,gx,gz);
-            if(s.usable()){m.first=s;return s;}
+            if(!s.usable())continue;
+            if(level.dimension().equals(ReefLife.REACH)){
+                var village=BlossomVillage.survey(level,s,false);
+                if(village.isEmpty()||!walkToVillage(level,s,village.get()))continue;
+            }
+            m.first=s;return s;
         }
         throw new IllegalStateException("Unable to find inland cherry foothills");
+    }
+    private static boolean walkToVillage(ServerLevel level,Site site,BlossomVillage.Plan village){
+        int startZ=site.lip()-9;
+        double distance=Math.hypot(village.x(),village.z()-startZ);
+        if(distance>=200)return false;
+        int steps=(int)Math.ceil(distance/6),previous=site.entryY();
+        for(int step=1;step<=steps;step++){
+            double t=step/(double)steps;
+            int x=(int)Math.round(village.x()*t),z=startZ+(int)Math.round((village.z()-startZ)*t);
+            int ground=height(level,site.wx(x,z),site.wz(x,z));
+            // Favor a dry approach through ordinary foothills over lakes or a steep bluff.
+            if(ground<64||Math.abs(ground-previous)>5)return false;
+            previous=ground;
+        }
+        return true;
     }
     public static boolean adventure(ServerLevel level,Site s){
         return s.equals(first(level)) || (HeartwaterFeature.Valley.mix(s.x()+1771,s.z()-293,level.getSeed())&7)<3;

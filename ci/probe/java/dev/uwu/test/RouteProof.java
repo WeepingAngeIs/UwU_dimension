@@ -42,7 +42,12 @@ public final class RouteProof {
             if(done[0]&&done[1]&&done[2]&&done[3])break;
         }
         if(!(done[0]&&done[1]&&done[2]&&done[3]))throw new AssertionError("Missing rotated shrine site");
-        for(boolean dusk:new boolean[]{false,true})village(level,BlossomVillage.first(level,dusk));
+        var village=BlossomVillage.first(level,false);
+        double distance=Math.sqrt(village.plaza().distSqr(GroveSites.arrival(level)));
+        if(distance>=200)throw new AssertionError("Arrival too far from Petal village: "+distance);
+        System.out.println("WATERFALL VILLAGE WALK arrival="+GroveSites.arrival(level)+" plaza="+village.plaza()+" distance="+Math.round(distance));
+        village(level,village);
+        village(level,BlossomVillage.first(level,true));
         terrain(level,2787,-1117);
         var legacy=level.getServer().getLevel(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
                 net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater")));

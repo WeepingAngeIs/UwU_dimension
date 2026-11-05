@@ -16,7 +16,8 @@
       "weight": 12,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -33,7 +34,8 @@
       "weight": 9,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -50,7 +52,8 @@
       "weight": 8,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -67,7 +70,8 @@
       "weight": 8,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -84,7 +88,8 @@
       "weight": 7,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -101,7 +106,8 @@
       "weight": 7,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -118,7 +124,8 @@
       "weight": 5,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     },
@@ -135,7 +142,8 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:blossom_reach"
+          "uwudimension:blossom_reach",
+          "uwudimension:sakura_reach"
         ]
       }
     }

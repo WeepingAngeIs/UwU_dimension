@@ -37,12 +37,17 @@ jobs:
           path: build/libs/*.jar
           if-no-files-found: error
       - name: Run the packaged mod with Cobblemon and Lootr in a fresh world
-        run: bash ci/expedition.sh
+        run: |
+          bash ci/thread-samples.sh build/thread-samples &
+          sampler=$!
+          trap 'kill "$sampler" 2>/dev/null || true' EXIT
+          bash ci/expedition.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: expedition-log-${{ matrix.seed }}
           path: |
+            build/thread-samples
             build/field-server/expedition.log
             build/field-server/mirror-restart.log
             build/field-server/logs/latest.log
@@ -75,13 +80,17 @@ jobs:
           printf 'onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
-          timeout 28m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
+          bash ci/thread-samples.sh run/thread-samples &
+          sampler=$!
+          trap 'kill "$sampler" 2>/dev/null || true' EXIT
+          timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'HEARTWATER CLIENT ROUND TRIP PASSED' client-visit.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: client-field-visit-${{ matrix.seed }}-${{ matrix.visit }}
           path: |
+            run/thread-samples
             run/screenshots
             run/logs/latest.log
             run/crash-reports

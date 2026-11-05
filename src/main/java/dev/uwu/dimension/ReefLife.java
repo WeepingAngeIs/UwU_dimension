@@ -26,7 +26,9 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.*;
 
 public final class ReefLife {
-    public static final ResourceKey<Level> REACH = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("blossom_reach"));
+    public static final ResourceKey<Level> REACH = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("sakura_reach"));
+    public static final ResourceKey<Level> PREVIEW = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("blossom_reach"));
+    static boolean isReach(Level level) { return level.dimension().equals(REACH)||level.dimension().equals(PREVIEW); }
     public static final ResourceKey<Biome> REEF = ResourceKey.create(Registries.BIOME, UwUDimension.id("blush_reef"));
     private static final DeferredRegister<EntityType<?>> TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, "uwudimension");
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, "uwudimension");
@@ -55,7 +57,7 @@ public final class ReefLife {
     // An additional small, local shoal when vanilla's global water cap is occupied elsewhere.
     // Only loaded, open surface water or water near the swimmer is sampled. Pokémon use Cobblemon itself.
     private static void waterLife(PlayerTickEvent.Post e) {
-        if (!(e.getEntity() instanceof ServerPlayer player) || player.isSpectator() || !player.level().dimension().equals(REACH)) return;
+        if (!(e.getEntity() instanceof ServerPlayer player) || player.isSpectator() || !isReach(player.level())) return;
         ServerLevel level=player.serverLevel();
         long clock=level.getGameTime()+player.getId();
         if (clock%10==0 && player.isUnderWater() && level.getBiome(player.blockPosition()).is(REEF)) {

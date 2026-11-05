@@ -69,7 +69,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         // The biome modifier also participates in vanilla cherry and lush biomes. It must
         // never write a landmark in any dimension other than the new Blossom Reach.
         var level=context.level().getLevel();
-        if (!level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath(MOD,"blossom_reach"))) return false;
+        if (!level.dimension().equals(ReefLife.REACH)) return false;
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
         if(!site.usable())return false;
@@ -82,7 +82,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     // Work only through the supplied chunk, without requesting a neighboring live chunk.
     private static void finishNewStairs(net.neoforged.neoforge.event.level.ChunkEvent.Load event){
         if(!event.isNewChunk() || !(event.getLevel() instanceof net.minecraft.server.level.ServerLevel level)
-                || !level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath(MOD,"blossom_reach")))return;
+                || !level.dimension().equals(ReefLife.REACH))return;
         var chunk=event.getChunk();
         var site=GroveSites.forChunk(level,chunk.getPos());
         if(!site.usable())return;
