@@ -20,21 +20,21 @@ At the arrival meadow, face the waterfalls. Follow the stepping stones through t
 
 ## Treasure
 
-| Relic | Base damage | Ability |
-| --- | ---: | --- |
-| Cupid Bow | 14 | Draw and release to charm a mob for 40 seconds. It follows and guards its archer. Giant bosses resist it. |
-| Rippleglass Bow | 17 | A splash slows and outlines enemies near the impact. |
-| Ribbonhare Scepter | 14 | Call a pink thumping decoy at the ledge you aim at. |
-| Blossom Greatsword | 24 | Land a charged hit, then face the hanging petals and use within three seconds for a longer sweep. |
-| Bellheart Axe | 22 | Pull nearby foes toward the bell and slow them. |
-| Lockkeeper's Axe | 21 | Drive enemies back in a wave ahead of you. |
-| Vesper Scythe | 20 | Reap a broad arc and recover health for each enemy caught. |
-| Satin Switch | 15 | Hook a creature up to eleven blocks away. |
-| Lanternfall Spear | 19 | Throw a luminous copy that marks its target. |
-| Tidelace Trident | 23 | Throw a spectral trident that pulls targets into its splash. |
-| Blue Hour Wand | 16 | Trace a ray that reveals and slows its first target. |
+| Relic | Melee damage | Bow, throw or use ability | Ability |
+| --- | ---: | ---: | --- |
+| Cupid Bow | 14 | 14 on a full draw against a charm-immune target, 0 on a successful charm | Draw and release to charm a mob for 40 seconds. It follows and guards its archer. Giant bosses resist it. |
+| Rippleglass Bow | 17 | 17 on a full draw | A splash slows and outlines enemies near the impact. |
+| Ribbonhare Scepter | 14 | 0 on summon or thump | Call a pink thumping decoy at the ledge you aim at. |
+| Blossom Greatsword | 24 | 16 on the return sweep | Land a charged hit, then face the hanging petals and use within three seconds for a longer sweep. |
+| Bellheart Axe | 22 | 0 on the gathering toll | Pull nearby foes toward the bell and slow them. |
+| Lockkeeper's Axe | 21 | 21 on the wave | Drive enemies back in a wave ahead of you. |
+| Vesper Scythe | 20 | 20 on the reap | Reap a broad arc and recover health for each enemy caught. |
+| Satin Switch | 15 | 15 on the hook | Hook a creature up to eleven blocks away. |
+| Lanternfall Spear | 19 | 19 on the throw | Throw a luminous copy that marks its target. |
+| Tidelace Trident | 23 | 23 on the throw | Throw a spectral trident that pulls targets into its splash. |
+| Blue Hour Wand | 16 | 16 on the ray | Trace a ray that reveals and slows its first target. |
 
-The damage column gives the player's unenchanted melee attack total while holding the item. Projectile damage, attack speed and ability cooldowns are tuned separately. Hover over any relic for controls. All relic loot entries live in UwU Dimension chest tables.
+Values are health points before armor or outside modifiers. Two points equal one heart. Melee assumes a fully charged, noncritical swing. Bows scale down on partial draws. Cupid charms an eligible creature without taking health, even at full draw. Hover over any relic for controls. All relic loot entries live in UwU Dimension chest tables.
 
 ## Edit and build
 

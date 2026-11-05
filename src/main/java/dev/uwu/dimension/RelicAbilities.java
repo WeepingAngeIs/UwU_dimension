@@ -54,7 +54,7 @@ final class RelicAbilities {
                 int count = 0;
                 for (Mob foe : nearby(level, player, reaping ? 4.5 : 5.5)) {
                     if (!inFront(player, foe)) continue;
-                    if (foe.hurt(player.damageSources().playerAttack(player), reaping ? 9 : 12)) count++;
+                    if (foe.hurt(player.damageSources().playerAttack(player), relic.damage)) count++;
                     if (!reaping) pushToward(foe, player.position(), -1.45);
                 }
                 if (reaping) player.heal(Math.min(count, 3) * 2);
@@ -67,7 +67,7 @@ final class RelicAbilities {
                     e instanceof Mob mob && mob.isAlive() && !HeartMagic.friendly(player, mob));
                 if (hit != null && hit.getEntity() instanceof Mob foe) {
                     end = hit.getLocation();
-                    foe.hurt(player.damageSources().playerAttack(player), whip ? 8 : 12);
+                    foe.hurt(player.damageSources().playerAttack(player), relic.damage);
                     if (whip) pushToward(foe, player.position(), 1.55);
                     else {
                         foe.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2));
@@ -130,7 +130,7 @@ final class RelicAbilities {
         Vec3 at = event.getRayTraceResult().getLocation();
         if (event.getRayTraceResult() instanceof EntityHitResult hit && hit.getEntity() instanceof LivingEntity foe
             && !HeartMagic.friendly(player, foe) && (!(foe instanceof Player other) || player.canHarmPlayer(other))) {
-            foe.hurt(ball.damageSources().thrown(ball, player), tide ? 23 : 19);
+            foe.hurt(ball.damageSources().thrown(ball, player), tide ? Arsenal.Relic.TIDELACE_TRIDENT.damage : Arsenal.Relic.LANTERN_SPEAR.damage);
             if (!tide) foe.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
         }
         if (tide) {

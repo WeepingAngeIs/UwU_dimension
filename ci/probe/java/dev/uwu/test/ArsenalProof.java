@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Rabbit;
@@ -35,9 +37,12 @@ public final class ArsenalProof {
         level.getChunkAt(platform);
         var marker = platform.offset(0, 0, 4);
         var priorBlock = level.getBlockState(marker);
-        var keeper = new FakePlayer(level, new GameProfile(UUID.fromString("5979a10b-bb3a-4a60-98e7-d07094183c1f"), "HeartArcher"));
+        var keeper = new TestArcher(level);
         keeper.moveTo(platform.getX()+0.5, platform.getY()+1, platform.getZ()+0.5, 0, 0);
         level.addNewPlayer(keeper);
+        keeper.setNoGravity(true);
+        measureDamage(level, keeper);
+        keeper.moveTo(platform.getX()+0.5, platform.getY()+1, platform.getZ()+0.5, 0, 0);
         Zombie zombie = EntityType.ZOMBIE.create(level);
         if (zombie == null) throw new AssertionError("Zombie factory");
         zombie.moveTo(keeper.getX(), keeper.getY(), keeper.getZ()+4.5, 180, 0);
@@ -51,6 +56,7 @@ public final class ArsenalProof {
             var arrows = level.getEntitiesOfClass(HeartArrow.class, keeper.getBoundingBox().inflate(2), a -> a.getOwner() == keeper);
             require(arrows.size() == 1, "Cupid Bow must fire exactly one heart projectile");
             for (int i = 0; i < 4 && arrows.getFirst().isAlive(); i++) arrows.getFirst().tick();
+            require(zombie.getHealth() == zombie.getMaxHealth(), "Successful charm must preserve health");
             require(zombie.getPersistentData().hasUUID("uwudimension.charm_owner"), "Heart arrow missed its ordinary mob");
             zombie.setTarget(keeper);
             require(zombie.getTarget() == null, "Charmed zombie targeted its keeper");
@@ -92,13 +98,77 @@ public final class ArsenalProof {
             NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(lure));
             require(level.getEntitiesOfClass(Bellwake.class, lake).size() == 1, "Second thump duplicated the Bellwake");
             lure.discard();
-            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14â€“24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure; single Bellwake encounter after successive lake thumps.");
+            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14Ã¢â‚¬â€œ24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure; single Bellwake encounter after successive lake thumps.");
         } finally {
             level.setBlockAndUpdate(marker, priorBlock);
             zombie.discard();
             keeper.discard();
         }
     }
+    // A fake player does not receive normal controller ticks. Use the real equipment
+    // update and advance only the attack cooldown, then invoke the usual attack.
+    private static final class TestArcher extends FakePlayer {
+        TestArcher(ServerLevel level) {
+            super(level, new GameProfile(UUID.fromString("5979a10b-bb3a-4a60-98e7-d07094183c1f"), "HeartArcher"));
+        }
+        void equipAndCharge(ItemStack weapon) {
+            setItemInHand(InteractionHand.MAIN_HAND, weapon);
+            doTick();
+            attackStrengthTicker = 100;
+            setOnGround(true);
+            fallDistance = 0;
+        }
+    }
+
+    private static void measureDamage(ServerLevel level, TestArcher archer) {
+        for (Arsenal.Relic kind : Arsenal.Relic.values()) {
+            // Wardens are charm-immune and have no innate armor. Golems provide a
+            // second high-health, unarmored target for every other item.
+            Mob foe = kind == Arsenal.Relic.CUPID_BOW ? EntityType.WARDEN.create(level) : EntityType.IRON_GOLEM.create(level);
+            require(foe != null && foe.getArmorValue() == 0, "Expected an unarmored target for " + kind);
+            ItemStack stack = new ItemStack(Arsenal.WEAPONS.get(kind).get());
+            archer.equipAndCharge(stack);
+            foe.moveTo(archer.getX(), archer.getY(), archer.getZ()+3, 180, 0);
+            level.addFreshEntity(foe);
+            try {
+                float before = foe.getHealth();
+                archer.attack(foe);
+                float melee = before - foe.getHealth();
+                require(Math.abs(melee - kind.damage) < 0.01, kind + " unarmored melee " + melee + " expected " + kind.damage);
+                foe.invulnerableTime = 0; // Separate clean hit, outside vanilla hurt immunity.
+                before = foe.getHealth();
+                if (kind == Arsenal.Relic.BLOSSOM_GREATSWORD) {
+                    var petals = archer.getPersistentData().getCompound("uwudimension.petals");
+                    require(!petals.isEmpty(), "Charged greatsword hit must create petals");
+                    petals.putLong("time", level.getGameTime() - 12);
+                }
+                if (kind == Arsenal.Relic.RIBBONHARE_SCEPTER) {
+                    System.out.println("HEARTWATER DAMAGE " + kind + " melee=" + melee + "; non-damaging lure tested separately");
+                    continue;
+                }
+                stack.use(level, archer, InteractionHand.MAIN_HAND);
+                boolean bow = kind == Arsenal.Relic.CUPID_BOW || kind == Arsenal.Relic.RIPPLE_BOW;
+                if (bow) stack.releaseUsing(level, archer, stack.getUseDuration(archer) - 20);
+                if (bow || kind == Arsenal.Relic.LANTERN_SPEAR || kind == Arsenal.Relic.TIDELACE_TRIDENT) {
+                    var shots = level.getEntitiesOfClass(Projectile.class, archer.getBoundingBox().inflate(2), e -> e.getOwner() == archer);
+                    require(shots.size() == 1, "Could not identify the launched projectile for " + kind);
+                    Projectile shot = shots.getFirst();
+                    for (int tick=0; tick<6 && shot.isAlive(); tick++) shot.tick();
+                    require(!shot.isAlive(), "Projectile missed its unarmored target: " + kind);
+                }
+                archer.stopUsingItem();
+                float expected = switch (kind) {
+                    case BLOSSOM_GREATSWORD -> 16;
+                    case BELLHEART_AXE -> 0;
+                    default -> kind.damage;
+                };
+                float cast = before - foe.getHealth();
+                require(Math.abs(cast-expected)<0.01, kind + " unarmored cast " + cast + " expected " + expected);
+                System.out.println("HEARTWATER DAMAGE " + kind + " melee=" + melee + " cast=" + cast);
+            } finally { foe.discard(); }
+        }
+    }
+
     private static void require(boolean okay, String message) {
         if (!okay) throw new AssertionError(message);
     }
