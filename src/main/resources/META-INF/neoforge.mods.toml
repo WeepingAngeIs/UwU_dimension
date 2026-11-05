@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwudimension"
+version="1.0.0"
+displayName="UwU Dimension: Heartwater"
+description="A flowering cliff, a lake of wandering lights, and a bathhouse waiting for its first guests."
+[[dependencies.uwudimension]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
+[[dependencies.uwudimension]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.249,21.2)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.uwudimension]]
+modId="lootr"
+type="required"
+versionRange="[1.11.38.125,)"
+ordering="AFTER"
+side="BOTH"
+[[dependencies.uwudimension]]
+modId="cobblemon"
+type="optional"
+versionRange="[1.8.4,1.9)"
+ordering="AFTER"
+side="BOTH"

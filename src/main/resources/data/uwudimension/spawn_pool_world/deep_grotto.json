@@ -1,0 +1,75 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-deep_grotto-sableye",
+      "pokemon": "sableye",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "uncommon",
+      "level": "18-42",
+      "weight": 4,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxY": 12
+      }
+    },
+    {
+      "id": "heartwater-deep_grotto-carbink",
+      "pokemon": "carbink",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "18-42",
+      "weight": 6,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxY": 12
+      }
+    },
+    {
+      "id": "heartwater-deep_grotto-roggenrola",
+      "pokemon": "roggenrola",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "18-42",
+      "weight": 8,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxY": 12
+      }
+    },
+    {
+      "id": "heartwater-deep_grotto-noibat",
+      "pokemon": "noibat",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "rare",
+      "level": "18-42",
+      "weight": 4,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxY": 12
+      }
+    }
+  ]
+}

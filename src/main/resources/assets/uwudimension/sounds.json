@@ -1,0 +1,13 @@
+{
+  "petal_voice": {
+    "subtitle": "subtitles.uwudimension.petal_voice",
+    "sounds": ["uwudimension:petal_1", "uwudimension:petal_2", "uwudimension:petal_3"]
+  },
+  "dusk_voice": {
+    "subtitle": "subtitles.uwudimension.dusk_voice",
+    "sounds": ["uwudimension:dusk_1", "uwudimension:dusk_2", "uwudimension:dusk_3"]
+  },
+  "music.heartwater": {
+    "sounds": [{"name": "uwudimension:music/heartwater", "stream": true}]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "type": "uwudimension:heartwater",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "minecraft:overworld",
+    "biome_source": {
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "uwudimension:ribbon_bluffs",
+          "parameters": {
+            "temperature": 0,
+            "humidity": 0,
+            "continentalness": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "depth": [
+              -2,
+              2
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:lantern_fens",
+          "parameters": {
+            "temperature": 0.55,
+            "humidity": 0.55,
+            "continentalness": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "depth": [
+              -2,
+              2
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:velvet_highlands",
+          "parameters": {
+            "temperature": -0.55,
+            "humidity": -0.55,
+            "continentalness": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "depth": [
+              -2,
+              2
+            ],
+            "offset": 0
+          }
+        }
+      ]
+    }
+  }
+}
