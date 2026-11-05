@@ -115,6 +115,7 @@ final class HeartMagic {
     }
     private static void thump(ServerLevel level, Rabbit rabbit, Player keeper) {
         rabbit.startJumping();
+        HeartwaterFeature.reveal(level, rabbit, keeper);
         level.playSound(null, rabbit.blockPosition(), net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BASEDRUM.value(), net.minecraft.sounds.SoundSource.NEUTRAL, 0.7F, 1.4F);
         level.sendParticles(ParticleTypes.CHERRY_LEAVES, rabbit.getX(), rabbit.getY() + 0.2, rabbit.getZ(), 9, 0.6, 0.1, 0.6, 0.02);
         for (Mob foe : level.getEntitiesOfClass(Mob.class, rabbit.getBoundingBox().inflate(10), m -> m instanceof Enemy && !friendly(keeper, m) && m.hasLineOfSight(rabbit))) {

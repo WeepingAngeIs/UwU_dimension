@@ -78,7 +78,7 @@ public final class ArsenalProof {
             var rabbits = level.getEntitiesOfClass(Rabbit.class, keeper.getBoundingBox().inflate(8), r -> r.getTags().contains("uwudimension.hare_caller"));
             require(rabbits.size() == 1 && zombie.getTarget() == rabbits.getFirst(), "Ribbonhare spawn and thump must draw zombie aggro");
             rabbits.getFirst().discard();
-            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14–24); drawn heart arrow, guard, owner protection and AI expiry; ribbonhare ledge cast and hostile lure.");
+            System.out.println("HEARTWATER ARSENAL PASS | 11 registered melee stats (14–24); drawn heart arrow, guard, owner targeting protection and AI expiry; ribbonhare ledge cast and hostile lure.");
         } finally {
             level.setBlockAndUpdate(marker, priorBlock);
             zombie.discard();
@@ -89,4 +89,5 @@ public final class ArsenalProof {
         if (!okay) throw new AssertionError(message);
     }
 }
+
 

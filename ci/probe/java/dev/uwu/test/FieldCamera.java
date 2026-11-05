@@ -2,6 +2,7 @@ package dev.uwu.test;
 
 import java.util.List;
 import java.util.UUID;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -40,7 +41,17 @@ public final class FieldCamera {
             }
         }
         if (phase<1 || mc.player==null || mc.getSingleplayerServer()==null || mc.level==null) return;
-        if (ticks++<90) return;
+        if (phase>=2 && ticks==80) {
+            var observed=mc.getSingleplayerServer();
+            UUID observerId=mc.player.getUUID();
+            observed.execute(()->{
+                var player=observed.getPlayerList().getPlayer(observerId);
+                if (player==null) return;
+                var wild=player.serverLevel().getEntitiesOfClass(PokemonEntity.class,player.getBoundingBox().inflate(80));
+                for (var mon:wild) System.out.println("NATURAL CLIENT VISIT | "+mon.getPokemon().getSpecies().getName()+" at "+mon.blockPosition());
+            });
+        }
+        if (ticks++<130) return;
         var server=mc.getSingleplayerServer();
         UUID uuid=mc.player.getUUID();
         if (phase==1) {

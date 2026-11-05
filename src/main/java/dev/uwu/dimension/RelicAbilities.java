@@ -90,7 +90,17 @@ final class RelicAbilities {
         return true;
     }
 
+    private static final String FULL_SWING = "uwudimension.full_swing";
+    static void beforeAttack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide || !player.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get())) return;
+        if (player.getAttackStrengthScale(0.5F) >= 0.9F) player.getPersistentData().putLong(FULL_SWING, player.level().getGameTime());
+        else player.getPersistentData().remove(FULL_SWING);
+    }
+
     static void scatterPetals(ServerLevel level, Player player, LivingEntity foe) {
+        if (!player.getPersistentData().contains(FULL_SWING) || player.getPersistentData().getLong(FULL_SWING) != level.getGameTime()) return;
+        player.getPersistentData().remove(FULL_SWING);
         Vec3 center = foe.position().add(0, foe.getBbHeight() * 0.6, 0);
         CompoundTag tag = new CompoundTag();
         tag.putLong("time", level.getGameTime());
@@ -103,7 +113,8 @@ final class RelicAbilities {
         CompoundTag tag = p.getPersistentData().getCompound(PETALS);
         long age = level.getGameTime() - tag.getLong("time");
         Vec3 center = new Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
-        if (tag.isEmpty() || !level.dimension().location().toString().equals(tag.getString("dimension")) || age < 6 || age > 60 || center.distanceToSqr(p.position()) > 36) {
+        if (tag.isEmpty() || !level.dimension().location().toString().equals(tag.getString("dimension")) || age < 6 || age > 60 || center.distanceToSqr(p.position()) > 36
+            || center.subtract(p.getEyePosition()).normalize().dot(p.getLookAngle()) < 0.12) {
             p.displayClientMessage(Component.literal("Strike first, then sweep through the drifting petals."), true); return false;
         }
         p.getPersistentData().remove(PETALS);

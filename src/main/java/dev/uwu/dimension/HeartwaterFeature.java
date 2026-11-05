@@ -34,6 +34,14 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     static final DeferredBlock<Block> ROSE = stone("rose_enamel", 0);
     static final DeferredBlock<Block> GLASS = stone("tideglass", 11);
     static final DeferredBlock<Block> HEART = stone("heartsill", 5);
+    static final DeferredBlock<Blossom> BLOSSOM = BLOCKS.register("drift_blossom", Blossom::new);
+    static { ITEMS.registerSimpleBlockItem("drift_blossom", BLOSSOM); }
+    public static final class Blossom extends WaterlilyBlock {
+        public Blossom(){super(BlockBehaviour.Properties.of().instabreak().noCollission().noOcclusion().sound(SoundType.LILY_PAD));}
+    }
+    public static void reveal(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity rabbit, net.minecraft.world.entity.Entity keeper){
+        Bellwake.reveal(level,rabbit,keeper);
+    }
     private static DeferredBlock<Block> stone(String name, int light) {
         var b = BLOCKS.registerSimpleBlock(name, BlockBehaviour.Properties.of().strength(1.8F, 6F)
                 .sound(SoundType.CALCITE).lightLevel(s -> light));
@@ -42,6 +50,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     }
     static { FEATURES.register("heartwater_landscape", HeartwaterFeature::new); }
     public static void register(IEventBus bus) {
+        Bellwake.register(bus);
         BLOCKS.register(bus);
         ITEMS.register(bus);
         FEATURES.register(bus);
@@ -176,7 +185,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 if(radius>1||z>=ridgeFront(x))continue;
                 block(x,78,z,Blocks.CLAY);block(x,79,z,Blocks.WATER);put(x,80,z,water);put(x,81,z,air);
                 if(x==0 || x==1)block(x,80,z,Blocks.SMOOTH_BASALT);
-                else if((mix(x,z,seed)&31)==0)block(x,81,z,Blocks.LILY_PAD);
+                else if((mix(x,z,seed)&31)==0)block(x,81,z,BLOSSOM.get());
             }
             for(int center:new int[]{-23,0,19}){
                 int lip=ridgeFront(center);
@@ -236,6 +245,15 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             cavern(38,76,13,14,29,10,false);
             cavern(42,115,20,17,0,18,true);
             cavern(16,129,19,12,-19,12,false);
+            cavern(-26,127,17,15,-48,16,false);
+            // A final, tranquil spring below the archive: quiet water, bright mineral beds.
+            for(int x=-23;x<=16;x++){
+                int floor=-19-Math.clamp(14-x,0,29);
+                passage(x,floor,126,x,floor+5,128);
+                if(x<=14&&x>-15)box(x,floor,126,x,floor,128,stair(Blocks.MOSSY_STONE_BRICK_STAIRS,Direction.EAST));
+            }
+            for(int dz=-1;dz<=1;dz++)box(-34,-47,129+dz,-34,-35,129+dz,falling);
+            for(int x=-37;x<-20;x+=4)block(x,-48,123,GLASS.get());
             for(int x=16;x<=41;x++){
                 int floor=52-Math.clamp(x-17,0,23);
                 passage(x,floor,65,x,floor+5,67);
@@ -390,6 +408,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 }
+
 
 
 

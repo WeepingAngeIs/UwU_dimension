@@ -30,9 +30,9 @@ public final class Arsenal {
         CUPID_BOW("Cupid Bow", 14, 1.4, 65, "Draw and release. A heart arrow befriends an ordinary creature for 40 seconds."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
         RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Use on a ledge to call a pink hare. Its thumps draw monsters as it bounds back."),
-        BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Land a hit to scatter petals. Use near the petals within three seconds for a longer return sweep."),
+        BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Land a fully charged hit to scatter petals. Use while facing them within three seconds for a longer return sweep."),
         BELLHEART_AXE("Bellheart Axe", 22, 0.95, 105, "Use to ring the blade. Its toll gathers nearby foes and slows them for your next swing."),
-        LOCKKEEPER_AXE("Lockkeeper’s Axe", 21, 1.05, 85, "Use to send a turquoise wake through foes in front of you, driving them back."),
+        LOCKKEEPER_AXE("Lockkeeper's Axe", 21, 1.05, 85, "Use to send a turquoise wake through foes in front of you, driving them back."),
         VESPER_SCYTHE("Vesper Scythe", 20, 1.15, 105, "Use to reap a wide arc. Each enemy struck restores one heart, up to three."),
         SATIN_WHIP("Satin Switch", 15, 2.1, 40, "Use to catch a creature up to eleven blocks away and pull it toward you."),
         LANTERN_SPEAR("Lanternfall Spear", 19, 1.25, 45, "Use to throw a light-forged copy. Its strike exposes the target in gold."),
@@ -51,6 +51,7 @@ public final class Arsenal {
             this.hint = hint;
         }
         String id() { return name().toLowerCase(Locale.ROOT); }
+        boolean axe() { return this == BELLHEART_AXE || this == LOCKKEEPER_AXE; }
         boolean bow() { return this == CUPID_BOW || this == RIPPLE_BOW; }
     }
 
@@ -75,6 +76,7 @@ public final class Arsenal {
         NeoForge.EVENT_BUS.addListener(HeartMagic::filterTarget);
         NeoForge.EVENT_BUS.addListener(HeartMagic::protectKeeper);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::onThrowImpact);
+        NeoForge.EVENT_BUS.addListener(RelicAbilities::beforeAttack);
     }
 
     public static final class RelicItem extends Item {
@@ -86,7 +88,10 @@ public final class Arsenal {
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, relic.speed - 4, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
             if (relic == Relic.BLOSSOM_GREATSWORD || relic == Relic.VESPER_SCYTHE)
                 attributes.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(id("bladed_reach"), 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
-            return new Item.Properties().durability(1024).rarity(Rarity.RARE).attributes(attributes.build());
+            Item.Properties properties = new Item.Properties().durability(1024).rarity(Rarity.RARE).attributes(attributes.build());
+            if (relic.axe()) properties.component(net.minecraft.core.component.DataComponents.TOOL,
+                Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
+            return properties;
         }
         @Override public Component getName(ItemStack stack) { return Component.translatableWithFallback(getDescriptionId(), relic.title); }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tips, TooltipFlag flag) {
@@ -103,6 +108,13 @@ public final class Arsenal {
                 stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
             }
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
+        @Override public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+            // Let the native axe handle stripping, scraping, and removing wax with this stack.
+            return relic.axe() ? Items.DIAMOND_AXE.useOn(context) : super.useOn(context);
+        }
+        @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
+            return relic.axe() && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability);
         }
         @Override public int getUseDuration(ItemStack stack, LivingEntity user) { return relic.bow() ? 72000 : 0; }
         @Override public UseAnim getUseAnimation(ItemStack stack) { return relic.bow() ? UseAnim.BOW : UseAnim.NONE; }
