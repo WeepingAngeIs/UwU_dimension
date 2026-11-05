@@ -136,8 +136,15 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         void put(int x,int y,int z, BlockState s){
             if(!inside(x,z))return;
             cursor.set(wx(x,z),y,wz(x,z));
+            if(chunk instanceof net.minecraft.world.level.chunk.LevelChunk && !s.hasBlockEntity()
+                    && chunk.getBlockEntityNbt(cursor)!=null && chunk.getBlockState(cursor).hasBlockEntity()){
+                // Resolve a cross-chunk structure's packed block entity while its original
+                // block still exists, so the normal replacement removes both together.
+                chunk.getBlockEntity(cursor);
+            }
             BlockState before=chunk.setBlockState(cursor,s,false);
-            if(before!=null && before.hasBlockEntity() && before.getBlock()!=s.getBlock())chunk.removeBlockEntity(cursor);
+            if((before!=null && before.hasBlockEntity() && before.getBlock()!=s.getBlock())
+                    || (!s.hasBlockEntity() && chunk.getBlockEntityNbt(cursor)!=null))chunk.removeBlockEntity(cursor);
         }
         void block(int x,int y,int z,Block b){put(x,y,z,b.defaultBlockState());}
         void box(int x1,int y1,int z1,int x2,int y2,int z2,BlockState s){

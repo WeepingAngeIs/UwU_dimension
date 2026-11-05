@@ -24,14 +24,17 @@ public final class GuardianCameraProof {
     private static boolean gripSeen;
     private static long started;
     private static BlockPos plaza;
-    private static UUID resident;
+    private static UUID resident, guardian;
+    private static volatile String lastObservation="awaiting village";
+    private static long nextObservation;
+    private static float previousHealth;
 
     public static boolean tick(Minecraft mc) {
         if (returned) return true;
         if (mc.player==null || mc.level==null || mc.gameMode==null || mc.getSingleplayerServer()==null) return false;
         if (++ticks==1) started=System.nanoTime();
-        if ((System.nanoTime()-started)>190_000_000_000L)
-            throw new AssertionError("Guardian client timed out: clicked="+clicked+" wounded="+wounded+" grip="+gripSeen+" y="+mc.player.getY()+" start="+takeoff);
+        if ((System.nanoTime()-started)>240_000_000_000L)
+            throw new AssertionError("Guardian client timed out: clicked="+clicked+" wounded="+wounded+" grip="+gripSeen+" y="+mc.player.getY()+" start="+takeoff+" server="+lastObservation);
         var server=mc.getSingleplayerServer(); UUID id=mc.player.getUUID();
         if (ticks%10==1 && !clicked) server.execute(()->{
             ServerPlayer player=server.getPlayerList().getPlayer(id);
@@ -42,13 +45,18 @@ public final class GuardianCameraProof {
                 player.teleportTo(level,plaza.getX()+.5,plaza.getY(),plaza.getZ()+.5,0,0);
                 return;
             }
+            var guards=level.getEntitiesOfClass(BlossomWarden.class,new AABB(plaza).inflate(64),v->v.isAlive() && v.offender()==null);
+            if (guards.isEmpty()) { lastObservation="settlement has no available guardian at "+plaza; return; }
+            var guard=guards.getFirst();
+            guardian=guard.getUUID();
             Keeper k=resident!=null && level.getEntity(resident) instanceof Keeper existing?existing:
                     level.getEntitiesOfClass(Keeper.class,new AABB(plaza).inflate(45),
                     v->v.isAlive()&&!v.isBaby()&&v.getType()==People.PETAL_KEEPER.get()).stream()
-                    .min(Comparator.comparingDouble(v->v.distanceToSqr(Vec3.atBottomCenterOf(plaza)))).orElse(null);
+                    .min(Comparator.comparingDouble(v->v.distanceToSqr(guard))).orElse(null);
             if(k==null) return;
             if(resident==null) {
                 resident=k.getUUID();
+                previousHealth=k.getHealth();
                 // Keep the generated volunteer by its house long enough for chunk synchronization.
                 // The guardian retains normal AI for the whole experiment.
                 k.setNoAi(true);
@@ -76,7 +84,24 @@ public final class GuardianCameraProof {
             if(!gripSeen) gripSeen=!mc.level.getEntitiesOfClass(BlossomWarden.class,mc.player.getBoundingBox().inflate(10),BlossomWarden::gripping).isEmpty();
             server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
-                if(p!=null && p.serverLevel().getEntity(resident) instanceof Keeper v && v.getLastHurtByMob()==p) wounded=true;
+                if (p==null || !(p.serverLevel().getEntity(resident) instanceof Keeper v)) return;
+                var level=p.serverLevel();
+                if(v.getLastHurtByMob()==p && v.getHealth()<previousHealth) wounded=true;
+                if (level.getGameTime()>=nextObservation) {
+                    nextObservation=level.getGameTime()+100;
+                    var g=level.getEntity(guardian);
+                    String pursuit="unloaded";
+                    if(g instanceof BlossomWarden w) {
+                        var state=new net.minecraft.nbt.CompoundTag();
+                        w.addAdditionalSaveData(state);
+                        pursuit=w.blockPosition()+" active="+w.tickCount+" order="+state.get("Offenders")
+                                +" phase="+state.getByte("GripPhase")+" chaseTicks="+state.getInt("PursueTicks");
+                    }
+                    lastObservation="serverTick="+level.getGameTime()+" player="+p.getUUID()+" at "+p.blockPosition()
+                            +" villager="+v.getUUID()+" health="+v.getHealth()+"/"+previousHealth+" court="+v.villageCourt()
+                            +" guard="+guardian+" "+pursuit;
+                    System.out.println("GUARDIAN CLIENT OBSERVATION "+lastObservation);
+                }
             });
         }
         if(clicked && wounded && mc.player.getY()-takeoff>7960) {

@@ -73,17 +73,18 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Visit UwU Dimension in the Minecraft client
         run: |
+          set -euo pipefail
           bash ci/get-mods.sh
           mkdir -p run/config/cobblemon/spawning
           cp ci/natural-spawning.json run/config/cobblemon/main.json
           cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
-          printf 'onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'onboardAccessibility:false\nrenderDistance:10\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
           bash ci/thread-samples.sh run/thread-samples &
           sampler=$!
           trap 'kill "$sampler" 2>/dev/null || true' EXIT
-          timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
+          timeout 22m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'HEARTWATER CLIENT ROUND TRIP PASSED' client-visit.log
       - uses: actions/upload-artifact@v4
         if: always()

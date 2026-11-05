@@ -369,6 +369,9 @@ public final class Keeper extends Villager {
     }
 
     private boolean canReachStation(BlockPos station) {
+        // Reaching a directly adjacent workstation does not require a walk, including
+        // the tick an entity lands or enters the world before navigation is initialized.
+        if (blockPosition().distManhattan(station) <= 1) return true;
         var path = getNavigation().createPath(station, 1);
         return path != null && path.canReach();
     }

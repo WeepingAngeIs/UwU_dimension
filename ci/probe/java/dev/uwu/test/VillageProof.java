@@ -176,6 +176,8 @@ public final class VillageProof {
             require(worker!=null && rival!=null,"Lesson participants");
             worker.moveTo(pos.getX()+1.5,pos.getY(),pos.getZ()+.5,0,0);
             rival.moveTo(worker.getX(),worker.getY(),worker.getZ(),0,0);
+            worker.setOnGround(true);
+            rival.setOnGround(true);
             FakePlayer teacher=new FakePlayer(level,new GameProfile(UUID.fromString("4bd24d02-928d-4933-a47b-f79cd85c3de5"),"Teacher"));
             teacher.moveTo(worker.getX(),worker.getY(),worker.getZ(),0,0);
             teacher.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(block));
@@ -183,7 +185,8 @@ public final class VillageProof {
             worker.mobInteract(teacher,InteractionHand.MAIN_HAND);
             var site=worker.getBrain().getMemory(MemoryModuleType.JOB_SITE);
             require(worker.getVillagerData().getProfession()==job && site.map(p->p.pos().equals(pos)).orElse(false),
-                    "Could not teach "+job+" to "+type+" at "+pos+" POI="+level.getPoiManager().getType(pos));
+                    "Could not teach "+job+" to "+type+" at "+pos+" POI="+level.getPoiManager().getType(pos)+" free="+level.getPoiManager().getFreeTickets(pos)
+                    +" worker="+worker.blockPosition()+" profession="+worker.getVillagerData().getProfession()+" xp="+worker.getVillagerXp()+" site="+site);
             rival.mobInteract(teacher,InteractionHand.MAIN_HAND);
             require(rival.getVillagerData().getProfession()==VillagerProfession.NONE,"Rival stole claimed "+job+" station");
             require(teacher.getMainHandItem().getCount()==1,"Teaching consumed workstation");

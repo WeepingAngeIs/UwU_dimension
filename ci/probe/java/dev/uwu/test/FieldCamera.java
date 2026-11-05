@@ -64,7 +64,11 @@ public final class FieldCamera {
         if(name.equals("offsite-terrain")){
             l.getChunk(2787 >> 4,-1117 >> 4);
             var c=l.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,new BlockPos(2787,0,-1117));
-            return frame(name,point(c.offset(-26,55,-32)),point(c));
+            var bank=c.offset(-25,0,-27);
+            l.getChunkAt(bank);
+            var top=l.getHeightmapPos(Heightmap.Types.WORLD_SURFACE,bank);
+            var eye=new BlockPos(bank.getX(),Math.max(c.getY()+11,top.getY()+4),bank.getZ());
+            return frame(name,point(eye),point(c.above(3)));
         }
         if(name.equals("mirror-court")){
             var bell=site.pos(-7,-17,146);
@@ -97,7 +101,7 @@ public final class FieldCamera {
     }
     private static boolean sceneryReady(Minecraft mc) {
         var here=BlockPos.containing(view.eye());
-        for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)
+        for(int dx=-4;dx<=4;dx++)for(int dz=-4;dz<=4;dz++)
             if(!mc.level.hasChunk((here.getX()>>4)+dx,(here.getZ()>>4)+dz))return false;
         return mc.levelRenderer.isSectionCompiled(BlockPos.containing(view.subject())) && mc.levelRenderer.countRenderedSections()>=4;
     }
@@ -111,6 +115,10 @@ public final class FieldCamera {
     }
     @SubscribeEvent public static void step(ClientTickEvent.Post event){
         Minecraft mc=Minecraft.getInstance();ticks++;
+        if(state.equals("closed")&&mc.level==null&&mc.getSingleplayerServer()==null){
+            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED seed="+SEED+" with 1.0 and early-playtest locket access and clean disconnect");
+            enter("done");mc.stop();return;
+        }
         if(state.equals("menu")&&mc.screen instanceof TitleScreen title){
             enter("create");
             var settings=new LevelSettings("Field Visit",GameType.SURVIVAL,false,Difficulty.NORMAL,true,new GameRules(),WorldDataConfiguration.DEFAULT);
@@ -171,11 +179,11 @@ public final class FieldCamera {
             if(ticks%400==0)System.out.println("FIELD WAIT "+view.file()+" secs="+seconds()+" clientEye="+mc.player.getEyePosition()
                     +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+counts);
             if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+counts);
-            if(seconds()<30||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
+            if(seconds()<38||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
                 readySince=0;return;
             }
             if(readySince==0)readySince=System.nanoTime();
-            if(System.nanoTime()-readySince<8_000_000_000L||(view.sea()&&!stocked))return;
+            if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!stocked))return;
             if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);}
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
@@ -204,7 +212,11 @@ public final class FieldCamera {
             enter("preview-return");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
         if(state.equals("preview-return")&&mc.level.dimension().equals(Level.OVERWORLD)){
-            System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED seed="+SEED+" with 1.0 and early-playtest locket access");enter("done");mc.stop();
+            enter("closing");
+            mc.level.disconnect();
+            mc.disconnect(new TitleScreen());
+            mc.setScreen(new TitleScreen());
+            enter("closed");
         }
     }
 }

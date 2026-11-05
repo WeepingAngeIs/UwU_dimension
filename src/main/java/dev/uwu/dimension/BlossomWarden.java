@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashSet;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -91,6 +92,7 @@ public final class BlossomWarden extends PathfinderMob {
                 .min(Comparator.comparingDouble(victim::distanceToSqr)).orElse(null);
         }
         if (guard != null) guard.accuse(culprit);
+        else if (home != null) directory(level).report(home, culprit.getUUID());
     }
 
     @Nullable static BlossomWarden ensureVillageGuard(ServerLevel level, BlockPos center) {
@@ -120,7 +122,12 @@ public final class BlossomWarden extends PathfinderMob {
 
     private void accuse(LivingEntity culprit) {
         if (culprit == this || !culprit.isAlive() || offenders.contains(culprit.getUUID())) return;
-        offenders.addLast(culprit.getUUID());
+        accuse(culprit.getUUID());
+    }
+
+    private void accuse(UUID id) {
+        if (offenders.contains(id)) return;
+        offenders.addLast(id);
         if (offenders.size()==1) transition(CHASE);
     }
 
@@ -271,6 +278,11 @@ public final class BlossomWarden extends PathfinderMob {
         static final Factory<Registry> FACTORY=new Factory<>(Registry::new,Registry::load,null);
         final Map<BlockPos,UUID> guards=new HashMap<>();
         final Map<BlockPos,Long> firstMissing=new HashMap<>();
+        final Map<BlockPos,LinkedHashSet<UUID>> pending=new HashMap<>();
+
+        void report(BlockPos home, UUID culprit) {
+            if (pending.computeIfAbsent(home, ignored -> new LinkedHashSet<>()).add(culprit)) setDirty();
+        }
         @Nullable BlossomWarden active(ServerLevel level,BlockPos home) {
             UUID id=guards.get(home);
             return id!=null && level.getEntity(id) instanceof BlossomWarden w && w.isAlive()?w:null;
@@ -278,6 +290,11 @@ public final class BlossomWarden extends PathfinderMob {
         void remember(BlockPos home,BlossomWarden guardian) {
             if (!guardian.getUUID().equals(guards.put(home,guardian.getUUID()))) setDirty();
             firstMissing.remove(home);
+            var reports = pending.remove(home);
+            if (reports != null) {
+                reports.forEach(guardian::accuse);
+                setDirty();
+            }
         }
         static Registry load(CompoundTag tag,HolderLookup.Provider registry) {
             Registry saved=new Registry();
@@ -286,12 +303,27 @@ public final class BlossomWarden extends PathfinderMob {
                 CompoundTag c=list.getCompound(i);
                 saved.guards.put(BlockPos.of(c.getLong("At")),c.getUUID("Guard"));
             }
+            var reports = tag.getList("Reports",Tag.TAG_COMPOUND);
+            for (int i=0;i<reports.size();i++) {
+                var report=reports.getCompound(i);
+                saved.pending.computeIfAbsent(BlockPos.of(report.getLong("At")), ignored -> new LinkedHashSet<>())
+                        .add(report.getUUID("Offender"));
+            }
             return saved;
         }
         @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registry) {
             var list=new ListTag();
             guards.forEach((p,g)->{var c=new CompoundTag(); c.putLong("At",p.asLong()); c.putUUID("Guard",g); list.add(c);});
-            tag.put("Courts",list);return tag;
+            tag.put("Courts",list);
+            var reports = new ListTag();
+            pending.forEach((home, ids) -> ids.forEach(id -> {
+                var report = new CompoundTag();
+                report.putLong("At",home.asLong());
+                report.putUUID("Offender",id);
+                reports.add(report);
+            }));
+            tag.put("Reports",reports);
+            return tag;
         }
     }
 }
