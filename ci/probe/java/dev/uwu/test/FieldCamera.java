@@ -23,6 +23,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
     private static int phase, ticks, heartbeat;
+    private static long poseTime;
     private static final double[][] VIEWS = {{0.5,81,0.5,0,-12},{0.5,53,55.5,0,-4},{-8.5,53,84.5,-17,3},{38.5,1,110.5,-43,-18}};
     private static final String[] FILES = {"01-flowering-cliffs","02-lantern-water","03-bathhouse","04-hanging-shrine"};
 
@@ -71,8 +72,20 @@ public final class FieldCamera {
         if (phase>=2 && phase<2+VIEWS.length*2) {
             if (!mc.level.dimension().location().toString().equals("uwudimension:heartwater")) throw new AssertionError("Locket did not enter UwU Dimension");
             int index=(phase-2)/2;
+            if (phase%2==1) {
+                // Wait for received chunks and meshed camera/sightline sections before recording a frame.
+                long elapsed=System.nanoTime()-poseTime;
+                var here=mc.player.blockPosition();
+                var ahead=here.offset((int)(mc.player.getLookAngle().x*12),0,(int)(mc.player.getLookAngle().z*12));
+                if (elapsed < 18_000_000_000L || !mc.levelRenderer.isSectionCompiled(here)
+                        || !mc.levelRenderer.isSectionCompiled(ahead) || mc.levelRenderer.countRenderedSections()<3) {
+                    if (elapsed>130_000_000_000L) throw new AssertionError("Camera never received terrain "+index);
+                    return;
+                }
+            }
             ticks=0;
             if (phase++%2==0) {
+                poseTime=System.nanoTime();
                 mc.setScreen(null); mc.options.hideGui=true;
                 var v=VIEWS[index];
                 server.execute(()->{

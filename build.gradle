@@ -19,7 +19,7 @@ sourceSets {
     expedition {
         java.srcDirs = ['ci/probe/java']
         resources.srcDirs = ['ci/probe/resources']
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output + fileTree('libs') { include '*.jar' }
+        compileClasspath += files('build/probe-compile/kotlin-stdlib.jar') + sourceSets.main.compileClasspath + sourceSets.main.output + fileTree('libs') { include '*.jar' }
     }
 }
 tasks.register('expeditionJar', Jar) {

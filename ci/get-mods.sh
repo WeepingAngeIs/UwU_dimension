@@ -9,3 +9,6 @@ download 'https://cdn.modrinth.com/data/EltpO5cN/versions/ST5FHZnD/lootr-neoforg
 download 'https://edge.forgecdn.net/files/8335/665/kotlinforforge-5.12.0-all.jar' libs/kotlinforforge.jar
 sha256sum --check ci/dependencies.sha256
 
+
+mkdir -p build/probe-compile
+unzip -p libs/kotlinforforge.jar META-INF/jarjar/kotlin-stdlib-2.4.0.jar > build/probe-compile/kotlin-stdlib.jar
