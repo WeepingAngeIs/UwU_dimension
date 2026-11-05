@@ -39,6 +39,7 @@ public class Expedition {
                 catch(Throwable error) { recordFailure("upgrade",error); }
                 var site=GroveSites.first(level);
                 check("terrain and route",()->RouteProof.run(level));
+                check("village and dungeon furnishings",()->FurnishingProof.verify(level));
                 check("loot and factions",()->ChestProof.run(level,site.pos(0,53,103)));
                 var arena=new net.minecraft.world.level.ChunkPos(site.pos(42,1,115));
                 for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)

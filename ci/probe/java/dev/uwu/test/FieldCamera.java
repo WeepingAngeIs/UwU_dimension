@@ -30,7 +30,9 @@ public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
+    private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
+    private static final String[] TOUR=FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+            SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
             new String[]{"arrival","village","village-hillside"};
@@ -52,6 +54,7 @@ public final class FieldCamera {
     private static Vec3 point(BlockPos p){return Vec3.atCenterOf(p);}
     private static SeaWatch.View frame(String name,Vec3 eye,Vec3 subject){return new SeaWatch.View(eye,subject,name,false);}
     private static SeaWatch.View viewFor(ServerPlayer p,String name){
+        if(FURNISHINGS)return FurnishingCamera.view(p,name);
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
         if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
@@ -148,7 +151,7 @@ public final class FieldCamera {
         if(state.equals("arriving")&&mc.level.dimension().equals(ReefLife.REACH))enter("advance");
         if(state.equals("advance")){
             if(index==TOUR.length){
-                if(SEA||VILLAGE){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
+                if(SEA||VILLAGE||FURNISHINGS){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
                 else enter("provoke");
                 return;
             }

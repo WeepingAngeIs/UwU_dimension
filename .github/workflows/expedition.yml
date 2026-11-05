@@ -64,6 +64,8 @@ jobs:
         include:
           - seed: 152045
             visit: village
+          - seed: 152045
+            visit: furnishing
     env:
       UWU_VISIT: ${{ matrix.visit }}
       UWU_FIELD_SEED: ${{ matrix.seed }}
@@ -89,6 +91,11 @@ jobs:
           trap 'kill "$sampler" 2>/dev/null || true' EXIT
           timeout 22m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'HEARTWATER CLIENT ROUND TRIP PASSED' client-visit.log
+          if [[ "$UWU_VISIT" == furnishing ]]; then
+            for photo in petal-tea-room pastel-glass-windows pink-glass-skylight dusk-reading-room bathhouse-bench archive-study; do
+              test -s "run/screenshots/$photo.png"
+            done
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
