@@ -78,7 +78,7 @@ public final class BlossomWarden extends PathfinderMob {
     @Nullable public UUID offender() { return offenders.peekFirst(); }
 
     static void alert(ServerLevel level, Keeper victim, LivingEntity culprit) {
-        if (culprit == victim || culprit instanceof BlossomWarden) return;
+        if (culprit == victim) return;
         BlockPos home = victim.villageCourt();
         BlossomWarden guard = null;
         if (home != null) {
@@ -162,6 +162,8 @@ public final class BlossomWarden extends PathfinderMob {
                 Vec3 side = culprit.getLookAngle().multiply(-1,0,-1).normalize().scale(1.4);
                 // Intercept works even on a cliff or in flight. The grip begins on this same tick.
                 teleportTo(culprit.getX()+side.x, culprit.getY(), culprit.getZ()+side.z);
+                setDeltaMovement(Vec3.ZERO);
+                fallDistance = 0;
                 petals(level, position());
             }
             if (distanceToSqr(culprit) <= reachSquared(culprit)) {
@@ -180,6 +182,8 @@ public final class BlossomWarden extends PathfinderMob {
         }
         if (phase == GRIP) {
             getNavigation().stop();
+            setDeltaMovement(Vec3.ZERO);
+            fallDistance = 0;
             Vec3 front = getLookAngle().multiply(1,0,1).normalize().scale(1.25);
             Vec3 hands = position().add(front).add(0, 1.5 + .4 * Math.min(1, motionTicks/12.0), 0);
             if (culprit.distanceToSqr(hands) > .04) move(culprit,hands);
@@ -291,5 +295,6 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 }
+
 
 

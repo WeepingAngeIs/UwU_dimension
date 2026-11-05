@@ -34,7 +34,7 @@ public final class FieldCamera {
     private static volatile SeaWatch.View view;
     private static volatile boolean stocked;
     private static volatile String counts="";
-    private static long poseTime;
+    private static long poseTime, readySince;
     private static int ticks,index;
     private static Vec3 home;
     private static BlockPos previousReef;
@@ -58,6 +58,7 @@ public final class FieldCamera {
         }
         if(name.equals("arrival"))return frame(name,point(arrival).add(0,1.2,0),point(site.pos(0,site.entryY()+4,site.lip())));
         if(name.equals("offsite-terrain")){
+            l.getChunk(2787 >> 4,-1117 >> 4);
             var c=l.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,new BlockPos(2787,0,-1117));
             return frame(name,point(c.offset(-26,55,-32)),point(c));
         }
@@ -76,6 +77,21 @@ public final class FieldCamera {
             return frame(name,point(lane),point(door.above()));
         }
         return frame(name,point(vs.pos(village.x()-15,ctr.getY()+21,village.z()-24)),point(ctr.above(2)));
+    }
+    private static boolean sceneryReady(Minecraft mc) {
+        var eye=BlockPos.containing(view.eye());
+        var forward=view.subject().subtract(view.eye()).multiply(1,0,1).normalize();
+        var across=new Vec3(-forward.z,0,forward.x);
+        // Check full client chunks and terrain meshes across the visible foreground and horizon.
+        for(int distance:new int[]{8,24,40,56})for(int side:new int[]{-1,0,1}) {
+            var sample=BlockPos.containing(view.eye().add(forward.scale(distance)).add(across.scale(side*distance*.55)));
+            if(!mc.level.hasChunk(sample.getX()>>4,sample.getZ()>>4))return false;
+            if(!view.file().equals("mirror-court")) {
+                int ground=mc.level.getHeight(Heightmap.Types.OCEAN_FLOOR,sample.getX(),sample.getZ())-1;
+                if(!mc.levelRenderer.isSectionCompiled(new BlockPos(sample.getX(),ground,sample.getZ())))return false;
+            }
+        }
+        return mc.levelRenderer.isSectionCompiled(BlockPos.containing(view.subject())) && mc.levelRenderer.countRenderedSections()>=12;
     }
     private static void place(ServerPlayer p,SeaWatch.View v){
         Vec3 d=v.subject().subtract(v.eye());
@@ -109,7 +125,7 @@ public final class FieldCamera {
             enter("preparing");var name=TOUR[index];
             server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
-                view=viewFor(p,name);stocked=false;counts="";place(p,view);enter("pose");
+                view=viewFor(p,name);readySince=0;stocked=false;counts="";place(p,view);enter("pose");
             });return;
         }
         if(state.equals("pose")){
@@ -118,9 +134,12 @@ public final class FieldCamera {
             if(view.sea()&&ticks%40==0)server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);SeaWatch.observe(p);stocked=SeaWatch.stocked();counts=SeaWatch.counts();
             });
-            if(seconds()>200)throw new AssertionError("Field visit timed out "+view.file()+" "+counts);
-            if(seconds()<22||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!mc.levelRenderer.isSectionCompiled(BlockPos.containing(view.subject()))
-                    ||mc.levelRenderer.countRenderedSections()<4||(view.sea()&&!stocked))return;
+            if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+counts);
+            if(seconds()<16||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
+                readySince=0;return;
+            }
+            if(readySince==0)readySince=System.nanoTime();
+            if(System.nanoTime()-readySince<4_000_000_000L||(view.sea()&&!stocked))return;
             if(index==0)MusicProof.surface();
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));

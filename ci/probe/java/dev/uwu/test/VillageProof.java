@@ -167,8 +167,8 @@ public final class VillageProof {
     private static void inspectGuardian(ServerLevel level,long now) {
         long elapsed=now-accusationAt;
         if(elapsed<600) require(!guard.gripping() && guard.getY()<takeoff-20,"Guardian intercepted before >30 seconds");
-        if(guard.gripping()) {
-            require(elapsed>=600 && guard.getY()>=takeoff-4,"Guardian failed to teleport to inaccessible attacker");
+        if(guard.gripping() && !grab) {
+            require(elapsed>=600 && guard.getY()>=takeoff-4,"Guardian failed to teleport to inaccessible attacker after "+elapsed+" ticks: guardian="+guard.position()+" attacker="+attacker.position()+" starting elevation="+takeoff);
             grab=true;
         }
         if(grab && guard.offender()==null) {

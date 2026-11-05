@@ -42,7 +42,9 @@ final class SeaWatch {
         BlockPos near=ReefCharts.nearest(l,origin,256);
         if(near==null)throw new AssertionError("No natural reef within chart range of "+origin);
         // Inspect actual generated coral heads, then choose a clear stretch of water to photograph them.
-        int best=-1;BlockPos cam=null,subject=null;
+        for(int cx=(near.getX()-34)>>4;cx<=(near.getX()+34)>>4;cx++)
+            for(int cz=(near.getZ()-34)>>4;cz<=(near.getZ()+34)>>4;cz++)l.getChunk(cx,cz);
+        int best=Integer.MIN_VALUE;BlockPos cam=null,subject=null;
         for(int x=near.getX()-24;x<=near.getX()+24;x+=3)for(int z=near.getZ()-24;z<=near.getZ()+24;z+=3) {
             int bed=l.getHeight(Heightmap.Types.OCEAN_FLOOR,x,z);
             BlockPos center=new BlockPos(x,bed-1,z);
@@ -67,6 +69,7 @@ final class SeaWatch {
         for(int dx=-64;dx<=64;dx+=4)for(int dz=-64;dz<=64;dz+=4){
             int dist=dx*dx+dz*dz;if(dist<256||dist>4096)continue;
             int x=cam.getX()+dx,z=cam.getZ()+dz;
+            l.getChunk(x >> 4,z >> 4);
             int bottom=l.getHeight(Heightmap.Types.OCEAN_FLOOR,x,z);
             int top=l.getHeight(Heightmap.Types.WORLD_SURFACE,x,z);
             samples++;

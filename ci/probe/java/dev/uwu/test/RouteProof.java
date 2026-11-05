@@ -52,6 +52,7 @@ public final class RouteProof {
     private static void terrain(ServerLevel level,int x,int z){
         // Away from foundations there must be no projected shelf. Compare actual ground
         // to raw Overworld noise per column, crossing both local chunk boundaries.
+        loadColumns(level,x-16,z-16,x+16,z+16);
         int matches=0,examined=0,trees=0;
         for(int a=x-16;a<=x+16;a+=2)for(int b=z-16;b<=z+16;b+=2){
             int baseline=level.getChunkSource().getGenerator().getBaseHeight(a,b,Heightmap.Types.OCEAN_FLOOR_WG,level,level.getChunkSource().randomState())-1;
@@ -73,40 +74,55 @@ public final class RouteProof {
         }
         if(matches<examined*.70)throw new AssertionError("Terrain cut or plateau at "+x+","+z+" native="+matches+"/"+examined);
         System.out.println("GROVE TERRAIN native columns="+matches+"/"+examined+" tree columns="+trees+" centered "+x+","+z);
+        int height=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
+        BlockPos center=new BlockPos(x,height,z);
+        boolean grove=level.getBiome(center).is(Biomes.CHERRY_GROVE);
+        supportedTrees(level,center,32,grove,"TERRAIN");
     }
-    private static void supportedTrees(ServerLevel level,BlockPos center){
-        // Follow real branch/trunk connections; a horizontal branch can legitimately
-        // overhang air, but every complete vanilla tree needs some soil-contacting root.
+    private static void loadColumns(ServerLevel level,int minX,int minZ,int maxX,int maxZ){
+        for(int cx=minX>>4;cx<=(maxX>>4);cx++)for(int cz=minZ>>4;cz<=(maxZ>>4);cz++)
+            level.getChunk(cx,cz);
+    }
+    private static void supportedTrees(ServerLevel level,BlockPos center,int radius,boolean required,String label){
+        int x0=center.getX(),z0=center.getZ();
+        loadColumns(level,x0-radius,z0-radius,x0+radius,z0+radius);
         java.util.Set<BlockPos> visited=new java.util.HashSet<>();
         int verified=0;
-        for(int x=center.getX()-34;x<=center.getX()+34;x+=2)for(int z=center.getZ()-27;z<=center.getZ()+27;z+=2){
+        for(int x=x0-radius;x<=x0+radius;x++)for(int z=z0-radius;z<=z0+radius;z++){
             int top=level.getHeight(Heightmap.Types.MOTION_BLOCKING,x,z);
-            for(int y=top;y>=Math.max(top-16,center.getY()-22);y--){
+            for(int y=top-1;y>=Math.max(level.getMinBuildHeight(),top-20);y--){
                 BlockPos start=new BlockPos(x,y,z);
-                if(!level.getBlockState(start).is(Blocks.CHERRY_LOG)||!visited.add(start))continue;
+                var state=level.getBlockState(start);
+                // Only raw trunks of locally generated tree species qualify. All building
+                // timbers are stripped. Roofs, walls, and floating beams cannot prove a root.
+                if(!(state.is(Blocks.CHERRY_LOG)||state.is(Blocks.BIRCH_LOG)||state.is(Blocks.JUNGLE_LOG)||state.is(Blocks.OAK_LOG))
+                        ||!visited.add(start))continue;
+                var species=state.getBlock();
                 java.util.ArrayDeque<BlockPos> next=new java.util.ArrayDeque<>();
-                java.util.Set<BlockPos> tree=new java.util.HashSet<>();next.add(start);tree.add(start);boolean grounded=false;
-                while(!next.isEmpty()&&tree.size()<1500){
+                next.add(start);
+                boolean grounded=false;
+                int logs=0;
+                while(!next.isEmpty()){
                     BlockPos log=next.removeFirst();
-                    var below=log.below();var support=level.getBlockState(below);
-                    if(!support.is(BlockTags.LOGS)&&!support.is(BlockTags.LEAVES)&&support.isSolidRender(level,below)){grounded=true;break;}
+                    logs++;
+                    if(level.getBlockState(log.below()).is(BlockTags.DIRT))grounded=true;
                     for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++){
                         BlockPos neighbor=log.offset(dx,dy,dz);
-                        if(level.getBlockState(neighbor).is(Blocks.CHERRY_LOG)&&tree.add(neighbor))next.add(neighbor);
+                        if(!visited.contains(neighbor)&&level.getBlockState(neighbor).is(species)&&visited.add(neighbor))next.add(neighbor);
                     }
                 }
-                visited.addAll(tree);
-                if(!grounded && tree.size()<1500)throw new AssertionError("Suspended cherry tree / timber at "+start+" logs="+tree.size());
+                if(!grounded)throw new AssertionError("Suspended "+species+" at "+start+" logs="+logs);
                 verified++;
             }
         }
-        System.out.println("SETTLEMENT TREE ROOTS connected="+verified+" near "+center);
+        if(required&&verified==0)throw new AssertionError("No rooted grove tree within "+radius+" blocks of "+center);
+        System.out.println(label+" TREE ROOTS connected="+verified+" radius="+radius+" near "+center+" in "+level.dimension().location());
     }
     private static void village(ServerLevel level,BlossomVillage.Plan v){
         if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE))throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());
         if(v.houses().size()<6)throw new AssertionError("Sparse village");
         java.util.Set<Integer> styles=new java.util.HashSet<>();
-        supportedTrees(level,v.plaza());
+        supportedTrees(level,v.plaza(),48,true,"SETTLEMENT");
         for(var h:v.houses()){
             styles.add(h.style());
             var bed=v.bedHead(h);var door=v.doorway(h);
@@ -192,8 +208,8 @@ public final class RouteProof {
         for(int x=21;x<=39;x++)for(int z=109;z<=111;z++)tread(x,x-39,z,Direction.EAST);
         for(int x=-14;x<=14;x++)for(int z=126;z<=128;z++)tread(x,x-33,z,Direction.EAST);
         for(int z=118;z<=125;z++)for(int x=40;x<=42;x++)tread(x,z-117,z,Direction.SOUTH);
-        shell(-14,51,82,14,62,106,0,52);shell(5,-20,139,27,-10,150,16,-19);shell(50,7,115,57,15,123,53,8);
-        System.out.println("ROUTE PROOF rotation="+turns+" origin="+cx+","+cz+" player-body samples="+samples+" three single-opening obsidian shells and three reward sites passed");
+        shell(-14,51,82,14,62,106,0,52);shell(5,-20,139,27,-10,150,16,-19);shell(50,7,115,57,15,123,53,8);shell(-17,-20,139,3,-6,163,-7,-19);
+        System.out.println("ROUTE PROOF rotation="+turns+" origin="+cx+","+cz+" player-body samples="+samples+" four single-opening obsidian shells and three reward sites passed");
     }
 }
 

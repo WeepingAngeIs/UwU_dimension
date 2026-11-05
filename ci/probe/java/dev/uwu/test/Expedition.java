@@ -11,6 +11,16 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @Mod("heartwater_probe")
 public class Expedition {
     private int stage;
+    private boolean failed;
+    private void recordFailure(String check, Throwable error) {
+        failed=true;
+        System.err.println("EXPEDITION CHECK FAILED "+check);
+        error.printStackTrace();
+    }
+    private interface Check { void run() throws Exception; }
+    private void check(String name, Check test) {
+        try { test.run(); } catch (Throwable error) { recordFailure(name,error); }
+    }
     public Expedition() { NeoForge.EVENT_BUS.addListener(this::tick); }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
@@ -23,19 +33,21 @@ public class Expedition {
                 return;
             }
             if(stage==0) {
-                if(!UpgradeProof.ready(server))return;
+                try { if(!UpgradeProof.ready(server))return; }
+                catch(Throwable error) { recordFailure("upgrade",error); }
                 var site=GroveSites.first(level);
-                RouteProof.run(level);
-                ChestProof.run(level,site.pos(0,53,103));
-                ArsenalProof.run(level);
+                check("terrain and route",()->RouteProof.run(level));
+                check("loot and factions",()->ChestProof.run(level,site.pos(0,53,103)));
+                check("relics",()->ArsenalProof.run(level));
                 long entries=PlayerSpawnerFactory.INSTANCE.getSpawnPool().getDetails().stream().filter(d->d.getId().startsWith("heartwater-")).count();
                 if(entries!=27)throw new AssertionError("Wrong native Cobblemon definition count "+entries);
                 stage=1;
             } else if(stage==1) {
-                if(VillageProof.tick(level,GroveSites.village(level,false)))stage=2;
+                try { if(VillageProof.tick(level,GroveSites.village(level,false)))stage=2; }
+                catch(Throwable error) { recordFailure("village life and guardian",error); stage=2; }
             } else if(stage==2) {
                 if(!BossProof.tick(level,GroveSites.first(level).pos(-7,-17,146)))return;
-                System.out.println("HEARTWATER EXPEDITION PASSED seed="+level.getSeed());
+                System.out.println((failed?"HEARTWATER EXPEDITION FAILED":"HEARTWATER EXPEDITION PASSED")+" seed="+level.getSeed());
                 stage=-1;server.halt(false);
             }
         } catch(Throwable error) {
