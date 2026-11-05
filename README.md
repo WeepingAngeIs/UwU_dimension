@@ -4,7 +4,7 @@ A standalone adventure mod for Minecraft Java 1.21.1. Flowering cliffs surround 
 
 ## Install and travel
 
-Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.1.0.jar** in the profile's `mods` folder on the client and server. Lootr is required. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions.
+Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.1.0.jar** in the profile's `mods` folder on the client and server. Lootr and Another Furniture 4.0.2 for NeoForge are required on both the client and server. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
 
 Pick up a small flower to unlock the Heartwater Locket recipe. Craft **one compass, one amethyst shard and one small flower** anywhere in the crafting grid. Right-click the locket to travel. Carry the same locket and right-click it again to return to the place where you entered. A fresh unbound locket used inside takes you back to Overworld spawn.
 
@@ -46,7 +46,7 @@ The installed Reactive Music songpack identifies the new mainland by its actual 
 
 ## Heartsill floors and rugs
 
-Step into a house and look down the center aisle. Petal homes frame the original peach heart and lavender border in white and magenta, while Dusk homes pair it with black and purple. The tea shelf uses a matching slab, and a thin heart rug leaves the main aisle clear.
+Look for furnishings from Another Furniture in newly generated Japanese houses, the bathhouse, and the archive. Step into a house and look down the center aisle. Petal homes frame the original peach heart and lavender border in white and magenta, while Dusk homes pair it with black and purple. The tea shelf uses a matching slab, and a thin heart rug leaves the main aisle clear.
 
 Heartsill comes in all 16 Minecraft dye colors, with a full tile, slab and carpet in each. For the pink original, place pink dye in the center of the crafting grid and one calcite above, below, left and right to make four blocks. Substitute another dye for its matching color. A horizontal row of three matching tiles makes six slabs. Place two matching wool blocks above a matching Heartsill block as shown in the recipe book to make four rugs. Upper and lower slabs combine into a double slab. Rugs need a supporting surface.
 
@@ -70,6 +70,6 @@ Values are health points before armor or outside modifiers. Two points equal one
 
 ## Edit and build
 
-The source project includes the Gradle wrapper. With a Java 21 JDK, run `./gradlew build` or `gradlew.bat build`. The playable JAR appears in `build/libs`. To run the dependency-matched development client, put the three dependency JARs above in `libs` and run `./gradlew runClient`.
+The source project includes the Gradle wrapper. With a Java 21 JDK, run `./gradlew build` or `gradlew.bat build`. The playable JAR appears in `build/libs`. To run the dependency-matched development client, run `bash ci/get-mods.sh` from the project root, then `./gradlew runClient`. The download script verifies these JARs against checksums from the CurseForge profile.
 
 The [hosted expedition workflow](.github/workflows/expedition.yml) builds the distributable, launches a separate packaged NeoForge server with dependency checksums matched to the CurseForge profile, and launches a graphical Minecraft client on a GitHub-hosted Linux runner. Test code lives in `ci/probe` and ships separately from the playable JAR.

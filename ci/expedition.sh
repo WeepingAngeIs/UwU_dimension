@@ -3,7 +3,7 @@ set -euo pipefail
 bash ci/get-mods.sh
 ./gradlew expeditionJar
 mkdir -p build/field-server/mods
-cp libs/{cobblemon,lootr,kotlinforforge}.jar build/libs/*.jar build/expedition/*.jar build/field-server/mods/
+cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2}.jar build/libs/*.jar build/expedition/*.jar build/field-server/mods/
 cd build/field-server
 curl --retry 4 -fsSL 'https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.249/neoforge-21.1.249-installer.jar' -o installer.jar
 java -jar installer.jar --installServer

@@ -11,8 +11,19 @@ neoForge {
     runs { client { client() }; server { server() } }
     mods { uwudimension { sourceSet(sourceSets.main) } }
 }
-repositories { mavenCentral() }
-dependencies { runtimeOnly fileTree(dir: 'libs', include: ['*.jar']) }
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://www.cursemaven.com')
+        content { includeModule('curse.maven', 'another-furniture-610492') }
+    }
+}
+dependencies {
+    runtimeOnly fileTree(dir: 'libs', include: ['*.jar'], exclude: ['another_furniture-*.jar'])
+    // Hosted clients run with the same checksum-verified file as the dedicated server.
+    def furniture = file('libs/another_furniture-neoforge-4.0.2.jar')
+    runtimeOnly(furniture.isFile() ? files(furniture) : 'curse.maven:another-furniture-610492:7355747')
+}
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 sourceSets {
