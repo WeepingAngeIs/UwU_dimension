@@ -22,7 +22,7 @@ final class FamilyCamera {
         var workers=locals.stream().filter(k->!k.isBaby() && k.getVillagerData().getProfession()!=VillagerProfession.NONE
                 && k.getVillagerData().getProfession()!=VillagerProfession.NITWIT).toList();
         if(child==null||workers.size()<2)return null;
-        var first=workers.getFirst();
+        var first=workers.stream().filter(k->k.getVillagerData().getProfession()==VillagerProfession.FARMER).findFirst().orElse(workers.getFirst());
         var second=workers.stream().filter(k->k.getVillagerData().getProfession()!=first.getVillagerData().getProfession()).findFirst().orElse(null);
         if(second==null)return null;
         for(var house:village.houses()){
@@ -30,9 +30,9 @@ final class FamilyCamera {
             var spot=s.pos(house.x(),house.floor()+1,front-house.side()*2);
             var other=s.pos(house.x()+1,house.floor()+1,front-house.side()*2);
             var axis=Vec3.atCenterOf(other).subtract(Vec3.atCenterOf(spot));
-            var street=s.pos(house.x(),house.floor()+1,front-house.side()*9);
+            var street=s.pos(house.x(),house.floor()+1,front-house.side()*6);
             var center=Vec3.atBottomCenterOf(spot);
-            var eye=Vec3.atCenterOf(street).add(axis.scale(2)).add(0,1.15,0);
+            var eye=Vec3.atCenterOf(street).add(axis.scale(1.0)).add(0,.94,0);
             if(!level.getBlockState(BlockPos.containing(eye)).getCollisionShape(level,BlockPos.containing(eye)).isEmpty())continue;
             var subjects=List.of(first,child,second);
             for(int i=0;i<subjects.size();i++){
@@ -46,7 +46,7 @@ final class FamilyCamera {
                 k.teleportTo(pos.x,pos.y,pos.z);k.setYRot(yaw);k.setYHeadRot(yaw);k.setYBodyRot(yaw);
             }
             System.out.println("FAMILY PORTRAIT generated "+first.getVillagerData().getProfession()+" + child + "+second.getVillagerData().getProfession()+" heights="+first.getBbHeight()+"/"+child.getBbHeight());
-            return new SeaWatch.View(eye,center.add(0,1.45,0),"keeper-family",false);
+            return new SeaWatch.View(eye,center.add(0,1.05,0),"keeper-family",false);
         }
         throw new AssertionError("Could not frame a village family by their doorway");
     }
