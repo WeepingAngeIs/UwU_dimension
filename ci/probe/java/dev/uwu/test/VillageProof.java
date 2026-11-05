@@ -121,6 +121,10 @@ public final class VillageProof {
             }
         }
         if (age%400==0) {
+            var plan=dev.uwu.dimension.BlossomVillage.first(level,false);
+            long beds=plan.houses().stream().filter(h->level.getPoiManager().getType(plan.bedHead(h)).isPresent()).count();
+            long jobs=plan.houses().stream().filter(h->level.getPoiManager().getType(plan.workstation(h)).isPresent()).count();
+            System.out.println("VILLAGE FURNITURE indexed beds="+beds+" jobs="+jobs+" houses="+plan.houses().size()+" daytime="+level.getDayTime());
             System.out.println("VILLAGE OBSERVATION ticks="+age+" villagers="+keepers.size()+" fed="+fed+" picked="+pickup+
                     " worked="+work+" restocked="+stock+" slept="+slept+" woke="+woke+" panic="+panic+" launch="+finishedThrow+
                     " first="+(keepers.isEmpty()?"pending":status(keepers.getFirst())));

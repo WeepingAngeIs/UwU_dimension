@@ -46,6 +46,7 @@ public final class Keeper extends Villager {
     private BlockPos village;
     private long nextCourtship;
     private boolean legacyHome;
+    private boolean checkedVillageSites;
 
     public Keeper(EntityType<? extends Villager> type, Level level) {
         super(type, level);
@@ -134,6 +135,11 @@ public final class Keeper extends Villager {
     public void aiStep() {
         if (level() instanceof ServerLevel server) {
             long now = server.getGameTime();
+            if (village != null && !checkedVillageSites) {
+                checkedVillageSites = true;
+                indexFurnishings(server, blockPosition(), 3);
+                if (server.hasChunkAt(village)) indexFurnishings(server, village, 2);
+            }
             if (dusk() && tickCount % 5 == 0) {
                 peacefulUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
                 for (Player nearby : server.getEntitiesOfClass(Player.class, getBoundingBox().inflate(24),
@@ -169,6 +175,17 @@ public final class Keeper extends Villager {
             }
         }
         super.aiStep();
+    }
+
+    // Worldgen writes the house into a protochunk before the live POI manager is available.
+    // Reconcile actual furnishings once on load; the vanilla brain claims its own tickets.
+    private static void indexFurnishings(ServerLevel level, BlockPos center, int radius) {
+        var pois = level.getPoiManager();
+        for (BlockPos at : BlockPos.betweenClosed(center.offset(-radius,-1,-radius), center.offset(radius,1,radius))) {
+            if (!level.hasChunkAt(at)) continue;
+            var type = PoiTypes.forState(level.getBlockState(at));
+            if (type.isPresent() && pois.getType(at).isEmpty()) pois.add(at.immutable(), type.get());
+        }
     }
 
     private void assignHome(BlockPos pos) {
