@@ -39,7 +39,9 @@ public final class VillageProof {
     private static BlockPos platform;
     private static double takeoff, startX, startZ;
     private static ItemEntity bread;
-    private static Keeper collector;
+    private static Keeper collector, sheltered;
+    private static Mob threat;
+    private static boolean panic;
 
     public static boolean tick(ServerLevel level, BlockPos village) {
         long now = level.getGameTime();
@@ -103,14 +105,29 @@ public final class VillageProof {
         }
         if (work && stock && nightAt<0) { nightAt=now;level.setDayTime(14000); }
         if (slept && dayAt<0) { dayAt=now;level.setDayTime(26000); }
+        if (woke && !panic && !keepers.isEmpty()) {
+            if (threat==null) {
+                sheltered=keepers.stream().filter(k->sleepingResidents.contains(k.getUUID())).findFirst().orElse(keepers.getFirst());
+                threat=EntityType.ZOMBIE.create(level);
+                require(threat!=null,"Zombie factory");
+                threat.setNoAi(true); threat.setInvulnerable(true); threat.setNoGravity(true);
+                threat.moveTo(sheltered.getX()+.4,sheltered.getY(),sheltered.getZ(),0,0);
+                level.addFreshEntity(threat);
+            }
+            panic=sheltered.getBrain().isActive(net.minecraft.world.entity.schedule.Activity.PANIC);
+            if (panic) {
+                System.out.println("VILLAGE SHELTER resident entered vanilla PANIC after sensing zombie");
+                threat.discard();
+            }
+        }
         if (age%400==0) {
             System.out.println("VILLAGE OBSERVATION ticks="+age+" villagers="+keepers.size()+" fed="+fed+" picked="+pickup+
-                    " worked="+work+" restocked="+stock+" slept="+slept+" woke="+woke+" launch="+finishedThrow+
+                    " worked="+work+" restocked="+stock+" slept="+slept+" woke="+woke+" panic="+panic+" launch="+finishedThrow+
                     " first="+(keepers.isEmpty()?"pending":status(keepers.getFirst())));
         }
-        if (fed && pickup && work && stock && slept && woke && finishedThrow) {
+        if (fed && pickup && work && stock && slept && woke && panic && finishedThrow) {
             tickets.forEach(c->level.setChunkForced(c.x,c.z,false));
-            System.out.println("VILLAGE LIFE PASS: generated POIs claimed, actual work, restock, bed sleep and dawn wake; consumed hand feed and world food pickup.");
+            System.out.println("VILLAGE LIFE PASS: generated POIs claimed, actual work, restock, bed sleep and dawn wake; consumed hand feed and world food pickup; sensed nearby zombie and entered vanilla PANIC.");
             return true;
         }
         if(age>4000) throw new AssertionError("Village schedule or pursuit timed out: "+keepers.stream().map(VillageProof::status).toList());
@@ -137,7 +154,7 @@ public final class VillageProof {
         ward.moveTo(guard.getX()+1,guard.getY(),guard.getZ()+1,0,0);
         attacker.moveTo(guard.getX()+2,guard.getY()+45,guard.getZ(),0,0);
         witness.moveTo(guard.getX()+1,guard.getY(),guard.getZ()-1,0,0);
-        ward.setNoAi(true);attacker.setNoAi(true);attacker.setNoGravity(true);attacker.setPersistenceRequired();witness.setNoAi(true);
+        ward.setNoAi(true);attacker.setNoAi(true);attacker.setNoGravity(true);attacker.setPersistenceRequired();witness.setNoAi(true);witness.setNoGravity(true);
         level.addFreshEntity(guard);level.addFreshEntity(ward);level.addFreshEntity(attacker);level.addFreshEntity(witness);
         require(guard.offender()==null,"Unprovoked guardian targeted bystander");
         require(attacker.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)>=1,"Boss-like target must resist knockback");
@@ -166,3 +183,4 @@ public final class VillageProof {
     }
     private static void require(boolean ok,String message) { if(!ok) throw new AssertionError(message); }
 }
+

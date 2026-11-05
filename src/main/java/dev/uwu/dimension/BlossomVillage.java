@@ -28,6 +28,7 @@ public final class BlossomVillage {
     private static final int HALF=29;
     private static int ground(ServerLevel level,GroveSites.Site s,int x,int z){return GroveSites.height(level,s.wx(x,z),s.wz(x,z));}
     public static Optional<Plan> plan(ServerLevel level,GroveSites.Site s,boolean dusk){
+        if(!GroveSites.settlement(level,s,dusk))return Optional.empty();
         var db=cache(level);if(db.size()>5000)db.clear();
         return db.computeIfAbsent(new Key(s.gx(),s.gz(),dusk),k->design(level,s,dusk));
     }
@@ -91,6 +92,10 @@ public final class BlossomVillage {
         boolean dark=p.dusk();
         for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)road(v,p.x()+dx,p.y(),p.z()+dz,dark);
         v.block(p.x(),p.y(),p.z(),dark?HeartwaterFeature.LACE.get():HeartwaterFeature.QUILT.get());
+        // A real meeting POI supports gossip and the vanilla midday gathering schedule.
+        int bellX=p.x()+2,bellZ=p.z()-2;
+        v.block(bellX,p.y(),bellZ,dark?Blocks.POLISHED_BLACKSTONE:Blocks.CALCITE);
+        v.put(bellX,p.y()+1,bellZ,Blocks.BELL.defaultBlockState().setValue(BellBlock.FACING,v.face(Direction.NORTH)));
         if(v.inside(p.x(),p.z())){
             var warden=People.BLOSSOM_WARDEN.get().create(v.level.getLevel());
             if(warden!=null){

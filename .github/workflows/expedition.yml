@@ -44,6 +44,8 @@ jobs:
           name: expedition-log-${{ matrix.seed }}
           path: |
             build/field-server/expedition.log
+            build/field-server/mirror-restart.log
+            build/field-server/logs/latest.log
             build/field-server/crash-reports
           if-no-files-found: ignore
   client:

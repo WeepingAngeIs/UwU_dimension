@@ -17,3 +17,7 @@ if [[ "$UWU_FIELD_SEED" == "152045" ]]; then
 fi
 timeout 25m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee expedition.log
 grep -F 'HEARTWATER EXPEDITION PASSED' expedition.log
+
+if [[ "$UWU_FIELD_SEED" == "152045" ]]; then
+  bash ../../ci/reload-boss.sh
+fi

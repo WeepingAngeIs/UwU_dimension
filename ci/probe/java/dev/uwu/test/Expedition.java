@@ -18,6 +18,10 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(Boolean.getBoolean("uwu.bossReload")) {
+                if(BossProof.verifyRestart(level)) { stage=-1; server.halt(false); }
+                return;
+            }
             if(stage==0) {
                 if(!UpgradeProof.ready(server))return;
                 var site=GroveSites.first(level);

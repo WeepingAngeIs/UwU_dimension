@@ -81,7 +81,14 @@ public final class MirrorCourt {
     }
 
     static void build(HeartwaterFeature.Valley v) {
-        if (!v.overlaps(-18,137,4,164)) return;
+        if (!v.overlaps(-18,130,17,164)) return;
+        // A three-wide level path leaves the existing archive walk, crosses the lake
+        // margin, then turns into a lit cave pocket facing the court's only opening.
+        v.passage(-8,-19,131,16,-14,133);
+        v.passage(-8,-19,131,-6,-14,138);
+        v.passage(-11,-19,134,-3,-12,137);
+        for (int x=-5;x<=15;x+=5) v.block(x,-19,132,HeartwaterFeature.GLASS.get());
+        for (int x:new int[]{-11,-3}) v.block(x,-18,136,HeartwaterFeature.GLASS.get());
         v.shell(-17,-20,139,3,-6,163,Blocks.POLISHED_BLACKSTONE_BRICKS);
         v.doorway(-7,-19,139,Blocks.CHISELED_QUARTZ_BLOCK);
         v.box(-15,-19,141,1,-19,161,Blocks.SMOOTH_QUARTZ);

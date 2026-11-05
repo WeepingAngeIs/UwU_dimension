@@ -75,7 +75,13 @@ public final class GroveSites {
         }
         throw new IllegalStateException("Unable to find inland cherry foothills");
     }
-    public static boolean shrine(ServerLevel level,Site s){return s.shrine()||s.equals(first(level));}
+    public static boolean adventure(ServerLevel level,Site s){
+        return s.equals(first(level)) || (HeartwaterFeature.Valley.mix(s.x()+1771,s.z()-293,level.getSeed())&7)<3;
+    }
+    static boolean settlement(ServerLevel level,Site s,boolean dusk){
+        return s.equals(first(level)) || (HeartwaterFeature.Valley.mix(s.x()+(dusk?727:953),s.z()+331,level.getSeed())&7)<(dusk?3:4);
+    }
+    public static boolean shrine(ServerLevel level,Site s){return s.equals(first(level)) || s.shrine()&&adventure(level,s);}
     public static BlockPos arrival(ServerLevel level){Site s=first(level);return s.pos(0,s.entryY()+1,s.lip()-9);}
     public static BlockPos village(ServerLevel level,boolean dusk){return BlossomVillage.first(level,dusk).plaza();}
 }

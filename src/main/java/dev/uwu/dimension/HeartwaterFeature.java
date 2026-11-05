@@ -131,12 +131,12 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             if(overlaps(-166,-125,166,-6)) {
                 for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->BlossomVillage.place(this,p));
             }
-            falls();
+            if(GroveSites.adventure(level.getLevel(),site))falls();
         }
         void draw() {
-            if(!overlaps(-62,Math.min(site.lip()-15,8),70,165))return;
+            if(!overlaps(-62,Math.min(site.lip()-15,8),70,165)||!GroveSites.adventure(level.getLevel(),site))return;
             pools(); deep(); bathhouse(); archive(); if(shrine)hangingShrine();
-            passage(-8,-19,128,-6,-13,138);
+
             MirrorCourt.build(this);
             descent();
         }
@@ -168,8 +168,15 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 block(x,floor,z,Math.abs(x)==2?Blocks.MOSS_BLOCK:Blocks.SMOOTH_BASALT);
                 box(x,floor+1,z,x,floor+4,z,air);
             }
-            for(int x:new int[]{-4,4})for(int z=lip-5;z<=lip-2;z++){
-                block(x,floor-1,z,Blocks.CLAY);block(x,floor,z,Blocks.WATER);block(x,floor+1,z,BLOSSOM.get());
+            // Shallow cups curve along either side of the causeway. Only a few rooted
+            // blossoms float above source water; unoccupied edge columns blend into moss.
+            for(int side:new int[]{-1,1})for(int dx=-2;dx<=2;dx++)for(int dz=-3;dz<=3;dz++){
+                double edge=dx*dx/6.5+dz*dz/11.;
+                if(edge>1)continue;
+                int x=side*(5+dx),z=lip-4+dz;
+                block(x,floor-1,z,Blocks.CLAY);block(x,floor,z,Blocks.WATER);
+                box(x,floor+1,z,x,floor+3,z,air);
+                if((mix(x,z,seed)&7)==1)block(x,floor+1,z,BLOSSOM.get());
             }
         }
         void descent(){

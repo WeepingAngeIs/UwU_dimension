@@ -47,7 +47,7 @@ public final class Bellwake extends Axolotl {
             t=cx==0&&cz==0?0:HeartwaterFeature.Valley.mix(cx,cz,level.getSeed())&3;
         } else {
             var site=GroveSites.forChunk(level,new ChunkPos(rabbit.blockPosition()));
-            if(!site.usable())return;
+            if(!site.usable()||!GroveSites.adventure(level,site))return;
             cx=site.x();cz=site.z();t=site.turns();
         }
         for(int i=0;i<POOLS.length;i++){
