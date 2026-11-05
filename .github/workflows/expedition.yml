@@ -4,7 +4,7 @@ on:
     branches: [feature/blossom-villages-1.1, main]
   workflow_dispatch:
 concurrency:
-  group: expedition-${{ github.ref }}
+  group: expedition-${{ github.sha }}
   cancel-in-progress: false
 permissions:
   contents: read

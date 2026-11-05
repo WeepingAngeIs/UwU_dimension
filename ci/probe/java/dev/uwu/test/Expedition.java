@@ -12,6 +12,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public class Expedition {
     private int stage;
     private boolean failed;
+    private long arenaReadyAt;
+    private final java.util.List<net.minecraft.world.level.ChunkPos> arenaTickets=new java.util.ArrayList<>();
     private void recordFailure(String check, Throwable error) {
         failed=true;
         System.err.println("EXPEDITION CHECK FAILED "+check);
@@ -38,9 +40,18 @@ public class Expedition {
                 var site=GroveSites.first(level);
                 check("terrain and route",()->RouteProof.run(level));
                 check("loot and factions",()->ChestProof.run(level,site.pos(0,53,103)));
-                check("relics",()->ArsenalProof.run(level));
+                var arena=new net.minecraft.world.level.ChunkPos(site.pos(42,1,115));
+                for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)
+                    if(level.setChunkForced(arena.x+dx,arena.z+dz,true))
+                        arenaTickets.add(new net.minecraft.world.level.ChunkPos(arena.x+dx,arena.z+dz));
+                arenaReadyAt=level.getGameTime()+25;
                 long entries=PlayerSpawnerFactory.INSTANCE.getSpawnPool().getDetails().stream().filter(d->d.getId().startsWith("heartwater-")).count();
                 if(entries!=27)throw new AssertionError("Wrong native Cobblemon definition count "+entries);
+                stage=3;
+            } else if(stage==3) {
+                if(level.getGameTime()<arenaReadyAt)return;
+                check("relics",()->ArsenalProof.run(level));
+                arenaTickets.forEach(c->level.setChunkForced(c.x,c.z,false));
                 stage=1;
             } else if(stage==1) {
                 try { if(VillageProof.tick(level,GroveSites.village(level,false)))stage=2; }

@@ -160,7 +160,11 @@ public final class RouteProof {
                                 &&s.maxY>=foot.minY&&s.maxY<=foot.maxY)support=Math.max(support,s.maxY);
                     }
                 }
-        if(!Double.isFinite(support))throw problem("missing reachable support",x,feet,z);
+        if(!Double.isFinite(support)){
+            BlockPos at=BlockPos.containing(wx,feet,wz);
+            throw problem("missing reachable support "+at+" states from feet down: "+level.getBlockState(at)+", "
+                    +level.getBlockState(at.below())+", "+level.getBlockState(at.below(2)),x,feet,z);
+        }
         AABB body=new AABB(wx-.299,support+.001,wz-.299,wx+.299,support+1.799,wz+.299);
         if(level.getBlockCollisions(null,body).iterator().hasNext())throw problem("blocked standing body",x,support,z);
         feet=support;samples++;

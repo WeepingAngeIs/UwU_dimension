@@ -17,6 +17,8 @@ final class MusicProof {
     static void surface() {
         if(!matches("pinwheel","BIOME=flower_forest || BIOME=cherry_grove || BIOMETAG=FLORAL"))
             throw new AssertionError("Real Reactive Music matcher rejected flowering surface: "+SongPicker.currentBiomeName);
+        if(matches("river_night","DIM=OVERWORLD"))
+            throw new AssertionError("Surface incorrectly matched the Overworld dimension gate");
         if(matches("river_night","NIGHT","DIM=OVERWORLD","BIOME=biomeswevegone:sakura_grove || BIOME=minecraft:cherry_grove || BIOME=natures_spirit:aspen_forest"))
             throw new AssertionError("Overworld-specific night song leaked into Reach");
         System.out.println("REACTIVE MUSIC PASS | pinwheel eligible | "+SongPicker.currentBiomeName+" | "+SongPicker.currentDimName);

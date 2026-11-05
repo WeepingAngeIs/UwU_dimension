@@ -33,7 +33,7 @@ public final class ArsenalProof {
             require(damage[0] == kind.damage && damage[0] >= 14 && damage[0] <= 24, "Damage for " + kind + " = " + damage[0]);
         }
 
-        BlockPos platform = new BlockPos(6, level.getMaxBuildHeight() - 18, 6);
+        BlockPos platform = dev.uwu.dimension.GroveSites.first(level).pos(42, level.getMaxBuildHeight() - 18, 115);
         level.getChunkAt(platform);
         var marker = platform.offset(0, 0, 4);
         var priorBlock = level.getBlockState(marker);
@@ -154,7 +154,7 @@ public final class ArsenalProof {
                 if (bow) stack.releaseUsing(level, archer, stack.getUseDuration(archer) - 20);
                 if (bow || kind == Arsenal.Relic.LANTERN_SPEAR || kind == Arsenal.Relic.TIDELACE_TRIDENT) {
                     var shots = level.getEntitiesOfClass(Projectile.class, archer.getBoundingBox().inflate(2), e -> e.getOwner() == archer);
-                    require(shots.size() == 1, "Could not identify the launched projectile for " + kind);
+                    require(shots.size() == 1, "Expected one "+kind+" projectile in tracked arena at "+archer.blockPosition()+", observed "+shots.size());
                     Projectile shot = shots.getFirst();
                     for (int tick=0; tick<6 && shot.isAlive(); tick++) shot.tick();
                     require(!shot.isAlive(), "Projectile missed its unarmored target: " + kind);

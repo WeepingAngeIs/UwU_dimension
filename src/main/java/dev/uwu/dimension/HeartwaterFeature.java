@@ -61,6 +61,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         ITEMS.register(bus);
         FEATURES.register(bus);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HeartwaterAmbience::tick);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HeartwaterFeature::finishNewStairs);
     }
     private final boolean surface;
     private HeartwaterFeature(boolean surface) { super(NoneFeatureConfiguration.CODEC);this.surface=surface; }
@@ -72,9 +73,21 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
         if(!site.usable())return false;
-        var valley=new Valley(context.level(),pos,site);
+        var valley=new Valley(context.level(),context.level().getChunk(pos.x,pos.z),site);
         if(surface)valley.surfaceLandmarks();else valley.draw();
         return true;
+    }
+    // Neighboring chunks can decorate across the border after our own feature has run.
+    // Finish the two buried, connected stair flights once at promotion to a full chunk.
+    // Work only through the supplied chunk, without requesting a neighboring live chunk.
+    private static void finishNewStairs(net.neoforged.neoforge.event.level.ChunkEvent.Load event){
+        if(!event.isNewChunk() || !(event.getLevel() instanceof net.minecraft.server.level.ServerLevel level)
+                || !level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath(MOD,"blossom_reach")))return;
+        var chunk=event.getChunk();
+        var site=GroveSites.forChunk(level,chunk.getPos());
+        if(!site.usable()||!GroveSites.adventure(level,site))return;
+        var valley=new Valley(level,chunk,site);
+        if(valley.overlaps(16,68,41,111))valley.buriedStairs();
     }
     static final class Valley {
         final WorldGenLevel level;
@@ -88,9 +101,10 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         final BlockState water = Blocks.WATER.defaultBlockState();
         final BlockState falling = water.setValue(LiquidBlock.LEVEL, 8);
         final BlockState leaf = Blocks.CHERRY_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
-        Valley(WorldGenLevel level, ChunkPos pos,GroveSites.Site site) {
+        Valley(WorldGenLevel level, ChunkAccess chunk,GroveSites.Site site) {
+            ChunkPos pos=chunk.getPos();
             this.level = level;
-            chunk = level.getChunk(pos.x, pos.z);
+            this.chunk = chunk;
             seed = level.getSeed();
             this.site=site;
             cx=site.x();cz=site.z();turns=site.turns();shrine=GroveSites.shrine(level.getLevel(),site);
@@ -236,6 +250,13 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 passage(x,floor,65,x,floor+5,67);
                 if(x>=17&&x<40)box(x,floor,65,x,floor,67,stair(Blocks.POLISHED_ANDESITE_STAIRS,Direction.WEST));
             }
+            buriedStairs();
+            passage(15,-19,110,17,-14,140);
+            for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
+            for(int z=113;z<138;z+=4)block(18,-19,z,GLASS.get());
+            for(int z=112;z<=114;z++)box(48,1,z,48,14,z,falling);
+        }
+        void buriedStairs(){
             for(int z=68;z<=109;z++){
                 int floor=29-Math.clamp(z-80,0,29);
                 passage(39,floor,z,41,floor+5,z);
@@ -246,10 +267,6 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 passage(x,floor,109,x,floor+5,111);
                 if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
             }
-            passage(15,-19,110,17,-14,140);
-            for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
-            for(int z=113;z<138;z+=4)block(18,-19,z,GLASS.get());
-            for(int z=112;z<=114;z++)box(48,1,z,48,14,z,falling);
         }
         void passage(int x,int floor,int z,int x2,int ceiling,int z2){
             box(x,floor-1,z,x2,floor,z2,Blocks.POLISHED_ANDESITE);

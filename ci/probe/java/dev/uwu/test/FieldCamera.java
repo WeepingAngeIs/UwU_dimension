@@ -79,7 +79,6 @@ public final class FieldCamera {
         return frame(name,point(vs.pos(village.x()-15,ctr.getY()+21,village.z()-24)),point(ctr.above(2)));
     }
     private static boolean sceneryReady(Minecraft mc) {
-        var eye=BlockPos.containing(view.eye());
         var forward=view.subject().subtract(view.eye()).multiply(1,0,1).normalize();
         var across=new Vec3(-forward.z,0,forward.x);
         // Check full client chunks and terrain meshes across the visible foreground and horizon.
@@ -96,7 +95,7 @@ public final class FieldCamera {
     private static void place(ServerPlayer p,SeaWatch.View v){
         Vec3 d=v.subject().subtract(v.eye());
         float yaw=(float)Math.toDegrees(Math.atan2(-d.x,d.z)),pitch=(float)-Math.toDegrees(Math.atan2(d.y,Math.hypot(d.x,d.z)));
-        p.serverLevel().setDayTime(2100);p.serverLevel().setWeatherParameters(9000,0,false,false);
+        p.server.overworld().setDayTime(2100);p.server.overworld().setWeatherParameters(9000,0,false,false);
         p.getAbilities().invulnerable=true;p.getAbilities().mayfly=true;p.getAbilities().flying=true;p.onUpdateAbilities();
         p.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,20000,0,false,false));
         p.teleportTo(p.serverLevel(),v.eye().x,v.eye().y-p.getEyeHeight(),v.eye().z,yaw,pitch);

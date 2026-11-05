@@ -53,7 +53,7 @@ public final class VillageProof {
                 if (level.setChunkForced(chunk.x,chunk.z,true)) tickets.add(chunk);
                 level.getChunk(chunk.x,chunk.z);
             }
-            level.setDayTime(3000);
+            level.getServer().overworld().setDayTime(3000);
         }
         long age=now-start;
         List<Keeper> keepers=level.getEntitiesOfClass(Keeper.class,new AABB(village).inflate(48),
@@ -103,8 +103,8 @@ public final class VillageProof {
             if (dayAt>=0 && sleepingResidents.contains(k.getUUID()) && !k.isSleeping()
                     && brain.getMemory(MemoryModuleType.LAST_WOKEN).orElse(-1L)>=dayAt) woke=true;
         }
-        if (work && stock && nightAt<0) { nightAt=now;level.setDayTime(14000); }
-        if (slept && dayAt<0) { dayAt=now;level.setDayTime(26000); }
+        if (work && stock && nightAt<0) { nightAt=now;level.getServer().overworld().setDayTime(14000); }
+        if (slept && dayAt<0) { dayAt=now;level.getServer().overworld().setDayTime(26000); }
         if (woke && !panic && !keepers.isEmpty()) {
             if (threat==null) {
                 sheltered=keepers.stream().filter(k->sleepingResidents.contains(k.getUUID())).findFirst().orElse(keepers.getFirst());
