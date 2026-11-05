@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Half;
+
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -23,7 +23,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.function.Supplier;
+
 
 /** All writes are clipped to the decorating chunk. Coordinates below are local to a rotated valley. */
 public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
@@ -45,6 +45,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         BLOCKS.register(bus);
         ITEMS.register(bus);
         FEATURES.register(bus);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HeartwaterAmbience::tick);
     }
     public HeartwaterFeature() { super(NoneFeatureConfiguration.CODEC); }
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
@@ -109,8 +110,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             }
             if(overlaps(-62,8,69,147)){
                 falls();
-                descent();
                 pools();
+                descent();
                 deep();
                 bathhouse();
                 archive();
@@ -240,15 +241,15 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 passage(x,floor,65,x,floor+5,67);
                 if(x>=17&&x<40)box(x,floor,65,x,floor,67,stair(Blocks.POLISHED_ANDESITE_STAIRS,Direction.WEST));
             }
-            for(int z=65;z<=109;z++){
+            for(int z=68;z<=109;z++){
                 int floor=29-Math.clamp(z-80,0,29);
-                passage(39,floor,z,41,floor+5,z);
+                passage(40,floor,z,42,floor+5,z);
                 if(z>=80&&z<109)box(39,floor,z,41,floor,z,stair(Blocks.DEEPSLATE_BRICK_STAIRS,Direction.NORTH));
             }
             for(int x=16;x<=40;x++){
-                int floor=Math.max(-19,Math.min(0,x-40));
+                int floor=Math.max(-19,Math.min(0,x-39));
                 passage(x,floor,109,x,floor+5,111);
-                if(x<=40&&x>21)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
+                if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
             }
             passage(15,-19,110,17,-14,140);
             for(int z=70;z<=105;z+=6)block(41,30-Math.clamp(z-80,0,29),z,GLASS.get());
@@ -260,6 +261,12 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             box(x,floor+1,z,x2,ceiling,z2,air);
         }
         void shell(int x1,int y1,int z1,int x2,int y2,int z2,Block finish){
+            if(finish != Blocks.CRIMSON_PLANKS){
+                Block rock = y1 < 0 ? Blocks.DEEPSLATE : Blocks.TUFF;
+                box(x1-1,y1-1,z1-1,x2+1,y2+1,z1-1,rock);box(x1-1,y1-1,z2+1,x2+1,y2+1,z2+1,rock);
+                box(x1-1,y1-1,z1,x1-1,y2+1,z2,rock);box(x2+1,y1-1,z1,x2+1,y2+1,z2,rock);
+                box(x1,y1-1,z1,x2,y1-1,z2,rock);box(x1,y2+1,z1,x2,y2+1,z2,rock);
+            }
             // Every outside face is obsidian, overlapping at all twelve edges.
             box(x1,y1,z1,x2,y2,z1,Blocks.OBSIDIAN);box(x1,y1,z2,x2,y2,z2,Blocks.OBSIDIAN);
             box(x1,y1,z1,x1,y2,z2,Blocks.OBSIDIAN);box(x2,y1,z1,x2,y2,z2,Blocks.OBSIDIAN);
@@ -268,7 +275,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             box(x1+2,y1+2,z1+2,x2-2,y2-2,z2-2,air);
         }
         void doorway(int x,int y,int z,Block trim){
-            box(x-2,y,z-2,x+2,y+4,z+1,trim);
+            box(x-2,y,z-2,x+2,y+4,z-1,trim);
             box(x-1,y+1,z-2,x+1,y+3,z+1,air);
             block(x,y+4,z-2,HEART.get());block(x-2,y+2,z-2,GLASS.get());block(x+2,y+2,z-2,GLASS.get());
         }
@@ -325,14 +332,17 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             // Upside-down torii: twin hanging uprights with lower crossbars.
             for(int z:new int[]{115,122})box(44,2,z,44,8,z,Blocks.STRIPPED_CRIMSON_STEM);
             box(44,2,114,44,2,123,Blocks.NETHER_BRICKS);box(44,4,115,44,4,122,Blocks.RED_NETHER_BRICKS);
-            passage(39,0,109,41,5,118);
+            passage(40,0,109,42,5,118);
             for(int z=118;z<=125;z++){
                 int floor=z-118;
-                passage(39,floor,z,41,floor+5,z);
-                box(39,floor+1,z,41,floor+1,z,stair(Blocks.CRIMSON_STAIRS,Direction.SOUTH));
+                passage(40,floor,z,42,floor+5,z);
+                box(40,floor+1,z,42,floor+1,z,stair(Blocks.CRIMSON_STAIRS,Direction.SOUTH));
             }
-            passage(39,8,126,48,13,127);
-            chest(55,9,119,"inverted_shrine");
+            passage(40,8,126,48,13,127);
+            shell(50,7,115,57,15,123,Blocks.CRIMSON_PLANKS);
+            // Keep the gallery level around the reliquary's one gilded north door.
+            doorway(53,8,115,Blocks.CRIMSON_PLANKS);
+            chest(55,9,120,"inverted_shrine");
         }
         void hamlet(int ox,int oz,boolean dark){
             if(!overlaps(ox-19,oz-16,ox+19,oz+16))return;
@@ -374,9 +384,12 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             BlockState state=loot.defaultBlockState().setValue(ChestBlock.FACING,face(Direction.NORTH));
             level.setBlock(p,state,2);
             if(level.getBlockEntity(p) instanceof RandomizableContainerBlockEntity chest){
-                chest.setLootTable(ResourceKey.create(Registries.LOOT_TABLE,ResourceLocation.fromNamespaceAndPath(MOD,"chests/"+table)),0L);
+                chest.setLootTable(ResourceKey.create(Registries.LOOT_TABLE,ResourceLocation.fromNamespaceAndPath(MOD,"chests/"+table)));
                 chest.setChanged();
             } else throw new IllegalStateException("Missing Lootr chest block entity at "+p);
         }
     }
 }
+
+
+

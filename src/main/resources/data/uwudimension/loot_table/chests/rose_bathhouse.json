@@ -1,0 +1,75 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "uwudimension:chests/rose_bathhouse",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:ribbonhare_scepter",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:cupid_bow",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:bellheart_axe",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:satin_whip",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:blossom_greatsword",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": 3,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:glow_berries",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_petals",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:honey_bottle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 5
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

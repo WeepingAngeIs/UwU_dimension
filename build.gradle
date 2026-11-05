@@ -14,3 +14,20 @@ neoForge {
 repositories { mavenCentral() }
 dependencies { runtimeOnly fileTree(dir: 'libs', include: ['*.jar']) }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+sourceSets {
+    expedition {
+        java.srcDirs = ['ci/probe/java']
+        resources.srcDirs = ['ci/probe/resources']
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output + fileTree('libs') { include '*.jar' }
+    }
+}
+tasks.register('expeditionJar', Jar) {
+    archiveBaseName = 'heartwater-hosted-probe'
+    destinationDirectory = layout.buildDirectory.dir('expedition')
+    from sourceSets.expedition.output
+}
+
+if (providers.gradleProperty('fieldCamera').isPresent()) {
+    neoForge.mods { heartwater_probe { sourceSet(sourceSets.expedition) } }
+}

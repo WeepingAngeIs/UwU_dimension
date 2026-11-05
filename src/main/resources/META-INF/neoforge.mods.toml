@@ -4,7 +4,7 @@ license="All Rights Reserved"
 [[mods]]
 modId="uwudimension"
 version="1.0.0"
-displayName="UwU Dimension: Heartwater"
+displayName="UwU Dimension"
 description="A flowering cliff, a lake of wandering lights, and a bathhouse waiting for its first guests."
 [[dependencies.uwudimension]]
 modId="minecraft"
@@ -21,7 +21,7 @@ side="BOTH"
 [[dependencies.uwudimension]]
 modId="lootr"
 type="required"
-versionRange="[1.11.38.125,)"
+versionRange="[1.21.1-1.11.38.125,1.21.2)"
 ordering="AFTER"
 side="BOTH"
 [[dependencies.uwudimension]]

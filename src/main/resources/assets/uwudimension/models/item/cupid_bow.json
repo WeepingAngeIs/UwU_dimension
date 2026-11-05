@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "uwudimension:item/cupid_bow"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:draw": 0.05
+      },
+      "model": "uwudimension:item/cupid_bow_draw1"
+    },
+    {
+      "predicate": {
+        "uwudimension:draw": 0.85
+      },
+      "model": "uwudimension:item/cupid_bow_draw2"
+    }
+  ]
+}
