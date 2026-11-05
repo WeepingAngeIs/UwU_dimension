@@ -204,23 +204,26 @@ public final class FieldCamera {
             enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
         if(state.equals("returning")&&mc.level.dimension().equals(Level.OVERWORLD)&&ticks>60){
+            // Legacy visits verify travel only. Let queued terrain finish before moving to the next world.
+            mc.options.renderDistance().set(3);
+            if(seconds()<15)return;
             if(mc.player.position().distanceToSqr(home)>30)throw new AssertionError("Locket lost saved origin");
             enter("legacy");server.execute(()->use(server.getPlayerList().getPlayer(id),true));return;
         }
-        if(state.equals("legacy")&&mc.level.dimension().location().toString().equals("uwudimension:heartwater")&&ticks>60){
+        if(state.equals("legacy")&&mc.level.dimension().location().toString().equals("uwudimension:heartwater")&&seconds()>15){
             enter("last-return");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
-        if(state.equals("last-return")&&mc.level.dimension().equals(Level.OVERWORLD)&&ticks>60){
+        if(state.equals("last-return")&&mc.level.dimension().equals(Level.OVERWORLD)&&seconds()>15){
             enter("preview");server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
                 p.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(net.minecraft.world.item.Items.PINK_PETALS));
                 use(p,true);
             });return;
         }
-        if(state.equals("preview")&&mc.level.dimension().equals(ReefLife.PREVIEW)&&ticks>60){
+        if(state.equals("preview")&&mc.level.dimension().equals(ReefLife.PREVIEW)&&seconds()>15){
             enter("preview-return");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
-        if(state.equals("preview-return")&&mc.level.dimension().equals(Level.OVERWORLD)){
+        if(state.equals("preview-return")&&mc.level.dimension().equals(Level.OVERWORLD)&&seconds()>30){
             enter("closing");
             mc.level.disconnect();
             mc.disconnect(new TitleScreen());
