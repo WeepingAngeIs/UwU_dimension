@@ -71,7 +71,7 @@ final class InteriorFurnishings {
                 place(v,x,y,z,wood+"_bench",Direction.WEST);
                 for(int potZ:new int[]{front,rear}) {
                     v.block(x,y,potZ,dusk?Blocks.PURPLE_TERRACOTTA:Blocks.PINK_TERRACOTTA);
-                    v.block(x,y+1,potZ,potZ==front?Blocks.POTTED_AZALEA_BUSH:Blocks.POTTED_FLOWERING_AZALEA_BUSH);
+                    v.block(x,y+1,potZ,potZ==front?Blocks.POTTED_AZALEA:Blocks.POTTED_FLOWERING_AZALEA);
                 }
                 place(v,x,y,z-2*side,wood+"_flower_box",Direction.WEST);
             }

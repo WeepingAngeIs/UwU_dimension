@@ -6,7 +6,11 @@ mkdir -p build/field-server/mods
 cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2}.jar build/libs/*.jar build/expedition/*.jar build/field-server/mods/
 cd build/field-server
 curl --retry 4 -fsSL 'https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.249/neoforge-21.1.249-installer.jar' -o installer.jar
-java -jar installer.jar --installServer
+for attempt in 1 2 3; do
+  if java -jar installer.jar --installServer; then break; fi
+  if [[ "$attempt" == 3 ]]; then exit 1; fi
+  sleep 5
+done
 printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-seed=%s\nview-distance=4\nsimulation-distance=4\nmax-tick-time=600000\n' "$UWU_FIELD_SEED" > server.properties
 mkdir -p config/cobblemon/spawning
