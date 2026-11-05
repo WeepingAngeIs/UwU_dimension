@@ -48,6 +48,10 @@ public final class RouteProof {
         System.out.println("WATERFALL VILLAGE WALK arrival="+GroveSites.arrival(level)+" plaza="+village.plaza()+" distance="+Math.round(distance));
         village(level,village);
         village(level,BlossomVillage.first(level,true));
+        // These seeds previously produced a detached pair of logs above a village roof
+        // and a separate nine-log component near another settlement's outer edge.
+        if(level.getSeed()==152045L)supportedTrees(level,new BlockPos(-632,89,-28),8,false,"FORMER ROOF FRAGMENT");
+        if(level.getSeed()==4372191L)supportedTrees(level,new BlockPos(-2222,68,-1007),8,false,"FORMER EDGE FRAGMENT");
         terrain(level,2787,-1117);
         var legacy=level.getServer().getLevel(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
                 net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater")));
@@ -163,6 +167,18 @@ public final class RouteProof {
                 if(id.getPath().equals(glaze+"_stairs"))stairs++;
                 if(id.getPath().equals(glaze+"_slab"))slabs++;
             }
+        }
+        var floor=v.site().pos(h.x(),h.floor(),h.z());
+        var carpet=v.site().pos(h.x()-h.width()+2,h.floor()+1,h.z());
+        var shelf=v.site().pos(h.x()+h.width()-1,h.floor()+1,h.z());
+        if(!BuiltInRegistries.BLOCK.getKey(level.getBlockState(floor).getBlock()).toString().equals("uwudimension:heartsill")
+                || !(level.getBlockState(carpet).getBlock() instanceof net.minecraft.world.level.block.CarpetBlock)
+                || !(level.getBlockState(shelf).getBlock() instanceof net.minecraft.world.level.block.SlabBlock))
+            throw new AssertionError("Missing original heart floor, rug or tea shelf at "+floor);
+        for(int z=0;z<h.depth();z++)for(int height=1;height<=2;height++){
+            var aisle=v.site().pos(h.x(),h.floor()+height,h.z()-h.side()*z);
+            if(!level.getBlockState(aisle).getCollisionShape(level,aisle).isEmpty())
+                throw new AssertionError("Blocked walk between original doorway and interior at "+aisle);
         }
         if(pink<20||stairs<75||slabs<8||plaster<45||posts<95)
             throw new AssertionError("Incomplete Japanese house style "+h.style()+" at "+v.doorway(h)+

@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "uwudimension:yellow_heartsill"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "uwudimension:yellow_heartsill_slab"
+    ]
+  }
+}

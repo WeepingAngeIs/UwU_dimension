@@ -3,7 +3,7 @@ package dev.uwu.dimension;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -161,7 +161,7 @@ public final class BlossomVillage {
             clear(v,x+dx,y+1,z+dz);
             boolean interior=Math.abs(dx)<=w&&Math.abs(dz)<=d;
             boolean veranda=Math.abs(dx)<=w+1&&dz*side==-d-1;
-            if(interior||veranda)floor(v,x+dx,y,z+dz,veranda?boards:dark?Blocks.POLISHED_ANDESITE:Blocks.SMOOTH_SANDSTONE);
+            if(interior||veranda)floor(v,x+dx,y,z+dz,veranda?boards:inlay(dx,dz,w,d,dark));
         }
         house.place(v,h,dark);
         // Frame the original entrance and put the settlement's crest on its lintel.
@@ -172,6 +172,10 @@ public final class BlossomVillage {
         for(int dz=0;dz<=d+2;dz++)if(dz!=d)v.box(x,y+1,z-side*dz,x,y+2,z-side*dz,v.air);
         v.put(x,y+1,front,ds);
         v.put(x,y+2,front,ds.setValue(DoorBlock.HALF,DoubleBlockHalf.UPPER));
+        // Keep the center aisle open, with woven mats and a low tea shelf to its sides.
+        var rug=HeartFloor.carpet(dark?DyeColor.PURPLE:DyeColor.MAGENTA);
+        for(int dz=-1;dz<=1;dz++)v.block(x-w+2,y+1,z+dz,rug);
+        v.block(x+w-1,y+1,z,HeartFloor.slab(dark?DyeColor.GRAY:DyeColor.WHITE));
         // Bed foot faces the head. The aisle is level from the door to the workbench.
         var bed=(dark?Blocks.PURPLE_BED:Blocks.PINK_BED).defaultBlockState().setValue(BedBlock.FACING,v.face(inward));
         v.put(x-1,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));
@@ -186,6 +190,15 @@ public final class BlossomVillage {
             v.put(x+2,y+1,z+side,bed.setValue(BedBlock.PART,BedPart.HEAD));
             resident(v,p,x+2,y+1,z-side,true);
         }
+    }
+    private static Block inlay(int x,int z,int width,int depth,boolean dusk){
+        // The central stripe and alternating field repeat the pink heart from the first
+        // Heartsill block. Frame the room one tile inside its timber wall posts.
+        if(x==0)return HeartwaterFeature.HEART.get();
+        if(Math.abs(x)==width-1||Math.abs(z)==depth-1)
+            return HeartFloor.full(dusk?DyeColor.BLACK:DyeColor.MAGENTA);
+        if((x+z)%2==0)return HeartwaterFeature.HEART.get();
+        return HeartFloor.full(dusk?DyeColor.PURPLE:DyeColor.WHITE);
     }
     private static void resident(HeartwaterFeature.Valley v,Plan p,int x,int y,int z,boolean baby){
         if(!v.inside(x,z))return;

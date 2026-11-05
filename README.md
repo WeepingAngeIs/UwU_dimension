@@ -44,6 +44,12 @@ In the lower galleries, follow the lit walkway to the Mirror Court and ring its 
 
 The installed Reactive Music songpack identifies the new mainland by its actual Minecraft cherry-grove biome and makes *Pinwheel* eligible through the floral rule. Its underwater rule makes *Distant Shores* eligible while submerged. Its special nighttime cherry-grove rule for *River Night* also requires the Overworld. Track selection still follows the pack's priorities and playback timing.
 
+## Heartsill floors and rugs
+
+Step into a house and look down the center aisle. Petal homes frame the original peach heart and lavender border in white and magenta, while Dusk homes pair it with black and purple. The tea shelf uses a matching slab, and a thin heart rug leaves the main aisle clear.
+
+Heartsill comes in all 16 Minecraft dye colors, with a full tile, slab and carpet in each. For the pink original, place pink dye in the center of the crafting grid and one calcite above, below, left and right to make four blocks. Substitute another dye for its matching color. A horizontal row of three matching tiles makes six slabs. Place two matching wool blocks above a matching Heartsill block as shown in the recipe book to make four rugs. Upper and lower slabs combine into a double slab. Rugs need a supporting surface.
+
 ## Treasure
 
 | Relic | Melee damage | Bow, throw or use ability | Ability |

@@ -93,7 +93,12 @@ final class VillageTrees {
         }
         // Propagate vanilla leaf-distance updates through the crown and over chunk
         // edges. Persistent ornamental leaves and adjacent trees keep their canopies.
-        for(var leaf:leaves)level.scheduleTick(leaf,Blocks.CHERRY_LEAVES,1);
+        for(var leaf:leaves){
+            var target=chunk.getPos().equals(new ChunkPos(leaf))?chunk:
+                    level.getChunkSource().getChunkForLighting(leaf.getX()>>4,leaf.getZ()>>4);
+            if(target instanceof ChunkAccess access)access.getBlockTicks().schedule(
+                    new net.minecraft.world.ticks.ScheduledTick<>(Blocks.CHERRY_LEAVES,leaf,level.getGameTime()+1,level.nextSubTickCount()));
+        }
     }
     private static BlockState read(ServerLevel level,ChunkAccess own,BlockPos p){
         if((p.getX()>>4)==own.getPos().x&&(p.getZ()>>4)==own.getPos().z)return own.getBlockState(p);

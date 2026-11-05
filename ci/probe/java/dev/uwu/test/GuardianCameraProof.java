@@ -21,7 +21,7 @@ public final class GuardianCameraProof {
     private static volatile int victimId=-1;
     private static volatile double takeoff, startX, startZ;
     private static volatile boolean clicked, returned, wounded;
-    private static boolean gripSeen;
+    private static boolean gripSeen, returning;
     private static long started;
     private static BlockPos plaza;
     private static UUID resident, guardian;
@@ -31,6 +31,7 @@ public final class GuardianCameraProof {
 
     public static boolean tick(Minecraft mc) {
         if (returned) return true;
+        if (returning) return false;
         if (mc.player==null || mc.level==null || mc.gameMode==null || mc.getSingleplayerServer()==null) return false;
         if (++ticks==1) started=System.nanoTime();
         if ((System.nanoTime()-started)>240_000_000_000L)
@@ -109,6 +110,7 @@ public final class GuardianCameraProof {
             double lateral=Math.hypot(mc.player.getX()-startX,mc.player.getZ()-startZ);
             if(rise>8030 || lateral<70 || !gripSeen)
                 throw new AssertionError("Unexpected client throw rise="+rise+" lateral="+lateral+" grip="+gripSeen);
+            returning=true;
             System.out.println("GUARDIAN CLIENT PASS | actual normal attack of generated Keeper; visible synced grip; client rise="+rise+" away="+lateral);
             server.execute(()->{
                 ServerPlayer p=server.getPlayerList().getPlayer(id);

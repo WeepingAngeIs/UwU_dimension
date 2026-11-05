@@ -29,8 +29,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
+    private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef","grove-water"} :
-            SEED==152045?new String[]{"arrival","village","keeper-family","village-hillside","dusk-village","offsite-terrain","mirror-court"}:
+            VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
+            SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
             new String[]{"arrival","village","village-hillside"};
     private static volatile String state="menu";
     private static volatile SeaWatch.View view;
@@ -78,6 +80,12 @@ public final class FieldCamera {
             return frame(name,point(site.pos(-7,-16,142)),point(site.pos(-7,-16,151)));
         }
         var village=BlossomVillage.first(l,name.equals("dusk-village"));var ctr=village.plaza();var vs=village.site();
+        if(name.equals("heart-floor")){
+            var h=village.houses().stream().filter(v->v.style()==0||v.style()==2).findFirst().orElseThrow();
+            var eye=Vec3.atBottomCenterOf(vs.pos(h.x()+h.width()-1,h.floor()+3,h.z()-h.side()*(h.depth()-1))).add(0,.18,0);
+            var aim=point(vs.pos(h.x()-1,h.floor(),h.z()+h.side()));
+            return frame(name,eye,aim);
+        }
         if(name.equals("village") || name.equals("dusk-village")){
             var houses=village.houses();
             for(var house:houses){
@@ -141,7 +149,7 @@ public final class FieldCamera {
         if(state.equals("arriving")&&mc.level.dimension().equals(ReefLife.REACH))enter("advance");
         if(state.equals("advance")){
             if(index==TOUR.length){
-                if(SEA){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
+                if(SEA||VILLAGE){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
                 else enter("provoke");
                 return;
             }
@@ -184,7 +192,7 @@ public final class FieldCamera {
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!stocked))return;
-            if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);}
+            if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);

@@ -17,6 +17,7 @@ public final class UwUDimension {
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
     public UwUDimension(IEventBus bus) {
+        HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
         ReefLife.register(bus);
         ITEMS.register(bus);

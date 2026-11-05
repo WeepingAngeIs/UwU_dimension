@@ -61,6 +61,9 @@ jobs:
       matrix:
         seed: [152045, 4372191]
         visit: [land, sea]
+        include:
+          - seed: 152045
+            visit: village
     env:
       UWU_VISIT: ${{ matrix.visit }}
       UWU_FIELD_SEED: ${{ matrix.seed }}

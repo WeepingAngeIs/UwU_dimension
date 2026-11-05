@@ -50,6 +50,7 @@ public class Expedition {
                 stage=3;
             } else if(stage==3) {
                 if(level.getGameTime()<arenaReadyAt)return;
+                check("heartsill block family",()->HeartFloorProof.verify(level,GroveSites.first(level).pos(42,level.getMaxBuildHeight()-12,115)));
                 check("relics",()->ArsenalProof.run(level));
                 arenaTickets.forEach(c->level.setChunkForced(c.x,c.z,false));
                 stage=1;
