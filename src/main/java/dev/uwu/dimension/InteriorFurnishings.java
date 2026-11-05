@@ -25,6 +25,8 @@ final class InteriorFurnishings {
         place(v,cabinet,y+1,back,wood+"_drawer",Direction.WEST);
         place(v,cabinet,y+2,back,dusk?"purple_lamp":"pink_lamp",Direction.UP);
 
+        furnishAlcove(v,h,dusk,wood);
+
         Block[] glass=dusk?DUSK_GLASS:PETAL_GLASS;
         for(int offset=-1;offset<=1;offset++) {
             int pane=x+offset;
@@ -38,6 +40,41 @@ final class InteriorFurnishings {
             int roofY=y+shell.roofHeight(-2*side,offset);
             v.box(x-2,y+3,roofZ,x-2,roofY-1,roofZ,v.air);
             v.block(x-2,roofY,roofZ,glass[offset+1]);
+        }
+    }
+
+    private static void furnishAlcove(HeartwaterFeature.Valley v, BlossomVillage.House h, boolean dusk, String wood) {
+        int x=h.x()+h.width()-1, y=h.floor()+1, z=h.z(), side=h.side();
+        int front=z-side, rear=z+side;
+        switch (h.style()) {
+            case 0 -> {
+                // Tall bookcases flank a reading sofa facing into the room.
+                v.box(x,y,front,x,y+2,front,Blocks.BOOKSHELF);
+                v.box(x,y,rear,x,y+2,rear,Blocks.BOOKSHELF);
+                place(v,x,y,z,dusk?"purple_sofa":"pink_sofa",Direction.WEST);
+            }
+            case 1 -> {
+                v.block(x,y,z,Blocks.CRAFTING_TABLE);
+                place(v,x,y,front,wood+"_drawer",Direction.WEST);
+                place(v,x,y+1,front,wood+"_shelf",Direction.WEST);
+                place(v,x,y+1,z,wood+"_shelf",Direction.WEST);
+                place(v,x-1,y,z-2*side,dusk?"purple_stool":"pink_stool",Direction.EAST);
+            }
+            case 2 -> {
+                place(v,x,y,z,"bamboo_table",Direction.WEST);
+                place(v,x,y,front,"bamboo_chair",side>0?Direction.SOUTH:Direction.NORTH);
+                place(v,x,y,rear,"bamboo_chair",side>0?Direction.NORTH:Direction.SOUTH);
+                v.block(x,y,z-2*side,Blocks.SMOOTH_QUARTZ);
+                v.block(x,y+1,z-2*side,Blocks.CAKE);
+            }
+            case 3 -> {
+                place(v,x,y,z,wood+"_bench",Direction.WEST);
+                for(int potZ:new int[]{front,rear}) {
+                    v.block(x,y,potZ,dusk?Blocks.PURPLE_TERRACOTTA:Blocks.PINK_TERRACOTTA);
+                    v.block(x,y+1,potZ,potZ==front?Blocks.POTTED_AZALEA_BUSH:Blocks.POTTED_FLOWERING_AZALEA_BUSH);
+                }
+                place(v,x,y,z-2*side,wood+"_flower_box",Direction.WEST);
+            }
         }
     }
 

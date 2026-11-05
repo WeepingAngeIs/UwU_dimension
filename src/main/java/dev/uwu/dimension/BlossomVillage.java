@@ -175,7 +175,7 @@ public final class BlossomVillage {
         // Keep the center aisle open, with woven mats and a low tea shelf to its sides.
         var rug=HeartFloor.carpet(dark?DyeColor.PURPLE:DyeColor.MAGENTA);
         for(int dz=-1;dz<=1;dz++)v.block(x-w+2,y+1,z+dz,rug);
-        v.block(x+w-1,y+1,z,HeartFloor.slab(dark?DyeColor.GRAY:DyeColor.WHITE));
+        v.block(x-w+1,y+1,z+side,HeartFloor.slab(dark?DyeColor.GRAY:DyeColor.WHITE));
         // Bed foot faces the head. The aisle is level from the door to the workbench.
         var bed=(dark?Blocks.PURPLE_BED:Blocks.PINK_BED).defaultBlockState().setValue(BedBlock.FACING,v.face(inward));
         v.put(x-1,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));
