@@ -166,7 +166,17 @@ public final class RouteProof {
                     +level.getBlockState(at.below())+", "+level.getBlockState(at.below(2)),x,feet,z);
         }
         AABB body=new AABB(wx-.299,support+.001,wz-.299,wx+.299,support+1.799,wz+.299);
-        if(level.getBlockCollisions(null,body).iterator().hasNext())throw problem("blocked standing body",x,support,z);
+        if(level.getBlockCollisions(null,body).iterator().hasNext()){
+            List<String> obstacles=new ArrayList<>();
+            for(BlockPos p:BlockPos.betweenClosed(BlockPos.containing(body.minX,body.minY-1,body.minZ),
+                    BlockPos.containing(body.maxX,body.maxY,body.maxZ))){
+                var state=level.getBlockState(p);
+                for(var shape:state.getCollisionShape(level,p).toAabbs())if(shape.move(p).intersects(body)){
+                    obstacles.add(p.toShortString()+" "+state);break;
+                }
+            }
+            throw problem("blocked standing body "+obstacles,x,support,z);
+        }
         feet=support;samples++;
     }
     private AssertionError problem(String why,double x,double y,double z){

@@ -44,7 +44,7 @@ public final class BossProof {
     private static VelvetVesper moth;
     private static int ticks;
     private static boolean folding,peerDamage,blockedArrow,nearExpiry,expiry,secondGuard;
-    private static long start=-1;
+    private static long start=-1, readyAt=-1;
     private static boolean preparingRestart;
     private static Properties checkpoint;
     private static final Path CHECKPOINT=Path.of("mirror-checkpoint.properties");
@@ -82,10 +82,15 @@ public final class BossProof {
         require(state.is(MirrorCourt.BELL.get()),"Missing generated bell at "+bell+": "+state);
         var center=bell.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING),6);
         if(reed==null) {
-            auditApproach(level,bell,state.getValue(BlockStateProperties.HORIZONTAL_FACING));
-            var chunk=new ChunkPos(center);
-            for(int x=chunk.x-1;x<=chunk.x+1;x++)for(int z=chunk.z-1;z<=chunk.z+1;z++)
-                if(level.setChunkForced(x,z,true))forced.add(new ChunkPos(x,z));
+            if (readyAt<0) {
+                auditApproach(level,bell,state.getValue(BlockStateProperties.HORIZONTAL_FACING));
+                var chunk=new ChunkPos(center);
+                for(int x=chunk.x-1;x<=chunk.x+1;x++)for(int z=chunk.z-1;z<=chunk.z+1;z++)
+                    if(level.setChunkForced(x,z,true))forced.add(new ChunkPos(x,z));
+                readyAt=level.getGameTime()+20;
+                return false;
+            }
+            if(level.getGameTime()<readyAt || !level.areEntitiesLoaded(ChunkPos.asLong(center))) return false;
             var floor=Vec3.atBottomCenterOf(center.below());
             reed=new Guest(level,"MirrorReed",REED,floor.add(0,0,-3.4));
             vale=new Guest(level,"MirrorVale",VALE,floor.add(3.5,0,0));

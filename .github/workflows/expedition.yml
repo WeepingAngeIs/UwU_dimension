@@ -55,7 +55,9 @@ jobs:
       fail-fast: false
       matrix:
         seed: [152045, 4372191]
+        visit: [land, sea]
     env:
+      UWU_VISIT: ${{ matrix.visit }}
       UWU_FIELD_SEED: ${{ matrix.seed }}
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +80,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: client-field-visit-${{ matrix.seed }}
+          name: client-field-visit-${{ matrix.seed }}-${{ matrix.visit }}
           path: |
             run/screenshots
             run/logs/latest.log

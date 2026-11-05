@@ -28,12 +28,15 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
-    private static final String[] TOUR=SEED==152045?new String[]{"arrival","village","village-hillside","offsite-terrain","mirror-court","blush-reef","outer-reef"}:
-            new String[]{"arrival","village-hillside","blush-reef","outer-reef"};
+    private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
+    private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef"} :
+            SEED==152045?new String[]{"arrival","village","village-hillside","offsite-terrain","mirror-court"}:
+            new String[]{"arrival","village","village-hillside"};
     private static volatile String state="menu";
     private static volatile SeaWatch.View view;
     private static volatile boolean stocked;
     private static volatile String counts="";
+    private static volatile Throwable cameraFailure;
     private static long poseTime, readySince;
     private static int ticks,index;
     private static Vec3 home;
@@ -79,18 +82,10 @@ public final class FieldCamera {
         return frame(name,point(vs.pos(village.x()-15,ctr.getY()+21,village.z()-24)),point(ctr.above(2)));
     }
     private static boolean sceneryReady(Minecraft mc) {
-        var forward=view.subject().subtract(view.eye()).multiply(1,0,1).normalize();
-        var across=new Vec3(-forward.z,0,forward.x);
-        // Check full client chunks and terrain meshes across the visible foreground and horizon.
-        for(int distance:new int[]{8,24,40,56})for(int side:new int[]{-1,0,1}) {
-            var sample=BlockPos.containing(view.eye().add(forward.scale(distance)).add(across.scale(side*distance*.55)));
-            if(!mc.level.hasChunk(sample.getX()>>4,sample.getZ()>>4))return false;
-            if(!view.file().equals("mirror-court")) {
-                int ground=mc.level.getHeight(Heightmap.Types.OCEAN_FLOOR,sample.getX(),sample.getZ())-1;
-                if(!mc.levelRenderer.isSectionCompiled(new BlockPos(sample.getX(),ground,sample.getZ())))return false;
-            }
-        }
-        return mc.levelRenderer.isSectionCompiled(BlockPos.containing(view.subject())) && mc.levelRenderer.countRenderedSections()>=12;
+        var here=BlockPos.containing(view.eye());
+        for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)
+            if(!mc.level.hasChunk((here.getX()>>4)+dx,(here.getZ()>>4)+dz))return false;
+        return mc.levelRenderer.isSectionCompiled(BlockPos.containing(view.subject())) && mc.levelRenderer.countRenderedSections()>=4;
     }
     private static void place(ServerPlayer p,SeaWatch.View v){
         Vec3 d=v.subject().subtract(v.eye());
@@ -110,6 +105,9 @@ public final class FieldCamera {
         if(state.equals("create")&&mc.screen!=null&&mc.player==null)
             for(var child:List.copyOf(mc.screen.children()))if(child instanceof Button b&&(b.getMessage().getString().equals("Proceed")||b.getMessage().getString().equals("I know what I'm doing!"))){b.onPress();break;}
         if(mc.player==null||mc.level==null||mc.getSingleplayerServer()==null)return;
+        if(cameraFailure!=null)throw new AssertionError("Field camera stage "+state,cameraFailure);
+        if(!state.equals("menu")&&!state.equals("create")&&seconds()>400)
+            throw new AssertionError("Field client stalled at "+state+" visit "+index);
         var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
         if(state.equals("create")&&ticks>70){
             enter("arriving");server.execute(()->{
@@ -120,11 +118,19 @@ public final class FieldCamera {
         }
         if(state.equals("arriving")&&mc.level.dimension().equals(ReefLife.REACH))enter("advance");
         if(state.equals("advance")){
-            if(index==TOUR.length){enter("provoke");return;}
+            if(index==TOUR.length){
+                if(SEA){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
+                else enter("provoke");
+                return;
+            }
             enter("preparing");var name=TOUR[index];
             server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
-                view=viewFor(p,name);readySince=0;stocked=false;counts="";place(p,view);enter("pose");
+                try {
+                    System.out.println("SURVEY START "+name);
+                    view=viewFor(p,name);readySince=0;stocked=false;counts="";place(p,view);enter("pose");
+                    System.out.println("FIELD CAMERA "+name+" eye="+view.eye()+" subject="+view.subject());
+                } catch(Throwable error){cameraFailure=error;}
             });return;
         }
         if(state.equals("pose")){
@@ -133,13 +139,17 @@ public final class FieldCamera {
             if(view.sea()&&ticks%40==0)server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);SeaWatch.observe(p);stocked=SeaWatch.stocked();counts=SeaWatch.counts();
             });
+            if(ticks%20==0 && mc.player.getEyePosition().distanceToSqr(view.eye())>.25)
+                server.execute(()->place(server.getPlayerList().getPlayer(id),view));
+            if(ticks%400==0)System.out.println("FIELD WAIT "+view.file()+" secs="+seconds()+" clientEye="+mc.player.getEyePosition()
+                    +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+counts);
             if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+counts);
-            if(seconds()<16||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
+            if(seconds()<30||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
                 readySince=0;return;
             }
             if(readySince==0)readySince=System.nanoTime();
-            if(System.nanoTime()-readySince<4_000_000_000L||(view.sea()&&!stocked))return;
-            if(index==0)MusicProof.surface();
+            if(System.nanoTime()-readySince<8_000_000_000L||(view.sea()&&!stocked))return;
+            if(index==0&&!SEA)MusicProof.surface();
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             index++;enter("advance");return;

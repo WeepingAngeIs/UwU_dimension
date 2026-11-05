@@ -87,7 +87,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         var site=GroveSites.forChunk(level,chunk.getPos());
         if(!site.usable()||!GroveSites.adventure(level,site))return;
         var valley=new Valley(level,chunk,site);
-        if(valley.overlaps(16,68,41,111))valley.buriedStairs();
+        if(valley.overlaps(15,68,41,136))valley.buriedStairs();
     }
     static final class Valley {
         final WorldGenLevel level;
@@ -251,7 +251,6 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 if(x>=17&&x<40)box(x,floor,65,x,floor,67,stair(Blocks.POLISHED_ANDESITE_STAIRS,Direction.WEST));
             }
             buriedStairs();
-            passage(15,-19,110,17,-14,140);
             for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
             for(int z=113;z<138;z+=4)block(18,-19,z,GLASS.get());
             for(int z=112;z<=114;z++)box(48,1,z,48,14,z,falling);
@@ -267,6 +266,9 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 passage(x,floor,109,x,floor+5,111);
                 if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
             }
+            // Carry the landing through the lower flight's south turn to the archive
+            // doorway. Its trim starts at z137 and already supplies that final floor.
+            passage(15,-19,110,17,-14,136);
         }
         void passage(int x,int floor,int z,int x2,int ceiling,int z2){
             box(x,floor-1,z,x2,floor,z2,Blocks.POLISHED_ANDESITE);

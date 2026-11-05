@@ -85,8 +85,11 @@ final class HeartwaterLocket extends Item {
         player.fallDistance = 0;
         player.setDeltaMovement(Vec3.ZERO);
         player.getCooldowns().addCooldown(this, 45);
-        if (destination.dimension().equals(ReefLife.REACH))
+        if (destination.dimension().equals(ReefLife.REACH)) {
             player.displayClientMessage(Component.literal("UwU Dimension  ·  Blossom Reach"), true);
+            BlockPos plaza=BlossomVillage.first(destination,false).plaza();
+            player.displayClientMessage(Component.literal("The Petal village bell is at X " + plaza.getX() + ", Z " + plaza.getZ() + "."),false);
+        }
         return InteractionResultHolder.success(stack);
     }
 

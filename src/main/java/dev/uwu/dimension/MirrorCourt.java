@@ -95,11 +95,12 @@ public final class MirrorCourt {
         // A magenta-and-gold mosaic circles the dais. The entire walkable floor stays flush.
         for (int x=-15;x<=1;x++) for (int z=141;z<=161;z++) {
             int dx=Math.abs(x+7), dz=Math.abs(z-152);
-            if (dx+dz==6 || ((dx==5 || dz==5) && dx<=5 && dz<=5)) v.block(x,-19,z,Blocks.PURPUR_BLOCK);
+            if (dx+dz==6) v.block(x,-19,z,HeartwaterFeature.ROSETTE.get());
+            else if ((dx==5 || dz==5) && dx<=5 && dz<=5) v.block(x,-19,z,HeartwaterFeature.LACE.get());
         }
         for (int side : new int[]{-15,1}) for (int z : new int[]{143,150,158}) {
             v.box(side,-18,z,side,-9,z,Blocks.QUARTZ_PILLAR);
-            v.box(side,-11,z-1,side,-10,z+1,Blocks.PURPUR_PILLAR);
+            v.box(side,-11,z-1,side,-10,z+1,HeartwaterFeature.QUILT.get());
             v.block(side,-10,z,Blocks.PEARLESCENT_FROGLIGHT);
         }
         // Tall back-wall stained-glass butterfly, with a luminous backing inside the obsidian shell.
