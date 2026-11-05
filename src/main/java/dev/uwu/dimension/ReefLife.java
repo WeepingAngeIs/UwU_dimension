@@ -82,8 +82,8 @@ public final class ReefLife {
             if(!clearWater(level,at)||level.getNearestPlayer(at.getX()+.5,y,at.getZ()+.5,18,false)!=null)continue;
             AABB area=new AABB(at).inflate(42,16,42);
             boolean sea=level.getBiome(at).is(REEF);
-            if(sea && surface-y<=8 && level.canSeeSkyFromBelowWater(at) && rng.nextInt(3)==0
-                    && level.getEntitiesOfClass(Dolphin.class,area).size()<2) {
+            if(sea && surface-y<=8 && level.canSeeSkyFromBelowWater(at) && rng.nextBoolean()
+                    && level.getEntitiesOfClass(Dolphin.class,area,d->d.getType()==DOLPHIN.get()).size()<2) {
                 DOLPHIN.get().spawn(level,at,MobSpawnType.NATURAL);
             } else if(level.getEntitiesOfClass(AbstractFish.class,area).size()<7) {
                 var species=sea ? EntityType.TROPICAL_FISH : rng.nextBoolean()?EntityType.SALMON:EntityType.COD;

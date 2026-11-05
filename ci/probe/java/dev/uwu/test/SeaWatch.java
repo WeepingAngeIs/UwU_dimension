@@ -35,7 +35,34 @@ final class SeaWatch {
         for(var mob:l.getEntitiesOfClass(AbstractFish.class,around))if(mob.isInWater())fish.add(mob.getUUID());
         for(var mob:l.getEntitiesOfClass(Dolphin.class,around))if(mob.getType()==ReefLife.DOLPHIN.get()&&mob.isInWater())dolphins.add(mob.getUUID());
     }
-    static boolean stocked(boolean inland){return !seen.isEmpty()&&fish.size()>=3&&(inland||!dolphins.isEmpty());}
+    record Observation(boolean stocked,String counts) {}
+    static Observation snapshot(boolean inland){return new Observation(!seen.isEmpty()&&fish.size()>=3&&(inland||!dolphins.isEmpty()),counts());}
+    private static Dolphin photographed;
+    static View portrait(ServerPlayer p) {
+        var l=p.serverLevel();
+        var animals=l.getEntitiesOfClass(Dolphin.class,p.getBoundingBox().inflate(80,28,80),
+                d->d.getType()==ReefLife.DOLPHIN.get()&&d.isInWater()&&d.isAlive());
+        animals.sort(Comparator.comparingDouble(d->d.distanceToSqr(p)));
+        for(var dolphin:animals){
+            var aim=dolphin.position().add(0,.28,0);
+            var facing=dolphin.getLookAngle().multiply(1,0,1).normalize();
+            if(facing.lengthSqr()<.3)facing=new Vec3(0,0,1);
+            var side=new Vec3(-facing.z,0,facing.x);
+            for(int turn:new int[]{1,-1})for(double raise:new double[]{.15,-.6}){
+                var eye=aim.add(side.scale(3.3*turn)).add(facing.scale(1.4)).add(0,raise,0);
+                var pos=BlockPos.containing(eye);
+                if(!l.getBlockState(pos).is(Blocks.WATER)||!l.getBlockState(pos.above()).is(Blocks.WATER))continue;
+                if(l.clip(new ClipContext(eye,aim,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,p)).getType()!=HitResult.Type.MISS)continue;
+                photographed=dolphin;dolphin.setNoAi(true);dolphin.setNoGravity(true);dolphin.setDeltaMovement(Vec3.ZERO);
+                System.out.println("DOLPHIN PORTRAIT naturally observed "+dolphin.getUUID()+" at "+dolphin.blockPosition());
+                return new View(eye,aim,"ribbon-dolphin",false);
+            }
+        }
+        return null;
+    }
+    static void releaseDolphin(){
+        if(photographed!=null){photographed.setNoAi(false);photographed.setNoGravity(false);photographed=null;}
+    }
     static String counts(){return "aquatic Pokemon="+seen+", fish="+fish.size()+", Ribbon Dolphins="+dolphins.size();}
     static View inland(ServerPlayer p,BlockPos origin) {
         var l=p.serverLevel();var chunks=l.getChunkSource();var gen=chunks.getGenerator();var noise=chunks.randomState();

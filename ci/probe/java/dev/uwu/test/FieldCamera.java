@@ -30,14 +30,13 @@ public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef","grove-water"} :
+    private static final String[] TOUR=SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
             new String[]{"arrival","village","village-hillside"};
     private static volatile String state="menu";
     private static volatile SeaWatch.View view;
-    private static volatile boolean stocked;
-    private static volatile String counts="";
+    private static volatile SeaWatch.Observation observation=new SeaWatch.Observation(false,"");
     private static volatile Throwable cameraFailure;
     private static long poseTime, readySince;
     private static int ticks,index;
@@ -154,23 +153,23 @@ public final class FieldCamera {
                 return;
             }
             var name=TOUR[index];
-            if(name.equals("keeper-family")){enter("family-wait");return;}
+            if(name.equals("keeper-family")||name.equals("ribbon-dolphin")){enter("portrait-wait");return;}
             enter("preparing");
             server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
                 try {
                     System.out.println("SURVEY START "+name);
-                    view=viewFor(p,name);readySince=0;stocked=false;counts="";place(p,view);enter("pose");
+                    view=viewFor(p,name);readySince=0;observation=new SeaWatch.Observation(false,"");place(p,view);enter("pose");
                     System.out.println("FIELD CAMERA "+name+" eye="+view.eye()+" subject="+view.subject());
                 } catch(Throwable error){cameraFailure=error;}
             });return;
         }
-        if(state.equals("family-wait")&&ticks%40==0){
+        if(state.equals("portrait-wait")&&ticks%40==0){
             server.execute(()->{
-                if(!state.equals("family-wait"))return;
+                if(!state.equals("portrait-wait"))return;
                 try{
                     var p=server.getPlayerList().getPlayer(id);
-                    var portrait=FamilyCamera.arrange(p);
+                    var portrait=TOUR[index].equals("keeper-family")?FamilyCamera.arrange(p):SeaWatch.portrait(p);
                     if(portrait!=null){view=portrait;readySince=0;place(p,view);enter("pose");}
                 }catch(Throwable error){cameraFailure=error;}
             });
@@ -180,22 +179,24 @@ public final class FieldCamera {
             mc.options.hideGui=true;
             if(mc.screen!=null && mc.level.dimension().equals(ReefLife.REACH))mc.setScreen(null);
             if(view.sea()&&ticks%40==0)server.execute(()->{
-                var p=server.getPlayerList().getPlayer(id);boolean inland=view.file().equals("grove-water");SeaWatch.observe(p,inland);stocked=SeaWatch.stocked(inland);counts=SeaWatch.counts();
+                var p=server.getPlayerList().getPlayer(id);boolean inland=view.file().equals("grove-water");SeaWatch.observe(p,inland);observation=SeaWatch.snapshot(inland);
             });
+            var sample=observation;
             if(ticks%20==0 && mc.player.getEyePosition().distanceToSqr(view.eye())>.25)
                 server.execute(()->place(server.getPlayerList().getPlayer(id),view));
             if(ticks%400==0)System.out.println("FIELD WAIT "+view.file()+" secs="+seconds()+" clientEye="+mc.player.getEyePosition()
-                    +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+counts);
-            if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+counts);
+                    +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+sample.counts());
+            if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+sample.counts());
             if(seconds()<38||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
                 readySince=0;return;
             }
             if(readySince==0)readySince=System.nanoTime();
-            if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!stocked))return;
+            if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
             if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}
-            if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
+            if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);
+            if(view.file().equals("ribbon-dolphin"))server.execute(SeaWatch::releaseDolphin);
             index++;enter("advance");return;
         }
         if(state.equals("provoke")){
