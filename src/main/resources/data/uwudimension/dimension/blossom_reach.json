@@ -1,0 +1,102 @@
+{
+  "type": "uwudimension:heartwater",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "minecraft:overworld",
+    "biome_source": {
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "uwudimension:blush_reef",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -2,
+              -0.22
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "minecraft:cherry_grove",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "minecraft:lush_caves",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -2,
+              2
+            ],
+            "depth": [
+              0.54,
+              2
+            ],
+            "offset": 0
+          }
+        }
+      ]
+    }
+  }
+}

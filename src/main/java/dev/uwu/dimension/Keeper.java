@@ -18,7 +18,16 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerData;
+import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,16 +36,17 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 
-public final class Keeper extends AbstractVillager {
+public final class Keeper extends Villager {
     private static final String ALLEGIANCE = "uwudimension_fellowship";
     private final Map<UUID, Long> peacefulUntil = new HashMap<>();
     private UUID companion;
     private boolean settled;
     private BlockPos home;
     private long nextGift;
-    private long restockDay = -1;
+    private BlockPos village;
+    private long nextCourtship;
 
-    public Keeper(EntityType<? extends AbstractVillager> type, Level level) {
+    public Keeper(EntityType<? extends Villager> type, Level level) {
         super(type, level);
         setPersistenceRequired();
     }
@@ -58,15 +68,10 @@ public final class Keeper extends AbstractVillager {
 
     @Override
     protected void registerGoals() {
-        goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(1, new TradeWithPlayerGoal(this));
-        goalSelector.addGoal(1, new LookAtTradingPlayerGoal(this));
-        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.02, true));
-        goalSelector.addGoal(3, new FollowFriend());
-        goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 0.9));
-        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.75));
-        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 7));
-        goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        // The vanilla Villager brain owns movement, doors, shelter, sleep and work.
+        // Only faction combat and an explicit follower order may override its walk target.
+        goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.02, true));
+        goalSelector.addGoal(2, new FollowFriend());
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Keeper.class, true,
                 mob -> mob instanceof Keeper keeper && keeper.dusk() != dusk()));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true,
@@ -94,11 +99,11 @@ public final class Keeper extends AbstractVillager {
             getLookControl().setLookAt(friend, 20, 30);
             if (--nextPath <= 0) {
                 nextPath = 8;
-                getNavigation().moveTo(friend, 1.13);
+                getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(friend, 1.13F, 2));
             }
         }
 
-        @Override public void stop() { getNavigation().stop(); friend = null; }
+        @Override public void stop() { friend = null; }
     }
 
     @Override
@@ -142,11 +147,10 @@ public final class Keeper extends AbstractVillager {
             if (tickCount % 20 == 0) {
                 if ((companion == null || settled) && home == null) assignHome(blockPosition());
                 if (!isTrading() && companion != null && getTarget() == null) defendCompanion();
-                long day = server.getDayTime() / 24000L;
-                if (restockDay != day && !isTrading()) {
-                    if (offers != null) offers.forEach(MerchantOffer::resetUses);
-                    restockDay = day;
-                }
+                if (!isTrading() && !isSleeping() && getTarget() == null && now % 100 < 20)
+                    liveWithNeighbors(server, now);
+                if (village != null && tickCount % 200 == 0 && blockPosition().closerThan(village, 40))
+                    BlossomWarden.ensureVillageGuard(server, village);
                 if (!dusk() && now >= nextGift && !isTrading() && getTarget() == null) shareGift(server, now);
             }
         }
@@ -155,7 +159,62 @@ public final class Keeper extends AbstractVillager {
 
     private void assignHome(BlockPos pos) {
         home = pos.immutable();
-        restrictTo(home, 7);
+        restrictTo(home, 32);
+    }
+
+    public void bindVillage(BlockPos court) { village = court.immutable(); }
+    @Nullable public BlockPos villageCourt() { return village; }
+
+    @Override public boolean hurt(DamageSource source, float amount) {
+        float health = getHealth() + getAbsorptionAmount();
+        boolean accepted = super.hurt(source, amount);
+        if (accepted && getHealth() + getAbsorptionAmount() < health
+                && level() instanceof ServerLevel server && source.getEntity() instanceof LivingEntity offender)
+            BlossomWarden.alert(server, this, offender);
+        return accepted;
+    }
+
+    // Vanilla TradeWithVillager and VillagerMakeLove check the exact vanilla entity type.
+    // Supply the matching-faction interaction while reusing vanilla food points, inventories,
+    // bed POI tickets, navigation and breeding cooldowns.
+    private void liveWithNeighbors(ServerLevel server, long now) {
+        if (companion != null && !settled || isBaby()) return;
+        var brain = getBrain();
+        if (!brain.isActive(Activity.MEET) && !brain.isActive(Activity.IDLE)) return;
+        for (Keeper neighbor : server.getEntitiesOfClass(Keeper.class, getBoundingBox().inflate(4),
+                k -> k != this && k.dusk() == dusk() && k.isAlive() && !k.isSleeping() && !k.isTrading())) {
+            if (!hasLineOfSight(neighbor)) continue;
+            gossip(server, neighbor, now);
+            if (hasExcessFood() && neighbor.wantsMoreFood()) {
+                for (int slot = 0; slot < getInventory().getContainerSize(); slot++) {
+                    ItemStack food = getInventory().getItem(slot);
+                    if (FOOD_POINTS.containsKey(food.getItem()) && food.getCount() >= 6) {
+                        BehaviorUtils.throwItem(this, getInventory().removeItem(slot, food.getCount() / 2), neighbor.position());
+                        break;
+                    }
+                }
+            }
+            if (now >= nextCourtship && canBreed() && neighbor.canBreed() && getId() < neighbor.getId()) {
+                nextCourtship = now + 600;
+                var bed = server.getPoiManager().take(t -> t.is(PoiTypes.HOME), (t, pos) -> {
+                    var path = getNavigation().createPath(pos, 1);
+                    return path != null && path.canReach();
+                }, blockPosition(), 40);
+                if (bed.isPresent()) {
+                    Keeper child = getBreedOffspring(server, neighbor);
+                    if (child != null) {
+                        child.setAge(-24000);
+                        child.moveTo(getX(), getY(), getZ(), getYRot(), 0);
+                        child.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(server.dimension(), bed.get()));
+                        if (server.addFreshEntity(child)) {
+                            eatAndDigestFood(); neighbor.eatAndDigestFood(); setAge(6000); neighbor.setAge(6000);
+                            server.broadcastEntityEvent(child, (byte)18);
+                        } else server.getPoiManager().release(bed.get());
+                    } else server.getPoiManager().release(bed.get());
+                }
+            }
+            break;
+        }
     }
 
     private void defendCompanion() {
@@ -183,7 +242,7 @@ public final class Keeper extends AbstractVillager {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!isAlive() || isBaby()) return InteractionResult.PASS;
+        if (!isAlive()) return InteractionResult.PASS;
         if (level().isClientSide) return InteractionResult.SUCCESS;
         if (isTrading() && getTradingPlayer() != player) return InteractionResult.CONSUME;
         ItemStack held = player.getItemInHand(hand);
@@ -192,11 +251,27 @@ public final class Keeper extends AbstractVillager {
             return InteractionResult.CONSUME;
         }
         if (getTarget() == player) setTarget(null);
+        var food = held.get(DataComponents.FOOD);
+        if (food != null && getHealth() < getMaxHealth()) {
+            heal(Math.max(1, food.nutrition()));
+            if (!player.getAbilities().instabuild) {
+                held.shrink(1);
+                food.usingConvertsTo().ifPresent(container -> {
+                    var remainder = container.copy();
+                    if (held.isEmpty()) player.setItemInHand(hand, remainder);
+                    else if (!player.addItem(remainder)) player.drop(remainder, false);
+                });
+            }
+            playSound(net.minecraft.sounds.SoundEvents.GENERIC_EAT, 0.8F, 1.2F);
+            ((ServerLevel)level()).sendParticles(ParticleTypes.HEART,getX(),getEyeY(),getZ(),4,.2,.1,.2,0);
+            return InteractionResult.CONSUME;
+        }
+        if (isBaby() || isSleeping()) return InteractionResult.PASS;
         if (player.isShiftKeyDown()) {
             if (owns(player) && held.isEmpty()) {
                 settled = !settled;
                 if (settled) assignHome(blockPosition());
-                else { clearRestriction(); home = null; }
+                else { clearRestriction(); home = null; releaseDailyPois(); }
                 player.displayClientMessage(Component.literal(settled ? "Your keeper will live here." : "Your keeper will follow you."), true);
             } else if (held.is(Items.EMERALD)) {
                 recruit(player, held);
@@ -230,12 +305,30 @@ public final class Keeper extends AbstractVillager {
             home = null;
             settled = false;
             clearRestriction();
+            releaseDailyPois();
             playSound(getNotifyTradeSound(), 0.8F, 1.12F);
             player.displayClientMessage(Component.literal("Oath accepted. Crouch and interact with an empty hand to settle your keeper."), true);
         }
     }
 
+    private void releaseDailyPois() {
+        if (!(level() instanceof ServerLevel)) return;
+        for (var memory : java.util.List.of(MemoryModuleType.HOME, MemoryModuleType.JOB_SITE,
+                MemoryModuleType.POTENTIAL_JOB_SITE, MemoryModuleType.MEETING_POINT)) {
+            releasePoi(memory);
+            getBrain().eraseMemory(memory);
+        }
+    }
+
+    @Override public void setVillagerData(VillagerData updated) {
+        // Keep an existing keeper's offer uses and prices when a new workstation changes profession.
+        MerchantOffers previous = offers;
+        super.setVillagerData(updated);
+        if (previous != null) offers = previous;
+    }
+
     @Override protected void updateTrades() {
+        if (offers != null && !offers.isEmpty()) return;
         if (dusk()) {
             sell(1, Items.BLACK_CANDLE, 3);
             sell(2, Items.SOUL_LANTERN, 2);
@@ -262,7 +355,16 @@ public final class Keeper extends AbstractVillager {
             ExperienceOrb.award(server, position(), 2 + random.nextInt(3));
     }
 
-    @Override @Nullable public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob partner) { return null; }
+    @Override @Nullable public Keeper getBreedOffspring(ServerLevel level, AgeableMob partner) {
+        Keeper child = (dusk() ? People.DUSK_KEEPER : People.PETAL_KEEPER).get().create(level);
+        if (child != null && village != null) child.bindVillage(village);
+        return child;
+    }
+    @Override public boolean canBreed() { return super.canBreed() && (companion == null || settled); }
+    @Override public void spawnGolemIfNeeded(ServerLevel world, long time, int minimumVillagers) {
+        // This settlement's bell is guarded by its flower guardian.
+        if (village != null) BlossomWarden.ensureVillageGuard(world, village);
+    }
     @Override public SoundEvent getNotifyTradeSound() { return dusk() ? People.DUSK_VOICE.get() : People.PETAL_VOICE.get(); }
     @Override protected SoundEvent getTradeUpdatedSound(boolean valid) { return getNotifyTradeSound(); }
     @Override protected SoundEvent getAmbientSound() { return getNotifyTradeSound(); }
@@ -275,7 +377,7 @@ public final class Keeper extends AbstractVillager {
         if (home != null) data.putLong("Hearth", home.asLong());
         data.putBoolean("Settled", settled);
         data.putLong("NextGift", nextGift);
-        data.putLong("RestockDay", restockDay);
+        if (village != null) data.putLong("VillageCourt", village.asLong());
     }
 
     @Override public void readAdditionalSaveData(CompoundTag data) {
@@ -284,6 +386,6 @@ public final class Keeper extends AbstractVillager {
         settled = data.getBoolean("Settled");
         if (data.contains("Hearth")) assignHome(BlockPos.of(data.getLong("Hearth")));
         nextGift = data.getLong("NextGift");
-        restockDay = data.getLong("RestockDay");
+        if (data.contains("VillageCourt")) village = BlockPos.of(data.getLong("VillageCourt"));
     }
 }

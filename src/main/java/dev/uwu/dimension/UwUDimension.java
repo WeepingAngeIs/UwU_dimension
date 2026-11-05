@@ -17,6 +17,7 @@ public final class UwUDimension {
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
     public UwUDimension(IEventBus bus) {
+        ReefLife.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);
@@ -34,3 +35,4 @@ public final class UwUDimension {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) event.accept(LOCKET.get());
     }
 }
+
