@@ -83,7 +83,7 @@ jobs:
           cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
           printf 'onboardAccessibility:false\nrenderDistance:10\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
-          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           bash ci/thread-samples.sh run/thread-samples &
           sampler=$!
           trap 'kill "$sampler" 2>/dev/null || true' EXIT
