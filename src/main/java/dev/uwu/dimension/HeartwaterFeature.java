@@ -329,6 +329,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 block(10,53,z+2,Blocks.LIGHT_GRAY_CARPET);
             }
             for(int z=97;z<102;z++)block(7+z%2,53,z,Blocks.GRAY_CARPET);
+            InteriorFurnishings.bathhouse(this);
             chest(0,53,103,"rose_bathhouse");
         }
         void archive(){
@@ -341,6 +342,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 block(x,-15,z,HEART.get());
             }
             for(int x=8;x<26;x+=4)block(x,-12,145,LACE.get());
+            InteriorFurnishings.archive(this);
             chest(23,-18,147,"tide_archive");
         }
         void hangingShrine(){

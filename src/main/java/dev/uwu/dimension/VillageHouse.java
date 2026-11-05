@@ -68,6 +68,9 @@ final class VillageHouse {
     private static <T extends Comparable<T>> BlockState apply(BlockState state,Property<T> property,String value){
         return state.setValue(property,property.getValue(value).orElseThrow());
     }
+    int roofHeight(int localX,int localZ) {
+        return pieces.stream().filter(b->b.x()==localX && b.z()==localZ).mapToInt(Piece::y).max().orElseThrow();
+    }
     void place(HeartwaterFeature.Valley v,BlossomVillage.House h,boolean dusk){
         int sign=h.side();
         Rotation rotation=Rotation.values()[(v.turns+turns+(sign<0?2:0))&3];
