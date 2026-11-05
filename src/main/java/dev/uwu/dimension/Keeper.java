@@ -45,6 +45,7 @@ public final class Keeper extends Villager {
     private long nextGift;
     private BlockPos village;
     private long nextCourtship;
+    private boolean legacyHome;
 
     public Keeper(EntityType<? extends Villager> type, Level level) {
         super(type, level);
@@ -149,6 +150,19 @@ public final class Keeper extends Villager {
                 if (!isTrading() && companion != null && getTarget() == null) defendCompanion();
                 if (!isTrading() && !isSleeping() && getTarget() == null && now % 100 < 20)
                     liveWithNeighbors(server, now);
+                if (legacyHome && tickCount >= 60 && !isTrading() && companion == null) {
+                    // Old hamlets already remember each keeper's home post. Neighbors adopt
+                    // one common post as their court without changing a single legacy block.
+                    var neighbors = server.getEntitiesOfClass(Keeper.class,getBoundingBox().inflate(34),
+                            k -> k.dusk()==dusk() && k.companion==null && k.home!=null);
+                    if (neighbors.size() >= 2) {
+                        BlockPos shared = neighbors.stream().filter(k -> k.village!=null)
+                                .map(k->k.village).min(BlockPos::compareTo).orElseGet(() ->
+                                        neighbors.stream().map(k->k.home).min(BlockPos::compareTo).orElse(home));
+                        bindVillage(shared);
+                        legacyHome=false;
+                    }
+                }
                 if (village != null && tickCount % 200 == 0 && blockPosition().closerThan(village, 40))
                     BlossomWarden.ensureVillageGuard(server, village);
                 if (!dusk() && now >= nextGift && !isTrading() && getTarget() == null) shareGift(server, now);
@@ -378,6 +392,7 @@ public final class Keeper extends Villager {
         data.putBoolean("Settled", settled);
         data.putLong("NextGift", nextGift);
         if (village != null) data.putLong("VillageCourt", village.asLong());
+        if (legacyHome) data.putBoolean("SeekLegacyCourt", true);
     }
 
     @Override public void readAdditionalSaveData(CompoundTag data) {
@@ -387,5 +402,6 @@ public final class Keeper extends Villager {
         if (data.contains("Hearth")) assignHome(BlockPos.of(data.getLong("Hearth")));
         nextGift = data.getLong("NextGift");
         if (data.contains("VillageCourt")) village = BlockPos.of(data.getLong("VillageCourt"));
+        legacyHome = village==null && (data.contains("RestockDay") || data.getBoolean("SeekLegacyCourt"));
     }
 }

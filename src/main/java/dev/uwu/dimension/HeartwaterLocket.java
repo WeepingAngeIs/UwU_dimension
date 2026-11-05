@@ -66,7 +66,13 @@ final class HeartwaterLocket extends Item {
             tag.putFloat("yaw", player.getYRot());
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
             if (legacy) {
-                spot = new Vec3(0.5, 81, 0.5);
+                BlockPos oldGate=new BlockPos(0,81,0);
+                destination.getChunkAt(oldGate);
+                if(!destination.getBlockState(oldGate.below()).isSolid()
+                        || !destination.getBlockState(oldGate).getCollisionShape(destination,oldGate).isEmpty()
+                        || !destination.getBlockState(oldGate.above()).getCollisionShape(destination,oldGate.above()).isEmpty())
+                    oldGate=destination.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,oldGate);
+                spot = Vec3.atBottomCenterOf(oldGate);
                 yaw = 0;
             } else {
                 spot = Vec3.atBottomCenterOf(GroveSites.arrival(destination));

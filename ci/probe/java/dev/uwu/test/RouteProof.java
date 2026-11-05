@@ -4,7 +4,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import dev.uwu.dimension.GroveSites;
+import dev.uwu.dimension.BlossomVillage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -18,25 +25,67 @@ public final class RouteProof {
     private final int cx,cz,turns;
     private double lx,lz,feet;
     private int samples;
-    private RouteProof(ServerLevel level,int cx,int cz,int turns){this.level=level;this.cx=cx;this.cz=cz;this.turns=turns;}
-    private static int mix(int x,int z,long seed){
-        long h=seed^(x*0x632BE59BD9B4E019L)^(z*0x9E3779B97F4A7C15L);
-        h=(h^(h>>>27))*0x94D049BB133111EBL;return (int)(h^(h>>>31));
+    private final GroveSites.Site site;
+    private RouteProof(ServerLevel level,GroveSites.Site site){
+        this.level=level;this.site=site;this.cx=site.x();this.cz=site.z();this.turns=site.turns();
     }
     public static void run(ServerLevel level){
-        List<int[]> cells=new ArrayList<>();
-        for(int x=-9;x<=9;x++)for(int z=-9;z<=9;z++)cells.add(new int[]{x*384,z*384});
-        cells.sort(Comparator.comparingInt(c->Math.abs(c[0])+Math.abs(c[1])));
-        boolean[] done=new boolean[4];
-        for(var c:cells){
-            int style=mix(c[0],c[1],level.getSeed());
-            boolean spawn=c[0]==0&&c[1]==0;
-            int rot=spawn?0:style&3;
-            if(done[rot]||(!spawn&&(style&12)!=0))continue;
-            new RouteProof(level,c[0],c[1],rot).verify();done[rot]=true;
-            if(done[0]&&done[1]&&done[2]&&done[3])return;
+        GroveSites.Site first=GroveSites.first(level);
+        boolean[] done=new boolean[4];new RouteProof(level,first).verify();done[first.turns()]=true;
+        for(int ring=1;ring<17;ring++){
+            for(int gx=-ring;gx<=ring;gx++)for(int gz=-ring;gz<=ring;gz++){
+                if(Math.max(Math.abs(gx),Math.abs(gz))!=ring)continue;
+                var s=GroveSites.site(level,first.gx()+gx,first.gz()+gz);
+                if(!s.usable()||done[s.turns()]||!GroveSites.shrine(level,s))continue;
+                new RouteProof(level,s).verify();done[s.turns()]=true;
+            }
+            if(done[0]&&done[1]&&done[2]&&done[3])break;
         }
-        throw new AssertionError("No shrine cell for every rotation");
+        if(!(done[0]&&done[1]&&done[2]&&done[3]))throw new AssertionError("Missing rotated shrine site");
+        for(boolean dusk:new boolean[]{false,true})village(level,BlossomVillage.first(level,dusk));
+        terrain(level,2787,-1117);
+        terrain(level,first.x()+198,first.z()+192);
+    }
+    private static void terrain(ServerLevel level,int x,int z){
+        // Away from foundations there must be no projected shelf. Compare actual ground
+        // to raw Overworld noise per column, crossing both local chunk boundaries.
+        int matches=0,examined=0,trees=0;
+        for(int a=x-16;a<=x+16;a+=2)for(int b=z-16;b<=z+16;b+=2){
+            int baseline=level.getChunkSource().getGenerator().getBaseHeight(a,b,Heightmap.Types.OCEAN_FLOOR_WG,level,level.getChunkSource().randomState())-1;
+            var top=level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,new BlockPos(a,0,b)).below();
+            boolean trunk=false;
+            while(top.getY()>level.getMinBuildHeight() && (level.getBlockState(top).is(BlockTags.LOGS)||level.getBlockState(top).is(BlockTags.LEAVES)||!level.getBlockState(top).isSolidRender(level,top))){
+                if(level.getBlockState(top).is(BlockTags.LOGS))trunk=true;
+                top=top.below();
+            }
+            if(trunk)trees++;
+            if(Math.abs(top.getY()-baseline)<=3)matches++;
+            examined++;
+            for(int y=Math.max(level.getMinBuildHeight()+1,baseline-3);y<baseline+16;y++){
+                BlockPos plant=new BlockPos(a,y,b);
+                var state=level.getBlockState(plant);
+                if((state.is(Blocks.PINK_PETALS)||state.is(Blocks.SHORT_GRASS)||state.is(Blocks.TALL_GRASS)) && !state.canSurvive(level,plant))
+                    throw new AssertionError("Floating plant at "+plant);
+            }
+        }
+        if(matches<examined*.70)throw new AssertionError("Terrain cut or plateau at "+x+","+z+" native="+matches+"/"+examined);
+        System.out.println("GROVE TERRAIN native columns="+matches+"/"+examined+" tree columns="+trees+" centered "+x+","+z);
+    }
+    private static void village(ServerLevel level,BlossomVillage.Plan v){
+        if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE))throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());
+        if(v.houses().size()<6)throw new AssertionError("Sparse village");
+        java.util.Set<Integer> styles=new java.util.HashSet<>();
+        for(var h:v.houses()){
+            styles.add(h.style());
+            var bed=v.bedHead(h);var door=v.doorway(h);
+            if(!(level.getBlockState(bed).getBlock() instanceof BedBlock) || !(level.getBlockState(door).getBlock() instanceof DoorBlock)
+                    || !level.getBlockState(v.workstation(h)).is(h.job()))throw new AssertionError("Incomplete house at "+door);
+            for(int a=-h.width();a<=h.width();a++)for(int b=-h.depth();b<=h.depth();b++){
+                BlockPos below=v.site().pos(h.x()+a,h.floor()-1,h.z()+b);
+                if(!level.getBlockState(below).isSolidRender(level,below))throw new AssertionError("Floating house foundation "+below);
+            }
+        }
+        System.out.println("NATURAL GROVE VILLAGE "+v.plaza()+" houses="+v.houses().size()+" styles="+styles+" faction="+v.dusk()+" real beds/jobs/doors and foundations");
     }
     private double worldX(double x,double z){return cx+.5+switch(turns){case 1->-z;case 2->-x;case 3->z;default->x;};}
     private double worldZ(double x,double z){return cz+.5+switch(turns){case 1->x;case 2->-z;case 3->-x;default->z;};}
@@ -75,6 +124,13 @@ public final class RouteProof {
         var b=level.getBlockState(pos(x,y,z));for(int i=0;i<turns;i++)facing=facing.getClockWise();
         if(!(b.getBlock() instanceof StairBlock)||b.getValue(StairBlock.FACING)!=facing)throw problem("stair orientation "+b,x,y,z);
     }
+    private void tread(int x,int y,int z,Direction direction){
+        stairs(x,y,z,direction);
+        for(int rise=1;rise<=3;rise++){
+            var p=pos(x,y+rise,z);if(!level.getBlockState(p).getCollisionShape(level,p).isEmpty())
+                throw problem("obstruction above tread: "+level.getBlockState(p),x,y+rise,z);
+        }
+    }
     private void shell(int ax,int ay,int az,int bx,int by,int bz,int doorX,int doorY){
         for(int x=ax;x<=bx;x++)for(int y=ay;y<=by;y++)for(int z=az;z<=bz;z++){
             if(x!=ax&&x!=bx&&y!=ay&&y!=by&&z!=az&&z!=bz)continue;
@@ -88,14 +144,22 @@ public final class RouteProof {
         if(!id.equals("lootr:lootr_chest"))throw problem("missing Lootr reward",x,y,z);
     }
     private void verify(){
-        begin(0,81,0);walk(0,85);walk(-7,85);walk(-7,103);walk(-1,103);chest(0,53,103);
+        begin(0,site.entryY()+1,site.lip()-9);walk(0,85);walk(-7,85);walk(-7,103);walk(-1,103);chest(0,53,103);
         walk(-7,103);walk(-7,85);walk(0,85);walk(0,66);walk(40,66);walk(40,109);
         walk(41,109);walk(41,126);walk(48,126);walk(48,112);walk(53,112);walk(53,120);walk(54,120);chest(55,9,120);
         walk(53,120);walk(53,112);walk(48,112);walk(48,126);walk(41,126);walk(41,110);walk(16,110);
         walk(16,148);walk(23,148);chest(23,-18,147);
-        walk(16,148);walk(16,127);walk(-23,127);walk(16,127);walk(16,110);walk(40,110);walk(40,66);walk(0,66);walk(0,0);
-        stairs(0,76,29,Direction.NORTH);stairs(21,48,66,Direction.WEST);stairs(40,24,85,Direction.NORTH);
+        walk(16,148);walk(16,127);walk(-23,127);walk(16,127);walk(16,110);walk(40,110);walk(40,66);walk(0,66);walk(0,site.lip()-9);
+        stairs(0,site.entryY()-2,site.lip()+6,Direction.NORTH);stairs(21,48,66,Direction.WEST);stairs(40,24,85,Direction.NORTH);
         stairs(10,-23,127,Direction.EAST);stairs(35,-4,110,Direction.EAST);stairs(41,4,121,Direction.SOUTH);
+        // Inspect every tread across its whole width (the first release's centerline
+        // probe missed a lamp sitting on one outer tread and an uncut side lane).
+        for(int z=site.lip()+4;z<53;z++)for(int x=-2;x<=2;x++)tread(x,105-z,z,Direction.NORTH);
+        for(int x=17;x<40;x++)for(int z=65;z<=67;z++)tread(x,69-x,z,Direction.WEST);
+        for(int z=80;z<109;z++)for(int x=39;x<=41;x++)tread(x,109-z,z,Direction.NORTH);
+        for(int x=21;x<=39;x++)for(int z=109;z<=111;z++)tread(x,x-39,z,Direction.EAST);
+        for(int x=-14;x<=14;x++)for(int z=126;z<=128;z++)tread(x,x-33,z,Direction.EAST);
+        for(int z=118;z<=125;z++)for(int x=40;x<=42;x++)tread(x,z-117,z,Direction.SOUTH);
         shell(-14,51,82,14,62,106,0,52);shell(5,-20,139,27,-10,150,16,-19);shell(50,7,115,57,15,123,53,8);
         System.out.println("ROUTE PROOF rotation="+turns+" origin="+cx+","+cz+" player-body samples="+samples+" three single-opening obsidian shells and three reward sites passed");
     }
