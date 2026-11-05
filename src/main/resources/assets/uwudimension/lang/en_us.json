@@ -11,7 +11,7 @@
   "item.uwudimension.ribbonhare_scepter": "Ribbonhare Scepter",
   "item.uwudimension.blossom_greatsword": "Blossom Greatsword",
   "item.uwudimension.bellheart_axe": "Bellheart Axe",
-  "item.uwudimension.lockkeeper_axe": "Lockkeeper\u00e2\u20ac\u2122s Axe",
+  "item.uwudimension.lockkeeper_axe": "Lockkeeper\u2019s Axe",
   "item.uwudimension.vesper_scythe": "Vesper Scythe",
   "item.uwudimension.satin_whip": "Satin Switch",
   "item.uwudimension.lantern_spear": "Lanternfall Spear",
@@ -23,5 +23,6 @@
   "entity.uwudimension.dusk_keeper": "Dusk Keeper",
   "subtitles.uwudimension.petal_voice": "Petal Keeper chirps",
   "subtitles.uwudimension.dusk_voice": "Dusk Keeper hums",
-  "dimension.uwudimension.heartwater": "UwU Dimension"
+  "dimension.uwudimension.heartwater": "UwU Dimension",
+  "entity.uwudimension.bellwake": "Bellwake"
 }

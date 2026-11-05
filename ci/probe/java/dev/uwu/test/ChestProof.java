@@ -102,6 +102,7 @@ public final class ChestProof {
             Path saved = Files.createTempDirectory("heartwater-lootr").resolve("chest.dat");
             data.setDirty();
             data.save(saved.toFile(), level.registryAccess());
+            net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
             var persisted = NbtIo.readCompressed(saved, NbtAccounter.unlimitedHeap()).getCompound("data");
             var reloaded = LootrSavedData.load(persisted, level.registryAccess());
             require(contents(reloaded.getInventory(a.player.getUUID())).equals(afterTake), "A changed across disk round trip");

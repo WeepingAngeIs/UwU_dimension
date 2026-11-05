@@ -67,7 +67,7 @@ final class HeartwaterLocket extends Item {
         player.setDeltaMovement(Vec3.ZERO);
         player.getCooldowns().addCooldown(this, 45);
         if (destination.dimension().equals(HEARTWATER))
-            player.displayClientMessage(Component.literal("Heartwater  ·  Where the blossoms slip behind the falls"), true);
+            player.displayClientMessage(Component.literal("UwU Dimension  ·  Heartwater  ·  Where the blossoms slip behind the falls"), true);
         return InteractionResultHolder.success(stack);
     }
 
