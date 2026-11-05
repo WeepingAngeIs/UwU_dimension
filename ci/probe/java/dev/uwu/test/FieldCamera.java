@@ -34,7 +34,6 @@ public final class FieldCamera {
     private static volatile SeaWatch.View view;
     private static volatile boolean stocked;
     private static volatile String counts="";
-    private static volatile double launchY;
     private static long poseTime;
     private static int ticks,index;
     private static Vec3 home;
@@ -128,24 +127,8 @@ public final class FieldCamera {
             index++;enter("advance");return;
         }
         if(state.equals("provoke")){
-            enter("launch");
-            server.execute(()->{
-                var p=server.getPlayerList().getPlayer(id);var l=p.serverLevel();var village=BlossomVillage.first(l,false);
-                var h=village.houses().getFirst();var house=village.resident(h);l.getChunkAt(house);
-                var nearby=l.getEntitiesOfClass(Keeper.class,new AABB(village.plaza()).inflate(40));
-                if(nearby.isEmpty()){p.teleportTo(l,house.getX()+.5,house.getY(),house.getZ()+.5,0,0);enter("wait-keepers");return;}
-                var keeper=nearby.getFirst();p.teleportTo(l,keeper.getX()+1.2,keeper.getY(),keeper.getZ(),0,0);
-                launchY=p.getY();p.attack(keeper);
-                System.out.println("PLAYER PROVOKED GUARD at "+launchY);
-            });return;
-        }
-        if(state.equals("wait-keepers")&&ticks>60){enter("provoke");return;}
-        if(state.equals("launch")){
-            if(launchY>0&&mc.player.getY()-launchY>=7950){
-                System.out.println("CLIENT GUARDIAN PASS | observed Y="+mc.player.getY()+" versus "+launchY);
-                enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));
-            } else if(seconds()>160)throw new AssertionError("Client never observed the guardian launch: "+mc.player.getY()+" from "+launchY);
-            return;
+            if(!GuardianCameraProof.tick(mc))return;
+            enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));return;
         }
         if(state.equals("returning")&&mc.level.dimension().equals(Level.OVERWORLD)&&ticks>60){
             if(mc.player.position().distanceToSqr(home)>30)throw new AssertionError("Locket lost saved origin");

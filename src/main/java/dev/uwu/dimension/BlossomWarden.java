@@ -215,9 +215,13 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private static void move(LivingEntity target,Vec3 spot) {
-        // ServerPlayer.teleportTo synchronizes the acknowledged client position even outside
+        // The player connection synchronizes the acknowledged client position even outside
         // build height. Vanilla Entity.teleportTo handles mobs and their chunk tracking.
-        target.teleportTo(spot.x,spot.y,spot.z);
+        if (target instanceof ServerPlayer player) {
+            player.connection.teleport(spot.x,spot.y,spot.z,player.getYRot(),player.getXRot());
+        } else {
+            target.teleportTo(spot.x,spot.y,spot.z);
+        }
     }
     private void finish(ServerLevel level) {
         offenders.removeFirst();
@@ -287,4 +291,5 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 }
+
 

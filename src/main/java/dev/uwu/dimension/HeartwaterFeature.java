@@ -51,7 +51,10 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         ITEMS.registerSimpleBlockItem(name, b);
         return b;
     }
-    static { FEATURES.register("heartwater_landscape", HeartwaterFeature::new); }
+    static {
+        FEATURES.register("heartwater_landscape", ()->new HeartwaterFeature(false));
+        FEATURES.register("blossom_settlements", ()->new HeartwaterFeature(true));
+    }
     public static void register(IEventBus bus) {
         Bellwake.register(bus);
         BLOCKS.register(bus);
@@ -59,7 +62,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         FEATURES.register(bus);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HeartwaterAmbience::tick);
     }
-    public HeartwaterFeature() { super(NoneFeatureConfiguration.CODEC); }
+    private final boolean surface;
+    private HeartwaterFeature(boolean surface) { super(NoneFeatureConfiguration.CODEC);this.surface=surface; }
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
         // The biome modifier also participates in vanilla cherry and lush biomes. It must
         // never write a landmark in any dimension other than the new Blossom Reach.
@@ -68,7 +72,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
         if(!site.usable())return false;
-        new Valley(context.level(),pos,site).draw();
+        var valley=new Valley(context.level(),pos,site);
+        if(surface)valley.surfaceLandmarks();else valley.draw();
         return true;
     }
     static final class Valley {
@@ -119,15 +124,20 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         }
         void box(int a,int b,int c,int d,int e,int f,Block v){box(a,b,c,d,e,f,v.defaultBlockState());}
         BlockState stair(Block b, Direction d) { return b.defaultBlockState().setValue(StairBlock.FACING,face(d)); }
-        void draw() {
+        void surfaceLandmarks(){
+            // Place doors, foundations and the spring bank before vanilla grows its cherry trees.
+            // Later tree placements therefore see final ground, and never get amputated by grading.
+
             if(overlaps(-166,-125,166,-6)) {
                 for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->BlossomVillage.place(this,p));
             }
+            falls();
+        }
+        void draw() {
             if(!overlaps(-62,Math.min(site.lip()-15,8),70,165))return;
             pools(); deep(); bathhouse(); archive(); if(shrine)hangingShrine();
             passage(-8,-19,128,-6,-13,138);
             MirrorCourt.build(this);
-            falls();
             descent();
         }
         void falls(){

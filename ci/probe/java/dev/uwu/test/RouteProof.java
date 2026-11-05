@@ -44,6 +44,9 @@ public final class RouteProof {
         if(!(done[0]&&done[1]&&done[2]&&done[3]))throw new AssertionError("Missing rotated shrine site");
         for(boolean dusk:new boolean[]{false,true})village(level,BlossomVillage.first(level,dusk));
         terrain(level,2787,-1117);
+        var legacy=level.getServer().getLevel(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater")));
+        if(legacy!=null)terrain(legacy,2787,-1117);
         terrain(level,first.x()+198,first.z()+192);
     }
     private static void terrain(ServerLevel level,int x,int z){
@@ -71,10 +74,39 @@ public final class RouteProof {
         if(matches<examined*.70)throw new AssertionError("Terrain cut or plateau at "+x+","+z+" native="+matches+"/"+examined);
         System.out.println("GROVE TERRAIN native columns="+matches+"/"+examined+" tree columns="+trees+" centered "+x+","+z);
     }
+    private static void supportedTrees(ServerLevel level,BlockPos center){
+        // Follow real branch/trunk connections; a horizontal branch can legitimately
+        // overhang air, but every complete vanilla tree needs some soil-contacting root.
+        java.util.Set<BlockPos> visited=new java.util.HashSet<>();
+        int verified=0;
+        for(int x=center.getX()-34;x<=center.getX()+34;x+=2)for(int z=center.getZ()-27;z<=center.getZ()+27;z+=2){
+            int top=level.getHeight(Heightmap.Types.MOTION_BLOCKING,x,z);
+            for(int y=top;y>=Math.max(top-16,center.getY()-22);y--){
+                BlockPos start=new BlockPos(x,y,z);
+                if(!level.getBlockState(start).is(Blocks.CHERRY_LOG)||!visited.add(start))continue;
+                java.util.ArrayDeque<BlockPos> next=new java.util.ArrayDeque<>();
+                java.util.Set<BlockPos> tree=new java.util.HashSet<>();next.add(start);tree.add(start);boolean grounded=false;
+                while(!next.isEmpty()&&tree.size()<1500){
+                    BlockPos log=next.removeFirst();
+                    var below=log.below();var support=level.getBlockState(below);
+                    if(!support.is(BlockTags.LOGS)&&!support.is(BlockTags.LEAVES)&&support.isSolidRender(level,below)){grounded=true;break;}
+                    for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++){
+                        BlockPos neighbor=log.offset(dx,dy,dz);
+                        if(level.getBlockState(neighbor).is(Blocks.CHERRY_LOG)&&tree.add(neighbor))next.add(neighbor);
+                    }
+                }
+                visited.addAll(tree);
+                if(!grounded && tree.size()<1500)throw new AssertionError("Suspended cherry tree / timber at "+start+" logs="+tree.size());
+                verified++;
+            }
+        }
+        System.out.println("SETTLEMENT TREE ROOTS connected="+verified+" near "+center);
+    }
     private static void village(ServerLevel level,BlossomVillage.Plan v){
         if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE))throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());
         if(v.houses().size()<6)throw new AssertionError("Sparse village");
         java.util.Set<Integer> styles=new java.util.HashSet<>();
+        supportedTrees(level,v.plaza());
         for(var h:v.houses()){
             styles.add(h.style());
             var bed=v.bedHead(h);var door=v.doorway(h);

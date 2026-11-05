@@ -45,7 +45,7 @@ public final class BlossomVillage {
         for(int attempt=0;attempt<32;attempt++){
             int x=(dusk?1:-1)*(48+random.nextInt(66)),z=-32-random.nextInt(62);
             int center=ground(level,site,x,z);
-            if(center<=65||center>143)continue;
+            if(center<=65||center>143||!GroveSites.cherry(level,site.wx(x,z),center+1,site.wz(x,z)))continue;
             int left=ground(level,site,x-HALF,z),right=ground(level,site,x+HALF,z);
             if(Math.min(left,right)<=64 || Math.abs(left-right)>12 || Math.abs(left-center)>7 || Math.abs(right-center)>7)continue;
             int[] road=new int[HALF*2+1],bends=new int[road.length];
@@ -67,7 +67,7 @@ public final class BlossomVillage {
                 int roadY=road[hx-x+HALF];boolean fits=Math.abs(floor-roadY)<=2;
                 for(int ex:new int[]{-width,0,width})for(int ez:new int[]{-depth,0,depth}){
                     int earth=ground(level,site,hx+ex,hz+ez);
-                    if(earth<64||Math.abs(earth-floor)>3)fits=false;
+                    if(earth<64||Math.abs(earth-floor)>3||!GroveSites.cherry(level,site.wx(hx+ex,hz+ez),earth+1,site.wz(hx+ex,hz+ez)))fits=false;
                 }
                 if(fits)houses.add(new House(hx,hz,floor,width,depth,side,random.nextInt(4),JOBS[houses.size()%JOBS.length]));
             }
@@ -148,7 +148,7 @@ public final class BlossomVillage {
         v.put(x,y+1,front,ds);v.put(x,y+2,front,ds.setValue(DoorBlock.HALF,DoubleBlockHalf.UPPER));
         if(h.style()==0){ // a glass-fronted florist's window
             v.put(x+w,y+1,z,Blocks.GLASS.defaultBlockState());
-            v.block(x+w-1,y+1,z,dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_FLOWERING_AZALEA_BUSH);
+            v.block(x+w-1,y+1,z,dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_FLOWERING_AZALEA);
         } else if(h.style()==1){ // a faience chimney rises through the far roof slope
             v.box(x+w-1,y+3,z+side*(d-1),x+w-1,y+8,z+side*(d-1),dark?Blocks.POLISHED_BLACKSTONE_BRICKS:Blocks.BRICKS);
             v.block(x+w-1,y+9,z+side*(d-1),dark?Blocks.BLACKSTONE_WALL:Blocks.BRICK_WALL);

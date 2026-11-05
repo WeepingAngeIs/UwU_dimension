@@ -33,6 +33,13 @@ public final class GroveSites {
         return m.heights.computeIfAbsent(ChunkPos.asLong(x,z),k->
             level.getChunkSource().getGenerator().getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,level,level.getChunkSource().randomState())-1);
     }
+    static boolean cherry(ServerLevel level,int x,int y,int z){
+        var chunks=level.getChunkSource();
+        return chunks.getGenerator().getBiomeSource().getNoiseBiome(
+                net.minecraft.core.QuartPos.fromBlock(x),net.minecraft.core.QuartPos.fromBlock(y),
+                net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler())
+                .is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE);
+    }
     public static Site site(ServerLevel level,int gx,int gz){
         Maps m=maps(level);
         if(m.sites.size()>4000)m.sites.clear();
@@ -53,6 +60,7 @@ public final class GroveSites {
             int bank=height(level,s.wx(0,s.lip()),s.wz(0,s.lip()));
             int front=height(level,s.wx(0,s.lip()-9),s.wz(0,s.lip()-9));
             if(Math.abs(bank-y)>6||Math.abs(front-y)>5)continue;
+            if(!cherry(level,s.wx(0,s.lip()-9),y+1,s.wz(0,s.lip()-9)))continue;
             if(height(level,s.wx(0,65),s.wz(0,65))<69||height(level,s.wx(0,102),s.wz(0,102))<69)continue;
             return s;
         }
