@@ -3,6 +3,9 @@ on:
   push:
     branches: [feature/blossom-villages-1.1, main]
   workflow_dispatch:
+concurrency:
+  group: expedition-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

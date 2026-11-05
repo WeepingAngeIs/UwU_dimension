@@ -1,1 +1,11 @@
-{"replace":false,"values":["uwudimension:rose_enamel","uwudimension:tideglass","uwudimension:heartsill"]}
+{
+  "replace": false,
+  "values": [
+    "uwudimension:rose_enamel",
+    "uwudimension:tideglass",
+    "uwudimension:heartsill",
+    "uwudimension:petal_quilt",
+    "uwudimension:rosette_mosaic",
+    "uwudimension:midnight_lace"
+  ]
+}

@@ -38,10 +38,18 @@ public final class Bellwake extends Axolotl {
     private static void attributes(EntityAttributeCreationEvent event){event.put(TYPE.get(),Axolotl.createAttributes().build());}
     private static final int[][] POOLS={{42,0,115,23},{16,-19,129,22},{-26,-48,127,20}};
     static void reveal(ServerLevel level,Entity rabbit,Entity keeper){
-        if(!level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater")))return;
+        boolean legacy=level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater"));
+        if(!legacy && !level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath("uwudimension","blossom_reach")))return;
         int rx=rabbit.getBlockX(),rz=rabbit.getBlockZ();
-        int cx=384*Math.floorDiv(rx+192,384),cz=384*Math.floorDiv(rz+192,384);
-        int t=cx==0&&cz==0?0:HeartwaterFeature.Valley.mix(cx,cz,level.getSeed())&3;
+        int cx,cz,t;
+        if(legacy){
+            cx=384*Math.floorDiv(rx+192,384);cz=384*Math.floorDiv(rz+192,384);
+            t=cx==0&&cz==0?0:HeartwaterFeature.Valley.mix(cx,cz,level.getSeed())&3;
+        } else {
+            var site=GroveSites.forChunk(level,new ChunkPos(rabbit.blockPosition()));
+            if(!site.usable())return;
+            cx=site.x();cz=site.z();t=site.turns();
+        }
         for(int i=0;i<POOLS.length;i++){
             int[] p=POOLS[i];int x=cx+switch(t){case 1->-p[2];case 2->-p[0];case 3->p[2];default->p[0];};
             int z=cz+switch(t){case 1->p[0];case 2->-p[2];case 3->-p[0];default->p[2];};

@@ -23,6 +23,7 @@ public final class UwUDimension {
         SOUNDS.register(bus);
         Arsenal.register(bus);
         People.register(bus);
+        MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);
         bus.addListener(UwUDimension::creative);
     }

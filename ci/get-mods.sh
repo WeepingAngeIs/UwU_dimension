@@ -7,6 +7,7 @@ download() {
 download 'https://cdn.modrinth.com/data/MdwFAVRL/versions/xsVHrAsY/Cobblemon-neoforge-1.8.4%2B1.21.1.jar' libs/cobblemon.jar
 download 'https://cdn.modrinth.com/data/EltpO5cN/versions/ST5FHZnD/lootr-neoforge-1.21.1-1.11.38.125.jar' libs/lootr.jar
 download 'https://edge.forgecdn.net/files/8335/665/kotlinforforge-5.12.0-all.jar' libs/kotlinforforge.jar
+download 'https://edge.forgecdn.net/files/8530/938/reactivemusic-neoforge-1.3.5%2b1.21.1.jar' libs/reactivemusic.jar
 sha256sum --check ci/dependencies.sha256
 
 

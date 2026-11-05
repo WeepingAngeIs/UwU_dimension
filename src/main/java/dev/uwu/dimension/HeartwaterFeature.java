@@ -34,6 +34,9 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     static final DeferredBlock<Block> ROSE = stone("rose_enamel", 0);
     static final DeferredBlock<Block> GLASS = stone("tideglass", 11);
     static final DeferredBlock<Block> HEART = stone("heartsill", 5);
+    static final DeferredBlock<Block> QUILT = stone("petal_quilt", 2);
+    static final DeferredBlock<Block> ROSETTE = stone("rosette_mosaic", 8);
+    static final DeferredBlock<Block> LACE = stone("midnight_lace", 5);
     static final DeferredBlock<Blossom> BLOSSOM = BLOCKS.register("drift_blossom", Blossom::new);
     static { ITEMS.register("drift_blossom", () -> new net.minecraft.world.item.PlaceOnWaterBlockItem(BLOSSOM.get(), new net.minecraft.world.item.Item.Properties())); }
     public static final class Blossom extends WaterlilyBlock {
@@ -58,7 +61,14 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     }
     public HeartwaterFeature() { super(NoneFeatureConfiguration.CODEC); }
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-        new Valley(context.level(), new ChunkPos(context.origin())).draw();
+        // The biome modifier also participates in vanilla cherry and lush biomes. It must
+        // never write a landmark in any dimension other than the new Blossom Reach.
+        var level=context.level().getLevel();
+        if (!level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath(MOD,"blossom_reach"))) return false;
+        var pos=new ChunkPos(context.origin());
+        var site=GroveSites.forChunk(level,pos);
+        if(!site.usable())return false;
+        new Valley(context.level(),pos,site).draw();
         return true;
     }
     static final class Valley {
@@ -67,21 +77,18 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         final int cx, cz, turns, minX, maxX, minZ, maxZ;
         final boolean shrine;
         final long seed;
+        final GroveSites.Site site;
         final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         final BlockState air = Blocks.AIR.defaultBlockState();
         final BlockState water = Blocks.WATER.defaultBlockState();
         final BlockState falling = water.setValue(LiquidBlock.LEVEL, 8);
         final BlockState leaf = Blocks.CHERRY_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
-        Valley(WorldGenLevel level, ChunkPos pos) {
+        Valley(WorldGenLevel level, ChunkPos pos,GroveSites.Site site) {
             this.level = level;
             chunk = level.getChunk(pos.x, pos.z);
             seed = level.getSeed();
-            // Cell boundaries align to chunk boundaries. The first journey always faces south.
-            cx = 384 * Math.floorDiv(pos.getMinBlockX() + 192, 384);
-            cz = 384 * Math.floorDiv(pos.getMinBlockZ() + 192, 384);
-            int style = mix(cx, cz, seed);
-            turns = cx == 0 && cz == 0 ? 0 : style & 3;
-            shrine = cx == 0 && cz == 0 || (style & 12) == 0;
+            this.site=site;
+            cx=site.x();cz=site.z();turns=site.turns();shrine=GroveSites.shrine(level.getLevel(),site);
             int ax = pos.getMinBlockX()-cx, az = pos.getMinBlockZ()-cz;
             int bx=ax+15,bz=az+15;
             int px=switch(turns){case 1->az;case 2->-bx;case 3->-bz;default->ax;};
@@ -113,107 +120,57 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         void box(int a,int b,int c,int d,int e,int f,Block v){box(a,b,c,d,e,f,v.defaultBlockState());}
         BlockState stair(Block b, Direction d) { return b.defaultBlockState().setValue(StairBlock.FACING,face(d)); }
         void draw() {
-            if(!overlaps(-110,-100,120,154))return;
-            surface();
-            if(overlaps(-62,-65,62,57)){
-                trees();
-                hamlet(-35,-22,false);
-                hamlet(35,-36,true);
+            if(overlaps(-166,-125,166,-6)) {
+                for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->BlossomVillage.place(this,p));
             }
-            if(overlaps(-62,8,69,147)){
-                falls();
-                pools();
-                descent();
-                deep();
-                bathhouse();
-                archive();
-                if(shrine) hangingShrine();
-            }
+            if(!overlaps(-62,Math.min(site.lip()-15,8),70,165))return;
+            pools(); deep(); bathhouse(); archive(); if(shrine)hangingShrine();
+            passage(-8,-19,128,-6,-13,138);
+            MirrorCourt.build(this);
+            falls();
+            descent();
         }
-        int ridgeFront(int x){
-            return 20 + (int)(2*Math.sin(x*.23)+3*Math.sin(x*.097));
-        }
-        int landscape(int x,int z) {
-            if(z>=ridgeFront(x) && Math.abs(x)<64){
-                double taper=Math.min(1,(64-Math.abs(x))/10.);
-                double wave=4*Math.sin(x*.14)+3*Math.cos(z*.09)+5*Math.cos(x*.063+z*.03);
-                return 80+(int)((24+wave)*taper);
-            }
-            return 80;
-        }
-        void surface() {
-            for(int z=minZ;z<=maxZ;z++)for(int x=minX;x<=maxX;x++){
-                double fade=Math.min((100-Math.abs(x))/31.,Math.min((z+85)/28.,(153-z)/26.));
-                if(fade<=0)continue;
-                fade=Math.min(1,fade);fade=fade*fade*(3-2*fade);
+        void falls(){
+            int lip=site.lip(),floor=site.entryY();
+            if(!overlaps(-13,lip-14,13,lip+9))return;
+            // A small rounded spring head, tied into the actual hillside. No other
+            // surface area is raised or flattened. The lip alone projects over the cave mouth.
+            for(int z=lip-12;z<=lip+8;z++)for(int x=-12;x<=12;x++){
+                if(!inside(x,z))continue;
+                double radius=x*x/150.0+(z-lip)*(z-lip)/100.0;
+                if(radius>=1)continue;
+                int ground=GroveSites.height(level.getLevel(),wx(x,z),wz(x,z));
                 int top=chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,wx(x,z)&15,wz(x,z)&15);
-                int target=(int)Math.round(top+(landscape(x,z)-top)*fade);
-                int h=mix(x,z,seed);
-                for(int y=target+1;y<=top;y++)put(x,y,z,air);
-                for(int y=Math.min(top-1,target-4);y<target-2;y++){
-                    Block b=y>82 && y%9<2?Blocks.CALCITE:y>82 && y%11<4?Blocks.TUFF:Blocks.STONE;
-                    block(x,y,z,b);
+                int springHeight=z<lip?floor:floor+7;
+                int target=(int)Math.round(ground+(springHeight-ground)*(1-Math.pow(radius,1.5)));
+                boolean lane=Math.abs(x)<=2&&z>=lip-10&&z<=lip;
+                if(lane)target=z<lip?floor:floor+7;
+                for(int y=Math.min(ground-2,target-2);y<=target;y++)block(x,y,z,y==target?Blocks.GRASS_BLOCK:y>target-3?Blocks.DIRT:Blocks.STONE);
+                if(top>target)box(x,target+1,z,x,top+1,z,air);
+                if(!lane && (mix(x,z,seed)&7)==0)block(x,target+1,z,Blocks.PINK_PETALS);
+                if(z==lip&&Math.abs(x)<=2){
+                    box(x,floor+1,z,x,floor+7,z,Blocks.MOSSY_COBBLESTONE);
+                    block(x,floor+8,z,Blocks.WATER);
                 }
-                box(x,target-2,z,x,target-1,z,Blocks.DIRT);
-                block(x,target,z,Blocks.GRASS_BLOCK);
-                if(Math.abs(x)<4 && z>=-3 && z<22)continue;
-                if((h&15)==1)block(x,target+1,z,Blocks.PINK_PETALS);
-                else if((h&127)==4)block(x,target+1,z,Blocks.ALLIUM);
-                else if((h&63)==8)block(x,target+1,z,Blocks.AZURE_BLUET);
+                if(z==lip-1&&Math.abs(x)<=1)box(x,floor+1,z,x,floor+7,z,falling);
             }
-        }
-        void trees(){
-            for(int x=-63;x<=63;x+=13)for(int z=-65;z<=57;z+=15){
-                int h=mix(x,z,seed);
-                int tx=x+(h&3),tz=z+((h>>>2)&3);
-                if(!overlaps(tx-4,tz-4,tx+4,tz+4) || Math.abs(tx)<9 && tz<24 ||
-                        Math.abs(tx+35)<19 && Math.abs(tz+22)<17 ||
-                        Math.abs(tx-35)<19 && Math.abs(tz+36)<17 ||
-                        Math.abs(tz-ridgeFront(tx))<4)continue;
-                int y=landscape(tx,tz), lean=(h&16)==0?1:-1;
-                int height=5+((h>>>5)&1);
-                box(tx,y+1,tz,tx,y+height,tz,Blocks.CHERRY_LOG);
-                block(tx+lean,y+height,tz,Blocks.CHERRY_LOG);
-                block(tx+2*lean,y+height+1,tz,Blocks.CHERRY_LOG);
-                for(int dx=-4;dx<=4;dx++)for(int dz=-3;dz<=3;dz++)for(int dy=-1;dy<=2;dy++){
-                    if(dx*dx*.62+dz*dz+dy*dy*2>11 || dx==0&&dz==0&&dy<=0)continue;
-                    put(tx+dx,y+height+1+dy,tz+dz,leaf);
-                }
+            for(int z=lip-10;z<lip-1;z++)for(int x=-2;x<=2;x++){
+                block(x,floor,z,Math.abs(x)==2?Blocks.MOSS_BLOCK:Blocks.SMOOTH_BASALT);
+                box(x,floor+1,z,x,floor+4,z,air);
             }
-        }
-        void falls() {
-            // A shallow bowl with stepping stones leads through the middle curtain.
-            for(int x=-12;x<=12;x++)for(int z=8;z<=26;z++){
-                double radius=x*x/135.0+(z-18)*(z-18)/95.;
-                if(radius>1||z>=ridgeFront(x))continue;
-                block(x,78,z,Blocks.CLAY);block(x,79,z,Blocks.WATER);put(x,80,z,water);put(x,81,z,air);
-                if(x==0 || x==1)block(x,80,z,Blocks.SMOOTH_BASALT);
-                else if((mix(x,z,seed)&31)==0)block(x,81,z,BLOSSOM.get());
-            }
-            for(int center:new int[]{-23,0,19}){
-                int lip=ridgeFront(center);
-                int height=landscape(center,lip+1);
-                for(int x=center-1;x<=center+1;x++){
-                    for(int z=lip-1;z<=lip;z++){
-                        box(x,81,z,x,height-1,z,falling);
-                        put(x,height,z,water);
-                    }
-                    put(x,height,lip+1,water);
-                }
+            for(int x:new int[]{-4,4})for(int z=lip-5;z<=lip-2;z++){
+                block(x,floor-1,z,Blocks.CLAY);block(x,floor,z,Blocks.WATER);block(x,floor+1,z,BLOSSOM.get());
             }
         }
         void descent(){
-            // Consecutive stairs each have a solid tread, six clear blocks and a level landing.
-            for(int z=18;z<=59;z++) {
-                int floor=80-Math.clamp(z-25,0,28);
-                box(-3,floor-1,z,3,floor-1,z,Blocks.STONE);
-                box(-3,floor,z,3,floor,z,Blocks.MOSS_BLOCK);
-                box(-3,floor+1,z,3,floor+5,z,air);
-                if(z>=25&&z<53)box(-2,floor,z,2,floor,z,stair(Blocks.MOSSY_STONE_BRICK_STAIRS,Direction.NORTH));
-                for(int x:new int[]{-3,3})if(z%7==0)block(x,floor+1,z,GLASS.get());
+            int lip=site.lip(),first=lip+4;
+            for(int z=lip-1;z<=56;z++) {
+                int floor=site.entryY()-Math.clamp(z-first,0,site.entryY()-52);
+                passage(-2,floor,z,2,floor+4,z);
+                if(z>=first&&z<53)box(-2,floor,z,2,floor,z,stair(Blocks.MOSSY_STONE_BRICK_STAIRS,Direction.NORTH));
+                if(z>lip+1 && z%7==0){block(-3,floor+2,z,GLASS.get());block(3,floor+2,z,GLASS.get());}
             }
-            // Rehang water in front of the dry lintel, leaving a visible opening on each bank.
-            for(int x=-1;x<=1;x++)box(x,81,19,x,86,19,falling);
+            for(int x=-1;x<=1;x++)box(x,site.entryY()+1,lip-1,x,site.entryY()+6,lip-1,falling);
         }
         void pools(){
             cavern(0,67,19,15,52,14,false);
@@ -264,7 +221,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             }
             for(int z=68;z<=109;z++){
                 int floor=29-Math.clamp(z-80,0,29);
-                passage(40,floor,z,42,floor+5,z);
+                passage(39,floor,z,41,floor+5,z);
                 if(z>=80&&z<109)box(39,floor,z,41,floor,z,stair(Blocks.DEEPSLATE_BRICK_STAIRS,Direction.NORTH));
             }
             for(int x=16;x<=40;x++){
@@ -273,7 +230,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
             }
             passage(15,-19,110,17,-14,140);
-            for(int z=70;z<=105;z+=6)block(41,30-Math.clamp(z-80,0,29),z,GLASS.get());
+            for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
             for(int z=113;z<138;z+=4)block(18,-19,z,GLASS.get());
             for(int z=112;z<=114;z++)box(48,1,z,48,14,z,falling);
         }
@@ -306,7 +263,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             doorway(0,52,82,Blocks.QUARTZ_BRICKS);
             box(-5,52,88,5,52,99,water);
             for(int z=86;z<=102;z+=4)for(int x:new int[]{-11,11}){
-                block(x,60,z,Blocks.SEA_LANTERN);
+                block(x,60,z,ROSETTE.get());
                 box(x,53,z,x,54,z,Blocks.CHERRY_PLANKS);
                 put(x,55,z,Blocks.WHITE_CARPET.defaultBlockState());
             }
@@ -331,7 +288,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 box(x,-18,z,x,-16,z,Blocks.BOOKSHELF);
                 block(x,-15,z,HEART.get());
             }
-            for(int x=8;x<26;x+=4)block(x,-12,145,GLASS.get());
+            for(int x=8;x<26;x+=4)block(x,-12,145,LACE.get());
             chest(23,-18,147,"tide_archive");
         }
         void hangingShrine(){
@@ -364,39 +321,6 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             // Keep the gallery level around the reliquary's one gilded north door.
             doorway(53,8,115,Blocks.CRIMSON_PLANKS);
             chest(55,9,120,"inverted_shrine");
-        }
-        void hamlet(int ox,int oz,boolean dark){
-            if(!overlaps(ox-19,oz-16,ox+19,oz+16))return;
-            Block wood=dark?Blocks.DARK_OAK_PLANKS:Blocks.CHERRY_PLANKS;
-            Block post=dark?Blocks.POLISHED_BLACKSTONE_BRICKS:Blocks.STRIPPED_CHERRY_LOG;
-            Block roof=dark?Blocks.DEEPSLATE_TILES:Blocks.PURPUR_BLOCK;
-            box(ox-16,80,oz-1,ox+16,80,oz+1,dark?Blocks.POLISHED_TUFF:Blocks.CALCITE);
-            for(int off:new int[]{-11,0,11}){
-                int x=ox+off,z=oz+(off==0?7:-7);
-                int front=off==0?z-3:z+3;
-                box(x-3,80,z-3,x+3,83,z+3,wood);
-                box(x-2,81,z-2,x+2,83,z+2,air);
-                box(x,81,front,x,83,front,air);
-                for(int dx:new int[]{-3,3})for(int dz:new int[]{-3,3})box(x+dx,81,z+dz,x+dx,84,z+dz,post);
-                for(int dx:new int[]{-3,3})block(x+dx,82,z,Blocks.AMETHYST_BLOCK);
-                for(int i=0;i<4;i++)box(x-4+i,84+i,z-4,x+4-i,84+i,z+4,roof);
-                for(int end:new int[]{-4,4})block(x,88,z+end,dark?Blocks.CHISELED_DEEPSLATE:HEART.get());
-                block(x,83,z,Blocks.SHROOMLIGHT);
-                box(x,80,Math.min(front,oz),x,80,Math.max(front,oz),wood);
-                spawn(x,81,z,dark);
-            }
-            for(int x:new int[]{ox-6,ox+6}){
-                box(x,81,oz+2,x,83,oz+2,post);
-                block(x,84,oz+2,dark?Blocks.SOUL_LANTERN:Blocks.LANTERN);
-            }
-        }
-        void spawn(int x,int y,int z,boolean dark){
-            if(!inside(x,z))return;
-            var type=BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath(MOD,dark?"dusk_keeper":"petal_keeper"));
-            if(type.create(level.getLevel()) instanceof Mob mob){
-                mob.moveTo(wx(x,z)+.5,y,wz(x,z)+.5,0,0);mob.setPersistenceRequired();
-                level.addFreshEntity(mob);
-            }
         }
         void chest(int x,int y,int z,String table){
             if(!inside(x,z))return;
