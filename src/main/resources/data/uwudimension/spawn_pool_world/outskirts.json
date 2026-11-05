@@ -1,0 +1,70 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-outskirts-skitty",
+      "pokemon": "skitty",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "7-25",
+      "weight": 4,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": true,
+        "neededBaseBlocks": [
+          "minecraft:dirt_path",
+          "minecraft:moss_block",
+          "minecraft:grass_block"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-outskirts-fidough",
+      "pokemon": "fidough",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "7-25",
+      "weight": 4,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": true,
+        "neededBaseBlocks": [
+          "minecraft:dirt_path",
+          "minecraft:moss_block",
+          "minecraft:grass_block"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-outskirts-eevee",
+      "pokemon": "eevee",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "uncommon",
+      "level": "7-25",
+      "weight": 3,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": true,
+        "neededBaseBlocks": [
+          "minecraft:dirt_path",
+          "minecraft:moss_block",
+          "minecraft:grass_block"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+name: Heartwater build and expedition
+on:
+  push:
+    branches: [feature/heartwater-adventure, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - run: ./gradlew build --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UwU-Dimension-1.21.1
+          path: build/libs/*.jar
+          if-no-files-found: error
+      - name: Run the packaged mod with Cobblemon and Lootr in a fresh world
+        run: bash ci/expedition.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: expedition-log
+          path: |
+            build/field-server/expedition.log
+            build/field-server/crash-reports
+          if-no-files-found: ignore
+  client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Visit UwU Dimension in the Minecraft client
+        run: |
+          bash ci/get-mods.sh
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
+          printf 'onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
+          timeout 15m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
+          grep -F 'HEARTWATER CLIENT ROUND TRIP PASSED' client-visit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: client-field-visit
+          path: |
+            run/screenshots
+            run/logs/latest.log
+            run/crash-reports
+            client-visit.log
+          if-no-files-found: warn

@@ -1,0 +1,61 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-upper_grotto-zubat",
+      "pokemon": "zubat",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "12-32",
+      "weight": 8,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxSkyLight": 7,
+        "minY": 13
+      }
+    },
+    {
+      "id": "heartwater-upper_grotto-woobat",
+      "pokemon": "woobat",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "common",
+      "level": "12-32",
+      "weight": 7,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxSkyLight": 7,
+        "minY": 13
+      }
+    },
+    {
+      "id": "heartwater-upper_grotto-morelull",
+      "pokemon": "morelull",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [],
+      "bucket": "uncommon",
+      "level": "12-32",
+      "weight": 4,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "canSeeSky": false,
+        "maxSkyLight": 7,
+        "minY": 13
+      }
+    }
+  ]
+}

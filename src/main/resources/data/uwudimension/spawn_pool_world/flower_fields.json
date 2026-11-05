@@ -1,0 +1,122 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-flower_fields-buneary",
+      "pokemon": "buneary",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [
+        "natural"
+      ],
+      "bucket": "common",
+      "level": "5-24",
+      "weight": 8,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "minSkyLight": 8,
+        "biomes": [
+          "uwudimension:ribbon_bluffs",
+          "uwudimension:velvet_highlands",
+          "uwudimension:lantern_fens"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-flower_fields-cottonee",
+      "pokemon": "cottonee",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [
+        "natural"
+      ],
+      "bucket": "common",
+      "level": "5-24",
+      "weight": 7,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "minSkyLight": 8,
+        "biomes": [
+          "uwudimension:ribbon_bluffs",
+          "uwudimension:velvet_highlands",
+          "uwudimension:lantern_fens"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-flower_fields-cutiefly",
+      "pokemon": "cutiefly",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [
+        "natural"
+      ],
+      "bucket": "common",
+      "level": "5-24",
+      "weight": 6,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "minSkyLight": 8,
+        "biomes": [
+          "uwudimension:ribbon_bluffs",
+          "uwudimension:velvet_highlands",
+          "uwudimension:lantern_fens"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-flower_fields-combee",
+      "pokemon": "combee",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [
+        "natural"
+      ],
+      "bucket": "uncommon",
+      "level": "5-24",
+      "weight": 5,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "minSkyLight": 8,
+        "biomes": [
+          "uwudimension:ribbon_bluffs",
+          "uwudimension:velvet_highlands",
+          "uwudimension:lantern_fens"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-flower_fields-ralts",
+      "pokemon": "ralts",
+      "type": "pokemon",
+      "spawnablePositionType": "grounded",
+      "presets": [
+        "natural"
+      ],
+      "bucket": "rare",
+      "level": "5-24",
+      "weight": 3,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ],
+        "minSkyLight": 8,
+        "biomes": [
+          "uwudimension:ribbon_bluffs",
+          "uwudimension:velvet_highlands",
+          "uwudimension:lantern_fens"
+        ]
+      }
+    }
+  ]
+}

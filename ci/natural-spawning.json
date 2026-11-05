@@ -1,0 +1,12 @@
+{
+  "enableSpawning": true,
+  "worldSpawningBlocklist": [],
+  "spawningZoneDiameter": 8,
+  "spawningZoneHeight": 16,
+  "ticksBetweenSpawnAttempts": 20.0,
+  "minimumSpawningZoneDistanceFromPlayer": 16.0,
+  "maximumSpawningZoneDistanceFromPlayer": 64.0,
+  "maximumSpawnsPerPass": 8,
+  "pokemonPerChunk": 1.0,
+  "maxVerticalCorrectionBlocks": 64
+}

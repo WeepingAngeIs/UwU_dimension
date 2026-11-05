@@ -1,0 +1,75 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "heartwater-waterways-wooper",
+      "pokemon": "wooper",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "6-28",
+      "weight": 7,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-waterways-barboach",
+      "pokemon": "barboach",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "common",
+      "level": "6-28",
+      "weight": 6,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-waterways-chinchou",
+      "pokemon": "chinchou",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "uncommon",
+      "level": "6-28",
+      "weight": 5,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ]
+      }
+    },
+    {
+      "id": "heartwater-waterways-luvdisc",
+      "pokemon": "luvdisc",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "presets": [
+        "water"
+      ],
+      "bucket": "rare",
+      "level": "6-28",
+      "weight": 3,
+      "condition": {
+        "dimensions": [
+          "uwudimension:heartwater"
+        ]
+      }
+    }
+  ]
+}

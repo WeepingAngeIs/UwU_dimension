@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "uwudimension:item/cupid_bow_draw1"
+  },
+  "overrides": []
+}
