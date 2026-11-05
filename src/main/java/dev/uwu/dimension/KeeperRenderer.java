@@ -1,5 +1,9 @@
 package dev.uwu.dimension;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,15 +21,26 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 @EventBusSubscriber(modid = "uwudimension", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.DressModel> {
     private static final ModelLayerLocation LAYER = new ModelLayerLocation(id("keeper"), "dress");
-    private static final ResourceLocation PETAL = id("textures/entity/petal_keeper.png");
-    private static final ResourceLocation DUSK = id("textures/entity/dusk_keeper.png");
+    // From the soles (y=24) to the crown of the hair (y=-5.5), in model pixels.
+    private static final float ADULT_MODEL_SCALE = 16F * 1.78F / 29.5F;
 
     public KeeperRenderer(EntityRendererProvider.Context context) {
         super(context, new DressModel(context.bakeLayer(LAYER)), 0.36F);
     }
 
     private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("uwudimension", path); }
-    @Override public ResourceLocation getTextureLocation(Keeper keeper) { return keeper.dusk() ? DUSK : PETAL; }
+    @Override public ResourceLocation getTextureLocation(Keeper keeper) { return KeeperOutfit.forKeeper(keeper).texture(keeper.dusk()); }
+
+    public static float modelScale(Keeper keeper) { return ADULT_MODEL_SCALE * keeper.getAgeScale(); }
+
+    @Override protected void scale(Keeper keeper, PoseStack pose, float partialTick) {
+        float scale = modelScale(keeper);
+        pose.scale(scale, scale, scale);
+    }
+
+    @Override protected float getShadowRadius(Keeper keeper) {
+        return super.getShadowRadius(keeper) * keeper.getAgeScale();
+    }
 
     @SubscribeEvent public static void layers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(LAYER, DressModel::layer);
@@ -38,6 +53,7 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
 
     public static final class DressModel extends HierarchicalModel<Keeper> {
         private final ModelPart root, head, rightArm, leftArm, rightLeg, leftLeg;
+        private final EnumMap<KeeperOutfit, List<ModelPart>> accessories = new EnumMap<>(KeeperOutfit.class);
         DressModel(ModelPart root) {
             this.root = root;
             head = root.getChild("head");
@@ -45,6 +61,13 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
             leftArm = root.getChild("left_arm");
             rightLeg = root.getChild("right_leg");
             leftLeg = root.getChild("left_leg");
+            for (KeeperOutfit outfit : KeeperOutfit.values()) {
+                List<ModelPart> pieces = new ArrayList<>();
+                for (ModelPart parent : List.of(root, head, leftArm, rightArm)) {
+                    if (parent.hasChild(outfit.key)) pieces.add(parent.getChild(outfit.key));
+                }
+                accessories.put(outfit, pieces);
+            }
         }
 
         @Override public ModelPart root() { return root; }
@@ -81,10 +104,13 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
                 body.addOrReplaceChild("ribbon_" + s, CubeListBuilder.create().texOffs(108, 38)
                         .addBox(-1, 0, 0, 2, 6, 1), PartPose.offsetAndRotation(s * 1.5F, 11, 3.35F, 0.2F, 0, s * -0.25F));
             }
-            return LayerDefinition.create(mesh, 128, 64);
+            KeeperOutfit.addAccessories(body, face, body.getChild("left_arm"), body.getChild("right_arm"));
+            return LayerDefinition.create(mesh, 128, 128);
         }
 
         @Override public void setupAnim(Keeper entity, float walk, float speed, float age, float yaw, float pitch) {
+            KeeperOutfit outfit = KeeperOutfit.forKeeper(entity);
+            accessories.forEach((role, parts) -> parts.forEach(part -> part.visible = role == outfit));
             float stride = Mth.cos(walk * 0.6662F) * speed;
             head.yRot = yaw * Mth.DEG_TO_RAD;
             head.xRot = pitch * Mth.DEG_TO_RAD;

@@ -7,6 +7,9 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -47,6 +50,10 @@ public final class Keeper extends Villager {
     private long nextCourtship;
     private boolean legacyHome;
     private boolean checkedVillageSites;
+    private int offeredJobLevel;
+    private static final int FACTION_OFFERS = 4;
+
+    @Override public float getAgeScale() { return isBaby() ? .5625F : 1F; }
 
     public Keeper(EntityType<? extends Villager> type, Level level) {
         super(type, level);
@@ -297,6 +304,17 @@ public final class Keeper extends Villager {
             ((ServerLevel)level()).sendParticles(ParticleTypes.HEART,getX(),getEyeY(),getZ(),4,.2,.1,.2,0);
             return InteractionResult.CONSUME;
         }
+        if (!player.isShiftKeyDown() && held.getItem() instanceof BlockItem blockItem) {
+            var type = PoiTypes.forState(blockItem.getBlock().defaultBlockState());
+            if (type.isPresent()) {
+                var job = BuiltInRegistries.VILLAGER_PROFESSION.stream()
+                        .filter(p -> p != VillagerProfession.NONE && p.heldJobSite().test(type.get())).findFirst();
+                if (job.isPresent()) {
+                    teachProfession((ServerLevel)level(), player, job.get());
+                    return InteractionResult.CONSUME;
+                }
+            }
+        }
         if (isBaby() || isSleeping()) return InteractionResult.PASS;
         if (player.isShiftKeyDown()) {
             if (owns(player) && held.isEmpty()) {
@@ -314,8 +332,45 @@ public final class Keeper extends Villager {
         getNavigation().stop();
         setTarget(null);
         setTradingPlayer(player);
-        openTradingScreen(player, getDisplayName(), 1);
+        openTradingScreen(player, getDisplayName(), getVillagerData().getLevel());
         return InteractionResult.CONSUME;
+    }
+
+    private void teachProfession(ServerLevel level, Player player, VillagerProfession job) {
+        if (isBaby() || isSleeping()) {
+            player.displayClientMessage(Component.literal(isBaby() ? "This keeper can learn a job after growing up." : "Wait until this keeper wakes up to teach a job."), true);
+            return;
+        }
+        if (getVillagerData().getProfession() != VillagerProfession.NONE || getVillagerXp() > 0) {
+            player.displayClientMessage(Component.literal("Only an unemployed keeper who has never traded can learn a new job."), true);
+            return;
+        }
+        var pois = level.getPoiManager();
+        var pending = getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+        var station = pending.filter(p -> p.dimension().equals(level.dimension()) && p.pos().closerThan(blockPosition(), 12.01)
+                        && pois.getType(p.pos()).filter(job.heldJobSite()).isPresent()
+                        && canReachStation(p.pos()))
+                .map(GlobalPos::pos);
+        if (station.isEmpty()) {
+            station = pois.take(job.heldJobSite(), (type, pos) -> canReachStation(pos), blockPosition(), 12);
+            if (station.isEmpty()) {
+                player.displayClientMessage(Component.literal("Place an unclaimed matching workstation within 12 blocks with a clear path to it."), true);
+                return;
+            }
+            if (pending.isPresent()) releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
+        }
+        getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+        getBrain().setMemory(MemoryModuleType.JOB_SITE, GlobalPos.of(level.dimension(), station.get()));
+        setVillagerData(getVillagerData().setProfession(job));
+        refreshBrain(level);
+        level.broadcastEntityEvent(this, (byte)14);
+        player.displayClientMessage(Component.literal("Your keeper learned a job: ")
+                .append(Component.translatable("entity.minecraft.villager." + BuiltInRegistries.VILLAGER_PROFESSION.getKey(job).getPath())), true);
+    }
+
+    private boolean canReachStation(BlockPos station) {
+        var path = getNavigation().createPath(station, 1);
+        return path != null && path.canReach();
     }
 
     private void recruit(Player player, ItemStack held) {
@@ -352,14 +407,39 @@ public final class Keeper extends Villager {
     }
 
     @Override public void setVillagerData(VillagerData updated) {
-        // Keep an existing keeper's offer uses and prices when a new workstation changes profession.
         MerchantOffers previous = offers;
+        boolean changed = getVillagerData().getProfession() != updated.getProfession();
         super.setVillagerData(updated);
-        if (previous != null) offers = previous;
+        if (changed) {
+            offeredJobLevel = 0;
+            if (previous != null) {
+                while (previous.size() > FACTION_OFFERS) previous.removeLast();
+                offers = previous;
+            }
+        }
+    }
+
+    @Override public MerchantOffers getOffers() {
+        MerchantOffers current = super.getOffers();
+        if (!level().isClientSide && offeredJobLevel < getVillagerData().getLevel()
+                && getVillagerData().getProfession() != VillagerProfession.NONE) updateTrades();
+        return current;
     }
 
     @Override protected void updateTrades() {
-        if (offers != null && !offers.isEmpty()) return;
+        if (offers == null) {
+            getOffers();
+            return;
+        }
+        if (offers.isEmpty()) addFactionOffers();
+        int level = getVillagerData().getLevel();
+        if (getVillagerData().getProfession() != VillagerProfession.NONE && offeredJobLevel < level) {
+            offeredJobLevel = level;
+            super.updateTrades();
+        }
+    }
+
+    private void addFactionOffers() {
         if (dusk()) {
             sell(1, Items.BLACK_CANDLE, 3);
             sell(2, Items.SOUL_LANTERN, 2);
@@ -374,16 +454,11 @@ public final class Keeper extends Villager {
     }
 
     private void sell(int price, Item item, int quantity) {
-        getOffers().add(new MerchantOffer(new ItemCost(Items.EMERALD, price), new ItemStack(item, quantity), 12, 1, 0.0F));
+        offers.add(new MerchantOffer(new ItemCost(Items.EMERALD, price), new ItemStack(item, quantity), 12, 1, 0.0F));
     }
 
     private void buy(Item item, int quantity) {
-        getOffers().add(new MerchantOffer(new ItemCost(item, quantity), new ItemStack(Items.EMERALD), 8, 1, 0.0F));
-    }
-
-    @Override protected void rewardTradeXp(MerchantOffer offer) {
-        if (offer.shouldRewardExp() && level() instanceof ServerLevel server)
-            ExperienceOrb.award(server, position(), 2 + random.nextInt(3));
+        offers.add(new MerchantOffer(new ItemCost(item, quantity), new ItemStack(Items.EMERALD), 8, 1, 0.0F));
     }
 
     @Override @Nullable public Keeper getBreedOffspring(ServerLevel level, AgeableMob partner) {
@@ -408,12 +483,14 @@ public final class Keeper extends Villager {
         if (home != null) data.putLong("Hearth", home.asLong());
         data.putBoolean("Settled", settled);
         data.putLong("NextGift", nextGift);
+        data.putInt("OfferedJobLevel", offeredJobLevel);
         if (village != null) data.putLong("VillageCourt", village.asLong());
         if (legacyHome) data.putBoolean("SeekLegacyCourt", true);
     }
 
     @Override public void readAdditionalSaveData(CompoundTag data) {
         super.readAdditionalSaveData(data);
+        offeredJobLevel = data.getInt("OfferedJobLevel");
         companion = data.hasUUID("Companion") ? data.getUUID("Companion") : null;
         settled = data.getBoolean("Settled");
         if (data.contains("Hearth")) assignHome(BlockPos.of(data.getLong("Hearth")));

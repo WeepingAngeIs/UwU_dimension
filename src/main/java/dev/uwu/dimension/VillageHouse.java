@@ -75,6 +75,11 @@ final class VillageHouse {
             int x=h.x()+sign*b.x(),z=h.z()+sign*b.z();
             if(!v.inside(x,z))continue;
             var state=palette[dusk?1:0][b.material()];
+            // The source's side posts sometimes project beyond its interior floor.
+            // Give each such post a stone footing down to this lot's actual ground.
+            if(b.y()==1&&(Math.abs(b.x())>width||Math.abs(b.z())>depth)
+                    && (state.is(net.minecraft.tags.BlockTags.LOGS)||state.is(Blocks.STONE_BRICKS)))
+                BlossomVillage.floor(v,x,h.floor(),z,Blocks.STONE_BRICKS);
             if(state.is(Blocks.PINK_CONCRETE)){
                 if(b.x()==0||b.z()==0)state=PinkRoofTiles.tile(dusk).defaultBlockState();
                 else if((b.y()+(dusk?1:0))%4==0)state=Blocks.PINK_TERRACOTTA.defaultBlockState();

@@ -29,8 +29,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef"} :
-            SEED==152045?new String[]{"arrival","village","village-hillside","dusk-village","offsite-terrain","mirror-court"}:
+    private static final String[] TOUR=SEA ? new String[]{"blush-reef","outer-reef","grove-water"} :
+            SEED==152045?new String[]{"arrival","village","keeper-family","village-hillside","dusk-village","offsite-terrain","mirror-court"}:
             new String[]{"arrival","village","village-hillside"};
     private static volatile String state="menu";
     private static volatile SeaWatch.View view;
@@ -53,6 +53,7 @@ public final class FieldCamera {
     private static SeaWatch.View viewFor(ServerPlayer p,String name){
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
+        if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
         if(name.endsWith("reef")){
             var origin=previousReef==null?arrival.offset(725,0,349):previousReef.offset(1050,0,-1120);
             var reef=SeaWatch.reef(p,origin,name);
@@ -136,7 +137,9 @@ public final class FieldCamera {
                 else enter("provoke");
                 return;
             }
-            enter("preparing");var name=TOUR[index];
+            var name=TOUR[index];
+            if(name.equals("keeper-family")){enter("family-wait");return;}
+            enter("preparing");
             server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);
                 try {
@@ -146,11 +149,22 @@ public final class FieldCamera {
                 } catch(Throwable error){cameraFailure=error;}
             });return;
         }
+        if(state.equals("family-wait")&&ticks%40==0){
+            server.execute(()->{
+                if(!state.equals("family-wait"))return;
+                try{
+                    var p=server.getPlayerList().getPlayer(id);
+                    var portrait=FamilyCamera.arrange(p);
+                    if(portrait!=null){view=portrait;readySince=0;place(p,view);enter("pose");}
+                }catch(Throwable error){cameraFailure=error;}
+            });
+            return;
+        }
         if(state.equals("pose")){
             mc.options.hideGui=true;
             if(mc.screen!=null && mc.level.dimension().equals(ReefLife.REACH))mc.setScreen(null);
             if(view.sea()&&ticks%40==0)server.execute(()->{
-                var p=server.getPlayerList().getPlayer(id);SeaWatch.observe(p);stocked=SeaWatch.stocked();counts=SeaWatch.counts();
+                var p=server.getPlayerList().getPlayer(id);boolean inland=view.file().equals("grove-water");SeaWatch.observe(p,inland);stocked=SeaWatch.stocked(inland);counts=SeaWatch.counts();
             });
             if(ticks%20==0 && mc.player.getEyePosition().distanceToSqr(view.eye())>.25)
                 server.execute(()->place(server.getPlayerList().getPlayer(id),view));
@@ -162,9 +176,10 @@ public final class FieldCamera {
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<8_000_000_000L||(view.sea()&&!stocked))return;
-            if(index==0&&!SEA)MusicProof.surface();
+            if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);}
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+counts);}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+            if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);
             index++;enter("advance");return;
         }
         if(state.equals("provoke")){

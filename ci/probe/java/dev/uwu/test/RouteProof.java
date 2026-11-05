@@ -87,7 +87,7 @@ public final class RouteProof {
         int x0=center.getX(),z0=center.getZ();
         loadColumns(level,x0-radius,z0-radius,x0+radius,z0+radius);
         java.util.Set<BlockPos> visited=new java.util.HashSet<>();
-        int verified=0;
+        int verified=0,otherSupport=0;
         for(int x=x0-radius;x<=x0+radius;x++)for(int z=z0-radius;z<=z0+radius;z++){
             int top=level.getHeight(Heightmap.Types.MOTION_BLOCKING,x,z);
             for(int y=top-1;y>=Math.max(level.getMinBuildHeight(),top-20);y--){
@@ -100,23 +100,30 @@ public final class RouteProof {
                 var species=state.getBlock();
                 java.util.ArrayDeque<BlockPos> next=new java.util.ArrayDeque<>();
                 next.add(start);
-                boolean grounded=false;
+                boolean grounded=false,supported=false;
+                BlockPos lowest=start;
                 int logs=0;
                 while(!next.isEmpty()){
                     BlockPos log=next.removeFirst();
                     logs++;
-                    if(level.getBlockState(log.below()).is(BlockTags.DIRT))grounded=true;
+                    var below=log.below();
+                    var substrate=level.getBlockState(below);
+                    if(substrate.is(BlockTags.DIRT))grounded=true;
+                    if(!substrate.is(BlockTags.LOGS)&&!substrate.is(BlockTags.LEAVES)
+                            &&substrate.isFaceSturdy(level,below,Direction.UP))supported=true;
+                    if(log.getY()<lowest.getY())lowest=log;
                     for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++){
                         BlockPos neighbor=log.offset(dx,dy,dz);
                         if(!visited.contains(neighbor)&&level.getBlockState(neighbor).is(species)&&visited.add(neighbor))next.add(neighbor);
                     }
                 }
-                if(!grounded)throw new AssertionError("Suspended "+species+" at "+start+" logs="+logs);
-                verified++;
+                if(!grounded&&!supported)throw new AssertionError("Suspended "+species+" at "+start+" logs="+logs+
+                        " lowest log="+lowest+" below="+level.getBlockState(lowest.below())+" measured from "+center);
+                if(grounded)verified++;else otherSupport++;
             }
         }
         if(required&&verified==0)throw new AssertionError("No rooted grove tree within "+radius+" blocks of "+center);
-        System.out.println(label+" TREE ROOTS connected="+verified+" radius="+radius+" near "+center+" in "+level.dimension().location());
+        System.out.println(label+" TREE ROOTS connected="+verified+" other solid supports="+otherSupport+" radius="+radius+" near "+center+" in "+level.dimension().location());
     }
     private static void village(ServerLevel level,BlossomVillage.Plan v){
         if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE))throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());

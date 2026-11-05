@@ -25,18 +25,41 @@ final class SeaWatch {
     private static final Set<String> seen=new TreeSet<>();
     private static final Set<UUID> fish=new HashSet<>(), dolphins=new HashSet<>();
     static void reset(){seen.clear();fish.clear();dolphins.clear();}
-    static void observe(ServerPlayer p) {
+    static void observe(ServerPlayer p,boolean inland) {
         ServerLevel l=p.serverLevel();AABB around=p.getBoundingBox().inflate(72,26,72);
         for(var mon:l.getEntitiesOfClass(PokemonEntity.class,around)) {
             String kind=mon.getPokemon().getSpecies().getName().toLowerCase(Locale.ROOT);
-            if(AQUATIC.contains(kind)&&mon.isInWater()&&l.getFluidState(mon.blockPosition()).is(FluidTags.WATER)
+            if((!inland||!l.getBiome(mon.blockPosition()).is(ReefLife.REEF))&&AQUATIC.contains(kind)&&mon.isInWater()&&l.getFluidState(mon.blockPosition()).is(FluidTags.WATER)
                     &&seen.add(kind))System.out.println("NATIVE AQUATIC "+kind+" in real water at "+mon.blockPosition());
         }
         for(var mob:l.getEntitiesOfClass(AbstractFish.class,around))if(mob.isInWater())fish.add(mob.getUUID());
         for(var mob:l.getEntitiesOfClass(Dolphin.class,around))if(mob.getType()==ReefLife.DOLPHIN.get()&&mob.isInWater())dolphins.add(mob.getUUID());
     }
-    static boolean stocked(){return !seen.isEmpty()&&fish.size()>=3&&!dolphins.isEmpty();}
+    static boolean stocked(boolean inland){return !seen.isEmpty()&&fish.size()>=3&&(inland||!dolphins.isEmpty());}
     static String counts(){return "aquatic Pokemon="+seen+", fish="+fish.size()+", Ribbon Dolphins="+dolphins.size();}
+    static View inland(ServerPlayer p,BlockPos origin) {
+        var l=p.serverLevel();var chunks=l.getChunkSource();var gen=chunks.getGenerator();var noise=chunks.randomState();
+        int sea=gen.getSeaLevel();
+        for(int ring=0;ring<=52;ring++)for(int dx=-ring;dx<=ring;dx++)for(int dz=-ring;dz<=ring;dz++){
+            if(Math.max(Math.abs(dx),Math.abs(dz))!=ring)continue;
+            int x=origin.getX()+dx*32,z=origin.getZ()+dz*32;
+            if(!gen.getBiomeSource().getNoiseBiome(x>>2,(sea-3)>>2,z>>2,noise.sampler()).is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE))continue;
+            int floor=gen.getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,l,noise);
+            if(floor<sea-28||floor>sea-6)continue;
+            int wet=0,bank=0;
+            for(int[] dir:new int[][]{{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}}){
+                int y=gen.getBaseHeight(x+dir[0]*24,z+dir[1]*24,Heightmap.Types.OCEAN_FLOOR_WG,l,noise);
+                if(y<=sea-3)wet++;
+                if(gen.getBaseHeight(x+dir[0]*48,z+dir[1]*48,Heightmap.Types.OCEAN_FLOOR_WG,l,noise)>sea+1)bank++;
+            }
+            if(wet<3||bank<2)continue;
+            var eye=new BlockPos(x,sea-3,z);
+            if(!l.getBlockState(eye).is(Blocks.WATER)||!l.getBlockState(eye.above()).is(Blocks.WATER)||!l.getBiome(eye).is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE))continue;
+            System.out.println("NATIVE INLAND WATER "+eye+" water samples="+wet+"/8 banks="+bank+"/8");
+            return new View(Vec3.atCenterOf(eye),Vec3.atCenterOf(eye.offset(5,-1,3)),"grove-water",true);
+        }
+        throw new AssertionError("Could not find open grove water near "+origin);
+    }
     static View reef(ServerPlayer p,BlockPos origin,String name) {
         ServerLevel l=p.serverLevel();
         BlockPos near=ReefCharts.nearest(l,origin,256);

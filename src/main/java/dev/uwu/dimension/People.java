@@ -27,7 +27,7 @@ public final class People {
 
     private static DeferredHolder<EntityType<?>, EntityType<Keeper>> keeper(String name) {
         return TYPES.register(name, () -> EntityType.Builder.<Keeper>of(Keeper::new, MobCategory.CREATURE)
-                .sized(0.65F, 1.81F).clientTrackingRange(8).build(MOD + ":" + name));
+                .sized(0.65F, 1.78F).eyeHeight(1.62F).clientTrackingRange(8).build(MOD + ":" + name));
     }
 
     private static DeferredHolder<SoundEvent, SoundEvent> voice(String name) {

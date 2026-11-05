@@ -122,7 +122,7 @@ public final class BlossomVillage {
         v.box(x,y+6,z-4,x,y+6,z+4,cap);
         for(int end:new int[]{-5,5})v.block(x,y+6,z+end,cap);
     }
-    private static void floor(HeartwaterFeature.Valley v,int x,int y,int z,Block finish){
+    static void floor(HeartwaterFeature.Valley v,int x,int y,int z,Block finish){
         if(!v.inside(x,z))return;
         // Find solid ground under this individual column, including cave mouths and eroded banks.
         // Stop at the first load-bearing rock. Never leave a hanging pavement or foundation.
@@ -174,10 +174,22 @@ public final class BlossomVillage {
         v.block(x+1,y+1,z+side,h.job());
         v.block(x+1,y+1,z-side,dark?Blocks.SOUL_LANTERN:Blocks.LANTERN);
         v.block(x-w+1,y+1,z+d-1,h.style()==0?Blocks.BOOKSHELF:dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_ALLIUM);
-        if(v.inside(x,z)){
-            var keeper=(dark?People.DUSK_KEEPER:People.PETAL_KEEPER).get().create(v.level.getLevel());
-            if(keeper!=null){var at=p.resident(h);keeper.moveTo(at.getX()+.5,at.getY(),at.getZ()+.5,0,0);keeper.bindVillage(p.plaza());keeper.setPersistenceRequired();v.level.addFreshEntity(keeper);}
+        resident(v,p,x,y+1,z,false);
+        if(h==p.houses().getFirst()){
+            // A family home has two real beds. The youngster grows up on vanilla time.
+            v.put(x+2,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));
+            v.put(x+2,y+1,z+side,bed.setValue(BedBlock.PART,BedPart.HEAD));
+            resident(v,p,x+2,y+1,z-side,true);
         }
+    }
+    private static void resident(HeartwaterFeature.Valley v,Plan p,int x,int y,int z,boolean baby){
+        if(!v.inside(x,z))return;
+        var keeper=(p.dusk()?People.DUSK_KEEPER:People.PETAL_KEEPER).get().create(v.level.getLevel());
+        if(keeper==null)return;
+        if(baby)keeper.setAge(-24000);
+        var at=p.site().pos(x,y,z);
+        keeper.moveTo(at.getX()+.5,at.getY(),at.getZ()+.5,0,0);
+        keeper.bindVillage(p.plaza());keeper.setPersistenceRequired();v.level.addFreshEntity(keeper);
     }
 }
 

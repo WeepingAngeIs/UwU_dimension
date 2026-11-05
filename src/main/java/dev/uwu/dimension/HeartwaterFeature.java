@@ -85,9 +85,18 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 || !level.dimension().location().equals(ResourceLocation.fromNamespaceAndPath(MOD,"blossom_reach")))return;
         var chunk=event.getChunk();
         var site=GroveSites.forChunk(level,chunk.getPos());
-        if(!site.usable()||!GroveSites.adventure(level,site))return;
+        if(!site.usable())return;
         var valley=new Valley(level,chunk,site);
-        if(valley.overlaps(15,68,41,136))valley.buriedStairs();
+        if(valley.overlaps(15,68,41,136)&&GroveSites.adventure(level,site))valley.buriedStairs();
+        if(valley.overlaps(-182,-155,182,35))for(boolean dusk:new boolean[]{false,true}){
+            var plan=BlossomVillage.plan(level,site,dusk);
+            if(plan.isPresent()){
+                var village=plan.get();
+                if(valley.overlaps(village.x()-58,village.z()-58,village.x()+58,village.z()+58)){
+                    VillageTrees.root(level,chunk);break;
+                }
+            }
+        }
     }
     static final class Valley {
         final WorldGenLevel level;

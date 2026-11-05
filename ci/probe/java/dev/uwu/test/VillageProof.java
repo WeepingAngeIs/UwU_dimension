@@ -33,6 +33,7 @@ public final class VillageProof {
     private static boolean work, slept, woke, stock, fed, pickup, grab, finishedThrow;
     private static final Set<UUID> sleepingResidents = new HashSet<>();
     private static final Set<UUID> emptied = new HashSet<>();
+    private static final Set<UUID> emptiedJob = new HashSet<>();
     private static final Set<ChunkPos> tickets = new HashSet<>();
     private static BlossomWarden guard;
     private static Mob attacker, witness;
@@ -41,7 +42,14 @@ public final class VillageProof {
     private static ItemEntity bread;
     private static Keeper collector, sheltered;
     private static Mob threat;
-    private static boolean panic;
+    private static boolean panic, sawChild;
+    private static int lesson;
+    private static final net.minecraft.world.level.block.Block[] STATIONS = {
+        Blocks.COMPOSTER, Blocks.LECTERN, Blocks.BARREL, Blocks.LOOM, Blocks.BLAST_FURNACE,
+        Blocks.SMOKER, Blocks.CARTOGRAPHY_TABLE, Blocks.BREWING_STAND, Blocks.FLETCHING_TABLE,
+        Blocks.CAULDRON, Blocks.STONECUTTER, Blocks.SMITHING_TABLE, Blocks.GRINDSTONE
+    };
+
 
     public static boolean tick(ServerLevel level, BlockPos village) {
         long now = level.getGameTime();
@@ -56,8 +64,17 @@ public final class VillageProof {
             level.getServer().overworld().setDayTime(3000);
         }
         long age=now-start;
-        List<Keeper> keepers=level.getEntitiesOfClass(Keeper.class,new AABB(village).inflate(48),
+        List<Keeper> families=level.getEntitiesOfClass(Keeper.class,new AABB(village).inflate(48),
                 k->k.getType()==People.PETAL_KEEPER.get());
+        var keepers=families.stream().filter(k->!k.isBaby()).toList();
+        for (Keeper member : families) {
+            float expected=member.isBaby()?1.00125F:1.78F;
+            if (member.isSleeping() || !member.hasPose(net.minecraft.world.entity.Pose.STANDING)) continue;
+            require(Math.abs(member.getBbHeight()-expected)<.015, "Standing height "+member.getBbHeight()+" expected "+expected);
+            require(Math.abs(member.getEyeHeight()-(member.isBaby()?.91125F:1.62F))<.015,"Standing eyes "+member.getEyeHeight());
+            if(member.isBaby()) sawChild=true;
+        }
+        if(age>=2 && lesson<STATIONS.length) checkLessons(level,village,age);
         if(keepers.isEmpty() && age>240) throw new AssertionError("No generated petal villagers at "+village);
         if (!keepers.isEmpty() && !fed) {
             require(keepers.size()>=2,"Generated village should have at least two residents");
@@ -85,6 +102,7 @@ public final class VillageProof {
 
         for (Keeper k:keepers) {
             if (emptied.add(k.getUUID())) k.getOffers().getFirst().setToOutOfStock();
+            if (k.getOffers().size()>4 && emptiedJob.add(k.getUUID())) k.getOffers().get(4).setToOutOfStock();
             var brain=k.getBrain();
             var job=brain.getMemory(MemoryModuleType.JOB_SITE);
             var lastWorked=brain.getMemory(MemoryModuleType.LAST_WORKED_AT_POI);
@@ -92,7 +110,8 @@ public final class VillageProof {
                     k.getVillagerData().getProfession()!=VillagerProfession.NONE && level.getPoiManager().getType(job.get().pos()).isPresent()) {
                 if (!work) System.out.println("VILLAGE WORK resident="+k.getUUID()+" job="+k.getVillagerData().getProfession()+" at "+job.get().pos()+" worked="+lastWorked.get());
                 work=true;
-                if (!k.getOffers().getFirst().isOutOfStock()) stock=true;
+                if (emptiedJob.contains(k.getUUID()) && !k.getOffers().getFirst().isOutOfStock()
+                        && k.getOffers().size()>4 && !k.getOffers().get(4).isOutOfStock()) stock=true;
             }
             if (nightAt>=0 && k.isSleeping() && k.getSleepingPos().isPresent() &&
                     level.getBlockState(k.getSleepingPos().get()).getBlock() instanceof BedBlock &&
@@ -129,13 +148,64 @@ public final class VillageProof {
                     " worked="+work+" restocked="+stock+" slept="+slept+" woke="+woke+" panic="+panic+" launch="+finishedThrow+
                     " first="+(keepers.isEmpty()?"pending":status(keepers.getFirst())));
         }
-        if (fed && pickup && work && stock && slept && woke && panic && finishedThrow) {
+        if (fed && pickup && work && stock && slept && woke && panic && finishedThrow && sawChild && lesson==STATIONS.length) {
             tickets.forEach(c->level.setChunkForced(c.x,c.z,false));
             System.out.println("VILLAGE LIFE PASS: generated POIs claimed, actual work, restock, bed sleep and dawn wake; consumed hand feed and world food pickup; sensed nearby zombie and entered vanilla PANIC.");
             return true;
         }
         if(age>4000) throw new AssertionError("Village schedule or pursuit timed out: "+keepers.stream().map(VillageProof::status).toList());
         return false;
+    }
+
+    private static void checkLessons(ServerLevel level, BlockPos village, long age) {
+        var block=STATIONS[lesson];
+        var jobType=net.minecraft.world.entity.ai.village.poi.PoiTypes.forState(block.defaultBlockState()).orElseThrow();
+        var job=net.minecraft.core.registries.BuiltInRegistries.VILLAGER_PROFESSION.stream()
+                .filter(p->p!=VillagerProfession.NONE && p.heldJobSite().test(jobType)).findFirst().orElseThrow();
+        for (boolean dusk : new boolean[]{false,true}) {
+            var pos=new BlockPos(village.getX()+(dusk?19:-19),level.getMaxBuildHeight()-110,village.getZ()+28);
+            if (age%2==0) {
+                if (lesson==0) for(int x=-2;x<=2;x++) for(int z=-2;z<=2;z++)
+                    level.setBlockAndUpdate(pos.offset(x,-1,z),Blocks.STONE.defaultBlockState());
+                level.setBlockAndUpdate(pos,block.defaultBlockState());
+                continue;
+            }
+            var type=(dusk?People.DUSK_KEEPER:People.PETAL_KEEPER).get();
+            var worker=type.create(level);
+            var rival=type.create(level);
+            require(worker!=null && rival!=null,"Lesson participants");
+            worker.moveTo(pos.getX()+1.5,pos.getY(),pos.getZ()+.5,0,0);
+            rival.moveTo(worker.getX(),worker.getY(),worker.getZ(),0,0);
+            FakePlayer teacher=new FakePlayer(level,new GameProfile(UUID.fromString("4bd24d02-928d-4933-a47b-f79cd85c3de5"),"Teacher"));
+            teacher.moveTo(worker.getX(),worker.getY(),worker.getZ(),0,0);
+            teacher.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(block));
+            teacher.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(Items.EMERALD));
+            worker.mobInteract(teacher,InteractionHand.MAIN_HAND);
+            var site=worker.getBrain().getMemory(MemoryModuleType.JOB_SITE);
+            require(worker.getVillagerData().getProfession()==job && site.map(p->p.pos().equals(pos)).orElse(false),
+                    "Could not teach "+job+" to "+type+" at "+pos+" POI="+level.getPoiManager().getType(pos));
+            rival.mobInteract(teacher,InteractionHand.MAIN_HAND);
+            require(rival.getVillagerData().getProfession()==VillagerProfession.NONE,"Rival stole claimed "+job+" station");
+            require(teacher.getMainHandItem().getCount()==1,"Teaching consumed workstation");
+            var trades=worker.getOffers();
+            require(trades.size()>4 && !trades.get(4).getResult().isEmpty(),"Missing profession trades for "+job);
+            worker.notifyTrade(trades.get(4));
+            require(worker.getVillagerXp()>0,"Job trade did not grant experience");
+            var tag=new net.minecraft.nbt.CompoundTag();
+            worker.saveWithoutId(tag);
+            var restored=type.create(level);
+            restored.load(tag);
+            require(restored.getVillagerData().getProfession()==job && restored.getVillagerXp()==worker.getVillagerXp()
+                    && restored.getOffers().size()==trades.size() && restored.getOffers().get(4).getUses()==1
+                    && restored.getBrain().getMemory(MemoryModuleType.JOB_SITE).equals(site),"Lost job or offers on reload for "+job);
+            teacher.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(block==Blocks.BARREL?Blocks.LOOM:Blocks.BARREL));
+            restored.mobInteract(teacher,InteractionHand.MAIN_HAND);
+            require(restored.getVillagerData().getProfession()==job,"Previously traded keeper changed job");
+            worker.releasePoi(MemoryModuleType.JOB_SITE);
+            level.removeBlock(pos,false);
+        }
+        if (age%2!=0 && ++lesson==STATIONS.length)
+            System.out.println("PROFESSION PASS: both factions accepted all 13 actual stations, rejected a second claimant, retained trade XP, uses and job after save/load.");
     }
 
     private static String status(Keeper k) {
