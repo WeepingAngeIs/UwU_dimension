@@ -78,6 +78,18 @@ public final class CounterProof {
             var lashes=level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3));require(lashes.size()==1,"Visible lash entity missing");
             for(int t=0;t<6;t++){lashes.getFirst().tickCount++;lashes.getFirst().tick();}
             require(level.getEntitiesOfClass(Axolotl.class,player.getBoundingBox().inflate(3),a->a.getTags().contains("uwu.twin")).size()==2,"Twinfin must summon exactly two");clearProjectiles(level,player);
+            var frost=Arsenal.WEAPONS.get(Arsenal.Relic.FROST_WHIP).get();
+            foe.invulnerableTime=0;player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(frost));frost.use(level,player,InteractionHand.MAIN_HAND);
+            for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6;t++){lash.tickCount++;lash.tick();}
+            require(foe.getTicksFrozen()==160&&foe.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN),"Frost lash did not freeze its struck target");clearProjectiles(level,player);
+            var rift=Arsenal.WEAPONS.get(Arsenal.Relic.RIFT_WHIP).get();
+            foe.invulnerableTime=0;player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(rift));rift.use(level,player,InteractionHand.MAIN_HAND);
+            for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6;t++){lash.tickCount++;lash.tick();}
+            require(player.getPersistentData().hasUUID("uwu.rift_target"),"Rift lash did not mark target");
+            player.getCooldowns().removeCooldown(rift);player.setShiftKeyDown(true);rift.use(level,player,InteractionHand.MAIN_HAND);player.setShiftKeyDown(false);
+            require(player.distanceToSqr(foe)<9&&!player.getPersistentData().hasUUID("uwu.rift_target"),"Sneak-use did not safely teleport the wielder beside marked foe");
+            require(level.noCollision(player),"Rift landing inside a solid block");player.teleportTo(.5,base.getY()+1,.5);clearProjectiles(level,player);
+            System.out.println("WHIP EFFECTS PASS frost freeze and marked-target safe teleport");
             var scythe=Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();var scytheStack=new ItemStack(scythe);player.setItemInHand(InteractionHand.MAIN_HAND,scytheStack);player.getCooldowns().removeCooldown(scythe);player.getPersistentData().remove("uwu.scythe_flight");
             scythe.use(level,player,InteractionHand.MAIN_HAND);scythe.onUseTick(level,player,scytheStack,71988);
             var flights=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));require(flights.size()==1&&!flights.getFirst().wave(),"Held throw must fire without release");
@@ -116,12 +128,13 @@ public final class CounterProof {
         for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")){
             var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,ResourceLocation.parse("uwudimension:chests/"+name));
             var table=level.getServer().reloadableRegistries().getLootTable(key);
-            int found=0;Set<String> ids=new HashSet<>();
+            int found=0;Set<String> ids=new HashSet<>();var seeds=new java.util.Random(928174L);
             for(int i=1;i<=6000;i++){
+                long seed=seeds.nextLong();
                 var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,new net.minecraft.world.phys.Vec3(0,300,0)).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
-                for(var item:table.getRandomItems(params,i))if(isWeapon(item)){found++;ids.add(BuiltInRegistries.ITEM.getKey(item.getItem()).toString());}
+                for(var item:table.getRandomItems(params,seed))if(isWeapon(item)){found++;ids.add(BuiltInRegistries.ITEM.getKey(item.getItem()).toString());}
                 var outside=new net.minecraft.world.level.storage.loot.LootParams.Builder(level.getServer().overworld()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,new net.minecraft.world.phys.Vec3(0,100,0)).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
-                require(table.getRandomItems(outside,i).stream().noneMatch(CounterProof::isWeapon),"Weapon generated outside dimension: "+name);
+                require(table.getRandomItems(outside,seed).stream().noneMatch(CounterProof::isWeapon),"Weapon generated outside dimension: "+name);
             }
             double expected=name.equals("rose_bathhouse")?.05:name.equals("inverted_shrine")?.08:.12;
             require(Math.abs(found/6000.0-expected)<.025,"Rare probability mismatch "+name+" "+found);
@@ -130,6 +143,7 @@ public final class CounterProof {
     }
     private static boolean isWeapon(ItemStack s){return s.getItem() instanceof Arsenal.RelicItem||s.getItem() instanceof CounterArsenal.CounterItem||s.getItem() instanceof GlitchBow;}
     private static void clearProjectiles(ServerLevel level,Player p){
+        p.stopUsingItem();
         for(Entity e:level.getEntities(p,p.getBoundingBox().inflate(40),e->e instanceof net.minecraft.world.entity.projectile.Projectile||e instanceof RibbonLash))e.discard();
     }
 }
