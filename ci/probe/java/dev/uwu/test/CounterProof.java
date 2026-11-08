@@ -34,6 +34,7 @@ public final class CounterProof {
         require(foe.isPickable(),"Simulated duelist is not collidable");
         require(level.getEntities(player,player.getBoundingBox().inflate(12)).contains(foe),"Duelist absent from loaded entity index");
         foe.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);foe.setHealth(1000);
+        player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);player.setHealth(1000);
         player.setNoGravity(true);foe.setNoGravity(true);
         readyAt=level.getGameTime()+70;
         return false;
@@ -48,16 +49,19 @@ public final class CounterProof {
                 Item opponent=BuiltInRegistries.ITEM.get(ResourceLocation.parse(entry.target()));
                 require(opponent!=Items.AIR,"Missing installed target "+entry.target());
                 foe.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(opponent));
-                foe.teleportTo(.5,base.getY()+1,8.5);foe.setHealth(1000);foe.invulnerableTime=0;
+                require(player.isAlive(),"Previous target retaliation killed the duel actor before "+entry.id());
+                player.moveTo(.5,base.getY()+1,.5,0,0);player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);player.setHealth(1000);player.invulnerableTime=0;
+                foe.moveTo(.5,base.getY()+1,8.5,180,0);foe.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);foe.setHealth(1000);foe.invulnerableTime=0;
                 var item=CounterArsenal.ITEMS.get(entry.id()).get();var stack=new ItemStack(item);
                 player.setItemInHand(InteractionHand.MAIN_HAND,stack);player.getCooldowns().removeCooldown(item);
+                if(entry.shape().equals("whip"))System.out.println("WHIP AIM "+entry.id()+" actorHp="+player.getHealth()+" origin="+player.getEyePosition()+" aim="+player.getLookAngle()+" foe="+foe.position()+" visible="+player.hasLineOfSight(foe));
                 item.use(level,player,InteractionHand.MAIN_HAND);
                 if(entry.shape().equals("scythe")){player.getPersistentData().remove("uwu.scythe_flight");item.onUseTick(level,player,stack,71988);}
                 for(var projectile:level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&projectile.isAlive();t++){projectile.tickCount++;projectile.tick();}
                 for(var f:level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&f.isAlive();t++){f.tickCount++;f.tick();}
                 for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6&&lash.isAlive();t++){lash.tickCount++;lash.tick();}
                 require(CounterEffects.active(player)!=null&&CounterEffects.active(player).target().equals(entry.target()),"Ward failed "+entry.id());
-                require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id()+" projectiles="+level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(24)).stream().map(b->b.position()+" alive="+b.isAlive()).toList());
+                require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id()+" actorAlive="+player.isAlive()+" actorHp="+player.getHealth()+" foeAlive="+foe.isAlive()+" lashes="+level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(24)).stream().map(l->"age="+l.tickCount+" tip="+l.tip()+" owner="+(l.owner()==player)).toList()+" projectiles="+level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(24)).stream().map(b->b.position()+" alive="+b.isAlive()).toList());
                 require(stack.getDamageValue()==1,"Cast durability "+entry.id());
                 clearProjectiles(level,player);
             }
