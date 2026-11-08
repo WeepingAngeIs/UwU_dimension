@@ -53,7 +53,13 @@ public final class GuardianFlight {
         target.setDeltaMovement(velocity);
         // The dedicated payload is applied before client movement each tick, after vanilla's
         // clamped tracking packets. Server expected velocity matches client-authoritative motion.
-        if(target instanceof ServerPlayer p)PacketDistributor.sendToPlayer(p,new Thrust(velocity.x,velocity.y,velocity.z,true));
+        if(target instanceof ServerPlayer p){
+            // Incoming movement can still reflect an earlier authorized impulse while a braking
+            // message is in transit. Validate against this launch's finite 48-block/tick ceiling,
+            // keeping native collision and distance checks enabled throughout the flight.
+            p.setDeltaMovement(velocity.x,48,velocity.z);
+            PacketDistributor.sendToPlayer(p,new Thrust(velocity.x,velocity.y,velocity.z,true));
+        }
         else target.hurtMarked=true;
     }
     private static void stop(LivingEntity target){
@@ -76,7 +82,7 @@ public final class GuardianFlight {
         int window=n.getInt("Window")+1;
         if(window>=20){
             double rise=target.getY()-n.getDouble("WindowY");
-            if(age>=40&&rise<.5){
+            if(age>=40&&rise<.05){
                 // Twenty measured stuck ticks after the initial grace, not a journey timeout.
                 var destination=new Vec3(n.getDouble("X"),n.getDouble("Y"),n.getDouble("Z"));
                 if(target instanceof ServerPlayer p)p.connection.teleport(destination.x,destination.y,destination.z,p.getYRot(),p.getXRot());
@@ -88,6 +94,7 @@ public final class GuardianFlight {
         }
         n.putInt("Window",window);
         double speed=Math.min(48,3.6+age*1.8);
+        speed=Math.min(speed,Math.max(.8,remaining*.20));
         double vx=Math.clamp((n.getDouble("X")-target.getX())*.06,-1.2,1.2);
         double vz=Math.clamp((n.getDouble("Z")-target.getZ())*.06,-1.2,1.2);
         thrust(target,new Vec3(vx,Math.min(speed,Math.max(.8,remaining)),vz));

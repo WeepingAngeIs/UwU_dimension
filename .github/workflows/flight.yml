@@ -65,6 +65,7 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee flight-client.log
           grep -F 'UWU FLIGHT CLIENT PASSED' flight-client.log
+          ! grep -E 'moved too quickly|moved wrongly|kicked for floating' run/logs/latest.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

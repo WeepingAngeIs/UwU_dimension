@@ -35,6 +35,7 @@ public final class FlightCamera {
         if(mc.player==null||mc.getSingleplayerServer()==null)return;
         var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();
         if(state.equals("create")&&ticks>80){state="ready";ticks=0;server.execute(()->{
+            server.setFlightAllowed(false);
             var p=server.getPlayerList().getPlayer(uuid);var l=p.serverLevel();
             for(int x=-15;x<=15;x++)for(int z=-15;z<=15;z++)l.setBlockAndUpdate(new BlockPos(x,150,z),(x%4==0?Blocks.PINK_CONCRETE:Blocks.WHITE_CONCRETE).defaultBlockState());
             l.setDayTime(6000);p.teleportTo(.5,151,.5);
@@ -50,7 +51,7 @@ public final class FlightCamera {
             double y=mc.player.getY();
             if(state.equals("attack")&&active){state="flight";ticks=0;lastY=y;}
             if(state.equals("flight")){
-                double step=y-lastY;check(step<60,"Player position jumped instead of moving: "+step);check(recoveries==0,"Unobstructed player used fallback");
+                double step=y-lastY;check(step<60&&step>=-2,"Player position jumped or was corrected during ascent: "+step);check(recoveries==0,"Unobstructed player used fallback");
                 if(step>.5)samples++;lastY=y;highest=Math.max(highest,y);
                 if(ticks%10==0)System.out.println("PLAYER FLIGHT SAMPLE clientY="+y+" serverY="+serverY+" delta="+step+" recovery="+recoveries);
                 if(index<HEIGHTS.length&&y>=HEIGHTS[index]){Screenshot.grab(mc.gameDirectory,"guardian-flight-"+index+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));index++;}
