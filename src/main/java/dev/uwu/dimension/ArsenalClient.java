@@ -25,6 +25,8 @@ public final class ArsenalClient {
     }
     @SubscribeEvent public static void poses(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            ItemProperties.register(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get(), Arsenal.id("element"), (stack,level,holder,seed) ->
+                stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             for (Arsenal.Relic relic : new Arsenal.Relic[]{Arsenal.Relic.CUPID_BOW, Arsenal.Relic.RIPPLE_BOW}) {
                 var bow = Arsenal.WEAPONS.get(relic).get();
                 ItemProperties.register(bow, Arsenal.id("draw"), (stack, level, holder, seed) ->
