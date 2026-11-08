@@ -1,0 +1,56 @@
+package dev.uwu.dimension;
+import java.util.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+/** Factory replacement keeps UUID/NBT intact before registration; deferred fallback covers direct constructors. */
+public final class RealmResidents {
+    public static final String ORIGIN="uwu.keeper_origin";
+    private static final Set<Villager> pending=Collections.newSetFromMap(new IdentityHashMap<>());
+    public static boolean applies(Level level){
+        var id=level.dimension().location();
+        return level instanceof ServerLevel&&id.getNamespace().equals("uwudimension")&&Set.of("heartwater","blossom_reach","sakura_reach").contains(id.getPath());
+    }
+    public static void register(){
+        NeoForge.EVENT_BUS.addListener(RealmResidents::join);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::tick);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::converted);
+    }
+    private static void join(EntityJoinLevelEvent event){
+        if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.VILLAGER&&event.getEntity() instanceof Villager v)pending.add(v);
+    }
+    private static void tick(ServerTickEvent.Post event){
+        for(var v:List.copyOf(pending)){
+            if(v.isRemoved()||!v.isAlive()){pending.remove(v);continue;}
+            if(!(v.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(v.blockPosition()))continue;
+            if(level.getEntity(v.getUUID())!=v)continue;
+            var keeper=People.PETAL_KEEPER.get().create(level);if(keeper==null)continue;
+            var saved=new CompoundTag();v.saveWithoutId(saved);keeper.markAdaptedResident();keeper.load(saved);
+            var passengers=List.copyOf(v.getPassengers());var vehicle=v.getVehicle();
+            // Keep the original until replacement is ready. Failed registration restores it for retry.
+            v.discard();
+            if(level.addFreshEntity(keeper)){
+                if(vehicle!=null)keeper.startRiding(vehicle,true);
+                passengers.forEach(p->p.startRiding(keeper,true));pending.remove(v);
+            }else{v.unsetRemoved();level.addFreshEntity(v);}
+        }
+    }
+    private static void converted(LivingConversionEvent.Post event){
+        if(!applies(event.getEntity().level()))return;
+        if(event.getEntity() instanceof Keeper keeper&&event.getOutcome() instanceof ZombieVillager zombie){
+            var tag=new CompoundTag();keeper.saveWithoutId(tag);tag.putBoolean("WasDusk",keeper.getType()==People.DUSK_KEEPER.get());
+            zombie.getPersistentData().put(ORIGIN,tag);
+        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof Keeper keeper&&zombie.getPersistentData().contains(ORIGIN)){
+            var prior=zombie.getPersistentData().getCompound(ORIGIN);var now=new CompoundTag();keeper.saveWithoutId(now);
+            for(String key:List.of("Companion","Hearth","Settled","NextGift","OfferedJobLevel","VillageCourt","SeekLegacyCourt","Inventory"))if(prior.contains(key))now.put(key,prior.get(key).copy());
+            keeper.readAdditionalSaveData(now);
+        }
+    }
+}
