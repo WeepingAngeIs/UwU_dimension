@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.*;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FlightCamera {
     static String state="menu";static int ticks,samples,index;static double lastY,highest;static volatile double serverY;
-    static volatile int recoveries;static volatile boolean active;static UUID resident;static final double[] HEIGHTS={180,500,2000,4000,7000,8149};
+    static volatile int recoveries;static volatile boolean active,logoutPassed;static UUID resident;static final double[] HEIGHTS={180,500,2000,4000,7000,8149};
     static void check(boolean b,String s){if(!b)throw new AssertionError(s);}
     @SubscribeEvent public static void hud(RenderGuiEvent.Post event){
         if(!"flight".equals(System.getenv("UWU_VISIT"))||Minecraft.getInstance().player==null)return;
@@ -31,11 +31,15 @@ public final class FlightCamera {
         if(state.equals("menu")&&mc.screen instanceof TitleScreen title){state="create";ticks=0;
             mc.createWorldOpenFlows().createFreshLevel("GuardianFlight",new LevelSettings("Guardian Flight",GameType.CREATIVE,false,Difficulty.NORMAL,true,new GameRules(),WorldDataConfiguration.DEFAULT),new WorldOptions(152045,true,false),WorldPresets::createNormalWorldDimensions,title);return;}
         if(state.equals("create")&&mc.screen!=null&&mc.player==null)for(var child:List.copyOf(mc.screen.children()))if(child instanceof Button b&&(b.getMessage().getString().equals("Proceed")||b.getMessage().getString().equals("I know what I'm doing!"))){b.onPress();break;}
-        if(state.equals("closed")&&mc.level==null){System.out.println("UWU FLIGHT CLIENT PASSED");mc.stop();return;}
+        if(state.equals("closed")&&mc.level==null){check(logoutPassed,"Mid-flight logout did not clear thrust before saving");state="done";System.out.println("UWU FLIGHT CLIENT PASSED");mc.stop();return;}
         if(mc.player==null||mc.getSingleplayerServer()==null)return;
         var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();
         if(state.equals("create")&&ticks>80){state="ready";ticks=0;server.execute(()->{
             server.setFlightAllowed(false);
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST,false,net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent.class,e->{
+                check(!e.getEntity().getPersistentData().contains(GuardianFlight.STATE),"Logout saved active flight");
+                check(e.getEntity().getDeltaMovement().lengthSqr()<.01,"Logout retained launch velocity");logoutPassed=true;System.out.println("MID-FLIGHT LOGOUT CLEANUP PASS");
+            });
             var p=server.getPlayerList().getPlayer(uuid);var l=p.serverLevel();
             for(int x=-15;x<=15;x++)for(int z=-15;z<=15;z++)l.setBlockAndUpdate(new BlockPos(x,150,z),(x%4==0?Blocks.PINK_CONCRETE:Blocks.WHITE_CONCRETE).defaultBlockState());
             l.setDayTime(6000);p.teleportTo(.5,151,.5);
@@ -46,7 +50,7 @@ public final class FlightCamera {
             state="attack";ticks=0;mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);mc.player.setXRot(35);
             server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);p.setGameMode(GameType.SURVIVAL);p.attack(p.serverLevel().getEntity(resident));});return;
         }
-        if(state.equals("attack")||state.equals("flight")||state.equals("descent")){
+        if(state.equals("attack")||state.equals("flight")||state.equals("descent")||state.equals("disconnectPrep")){
             server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);if(p!=null){serverY=p.getY();recoveries=p.getPersistentData().getInt(GuardianFlight.RECOVERIES);active=p.getPersistentData().contains(GuardianFlight.STATE);}});
             double y=mc.player.getY();
             if(state.equals("attack")&&active){state="flight";ticks=0;lastY=y;}
@@ -59,7 +63,10 @@ public final class FlightCamera {
             }else if(state.equals("descent")&&ticks>30){
                 check(y<highest-5,"Player remained suspended instead of falling");check(recoveries==0,"Player recovery count changed");
                 System.out.println("PLAYER REAL TRAJECTORY PASS samples="+samples+" apex="+highest+" current="+y+" zero recovery teleports");
-                state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());
+                check(!mc.player.noCulling,"Temporary body culling override was not restored");
+                state="disconnectPrep";ticks=0;server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);GuardianFlight.start(p,p.position().add(96,8000,0));});
+            }else if(state.equals("disconnectPrep")&&ticks>15){
+                check(active,"Logout fixture never began real thrust");state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());
             }
         }
     }

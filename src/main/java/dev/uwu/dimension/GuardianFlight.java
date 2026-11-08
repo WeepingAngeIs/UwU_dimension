@@ -13,6 +13,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
@@ -20,6 +23,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 public final class GuardianFlight {
     public static final String STATE="uwu.guardian_flight", RECOVERIES="uwu.guardian_recoveries";
     public static final String CLIENT="uwu.guardian_thrust";
+    private static final java.util.Set<LivingEntity> active=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     public record Thrust(double x,double y,double z,boolean active) implements CustomPacketPayload {
         public static final Type<Thrust> TYPE=new Type<>(UwUDimension.id("guardian_thrust"));
         public static final StreamCodec<RegistryFriendlyByteBuf,Thrust> CODEC=StreamCodec.of(
@@ -31,6 +35,9 @@ public final class GuardianFlight {
         bus.addListener(GuardianFlight::network);
         NeoForge.EVENT_BUS.addListener(GuardianFlight::tick);
         NeoForge.EVENT_BUS.addListener(GuardianFlight::logout);
+        NeoForge.EVENT_BUS.addListener(GuardianFlight::lease);
+        NeoForge.EVENT_BUS.addListener((EntityJoinLevelEvent e)->{if(e.getLevel() instanceof ServerLevel&&e.getEntity() instanceof LivingEntity l&&l.getPersistentData().contains(STATE))active.add(l);});
+        NeoForge.EVENT_BUS.addListener((ServerStoppedEvent e)->active.removeIf(l->l.level() instanceof ServerLevel s&&s.getServer()==e.getServer()));
     }
     private static void network(RegisterPayloadHandlersEvent event){
         event.registrar("1").playToClient(Thrust.TYPE,Thrust.CODEC,(m,ctx)->ctx.enqueueWork(()->{
@@ -48,6 +55,7 @@ public final class GuardianFlight {
         n.putDouble("X",destination.x);n.putDouble("Y",destination.y);n.putDouble("Z",destination.z);
         n.putDouble("WindowY",target.getY());n.putInt("Age",0);n.putInt("Window",0);
         target.getPersistentData().put(STATE,n);
+        active.add(target);
         thrust(target,new Vec3(0,3.6,0));
     }
     private static void thrust(LivingEntity target,Vec3 velocity){
@@ -64,12 +72,23 @@ public final class GuardianFlight {
         else target.hurtMarked=true;
     }
     private static void stop(LivingEntity target){
+        active.remove(target);
         target.getPersistentData().remove(STATE);target.setDeltaMovement(Vec3.ZERO);target.fallDistance=0;
         if(target instanceof ServerPlayer p)PacketDistributor.sendToPlayer(p,new Thrust(0,0,0,false));
         else target.hurtMarked=true;
     }
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.getEntity().getPersistentData().contains(STATE))stop(event.getEntity());
+    }
+    private static void lease(ServerTickEvent.Pre event){
+        for(var target:java.util.List.copyOf(active)){
+            if(target.isRemoved()||!target.isAlive()||!target.getPersistentData().contains(STATE)){active.remove(target);continue;}
+            if(!(target.level() instanceof ServerLevel level)||level.getServer()!=event.getServer())continue;
+            // Renew independently of entity ticking; otherwise crossing into a not-yet-ticking
+            // chunk can freeze the very entity responsible for renewing its own ticket.
+            // Radius three also warms the neighboring entity-ticking chunk before horizontal travel.
+            level.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT,target.chunkPosition(),3,target.getId());
+        }
     }
     private static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof LivingEntity target)||!(target.level() instanceof ServerLevel level)||!target.getPersistentData().contains(STATE))return;
@@ -78,7 +97,6 @@ public final class GuardianFlight {
         double remaining=n.getDouble("Y")-target.getY();
         if(remaining<=1){stop(target);return;}
         int age=n.getInt("Age")+1;n.putInt("Age",age);
-        level.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT,target.chunkPosition(),2,target.getId());
         target.fallDistance=0;
         int window=n.getInt("Window")+1;
         if(window>=20){
