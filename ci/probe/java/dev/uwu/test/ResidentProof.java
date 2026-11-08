@@ -109,11 +109,11 @@ public final class ResidentProof {
         var vanilla=new Villager(EntityType.VILLAGER,level);vanilla.moveTo(Vec3.atBottomCenterOf(plaza.offset(0,0,15)));vanilla.setAge(-24000);vanilla.setCustomName(Component.literal("Saved Mae"));vanilla.setHealth(12);
         vanilla.setVillagerData(vanilla.getVillagerData().setProfession(VillagerProfession.FARMER).setLevel(3));vanilla.getInventory().setItem(0,new ItemStack(Items.BREAD,17));
         var offers=new MerchantOffers();offers.add(new MerchantOffer(new ItemCost(Items.EMERALD,3),new ItemStack(Items.APPLE,5),7,2,.05F));vanilla.getOffers().clear();vanilla.getOffers().addAll(offers);
-        var bed=Blocks.PINK_BED.defaultBlockState();
+        var bed=Blocks.PINK_BED.defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING,Direction.NORTH);
         level.setBlockAndUpdate(plaza.offset(2,-1,15),Blocks.STONE.defaultBlockState());
         level.setBlockAndUpdate(plaza.offset(2,-1,16),Blocks.STONE.defaultBlockState());
-        level.setBlockAndUpdate(plaza.offset(2,0,15),bed.setValue(net.minecraft.world.level.block.BedBlock.PART,net.minecraft.world.level.block.state.properties.BedPart.HEAD));
-        level.setBlockAndUpdate(plaza.offset(2,0,16),bed);
+        level.setBlock(plaza.offset(2,0,16),bed,2);
+        level.setBlock(plaza.offset(2,0,15),bed.setValue(net.minecraft.world.level.block.BedBlock.PART,net.minecraft.world.level.block.state.properties.BedPart.HEAD),2);
         vanilla.getBrain().setMemory(MemoryModuleType.HOME,GlobalPos.of(level.dimension(),plaza.offset(2,0,15)));
         var tag=new CompoundTag();vanilla.save(tag);migratedId=vanilla.getUUID();
         var loaded=EntityType.loadEntityRecursive(tag,level,e->e);require(loaded instanceof Keeper,"Saved vanilla NBT not adapted by native loader");auditResident((Keeper)loaded);
@@ -132,5 +132,5 @@ public final class ResidentProof {
         var dz=new CompoundTag();duskZombie.saveWithoutId(dz);dz.putInt("ConversionTime",1);duskZombie.load(dz);duskZombie.setCustomName(Component.literal("Dusk Cure Probe"));level.addFreshEntity(duskZombie);
         System.out.println("RESIDENT FACTORY PASS three realms, vanilla NBT UUID/name/age/trades/inventory, Overworld unchanged and custom offspring");
     }
-    static void auditResident(Keeper k){require(k.getUUID().equals(migratedId),"Resident UUID mismatch");require(k.getCustomName()!=null&&k.getCustomName().getString().equals("Saved Mae"),"Name lost");require(k.isBaby(),"Age lost");require(k.getVillagerData().getProfession()==VillagerProfession.FARMER&&k.getVillagerData().getLevel()==3,"Profession lost");require(k.getInventory().getItem(0).is(Items.BREAD)&&k.getInventory().getItem(0).getCount()==17,"Inventory lost");require(k.getOffers().size()==1&&k.getOffers().getFirst().getResult().is(Items.APPLE),"Trades changed or duplicated");require(k.getBrain().getMemory(MemoryModuleType.HOME).isPresent(),"Home POI memory lost");}
+    static void auditResident(Keeper k){require(k.getUUID().equals(migratedId),"Resident UUID mismatch");require(k.getCustomName()!=null&&k.getCustomName().getString().equals("Saved Mae"),"Name lost");require(k.isBaby(),"Age lost");require(k.getVillagerData().getProfession()==VillagerProfession.FARMER&&k.getVillagerData().getLevel()==3,"Profession lost");require(k.getInventory().getItem(0).is(Items.BREAD)&&k.getInventory().getItem(0).getCount()==17,"Inventory lost");require(k.getOffers().size()==1&&k.getOffers().getFirst().getResult().is(Items.APPLE),"Trades changed or duplicated");require(k.getBrain().getMemory(MemoryModuleType.HOME).isPresent(),"Home POI memory lost; bed="+k.level().getBlockState(plaza.offset(2,0,15))+" foot="+k.level().getBlockState(plaza.offset(2,0,16))+"");}
 }
