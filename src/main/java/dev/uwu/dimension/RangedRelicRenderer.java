@@ -59,7 +59,8 @@ public final class RangedRelicRenderer {
         @Override public ResourceLocation getTextureLocation(RelicFlight e){return SLASH;}
         @Override public void render(RelicFlight e,float yaw,float partial,PoseStack poses,MultiBufferSource buffers,int light){
             poses.pushPose();
-            poses.mulPose(Axis.YP.rotationDegrees(-e.getYRot()));poses.mulPose(Axis.XP.rotationDegrees(e.getXRot()));
+            // Pixel silhouettes stay face-on to each viewer while the scythe rotates in its plane.
+            poses.mulPose(entityRenderDispatcher.cameraOrientation());
             if(e.wave()){
                 poses.scale(2.3F,2.3F,2.3F);
                 var b=buffers.getBuffer(RenderType.entityTranslucent(SLASH));
@@ -69,7 +70,7 @@ public final class RangedRelicRenderer {
                 vertex(b,poses.last(),new Vec3(-1,.5,0),0,0,color(e.element()),15728880);
             }else{
                 poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*42));poses.scale(1.8F,1.8F,1.8F);
-                itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.GROUND,light,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
+                itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,light,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }
             poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
         }

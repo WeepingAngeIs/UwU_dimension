@@ -58,7 +58,7 @@ jobs:
           set -euo pipefail
           bash ci/get-mods.sh
           mkdir -p run/config
-          printf 'onboardAccessibility:false\nrenderDistance:4\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:4\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee arsenal-client.log

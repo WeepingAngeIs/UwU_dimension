@@ -58,6 +58,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
             if(tickCount%2==0)s.sendParticles(element()==1?ParticleTypes.SNOWFLAKE:element()==2?ParticleTypes.SOUL_FIRE_FLAME:element()==3?ParticleTypes.ELECTRIC_SPARK:ParticleTypes.CHERRY_LEAVES,getX(),getY(),getZ(),2,.15,.15,.15,0);
         }
     }
+    @Override protected boolean canHitEntity(Entity target){
+        return super.canHitEntity(target)&&(!(getOwner() instanceof Player owner)||!(target instanceof LivingEntity living)||RangedRelics.enemy(owner,living));
+    }
     @Override protected void onHitEntity(EntityHitResult hit){
         if(returning)return;
         if(level() instanceof ServerLevel s&&getOwner() instanceof Player p&&hit.getEntity() instanceof LivingEntity target){

@@ -21,6 +21,7 @@ public final class GlitchBow extends Item {
         CounterArsenal.ROSTER.forEach(e->list.add(e.id()));return List.copyOf(list);
     }
     public GlitchBow(){super(new Properties().durability(1536).rarity(Rarity.EPIC));}
+    @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged){return slotChanged||before.getItem()!=after.getItem();}
     @Override public Component getName(ItemStack s){return Component.literal("ERROR // Glitch Bow");}
     @Override public void appendHoverText(ItemStack s,TooltipContext c,List<Component> text,TooltipFlag flag){
         text.add(Component.literal("Draw and fire: a different UwU weapon emerges from the static."));

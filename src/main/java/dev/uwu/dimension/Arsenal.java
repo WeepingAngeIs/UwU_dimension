@@ -98,6 +98,7 @@ public final class Arsenal {
                 Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
             return properties;
         }
+        @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged){return slotChanged||before.getItem()!=after.getItem();}
         @Override public Component getName(ItemStack stack) { return Component.translatableWithFallback(getDescriptionId(), relic.title); }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tips, TooltipFlag flag) {
             tips.add(Component.literal(relic.hint).withStyle(ChatFormatting.LIGHT_PURPLE));

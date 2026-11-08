@@ -41,6 +41,7 @@ public final class CounterArsenal {
     public static final class CounterItem extends Item {
         public final Entry entry;
         CounterItem(Entry entry){super(new Properties().durability(1100).rarity(Rarity.EPIC).attributes(net.minecraft.world.item.component.ItemAttributeModifiers.builder().add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_DAMAGE_ID,entry.damage()-1,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED,new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_SPEED_ID,-2.7,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).build()));this.entry=entry;}
+        @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged){return slotChanged||before.getItem()!=after.getItem();}
         @Override public Component getName(ItemStack stack){return Component.literal(entry.name());}
         @Override public void appendHoverText(ItemStack stack,TooltipContext ctx,List<Component> tips,TooltipFlag flag){
             tips.add(Component.literal("Answers "+entry.sourceName()).withStyle(ChatFormatting.GOLD));
