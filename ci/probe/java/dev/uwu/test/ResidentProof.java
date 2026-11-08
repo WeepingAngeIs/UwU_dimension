@@ -118,8 +118,12 @@ public final class ResidentProof {
         var tag=new CompoundTag();vanilla.save(tag);migratedId=vanilla.getUUID();
         var loaded=EntityType.loadEntityRecursive(tag,level,e->e);require(loaded instanceof Keeper,"Saved vanilla NBT not adapted by native loader");auditResident((Keeper)loaded);
         require(loaded.getUUID().equals(migratedId),"Saved UUID changed");
+        require(((Keeper)loaded).getBrain().getMemory(MemoryModuleType.HOME).equals(vanilla.getBrain().getMemory(MemoryModuleType.HOME)),"Immediate native load lost HOME");
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event)->{
-            if(event.getEntity() instanceof Keeper&&event.getEntity().getUUID().equals(migratedId)&&rejectedReplacement==0){rejectedReplacement++;event.setCanceled(true);}
+            if(event.getEntity() instanceof Keeper k&&k.getUUID().equals(migratedId)&&rejectedReplacement==0){
+                require(k.getBrain().getMemory(MemoryModuleType.HOME).equals(vanilla.getBrain().getMemory(MemoryModuleType.HOME)), "Replacement changed current HOME memory");
+                rejectedReplacement++;event.setCanceled(true);
+            }
         });
         require(level.addFreshEntity(vanilla),"Direct constructor fixture failed to enter world");
         var baby=((Keeper)loaded).getBreedOffspring(level,(Keeper)loaded);require(baby instanceof Keeper&&baby.getType()!=EntityType.VILLAGER,"Breeding produced vanilla entity");
@@ -132,5 +136,5 @@ public final class ResidentProof {
         var dz=new CompoundTag();duskZombie.saveWithoutId(dz);dz.putInt("ConversionTime",1);duskZombie.load(dz);duskZombie.setCustomName(Component.literal("Dusk Cure Probe"));level.addFreshEntity(duskZombie);
         System.out.println("RESIDENT FACTORY PASS three realms, vanilla NBT UUID/name/age/trades/inventory, Overworld unchanged and custom offspring");
     }
-    static void auditResident(Keeper k){require(k.getUUID().equals(migratedId),"Resident UUID mismatch");require(k.getCustomName()!=null&&k.getCustomName().getString().equals("Saved Mae"),"Name lost");require(k.isBaby(),"Age lost");require(k.getVillagerData().getProfession()==VillagerProfession.FARMER&&k.getVillagerData().getLevel()==3,"Profession lost");require(k.getInventory().getItem(0).is(Items.BREAD)&&k.getInventory().getItem(0).getCount()==17,"Inventory lost");require(k.getOffers().size()==1&&k.getOffers().getFirst().getResult().is(Items.APPLE),"Trades changed or duplicated");require(k.getBrain().getMemory(MemoryModuleType.HOME).isPresent(),"Home POI memory lost; bed="+k.level().getBlockState(plaza.offset(2,0,15))+" foot="+k.level().getBlockState(plaza.offset(2,0,16))+"");}
+    static void auditResident(Keeper k){require(k.getUUID().equals(migratedId),"Resident UUID mismatch");require(k.getCustomName()!=null&&k.getCustomName().getString().equals("Saved Mae"),"Name lost");require(k.isBaby(),"Age lost");require(k.getVillagerData().getProfession()==VillagerProfession.FARMER&&k.getVillagerData().getLevel()==3,"Profession lost");require(k.getInventory().getItem(0).is(Items.BREAD)&&k.getInventory().getItem(0).getCount()==17,"Inventory lost");require(k.getOffers().size()==1&&k.getOffers().getFirst().getResult().is(Items.APPLE),"Trades changed or duplicated");}
 }
