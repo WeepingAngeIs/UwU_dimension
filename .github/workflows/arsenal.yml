@@ -26,3 +26,13 @@ jobs:
         with:
           name: UwU-Dimension-1.2.0
           path: build/libs/*.jar
+      - name: Exercise installed counters and ranged weapons on hosted Minecraft
+        run: bash ci/counter-expedition.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: counter-server-evidence
+          path: |
+            build/counter-server/counter.log
+            build/counter-server/logs/latest.log
+            build/counter-server/crash-reports

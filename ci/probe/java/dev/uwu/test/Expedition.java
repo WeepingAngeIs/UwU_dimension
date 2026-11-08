@@ -30,6 +30,10 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_ARSENAL")!=null){
+                dev.uwu.dimension.CounterProof.run(level);
+                System.out.println("UWU COUNTER ARSENAL PASSED");stage=-1;server.halt(false);return;
+            }
             if(Boolean.getBoolean("uwu.bossReload")) {
                 if(BossProof.verifyRestart(level)) { stage=-1; server.halt(false); }
                 return;

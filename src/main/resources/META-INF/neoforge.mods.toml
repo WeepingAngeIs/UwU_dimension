@@ -43,3 +43,6 @@ type="required"
 versionRange="[1.70.2-1.21.1]"
 ordering="AFTER"
 side="BOTH"
+
+[[mixins]]
+config="uwudimension.mixins.json"

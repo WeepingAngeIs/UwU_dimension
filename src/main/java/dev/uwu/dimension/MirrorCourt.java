@@ -64,6 +64,8 @@ public final class MirrorCourt {
         bus.addListener(MirrorCourt::attributes);
         NeoForge.EVENT_BUS.addListener(MirrorCourt::melee);
         NeoForge.EVENT_BUS.addListener(MirrorCourt::target);
+        NeoForge.EVENT_BUS.addListener(MirrorCourt::approach);
+        NeoForge.EVENT_BUS.addListener(MirrorCourt::treasure);
     }
 
     private static void attributes(EntityAttributeCreationEvent event) {
@@ -116,6 +118,7 @@ public final class MirrorCourt {
         v.block(-7,-18,146,Blocks.CHISELED_QUARTZ_BLOCK);
         v.put(-7,-17,146,BELL.get().defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING,v.face(Direction.SOUTH)));
         v.block(-7,-19,152,Blocks.PEARLESCENT_FROGLIGHT);
+        v.chest(-7,-18,159,"mirror_court");
     }
 
     public static final class CourtBell extends Block {
@@ -155,6 +158,34 @@ public final class MirrorCourt {
         }
     }
 
+    private static void approach(net.neoforged.neoforge.event.tick.PlayerTickEvent.Post event){
+        if(!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer p)||p.isSpectator()||p.tickCount%20!=0||p.getY()>0||!ReefLife.isReach(p.serverLevel()))return;
+        ServerLevel level=p.serverLevel();var site=GroveSites.site(level,Math.floorDiv(p.getBlockX()+GroveSites.SPACING/2,GroveSites.SPACING),Math.floorDiv(p.getBlockZ()+GroveSites.SPACING/2,GroveSites.SPACING));
+        if(!site.usable())return;
+        BlockPos bell=site.pos(-7,-17,146);if(!level.hasChunkAt(bell)||!level.getBlockState(bell).is(BELL.get()))return;
+        double distance=p.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(bell));
+        if(distance<42*42 && p.getPersistentData().getLong("uwu.court_hint")!=bell.asLong()){
+            p.getPersistentData().putLong("uwu.court_hint",bell.asLong());
+            p.sendSystemMessage(Component.literal("Beyond the archive, the Mirror Court waits. Follow the lit path to the glowing bell at "+bell.getX()+", "+bell.getY()+", "+bell.getZ()+". Its guardian watches over a sealed treasure chest."));
+        }
+        var ledger=ledger(level);
+        if(distance<11*11 && !ledger.defeated.contains(bell.asLong()) && !ledger.active.containsKey(bell.asLong())){
+            BELL.get().ring(level,bell,level.getBlockState(bell),p);
+        }
+    }
+    private static void treasure(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock event){
+        if(!(event.getLevel() instanceof ServerLevel level)||!ReefLife.isReach(level))return;
+        BlockPos chest=event.getPos();
+        if(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(chest).getBlock()).getNamespace().equals("lootr"))return;
+        for(Direction facing:Direction.Plane.HORIZONTAL){
+            BlockPos bell=chest.above().relative(facing,-13);
+            if(!level.hasChunkAt(bell)||!level.getBlockState(bell).is(BELL.get()))continue;
+            if(ledger(level).defeated.contains(bell.asLong()))return;
+            BELL.get().ring(level,bell,level.getBlockState(bell),event.getEntity());
+            event.getEntity().displayClientMessage(Component.literal("Defeat Velvet Vesper to unseal this court's treasure."),true);event.setCanceled(true);return;
+        }
+    }
+    static void defeated(ServerLevel level,BlockPos bell){if(bell!=null){var data=ledger(level);data.defeated.add(bell.asLong());data.setDirty();}}
     static void release(ServerLevel level, BlockPos pos, UUID id) {
         if (pos==null) return;
         Ledger ledger=ledger(level);
@@ -166,8 +197,10 @@ public final class MirrorCourt {
     private static final class Ledger extends SavedData {
         static final Factory<Ledger> FACTORY=new Factory<>(Ledger::new,Ledger::load,null);
         final Map<Long,UUID> active=new HashMap<>();
+        final java.util.Set<Long> defeated=new java.util.HashSet<>();
         static Ledger load(CompoundTag root, HolderLookup.Provider registry) {
             var state=new Ledger();
+            for(long bell:root.getLongArray("Defeated"))state.defeated.add(bell);
             for (Tag element : root.getList("Courts",Tag.TAG_COMPOUND)) {
                 var row=(CompoundTag)element;
                 if (row.hasUUID("Moth")) state.active.put(row.getLong("Bell"),row.getUUID("Moth"));
@@ -178,6 +211,7 @@ public final class MirrorCourt {
             var rows=new ListTag();
             active.forEach((pos,id)->{var row=new CompoundTag();row.putLong("Bell",pos);row.putUUID("Moth",id);rows.add(row);});
             root.put("Courts",rows);
+            root.putLongArray("Defeated",defeated.stream().mapToLong(Long::longValue).toArray());
             return root;
         }
     }

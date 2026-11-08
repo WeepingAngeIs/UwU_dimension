@@ -41,7 +41,7 @@ public final class CounterEffects {
     };}
     public static void ward(ServerLevel level,Player p,CounterArsenal.Entry e){
         var n=p.getPersistentData();n.putString(WARD,e.id());n.putLong(UNTIL,level.getGameTime()+160);
-        if(e.school().equals("QUENCH")){p.clearFire();p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,160));}
+        if(e.school().equals("QUENCH")){net.sweenus.simplyswords.world.Phase5FlamewindManager.remove(level,p.getUUID());net.sweenus.simplyswords.world.FlamewindVisualManager.removeSeed(level,p);p.clearFire();p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,160));}
         if(e.school().equals("CLEANSE")||e.runic()||e.school().equals("SEVER"))cleanse(p);
     }
     public static CounterArsenal.Entry active(LivingEntity p){
