@@ -103,7 +103,8 @@ public final class ResidentProof {
         require(EntityType.VILLAGER.create(level.getServer().overworld()).getType()==EntityType.VILLAGER,"Overworld villagers changed");
         var vanilla=new Villager(EntityType.VILLAGER,level);vanilla.moveTo(Vec3.atBottomCenterOf(plaza.offset(0,0,15)));vanilla.setAge(-24000);vanilla.setCustomName(Component.literal("Saved Mae"));vanilla.setHealth(12);
         vanilla.setVillagerData(vanilla.getVillagerData().setProfession(VillagerProfession.FARMER).setLevel(3));vanilla.getInventory().setItem(0,new ItemStack(Items.BREAD,17));
-        var offers=new MerchantOffers();offers.add(new MerchantOffer(new ItemCost(Items.EMERALD,3),new ItemStack(Items.APPLE,5),7,2,.05F));vanilla.overrideOffers(offers);
+        var offers=new MerchantOffers();offers.add(new MerchantOffer(new ItemCost(Items.EMERALD,3),new ItemStack(Items.APPLE,5),7,2,.05F));vanilla.getOffers().clear();vanilla.getOffers().addAll(offers);
+        level.setBlockAndUpdate(plaza.offset(2,0,15),Blocks.PINK_BED.defaultBlockState());
         vanilla.getBrain().setMemory(MemoryModuleType.HOME,GlobalPos.of(level.dimension(),plaza.offset(2,0,15)));
         var tag=new CompoundTag();vanilla.save(tag);migratedId=vanilla.getUUID();
         var loaded=EntityType.loadEntityRecursive(tag,level,e->e);require(loaded instanceof Keeper,"Saved vanilla NBT not adapted by native loader");auditResident((Keeper)loaded);
