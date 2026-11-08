@@ -34,6 +34,13 @@ public final class RealmResidents {
             if(level.getEntity(v.getUUID())!=v)continue;
             var keeper=People.PETAL_KEEPER.get().create(level);if(keeper==null)continue;
             var saved=new CompoundTag();v.saveWithoutId(saved);keeper.markAdaptedResident();keeper.load(saved);
+            // Rebuilding a live villager brain can discard POI memories during native load.
+            // Preserve these exact live references; ordinary brain validation still runs afterward.
+            for(var memory:List.of(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.JOB_SITE,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.POTENTIAL_JOB_SITE,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.MEETING_POINT))
+                keeper.getBrain().setMemory(memory,v.getBrain().getMemory(memory));
             var passengers=List.copyOf(v.getPassengers());var vehicle=v.getVehicle();
             // Keep the original until replacement is ready. Failed registration restores it for retry.
             v.discard();
