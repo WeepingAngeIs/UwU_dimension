@@ -147,6 +147,10 @@ public final class ChestProof {
         require(dusk != null && petal != null, "Unable to create keepers");
         dusk.setPos(a.position());
         petal.setPos(a.position());
+        // The preceding randomized chest may put an emerald in the selected hotbar slot.
+        // Begin the hostility probe with empty hands; visible money intentionally creates a truce.
+        a.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        a.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         dusk.setTarget(a);
         require(dusk.getTarget() == a, "Dusk Keeper did not accept hostile target");
         a.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.EMERALD, 4));
