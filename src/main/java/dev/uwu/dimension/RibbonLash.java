@@ -45,6 +45,9 @@ public final class RibbonLash extends Entity {
         super.tick();
         if(level() instanceof ServerLevel s){
             Player p=owner();if(p==null||!p.isAlive()){discard();return;}
+            if(tickCount<=5 && victim!=null && s.getEntity(victim) instanceof LivingEntity target && p.distanceToSqr(target)<=289 && p.hasLineOfSight(target)){
+                Vec3 delta=target.getBoundingBox().getCenter().subtract(position());entityData.set(DX,(float)delta.x);entityData.set(DY,(float)delta.y);entityData.set(DZ,(float)delta.z);
+            }
             if(tickCount==5&&victim!=null&&s.getEntity(victim) instanceof LivingEntity target&&p.distanceToSqr(target)<289&&p.hasLineOfSight(target)){
                 if(counter().isEmpty())RangedRelics.strike(s,p,target,relic());
                 else CounterEffects.hit(s,p,target,CounterArsenal.entry(counter()));

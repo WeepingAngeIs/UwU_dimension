@@ -25,6 +25,7 @@ public final class ArsenalClient {
     }
     @SubscribeEvent public static void poses(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            for(var entry:CounterArsenal.ROSTER)if(entry.shape().equals("scythe"))ItemProperties.register(CounterArsenal.ITEMS.get(entry.id()).get(),Arsenal.id("element"),(stack,level,holder,seed)->stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("form"),(stack,level,holder,seed)-> {
                 var n=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
                 return n.contains("uwu_form")?n.getInt("uwu_form")+1:0;

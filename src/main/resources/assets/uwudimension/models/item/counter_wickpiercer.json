@@ -1,1 +1,1 @@
-{"parent": "minecraft:item/handheld", "textures": {"layer0": "uwudimension:item/counter_wickpiercer"}}
+{"parent": "uwudimension:item/counter_wickpiercer_0", "overrides": [{"predicate": {"uwudimension:element": 1}, "model": "uwudimension:item/counter_wickpiercer_1"}, {"predicate": {"uwudimension:element": 2}, "model": "uwudimension:item/counter_wickpiercer_2"}, {"predicate": {"uwudimension:element": 3}, "model": "uwudimension:item/counter_wickpiercer_3"}]}

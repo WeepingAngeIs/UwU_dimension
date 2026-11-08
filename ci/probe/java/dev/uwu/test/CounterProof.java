@@ -1,4 +1,5 @@
-package dev.uwu.dimension;
+package dev.uwu.test;
+import dev.uwu.dimension.*;
 
 import com.mojang.authlib.GameProfile;
 import java.util.*;
@@ -19,7 +20,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 /** Exercises registered survival item entrypoints against real player-held target stacks. */
 public final class CounterProof {
     private static void require(boolean value,String message){if(!value)throw new AssertionError(message);}
-    public static void run(ServerLevel level){
+    public static void run(ServerLevel level) throws Exception {
         BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
         for(int x=-6;x<=6;x++)for(int z=-6;z<=24;z++)level.setBlockAndUpdate(base.offset(x,0,z),Blocks.STONE.defaultBlockState());
         FakePlayer player=new FakePlayer(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
@@ -65,7 +66,7 @@ public final class CounterProof {
             var lashes=level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3));require(lashes.size()==1,"Visible lash entity missing");
             for(int t=0;t<6;t++)lashes.getFirst().tick();
             require(level.getEntitiesOfClass(Axolotl.class,player.getBoundingBox().inflate(3),a->a.getTags().contains("uwu.twin")).size()==2,"Twinfin must summon exactly two");clearProjectiles(level,player);
-            var scythe=Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();var scytheStack=new ItemStack(scythe);player.setItemInHand(InteractionHand.MAIN_HAND,scytheStack);player.getCooldowns().removeCooldown(scythe);
+            var scythe=Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();var scytheStack=new ItemStack(scythe);player.setItemInHand(InteractionHand.MAIN_HAND,scytheStack);player.getCooldowns().removeCooldown(scythe);player.getPersistentData().remove("uwu.scythe_flight");
             scythe.use(level,player,InteractionHand.MAIN_HAND);scythe.onUseTick(level,player,scytheStack,71988);
             var flights=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));require(flights.size()==1&&!flights.getFirst().wave(),"Held throw must fire without release");
             scythe.onUseTick(level,player,scytheStack,71987);require(level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)).size()==1,"Held throw duplicated");
@@ -81,8 +82,31 @@ public final class CounterProof {
             }
             require(bow.getDamageValue()==180,"Glitch did not preserve cumulative durability");
             System.out.println("GLITCH PASS 180 distinct-consecutive firing transitions on one durable stack");
+            loot(level);
+            var site=GroveSites.first(level);level.getChunkAt(site.pos(0,53,103));
+            dev.uwu.test.ChestProof.run(level,site.pos(0,53,103));
+            require(level.getBlockState(site.pos(-7,-17,146)).is(MirrorCourt.BELL.get()),"Boss bell not on normal dungeon path");
+            level.getChunkAt(site.pos(-7,-18,159));
+            require(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(site.pos(-7,-18,159)).getBlock()).getNamespace().equals("lootr"),"Boss court reward missing");
         }finally{clearProjectiles(level,player);player.discard();foe.discard();}
     }
+    private static void loot(ServerLevel level){
+        for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")){
+            var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,ResourceLocation.parse("uwudimension:chests/"+name));
+            var table=level.getServer().reloadableRegistries().getLootTable(key);
+            int found=0;Set<String> ids=new HashSet<>();
+            for(int i=1;i<=6000;i++){
+                var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,new net.minecraft.world.phys.Vec3(0,300,0)).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
+                for(var item:table.getRandomItems(params,i))if(isWeapon(item)){found++;ids.add(BuiltInRegistries.ITEM.getKey(item.getItem()).toString());}
+                var outside=new net.minecraft.world.level.storage.loot.LootParams.Builder(level.getServer().overworld()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,new net.minecraft.world.phys.Vec3(0,100,0)).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
+                require(table.getRandomItems(outside,i).stream().noneMatch(CounterProof::isWeapon),"Weapon generated outside dimension: "+name);
+            }
+            double expected=name.equals("rose_bathhouse")?.05:name.equals("inverted_shrine")?.08:.12;
+            require(Math.abs(found/6000.0-expected)<.025,"Rare probability mismatch "+name+" "+found);
+            System.out.println("RARE LOOT PASS "+name+" rolls=6000 weapons="+found+" distinct="+ids.size()+" outside=0");
+        }
+    }
+    private static boolean isWeapon(ItemStack s){return s.getItem() instanceof Arsenal.RelicItem||s.getItem() instanceof CounterArsenal.CounterItem||s.getItem() instanceof GlitchBow;}
     private static void clearProjectiles(ServerLevel level,Player p){
         for(Entity e:level.getEntities(p,p.getBoundingBox().inflate(40),e->e instanceof net.minecraft.world.entity.projectile.Projectile||e instanceof RibbonLash))e.discard();
     }

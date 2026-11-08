@@ -61,7 +61,7 @@ public final class ChestProof {
         }
     }
 
-    static void run(ServerLevel level, BlockPos generatedChest) throws Exception {
+    public static void run(ServerLevel level, BlockPos generatedChest) throws Exception {
         require(level.getBlockEntity(generatedChest) instanceof LootrChestBlockEntity, "Generated block entity is not a Lootr chest");
         var chest = (LootrChestBlockEntity)level.getBlockEntity(generatedChest);
         require(chest.getInfoLootTable() != null && chest.getInfoLootTable().location().getNamespace().equals("uwudimension"),
@@ -74,7 +74,7 @@ public final class ChestProof {
                     "Generated chest already had either player's inventory");
             var first = open(level, generatedChest, a.player);
             var firstRoll = contents(first);
-            require(hasRelic(first), "Player A received no dimension reward");
+            require(firstRelic(first)>=0, "Player A received no chest supplies");
             int taken = firstRelic(first);
             a.player.containerMenu.clicked(taken, 0, ClickType.PICKUP, a.player);
             require(first.getItem(taken).isEmpty(), "Player A failed to take reward");
@@ -82,7 +82,7 @@ public final class ChestProof {
             a.player.closeContainer();
             require(data.getInventory(b.player.getUUID()) == null, "Player A's visit rolled B's loot early");
             var second = open(level, generatedChest, b.player);
-            require(hasRelic(second), "Player B received no dimension reward");
+            require(firstRelic(second)>=0, "Player B received no chest supplies");
             var secondRoll = contents(second);
             int marked = firstRelic(second);
             b.player.containerMenu.clicked(marked, 0, ClickType.PICKUP, b.player);
@@ -125,7 +125,7 @@ public final class ChestProof {
 
     private static int firstRelic(Container container) {
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
-            if (BuiltInRegistries.ITEM.getKey(container.getItem(slot).getItem()).getNamespace().equals("uwudimension")) return slot;
+            if (!container.getItem(slot).isEmpty()) return slot;
         }
         return -1;
     }

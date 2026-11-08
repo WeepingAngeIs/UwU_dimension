@@ -30,7 +30,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         f.setItem(new ItemStack(Arsenal.WEAPONS.get(kind).get()));f.setNoGravity(true);
         int element=owner.getPersistentData().getInt("uwu.scythe_element");
         if(kind==Arsenal.Relic.VESPER_SCYTHE&&!wave){element=(element+1)%4;owner.getPersistentData().putInt("uwu.scythe_element",element);owner.getPersistentData().putLong("uwu.scythe_flight",level.getGameTime()+60);}
-        f.entityData.set(ELEMENT,element);f.shootFromRotation(owner,owner.getXRot(),owner.getYRot(),0,wave?1.5F:1.8F,0);
+        f.entityData.set(ELEMENT,element);var display=f.getItem();final int activeElement=element;
+        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,display,n->n.putInt("uwu_element",activeElement));f.setItem(display);f.shootFromRotation(owner,owner.getXRot(),owner.getYRot(),0,wave?1.5F:1.8F,0);
         level.addFreshEntity(f);
     }
     public String counter(){return entityData.get(COUNTER);}

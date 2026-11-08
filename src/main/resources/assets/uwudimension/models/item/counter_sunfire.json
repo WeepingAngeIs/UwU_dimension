@@ -1,1 +1,1 @@
-{"parent": "minecraft:item/handheld", "textures": {"layer0": "uwudimension:item/counter_sunfire"}}
+{"parent": "uwudimension:item/counter_sunfire_0", "overrides": [{"predicate": {"uwudimension:element": 1}, "model": "uwudimension:item/counter_sunfire_1"}, {"predicate": {"uwudimension:element": 2}, "model": "uwudimension:item/counter_sunfire_2"}, {"predicate": {"uwudimension:element": 3}, "model": "uwudimension:item/counter_sunfire_3"}]}
