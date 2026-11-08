@@ -38,7 +38,7 @@ public final class FlightCamera {
             server.setFlightAllowed(false);
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST,false,net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent.class,e->{
                 check(!e.getEntity().getPersistentData().contains(GuardianFlight.STATE),"Logout saved active flight");
-                check(e.getEntity().getDeltaMovement().lengthSqr()<.01,"Logout retained launch velocity");logoutPassed=true;System.out.println("MID-FLIGHT LOGOUT CLEANUP PASS");
+                check(e.getEntity().getDeltaMovement().lengthSqr()<.01,"Logout retained launch velocity");logoutPassed=true;System.out.println("MID-FLIGHT LOGOUT CLEANUP PASS");e.getEntity().getServer().halt(false);
             });
             var p=server.getPlayerList().getPlayer(uuid);var l=p.serverLevel();
             for(int x=-15;x<=15;x++)for(int z=-15;z<=15;z++)l.setBlockAndUpdate(new BlockPos(x,150,z),(x%4==0?Blocks.PINK_CONCRETE:Blocks.WHITE_CONCRETE).defaultBlockState());
