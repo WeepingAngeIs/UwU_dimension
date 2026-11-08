@@ -16,11 +16,11 @@ public final class FlightProof {
         if(phase==0){
             reload=Boolean.getBoolean("uwu.flightReload");
             if(reload){saved=new Properties();try(var in=Files.newInputStream(FILE)){saved.load(in);}id=UUID.fromString(saved.getProperty("id"));l.setChunkForced(Integer.parseInt(saved.getProperty("cx")),Integer.parseInt(saved.getProperty("cz")),true);}
-            for(int x=-1;x<=7;x++)for(int z=-1;z<=1;z++)l.setChunkForced(x,z,true);
+            if(!reload)l.setChunkForced(0,0,true);
             phase=1;ticks=0;return false;
         }
         if(phase==1&&ticks>=30){
-            if(reload){flyer=(LivingEntity)l.getEntity(id);check(flyer!=null,"Mid-flight saved entity missing");check(flyer.getPersistentData().contains(GuardianFlight.STATE),"Mid-flight saved state lost");previous=flyer.getY();phase=3;ticks=0;return false;}
+            if(reload){flyer=(LivingEntity)l.getEntity(id);check(flyer!=null,"Mid-flight saved entity missing");check(flyer.getPersistentData().contains(GuardianFlight.STATE),"Mid-flight saved state lost");l.setChunkForced(Integer.parseInt(saved.getProperty("cx")),Integer.parseInt(saved.getProperty("cz")),false);previous=flyer.getY();phase=3;ticks=0;return false;}
             flyer=EntityType.HUSK.create(l);flyer.moveTo(0,250,0,0,0);l.addFreshEntity(flyer);
             blocked=EntityType.HUSK.create(l);blocked.moveTo(8.5,250,.5,0,0);l.addFreshEntity(blocked);
             for(int x=6;x<=11;x++)for(int z=-2;z<=2;z++)l.setBlockAndUpdate(new BlockPos(x,253,z),Blocks.OBSIDIAN.defaultBlockState());
@@ -31,6 +31,7 @@ public final class FlightProof {
             transferred=(LivingEntity)changing.changeDimension(new net.minecraft.world.level.portal.DimensionTransition(other,new Vec3(0,250,0),Vec3.ZERO,0,0,net.minecraft.world.level.portal.DimensionTransition.DO_NOTHING));
             previous=flyer.getY();phase=2;ticks=0;return false;
         }
+        if(phase==2&&ticks==5)l.setChunkForced(0,0,false);
         if(phase==2||phase==3){
             double y=flyer.getY(),step=y-previous;
             check(step<55,"Unobstructed flight used discontinuous position jump: "+step);
@@ -38,7 +39,7 @@ public final class FlightProof {
             if(step>.5)samples++;
             if(ticks%20==0)System.out.println("MOB FLIGHT SAMPLE y="+y+" step="+step+" recovery=0");
             previous=y;
-            if(phase==2&&ticks==65){
+            if(phase==2&&flyer.getPersistentData().getCompound(GuardianFlight.STATE).getInt("Age")>=65){
                 check(samples>50&&y>2000,"Ordinary mob ticks did not produce sustained ascent");
                 check(blocked.getPersistentData().getInt(GuardianFlight.RECOVERIES)==1&&!blocked.getPersistentData().contains(GuardianFlight.STATE),"Roof obstruction did not invoke single measured recovery");
                 check(!dead.getPersistentData().contains(GuardianFlight.STATE),"Death retained active thrust");

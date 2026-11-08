@@ -128,7 +128,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private void accuse(LivingEntity culprit) {
-        if (culprit == this || !culprit.isAlive() || offenders.contains(culprit.getUUID())) return;
+        if (culprit == this || !culprit.isAlive() || culprit.getPersistentData().contains(GuardianFlight.STATE) || offenders.contains(culprit.getUUID())) return;
         accuse(culprit.getUUID());
     }
 
@@ -172,6 +172,7 @@ public final class BlossomWarden extends PathfinderMob {
         missingTicks = 0;
         setTarget(culprit);
         byte phase = entityData.get(POSE);
+        if(culprit.getPersistentData().contains(GuardianFlight.STATE)&&phase!=GRIP&&phase!=THROW){finish(level);return;}
         if (phase == IDLE || phase == CHASE) {
             getLookControl().setLookAt(culprit, 30, 30);
             if (++pursueTicks > 600 && distanceToSqr(culprit) > reachSquared(culprit)) {
@@ -224,7 +225,7 @@ public final class BlossomWarden extends PathfinderMob {
         var residents=level.getEntitiesOfClass(Keeper.class,new AABB(court).inflate(48),k->k.isAlive()&&(k.villageCourt()==null||court.equals(k.villageCourt())));
         if(residents.isEmpty())return;
         level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,new AABB(court).inflate(48),mob->{
-            if(!mob.isAlive()||mob==this||mob instanceof Keeper||mob instanceof BlossomWarden)return false;
+            if(!mob.isAlive()||mob==this||mob instanceof Keeper||mob instanceof BlossomWarden||mob.getPersistentData().contains(GuardianFlight.STATE))return false;
             boolean hostileUndead=mob instanceof net.minecraft.world.entity.monster.Zombie && !(mob instanceof net.minecraft.world.entity.monster.ZombifiedPiglin);
             return residents.stream().anyMatch(k->mob.distanceToSqr(k)<=24*24&&(hostileUndead||mob.getTarget()==k));
         }).stream().min(Comparator.comparingDouble(this::distanceToSqr)).ifPresent(this::accuse);
