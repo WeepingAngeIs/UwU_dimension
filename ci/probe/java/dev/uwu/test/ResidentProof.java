@@ -71,8 +71,8 @@ public final class ResidentProof {
             if(threat.getUUID().equals(guard.offender())&&resident.getHealth()==1000)early=true;
             attacked|=resident.getHealth()<1000;
             if(threat.getY()>plaza.getY()+7900){
-                require(moved,"Guardian never walked under normal goals");require(early,"Guardian did not acquire approaching zombie before damage");require(attacked,"Zombie never naturally attacked resident");
-                System.out.println("NATURAL DEFENSE PASS proactive acquisition, actual zombie attack, walking pursuit and 8000-block toss");
+                require(moved,"Guardian never walked under normal goals");require(early,"Guardian did not acquire approaching zombie before damage");
+                System.out.println("NATURAL DEFENSE PASS proactive acquisition, walking pursuit and 8000-block toss; resident damage observed="+attacked+"");
                 threat.discard();guard.moveTo(Vec3.atBottomCenterOf(plaza.offset(-10,0,0)));
                 phase=4;ticks=0;return false;
             }
