@@ -51,6 +51,8 @@ public final class Keeper extends Villager {
     private boolean legacyHome;
     private boolean checkedVillageSites;
     private int offeredJobLevel;
+    private boolean adaptedResident;
+    public void markAdaptedResident(){adaptedResident=true;}
     private static final int FACTION_OFFERS = 4;
 
     @Override public float getAgeScale() { return isBaby() ? .5625F : 1F; }
@@ -422,6 +424,12 @@ public final class Keeper extends Villager {
         }
     }
 
+    @Override public void setOffers(MerchantOffers restored) {
+        super.setOffers(restored);
+        // Native zombie curing installs the original offers after assigning the profession.
+        offeredJobLevel=getVillagerData().getLevel();
+    }
+
     @Override public MerchantOffers getOffers() {
         MerchantOffers current = super.getOffers();
         if (!level().isClientSide && offeredJobLevel < getVillagerData().getLevel()
@@ -482,6 +490,7 @@ public final class Keeper extends Villager {
 
     @Override public void addAdditionalSaveData(CompoundTag data) {
         super.addAdditionalSaveData(data);
+        if(adaptedResident)data.putBoolean("AdaptedResident",true);
         if (companion != null) data.putUUID("Companion", companion);
         if (home != null) data.putLong("Hearth", home.asLong());
         data.putBoolean("Settled", settled);
@@ -493,7 +502,8 @@ public final class Keeper extends Villager {
 
     @Override public void readAdditionalSaveData(CompoundTag data) {
         super.readAdditionalSaveData(data);
-        offeredJobLevel = data.getInt("OfferedJobLevel");
+        adaptedResident=adaptedResident||data.getBoolean("AdaptedResident");
+        offeredJobLevel = adaptedResident&&!data.contains("OfferedJobLevel")&&data.contains("Offers")?getVillagerData().getLevel():data.getInt("OfferedJobLevel");
         companion = data.hasUUID("Companion") ? data.getUUID("Companion") : null;
         settled = data.getBoolean("Settled");
         if (data.contains("Hearth")) assignHome(BlockPos.of(data.getLong("Hearth")));

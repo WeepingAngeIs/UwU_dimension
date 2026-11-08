@@ -40,7 +40,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/** An elder flowering hedge. Only real damage to a resident or the elder records an offender. */
+/** An elder flowering hedge. Protects residents from approaching undead and recorded attackers. */
 public final class BlossomWarden extends PathfinderMob {
     public static final int LAUNCH_HEIGHT = 8000;
     private static final byte IDLE = 0, CHASE = 1, GRIP = 2, THROW = 3;
@@ -64,6 +64,13 @@ public final class BlossomWarden extends PathfinderMob {
 
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
+        // Own MOVE/LOOK throughout pursuit so wandering/home goals cannot overwrite the chase.
+        goalSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.Goal(){
+            {setFlags(java.util.EnumSet.of(Flag.MOVE,Flag.LOOK));}
+            @Override public boolean canUse(){return !offenders.isEmpty();}
+            @Override public boolean canContinueToUse(){return !offenders.isEmpty();}
+            @Override public void start(){getNavigation().stop();}
+        });
         goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, .85));
         goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, .7));
         goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 7));
@@ -153,6 +160,7 @@ public final class BlossomWarden extends PathfinderMob {
             if (other != null && other != this) { discard(); return; }
             registry.remember(court, this);
         }
+        if (offenders.isEmpty() && tickCount%10==0) acquireThreat(level);
         if (offenders.isEmpty()) return;
         // This short vanilla ticket expires automatically and keeps an active pursuit ticking.
         if (tickCount % 3 == 0) level.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, chunkPosition(), 2, getId());
@@ -162,6 +170,7 @@ public final class BlossomWarden extends PathfinderMob {
             return;
         }
         missingTicks = 0;
+        setTarget(culprit);
         byte phase = entityData.get(POSE);
         if (phase == IDLE || phase == CHASE) {
             getLookControl().setLookAt(culprit, 30, 30);
@@ -220,6 +229,16 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 
+    private void acquireThreat(ServerLevel level){
+        var residents=level.getEntitiesOfClass(Keeper.class,new AABB(court).inflate(48),k->k.isAlive()&&(k.villageCourt()==null||court.equals(k.villageCourt())));
+        if(residents.isEmpty())return;
+        level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,new AABB(court).inflate(48),mob->{
+            if(!mob.isAlive()||mob==this||mob instanceof Keeper||mob instanceof BlossomWarden)return false;
+            boolean hostileUndead=mob instanceof net.minecraft.world.entity.monster.Zombie && !(mob instanceof net.minecraft.world.entity.monster.ZombifiedPiglin);
+            return residents.stream().anyMatch(k->mob.distanceToSqr(k)<=24*24&&(hostileUndead||mob.getTarget()==k));
+        }).stream().min(Comparator.comparingDouble(this::distanceToSqr)).ifPresent(this::accuse);
+    }
+
     private double reachSquared(LivingEntity foe) {
         double reach = 1.95 + getBbWidth()/2 + foe.getBbWidth()/2;
         return reach*reach;
@@ -236,6 +255,8 @@ public final class BlossomWarden extends PathfinderMob {
     }
     private void finish(ServerLevel level) {
         offenders.removeFirst();
+        setTarget(null);
+        getNavigation().stop();
         pursueTicks=0; missingTicks=0;
         transition(offenders.isEmpty()?IDLE:CHASE);
         if (offenders.isEmpty() && court != null && distanceToSqr(Vec3.atBottomCenterOf(court))>50*50) {

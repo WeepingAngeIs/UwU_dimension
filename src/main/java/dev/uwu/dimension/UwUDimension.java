@@ -27,6 +27,7 @@ public final class UwUDimension {
         Arsenal.register(bus);
         CounterArsenal.register(bus);
         People.register(bus);
+        RealmResidents.register();
         MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);
         bus.addListener(UwUDimension::creative);
