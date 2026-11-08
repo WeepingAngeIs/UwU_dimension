@@ -27,7 +27,7 @@ public final class RevivalProof {
             p.setItemInHand(InteractionHand.MAIN_HAND,stack);
             require(((RevivalWeapon)stack.getItem()).canRevive(p,stack,p.damageSources().generic()),"Awakened baseline revival unavailable: "+id);
             CounterEffects.hit(level,attacker,p,CounterArsenal.entry("counter_"+id));
-            RevivalCooldownManager.setCooldown(level,p,stack,0);p.getCooldowns().removeCooldown(stack.getItem());
+            RevivalCooldownManager.setCooldown(level,p,stack,1);p.getCooldowns().removeCooldown(stack.getItem());
             samples.add(new Sample(p,stack,late));
         }
     }

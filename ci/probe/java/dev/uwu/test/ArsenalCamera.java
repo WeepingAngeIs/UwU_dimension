@@ -41,7 +41,7 @@ public final class ArsenalCamera {
             mc.createWorldOpenFlows().createFreshLevel("ArsenalVisit",new LevelSettings("Arsenal Visit",GameType.CREATIVE,false,Difficulty.NORMAL,true,new GameRules(),WorldDataConfiguration.DEFAULT),new WorldOptions(152045,true,false),WorldPresets::createNormalWorldDimensions,title);return;
         }
         if(state.equals("create")&&mc.screen!=null&&mc.player==null)for(var child:List.copyOf(mc.screen.children()))if(child instanceof Button b&&(b.getMessage().getString().equals("Proceed")||b.getMessage().getString().equals("I know what I'm doing!"))){b.onPress();break;}
-        if(state.equals("closed")&&mc.level==null&&mc.getSingleplayerServer()==null){System.out.println("UWU ARSENAL CLIENT PASSED");mc.stop();return;}
+        if(state.equals("closed")&&mc.level==null){System.out.println("UWU ARSENAL CLIENT PASSED");mc.stop();return;}
         if(mc.player==null||mc.level==null||mc.getSingleplayerServer()==null)return;
         var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();
         if(state.equals("create")&&ticks>80){
@@ -54,7 +54,7 @@ public final class ArsenalCamera {
         }
         if(state.equals("ready")&&ticks>100){state="equip";ticks=0;}
         if(state.equals("equip")){
-            if(index>=IDS.length){state="closed";mc.disconnect(new TitleScreen());return;}
+            if(index>=IDS.length){state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());return;}
             String id=IDS[index];state="armed";ticks=0;shot=false;
             server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);p.stopUsingItem();p.getPersistentData().remove("uwu.scythe_flight");var item=BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:"+id));p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(item));p.getCooldowns().removeCooldown(item);p.teleportTo(.5,151,.5);p.setYRot(0);p.setXRot(0);});return;
         }
