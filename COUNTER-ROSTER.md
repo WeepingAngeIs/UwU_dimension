@@ -4,6 +4,27 @@ Audited against installed Simply Swords 1.70.2-1.21.1. The accepted expanded ars
 
 Material variants share archetype mechanics. Runic counterparts also cleanse rolled ailments during their ward. See ARSENAL-GUIDE.md for behavior, controls, rarity and limits.
 
+## Counter families
+
+Every cast grants an eight-second ward against its exact named held target. Matching attributed incoming damage is reduced by 65%. Successful matching hits add the following behavior; unrelated players' weapons are not globally modified.
+
+| Family | Matching response |
+|---|---|
+| quench | Extinguishes the wielder, grants fire resistance, removes Flamewind seed state, and suppresses supported fire/heat/burn signature settings. |
+| cleanse | Removes harmful statuses from the wielder and suppresses supported wound, mark and ailment settings. |
+| anchor | Tethers a marked enemy to its hit position when it moves more than three blocks away; suppresses supported dash/lift settings. |
+| sever | Cleanses harmful statuses and reduces supported pull, bind, orbit and field-range settings. |
+| shatter | Removes absorption, lands a small opening hit and a delayed damage pulse; Ionbound's active owner effects and cubes are cleared. |
+| silence | Intercepts nearby matching owned projectiles and suppresses supported ranged signature settings. |
+| reap | Blocks healing on the marked enemy, removes its beneficial statuses and suppresses supported siphoning. Waxweaver/Wickpiercer revival is sealed for the full mark. |
+| banish | Repels nearby matching Simply Swords owned summons; suppresses supported summon damage/buffs and marked Chomp'olotl shoulder-aura refresh. |
+| feint | Delays the main damage pulse; safely interrupts Stormbringer parry and Thunderbrand charging through their specific adapters. |
+| guard | Slows the marked wielder and rejects repeated matching hits arriving within ten ticks while warded. |
+| stagger | Slows and pushes the marked heavy-weapon wielder away. |
+| space | Pushes the marked wielder away while the matching ward protects the caster. |
+
+Supported external ability settings are tuned through Simply Swords' ability API. This does not erase every already-running external effect controller or guarantee immunity to every possible gem/configuration combination. Costs and cooldown/threshold/lockout settings are excluded from generic reduction so a counter cannot accidentally make a shield cheaper or faster.
+
 ## Developed unique combat forms (53)
 
 | Simply Swords target | UwU counterpart | Ranged form | Theme | Counter family |
