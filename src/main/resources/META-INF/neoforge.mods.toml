@@ -3,7 +3,7 @@ loaderVersion="[4,)"
 license="All Rights Reserved"
 [[mods]]
 modId="uwudimension"
-version="1.1.0"
+version="1.2.0"
 displayName="UwU Dimension"
 description="A flowering cliff, a lake of wandering lights, and a bathhouse waiting for its first guests."
 [[dependencies.uwudimension]]
@@ -36,3 +36,13 @@ type="required"
 versionRange="[4.0.2]"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.uwudimension]]
+modId="simplyswords"
+type="required"
+versionRange="[1.70.2-1.21.1]"
+ordering="AFTER"
+side="BOTH"
+
+[[mixins]]
+config="uwudimension.mixins.json"

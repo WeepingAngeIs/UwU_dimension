@@ -30,6 +30,20 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_ARSENAL")!=null){
+                if(stage==0){
+                    for(int x=-1;x<=1;x++)for(int z=-1;z<=2;z++)level.setChunkForced(x,z,true);
+                    arenaReadyAt=level.getGameTime()+40;stage=1;return;
+                }
+                if(level.getGameTime()<arenaReadyAt)return;
+                if(stage==1){if(!CounterProof.ready(level))return;CounterProof.run(level);stage=2;}
+                if(!RevivalProof.tick(level))return;
+                var court=GroveSites.first(level).pos(-7,-17,146);
+                if(BossProof.tick(level,court)){
+                    System.out.println("UWU COUNTER ARSENAL PASSED");stage=-1;server.halt(false);
+                }
+                return;
+            }
             if(Boolean.getBoolean("uwu.bossReload")) {
                 if(BossProof.verifyRestart(level)) { stage=-1; server.halt(false); }
                 return;

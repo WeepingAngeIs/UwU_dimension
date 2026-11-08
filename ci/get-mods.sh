@@ -9,6 +9,10 @@ download 'https://cdn.modrinth.com/data/EltpO5cN/versions/ST5FHZnD/lootr-neoforg
 download 'https://edge.forgecdn.net/files/8335/665/kotlinforforge-5.12.0-all.jar' libs/kotlinforforge.jar
 download 'https://edge.forgecdn.net/files/8530/938/reactivemusic-neoforge-1.3.5%2b1.21.1.jar' libs/reactivemusic.jar
 download 'https://edge.forgecdn.net/files/7355/747/another_furniture-neoforge-4.0.2.jar' libs/another_furniture-neoforge-4.0.2.jar
+download 'https://cursemaven.com/curse/maven/simply-swords-659887/8746001/simply-swords-659887-8746001.jar' libs/simplyswords.jar
+download 'https://cursemaven.com/curse/maven/fzzy-config-1005914/8883390/fzzy-config-1005914-8883390.jar' libs/fzzy_config.jar
+download 'https://cursemaven.com/curse/maven/simply-tooltips-1475755/8715141/simply-tooltips-1475755-8715141.jar' libs/simplytooltips.jar
+download 'https://cursemaven.com/curse/maven/architectury-api-419699/8492726/architectury-api-419699-8492726.jar' libs/architectury.jar
 sha256sum --check ci/dependencies.sha256
 
 

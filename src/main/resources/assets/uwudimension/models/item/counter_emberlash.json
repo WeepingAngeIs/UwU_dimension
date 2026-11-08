@@ -1,0 +1,1 @@
+{"parent": "uwudimension:item/counter_emberlash_0", "overrides": [{"predicate": {"uwudimension:element": 1}, "model": "uwudimension:item/counter_emberlash_1"}, {"predicate": {"uwudimension:element": 2}, "model": "uwudimension:item/counter_emberlash_2"}, {"predicate": {"uwudimension:element": 3}, "model": "uwudimension:item/counter_emberlash_3"}]}

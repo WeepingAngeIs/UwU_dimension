@@ -100,6 +100,7 @@ public final class VelvetVesper extends PathfinderMob {
     @Override public void die(DamageSource source) {
         super.die(source);
         if (isDeadOrDying() && level() instanceof ServerLevel server) {
+            MirrorCourt.defeated(server,bell);
             bar.removeAllPlayers();
             MirrorCourt.release(server,bell,getUUID());
             server.sendParticles(ParticleTypes.CHERRY_LEAVES,getX(),getY()+1,getZ(),65,1,1,1,.09);

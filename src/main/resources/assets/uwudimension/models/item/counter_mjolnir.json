@@ -1,0 +1,1 @@
+{"parent": "uwudimension:item/counter_mjolnir_0", "overrides": [{"predicate": {"uwudimension:element": 1}, "model": "uwudimension:item/counter_mjolnir_1"}, {"predicate": {"uwudimension:element": 2}, "model": "uwudimension:item/counter_mjolnir_2"}, {"predicate": {"uwudimension:element": 3}, "model": "uwudimension:item/counter_mjolnir_3"}]}

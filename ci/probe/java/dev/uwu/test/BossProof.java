@@ -95,6 +95,12 @@ public final class BossProof {
             reed=new Guest(level,"MirrorReed",REED,floor.add(0,0,-3.4));
             vale=new Guest(level,"MirrorVale",VALE,floor.add(3.5,0,0));
             healthBeforeBeam=reed.player.getHealth()+vale.player.getHealth();
+            if(System.getenv("UWU_ARSENAL")!=null){
+                reed.player.tickCount=20;
+                net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(reed.player));
+                require(livingMoths(level,center).size()==1,"Walking into generated court did not reveal the boss");
+                System.out.println("BOSS ACCESS PASS normal generated court proximity starts one 500-health guardian");
+            }
             ring(level,bell,reed.player);
             ring(level,bell,vale.player);
             var boss=livingMoths(level,center);
