@@ -69,8 +69,14 @@ public final class CounterProof {
             require(ionStack.get(net.sweenus.simplyswords.registry.ComponentTypeRegistry.ION_CUBES.get()).cubes()==0,"Ion cubes survived matching counter");
             for(String target:List.of("waxweaver","wickpiercer")){
                 var e=CounterArsenal.entry("counter_"+target);var stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.target())));foe.setItemInHand(InteractionHand.MAIN_HAND,stack);
+                net.sweenus.simplyswords.api.AwakeningApi.initializeFullyAwakened(stack);
+                require(((net.sweenus.simplyswords.item.interfaces.RevivalWeapon)stack.getItem()).canRevive(foe,stack,foe.damageSources().generic()),"Unsealed awakened revival must be ready: "+target);
                 CounterEffects.hit(level,player,foe,e);
                 require(net.sweenus.simplyswords.world.RevivalCooldownManager.isCoolingDown(level,foe,stack),"Revival seal failed "+target);
+                // Model an externally shortened cooldown expiring before the counter mark.
+                net.sweenus.simplyswords.world.RevivalCooldownManager.setCooldown(level,foe,stack,0);
+                require(!net.sweenus.simplyswords.world.RevivalCooldownManager.isCoolingDown(level,foe,stack),"Expired revival cooldown setup failed");
+                require(!((net.sweenus.simplyswords.item.interfaces.RevivalWeapon)stack.getItem()).canRevive(foe,stack,foe.damageSources().generic()),"Cooldown reduction bypassed active eight-second seal: "+target);
             }
             System.out.println("COUNTER MANAGER PASS cube depletion and both revival seals");
             foe.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);foe.setHealth(1000);foe.invulnerableTime=0;foe.teleportTo(.5,base.getY()+1,7.5);
@@ -112,9 +118,10 @@ public final class CounterProof {
             require(level.getBlockState(site.pos(-7,-17,146)).is(MirrorCourt.BELL.get()),"Boss bell not on normal dungeon path");
             level.getChunkAt(site.pos(-7,-18,159));
             require(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(site.pos(-7,-18,159)).getBlock()).getNamespace().equals("lootr"),"Boss court reward missing");
+            RevivalProof.begin(level,player);
         }finally{clearProjectiles(level,player);player.discard();foe.discard();}
     }
-    private static ServerPlayer player(ServerLevel level,GameProfile profile){
+    static ServerPlayer player(ServerLevel level,GameProfile profile){
         var player=new ServerPlayer(level.getServer(),level,profile,net.minecraft.server.level.ClientInformation.createDefault());
         var connection=new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
         new io.netty.channel.embedded.EmbeddedChannel(connection);

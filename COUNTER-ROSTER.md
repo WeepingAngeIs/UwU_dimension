@@ -1,6 +1,83 @@
 # UwU Dimension 1.2 counter roster
 
-Audited against Simply Swords 1.70.2-1.21.1 in Cobblemon Unyielding. All 133 registered weapon/relic forms have an explicit counterpart. Four entries are precursor relic forms. Ordinary material variants share archetype counters; runic counterparts also cleanse rolled ailments during their ward.
+Audited against installed Simply Swords 1.70.2-1.21.1. The accepted expanded arsenal keeps all 133 counterparts: 53 developed unique combat forms, 4 precursor relic forms, 1 named ordinary throwable, and 75 ordinary/material/runic forms. Add 15 named UwU relics plus Glitch Bow for 149 weapons total. Unique/Legendary is Simply Swords' own tier/awakening system. Six nonweapon crafting materials and absent optional-compatibility weapons are excluded.
+
+Material variants share archetype mechanics. Runic counterparts also cleanse rolled ailments during their ward. See ARSENAL-GUIDE.md for behavior, controls, rarity and limits.
+
+## Developed unique combat forms (53)
+
+| Simply Swords target | UwU counterpart | Ranged form | Theme | Counter family |
+|---|---|---|---|---|
+| Brimstone Claymore (`simplyswords:brimstone_claymore`) | Dewglass Brimstone Claymore Spear | spear | dusk | quench |
+| The Watcher (`simplyswords:watcher_claymore`) | Clearheart The Watcher Wand | wand | petal | cleanse |
+| The Devourer (`simplyswords:the_devourer`) | Threadsunder The Devourer Scythe | scythe | dusk | sever |
+| Storm's Edge (`simplyswords:storms_edge`) | Stillmoon Storm's Edge Whip | whip | petal | anchor |
+| Stormscale (`simplyswords:stormscale`) | Threadsunder Stormscale Scythe | scythe | dusk | sever |
+| Ionbound Stormscale (`simplyswords:ionbound_stormscale`) | Prismbreaker Ionbound Stormscale Dagger | dagger | petal | shatter |
+| Stormbringer (`simplyswords:stormbringer`) | Afterglow Stormbringer Dagger | dagger | dusk | feint |
+| Bramblethorn (`simplyswords:bramblethorn`) | Threadsunder Bramblethorn Scythe | scythe | dusk | sever |
+| Watching Warglaive (`simplyswords:watching_warglaive`) | Clearheart Watching Warglaive Wand | wand | petal | cleanse |
+| Longsword of the Plague (`simplyswords:toxic_longsword`) | Clearheart Longsword of the Plague Wand | wand | dusk | cleanse |
+| Emberblade (`simplyswords:emberblade`) | Dewglass Emberblade Spear | spear | petal | quench |
+| Hearthflame (`simplyswords:hearthflame`) | Dewglass Hearthflame Spear | spear | dusk | quench |
+| Soulkeeper (`simplyswords:soulkeeper`) | Hushveil Soulkeeper Bow | bow | petal | silence |
+| Twisted Blade (`simplyswords:twisted_blade`) | Afterglow Twisted Blade Dagger | dagger | dusk | feint |
+| Soulstealer (`simplyswords:soulstealer`) | Thornwake Soulstealer Scythe | scythe | petal | reap |
+| Soulrender (`simplyswords:soulrender`) | Thornwake Soulrender Scythe | scythe | dusk | reap |
+| Soulstalker (`simplyswords:soulstalker`) | Stillmoon Soulstalker Whip | whip | petal | anchor |
+| Soul Pyre (`simplyswords:soulpyre`) | Hushveil Soul Pyre Bow | bow | dusk | silence |
+| Frostfall (`simplyswords:frostfall`) | Threadsunder Frostfall Scythe | scythe | petal | sever |
+| Molten Edge (`simplyswords:molten_edge`) | Dewglass Molten Edge Spear | spear | dusk | quench |
+| Livyatan (`simplyswords:livyatan`) | Threadsunder Livyatan Scythe | scythe | petal | sever |
+| Icewhisper (`simplyswords:icewhisper`) | Threadsunder Icewhisper Scythe | scythe | dusk | sever |
+| Arcanethyst (`simplyswords:arcanethyst`) | Stillmoon Arcanethyst Whip | whip | petal | anchor |
+| Thunderbrand (`simplyswords:thunderbrand`) | Stillmoon Thunderbrand Whip | whip | dusk | anchor |
+| Mjolnir (`simplyswords:mjolnir`) | Threadsunder Mjolnir Scythe | scythe | petal | sever |
+| Slumbering Lichblade (`simplyswords:slumbering_lichblade`) | Hushveil Slumbering Lichblade Bow | bow | dusk | silence |
+| Waking Lichblade (`simplyswords:waking_lichblade`) | Hushveil Waking Lichblade Bow | bow | petal | silence |
+| Awakened Lichblade (`simplyswords:awakened_lichblade`) | Hushveil Awakened Lichblade Bow | bow | dusk | silence |
+| Shadowsting (`simplyswords:shadowsting`) | Stillmoon Shadowsting Whip | whip | petal | anchor |
+| Sunfire (`simplyswords:sunfire`) | Thornwake Sunfire Scythe | scythe | petal | reap |
+| Harbinger (`simplyswords:harbinger`) | Nestward Harbinger Whip | whip | dusk | banish |
+| Whisperwind (`simplyswords:whisperwind`) | Stillmoon Whisperwind Whip | whip | petal | anchor |
+| Dreadwhisper (`simplyswords:dreadwhisper`) | Clearheart Dreadwhisper Wand | wand | dusk | cleanse |
+| Emberlash (`simplyswords:emberlash`) | Thornwake Emberlash Scythe | scythe | petal | reap |
+| Waxweaver (`simplyswords:waxweaver`) | Thornwake Waxweaver Scythe | scythe | dusk | reap |
+| Hiveheart (`simplyswords:hiveheart`) | Nestward Hiveheart Whip | whip | petal | banish |
+| Star's Edge (`simplyswords:stars_edge`) | Afterglow Star's Edge Dagger | dagger | dusk | feint |
+| Wickpiercer (`simplyswords:wickpiercer`) | Thornwake Wickpiercer Scythe | scythe | petal | reap |
+| Gloampiercer (`simplyswords:gloampiercer`) | Hushveil Gloampiercer Bow | bow | dusk | silence |
+| Tempest (`simplyswords:tempest`) | Clearheart Tempest Wand | wand | petal | cleanse |
+| Flamewind (`simplyswords:flamewind`) | Dewglass Flamewind Spear | spear | dusk | quench |
+| Ribboncleaver (`simplyswords:ribboncleaver`) | Prismbreaker Ribboncleaver Dagger | dagger | petal | shatter |
+| Magiscythe (`simplyswords:magiscythe`) | Threadsunder Magiscythe Scythe | scythe | petal | sever |
+| Enigma (`simplyswords:enigma`) | Threadsunder Enigma Scythe | scythe | dusk | sever |
+| Magispear (`simplyswords:magispear`) | Hushveil Magispear Bow | bow | petal | silence |
+| Magiblade (`simplyswords:magiblade`) | Hushveil Magiblade Bow | bow | dusk | silence |
+| Caelestis (`simplyswords:caelestis`) | Nestward Caelestis Whip | whip | petal | banish |
+| Dawnquiver (`simplyswords:dawnquiver`) | Hushveil Dawnquiver Bow | bow | dusk | silence |
+| Riftmane (`simplyswords:riftmane`) | Stillmoon Riftmane Whip | whip | petal | anchor |
+| Wraithfang (`simplyswords:wraithfang`) | Stillmoon Wraithfang Whip | whip | dusk | anchor |
+| Wraithmaw (`simplyswords:wraithmaw`) | Hushveil Wraithmaw Bow | bow | petal | silence |
+| Bloodwake (`simplyswords:bloodwake`) | Clearheart Bloodwake Wand | wand | dusk | cleanse |
+| Chomp'olotl (`simplyswords:chompolotl`) | Nestward Chomp'olotl Whip | whip | petal | banish |
+
+## Precursor relic forms (4)
+
+| Simply Swords target | UwU counterpart | Ranged form | Theme | Counter family |
+|---|---|---|---|---|
+| Dormant Relic (`simplyswords:dormant_relic`) | Ribbonreach Dormant Relic Spear | spear | dusk | space |
+| Righteous Relic (`simplyswords:righteous_relic`) | Thornwake Righteous Relic Scythe | scythe | petal | reap |
+| Tainted Relic (`simplyswords:tainted_relic`) | Clearheart Tainted Relic Wand | wand | dusk | cleanse |
+| Decaying relic (`simplyswords:decaying_relic`) | Ribbonreach Decaying relic Spear | spear | dusk | space |
+
+## Named ordinary wooden throwable (1)
+
+| Simply Swords target | UwU counterpart | Ranged form | Theme | Counter family |
+|---|---|---|---|---|
+| Sword on a Stick (`simplyswords:sword_on_a_stick`) | Ribbonreach Sword on a Stick Spear | spear | petal | space |
+
+## Ordinary material and runic forms (75)
 
 | Simply Swords target | UwU counterpart | Ranged form | Theme | Counter family |
 |---|---|---|---|---|
@@ -79,61 +156,3 @@ Audited against Simply Swords 1.70.2-1.21.1 in Cobblemon Unyielding. All 133 reg
 | Runic Greathammer (`simplyswords:runic_greathammer`) | Bellfall Runic Greathammer Axe | axe | petal | stagger |
 | Runic Scythe (`simplyswords:runic_scythe`) | Ribbonreach Runic Scythe Spear | spear | dusk | space |
 | Runic Halberd (`simplyswords:runic_halberd`) | Ribbonreach Runic Halberd Spear | spear | petal | space |
-| Brimstone Claymore (`simplyswords:brimstone_claymore`) | Dewglass Brimstone Claymore Spear | spear | dusk | quench |
-| The Watcher (`simplyswords:watcher_claymore`) | Clearheart The Watcher Wand | wand | petal | cleanse |
-| The Devourer (`simplyswords:the_devourer`) | Threadsunder The Devourer Scythe | scythe | dusk | sever |
-| Storm's Edge (`simplyswords:storms_edge`) | Stillmoon Storm's Edge Whip | whip | petal | anchor |
-| Stormscale (`simplyswords:stormscale`) | Threadsunder Stormscale Scythe | scythe | dusk | sever |
-| Ionbound Stormscale (`simplyswords:ionbound_stormscale`) | Prismbreaker Ionbound Stormscale Dagger | dagger | petal | shatter |
-| Stormbringer (`simplyswords:stormbringer`) | Afterglow Stormbringer Dagger | dagger | dusk | feint |
-| Sword on a Stick (`simplyswords:sword_on_a_stick`) | Ribbonreach Sword on a Stick Spear | spear | petal | space |
-| Bramblethorn (`simplyswords:bramblethorn`) | Threadsunder Bramblethorn Scythe | scythe | dusk | sever |
-| Watching Warglaive (`simplyswords:watching_warglaive`) | Clearheart Watching Warglaive Wand | wand | petal | cleanse |
-| Longsword of the Plague (`simplyswords:toxic_longsword`) | Clearheart Longsword of the Plague Wand | wand | dusk | cleanse |
-| Emberblade (`simplyswords:emberblade`) | Dewglass Emberblade Spear | spear | petal | quench |
-| Hearthflame (`simplyswords:hearthflame`) | Dewglass Hearthflame Spear | spear | dusk | quench |
-| Soulkeeper (`simplyswords:soulkeeper`) | Hushveil Soulkeeper Bow | bow | petal | silence |
-| Twisted Blade (`simplyswords:twisted_blade`) | Afterglow Twisted Blade Dagger | dagger | dusk | feint |
-| Soulstealer (`simplyswords:soulstealer`) | Thornwake Soulstealer Scythe | scythe | petal | reap |
-| Soulrender (`simplyswords:soulrender`) | Thornwake Soulrender Scythe | scythe | dusk | reap |
-| Soulstalker (`simplyswords:soulstalker`) | Stillmoon Soulstalker Whip | whip | petal | anchor |
-| Soul Pyre (`simplyswords:soulpyre`) | Hushveil Soul Pyre Bow | bow | dusk | silence |
-| Frostfall (`simplyswords:frostfall`) | Threadsunder Frostfall Scythe | scythe | petal | sever |
-| Molten Edge (`simplyswords:molten_edge`) | Dewglass Molten Edge Spear | spear | dusk | quench |
-| Livyatan (`simplyswords:livyatan`) | Threadsunder Livyatan Scythe | scythe | petal | sever |
-| Icewhisper (`simplyswords:icewhisper`) | Threadsunder Icewhisper Scythe | scythe | dusk | sever |
-| Arcanethyst (`simplyswords:arcanethyst`) | Stillmoon Arcanethyst Whip | whip | petal | anchor |
-| Thunderbrand (`simplyswords:thunderbrand`) | Stillmoon Thunderbrand Whip | whip | dusk | anchor |
-| Mjolnir (`simplyswords:mjolnir`) | Threadsunder Mjolnir Scythe | scythe | petal | sever |
-| Slumbering Lichblade (`simplyswords:slumbering_lichblade`) | Hushveil Slumbering Lichblade Bow | bow | dusk | silence |
-| Waking Lichblade (`simplyswords:waking_lichblade`) | Hushveil Waking Lichblade Bow | bow | petal | silence |
-| Awakened Lichblade (`simplyswords:awakened_lichblade`) | Hushveil Awakened Lichblade Bow | bow | dusk | silence |
-| Shadowsting (`simplyswords:shadowsting`) | Stillmoon Shadowsting Whip | whip | petal | anchor |
-| Dormant Relic (`simplyswords:dormant_relic`) | Ribbonreach Dormant Relic Spear | spear | dusk | space |
-| Righteous Relic (`simplyswords:righteous_relic`) | Thornwake Righteous Relic Scythe | scythe | petal | reap |
-| Tainted Relic (`simplyswords:tainted_relic`) | Clearheart Tainted Relic Wand | wand | dusk | cleanse |
-| Sunfire (`simplyswords:sunfire`) | Thornwake Sunfire Scythe | scythe | petal | reap |
-| Harbinger (`simplyswords:harbinger`) | Nestward Harbinger Whip | whip | dusk | banish |
-| Whisperwind (`simplyswords:whisperwind`) | Stillmoon Whisperwind Whip | whip | petal | anchor |
-| Dreadwhisper (`simplyswords:dreadwhisper`) | Clearheart Dreadwhisper Wand | wand | dusk | cleanse |
-| Emberlash (`simplyswords:emberlash`) | Thornwake Emberlash Scythe | scythe | petal | reap |
-| Waxweaver (`simplyswords:waxweaver`) | Thornwake Waxweaver Scythe | scythe | dusk | reap |
-| Hiveheart (`simplyswords:hiveheart`) | Nestward Hiveheart Whip | whip | petal | banish |
-| Star's Edge (`simplyswords:stars_edge`) | Afterglow Star's Edge Dagger | dagger | dusk | feint |
-| Wickpiercer (`simplyswords:wickpiercer`) | Thornwake Wickpiercer Scythe | scythe | petal | reap |
-| Gloampiercer (`simplyswords:gloampiercer`) | Hushveil Gloampiercer Bow | bow | dusk | silence |
-| Tempest (`simplyswords:tempest`) | Clearheart Tempest Wand | wand | petal | cleanse |
-| Flamewind (`simplyswords:flamewind`) | Dewglass Flamewind Spear | spear | dusk | quench |
-| Ribboncleaver (`simplyswords:ribboncleaver`) | Prismbreaker Ribboncleaver Dagger | dagger | petal | shatter |
-| Decaying relic (`simplyswords:decaying_relic`) | Ribbonreach Decaying relic Spear | spear | dusk | space |
-| Magiscythe (`simplyswords:magiscythe`) | Threadsunder Magiscythe Scythe | scythe | petal | sever |
-| Enigma (`simplyswords:enigma`) | Threadsunder Enigma Scythe | scythe | dusk | sever |
-| Magispear (`simplyswords:magispear`) | Hushveil Magispear Bow | bow | petal | silence |
-| Magiblade (`simplyswords:magiblade`) | Hushveil Magiblade Bow | bow | dusk | silence |
-| Caelestis (`simplyswords:caelestis`) | Nestward Caelestis Whip | whip | petal | banish |
-| Dawnquiver (`simplyswords:dawnquiver`) | Hushveil Dawnquiver Bow | bow | dusk | silence |
-| Riftmane (`simplyswords:riftmane`) | Stillmoon Riftmane Whip | whip | petal | anchor |
-| Wraithfang (`simplyswords:wraithfang`) | Stillmoon Wraithfang Whip | whip | dusk | anchor |
-| Wraithmaw (`simplyswords:wraithmaw`) | Hushveil Wraithmaw Bow | bow | petal | silence |
-| Bloodwake (`simplyswords:bloodwake`) | Clearheart Bloodwake Wand | wand | dusk | cleanse |
-| Chomp'olotl (`simplyswords:chompolotl`) | Nestward Chomp'olotl Whip | whip | petal | banish |

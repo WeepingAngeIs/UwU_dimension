@@ -37,6 +37,7 @@ public class Expedition {
                 }
                 if(level.getGameTime()<arenaReadyAt)return;
                 if(stage==1){if(!CounterProof.ready(level))return;CounterProof.run(level);stage=2;}
+                if(!RevivalProof.tick(level))return;
                 var court=GroveSites.first(level).pos(-7,-17,146);
                 if(BossProof.tick(level,court)){
                     System.out.println("UWU COUNTER ARSENAL PASSED");stage=-1;server.halt(false);
