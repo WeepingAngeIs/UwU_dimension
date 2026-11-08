@@ -50,7 +50,7 @@ public final class ResidentProof {
             require(rejectedReplacement==1,"Registration rejection/retry path was not exercised");
             require(level.getEntitiesOfClass(Villager.class,new AABB(plaza).inflate(80),v->v.getType()==EntityType.VILLAGER).isEmpty(),"True vanilla villager remained in generated UwU village");
             require(level.getEntitiesOfClass(Keeper.class,new AABB(plaza).inflate(20)).stream().anyMatch(k->k.getCustomName()!=null&&k.getCustomName().getString().equals("Cure Probe")),"Natural ticking cure did not create Keeper");
-            var dusk=level.getEntitiesOfClass(Keeper.class,new AABB(plaza).inflate(25)).stream().filter(k->k.getCustomName()!=null&&k.getCustomName().getString().equals("Dusk Cure Probe")).findFirst().orElseThrow();
+            var dusk=level.getEntitiesOfClass(Keeper.class,new AABB(plaza.above(80)).inflate(25)).stream().filter(k->k.getCustomName()!=null&&k.getCustomName().getString().equals("Dusk Cure Probe")).findFirst().orElseThrow();
             require(dusk.getType()==People.DUSK_KEEPER.get(),"Cure lost Dusk faction");
             var restored=new CompoundTag();dusk.saveWithoutId(restored);require(restored.getBoolean("Settled")&&restored.hasUUID("Companion"),"Cure lost recruitment");
             require(dusk.getOffers().size()==1&&dusk.getOffers().getFirst().getResult().is(Items.APPLE),"Cure changed existing trades");
@@ -131,7 +131,7 @@ public final class ResidentProof {
         var zombie=EntityType.ZOMBIE_VILLAGER.create(level);zombie.moveTo(Vec3.atBottomCenterOf(plaza.offset(4,0,15)));zombie.setPersistenceRequired();var zn=new CompoundTag();zombie.saveWithoutId(zn);zn.putInt("ConversionTime",1);zombie.load(zn);zombie.getPersistentData().putBoolean("cure_probe",true);level.addFreshEntity(zombie);
         // Conversion does not copy arbitrary persistent flags, so identify the cure by its custom name.
         zombie.setCustomName(Component.literal("Cure Probe"));
-        var duskZombie=EntityType.ZOMBIE_VILLAGER.create(level);duskZombie.moveTo(Vec3.atBottomCenterOf(plaza.offset(7,0,15)));duskZombie.setPersistenceRequired();
+        var duskZombie=EntityType.ZOMBIE_VILLAGER.create(level);duskZombie.moveTo(Vec3.atBottomCenterOf(plaza.offset(7,80,15)));duskZombie.setPersistenceRequired();
         var origin=new CompoundTag();origin.putBoolean("WasDusk",true);origin.putBoolean("Settled",true);origin.putUUID("Companion",UUID.randomUUID());origin.putInt("OfferedJobLevel",3);
         duskZombie.getPersistentData().put(RealmResidents.ORIGIN,origin);duskZombie.setVillagerData(vanilla.getVillagerData());duskZombie.setTradeOffers(offers.copy());
         var dz=new CompoundTag();duskZombie.saveWithoutId(dz);dz.putInt("ConversionTime",1);duskZombie.load(dz);duskZombie.setCustomName(Component.literal("Dusk Cure Probe"));level.addFreshEntity(duskZombie);
