@@ -15,7 +15,7 @@ import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.minecraft.server.level.ServerPlayer;
 
 /** Exercises registered survival item entrypoints against real player-held target stacks. */
 public final class CounterProof {
@@ -23,8 +23,8 @@ public final class CounterProof {
     public static void run(ServerLevel level) throws Exception {
         BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
         for(int x=-6;x<=6;x++)for(int z=-6;z<=24;z++)level.setBlockAndUpdate(base.offset(x,0,z),Blocks.STONE.defaultBlockState());
-        FakePlayer player=new FakePlayer(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
-        FakePlayer foe=new FakePlayer(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da12"),"SwordDuelist"));
+        ServerPlayer player=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
+        ServerPlayer foe=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da12"),"SwordDuelist"));
         player.moveTo(.5,base.getY()+1,.5,0,0);foe.moveTo(.5,base.getY()+1,8.5,180,0);
         level.addNewPlayer(player);level.addNewPlayer(foe);
         require(player.canHarmPlayer(foe),"Arena PvP disabled");
@@ -92,6 +92,16 @@ public final class CounterProof {
             level.getChunkAt(site.pos(-7,-18,159));
             require(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(site.pos(-7,-18,159)).getBlock()).getNamespace().equals("lootr"),"Boss court reward missing");
         }finally{clearProjectiles(level,player);player.discard();foe.discard();}
+    }
+    private static ServerPlayer player(ServerLevel level,GameProfile profile){
+        var player=new ServerPlayer(level.getServer(),level,profile,net.minecraft.server.level.ClientInformation.createDefault());
+        var connection=new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+        new io.netty.channel.embedded.EmbeddedChannel(connection);
+        new net.minecraft.server.network.ServerGamePacketListenerImpl(level.getServer(),connection,player,net.minecraft.server.network.CommonListenerCookie.createInitial(profile,false)){
+            @Override public void send(net.minecraft.network.protocol.Packet<?> packet){}
+            @Override public void send(net.minecraft.network.protocol.Packet<?> packet,net.minecraft.network.PacketSendListener listener){}
+        };
+        return player;
     }
     private static void loot(ServerLevel level){
         for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")){
