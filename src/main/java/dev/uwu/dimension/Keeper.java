@@ -424,6 +424,12 @@ public final class Keeper extends Villager {
         }
     }
 
+    @Override public void setOffers(MerchantOffers restored) {
+        super.setOffers(restored);
+        // Native zombie curing installs the original offers after assigning the profession.
+        offeredJobLevel=getVillagerData().getLevel();
+    }
+
     @Override public MerchantOffers getOffers() {
         MerchantOffers current = super.getOffers();
         if (!level().isClientSide && offeredJobLevel < getVillagerData().getLevel()

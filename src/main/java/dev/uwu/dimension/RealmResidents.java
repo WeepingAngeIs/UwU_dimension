@@ -29,6 +29,7 @@ public final class RealmResidents {
     private static void tick(ServerTickEvent.Post event){
         for(var v:List.copyOf(pending)){
             if(v.isRemoved()||!v.isAlive()){pending.remove(v);continue;}
+            if(!applies(v.level())){pending.remove(v);continue;}
             if(!(v.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(v.blockPosition()))continue;
             if(level.getEntity(v.getUUID())!=v)continue;
             var keeper=People.PETAL_KEEPER.get().create(level);if(keeper==null)continue;
@@ -39,7 +40,13 @@ public final class RealmResidents {
             if(level.addFreshEntity(keeper)){
                 if(vehicle!=null)keeper.startRiding(vehicle,true);
                 passengers.forEach(p->p.startRiding(keeper,true));pending.remove(v);
-            }else{v.revive();level.addFreshEntity(v);}
+            }else{
+                v.revive();
+                if(level.addFreshEntity(v)){
+                    if(vehicle!=null)v.startRiding(vehicle,true);
+                    passengers.forEach(p->p.startRiding(v,true));
+                }
+            }
         }
     }
     private static void converted(LivingConversionEvent.Post event){
