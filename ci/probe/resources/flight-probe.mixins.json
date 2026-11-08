@@ -1,1 +1,1 @@
-{"required":true,"minVersion":"0.8","package":"dev.uwu.test","compatibilityLevel":"JAVA_21","client":["FlightOwnerRulesMixin"],"injectors":{"defaultRequire":1}}
+{"required":true,"minVersion":"0.8","package":"dev.uwu.test.mixin","compatibilityLevel":"JAVA_21","client":["FlightOwnerRulesMixin"],"injectors":{"defaultRequire":1}}

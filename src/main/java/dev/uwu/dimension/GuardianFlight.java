@@ -35,8 +35,9 @@ public final class GuardianFlight {
     private static void network(RegisterPayloadHandlersEvent event){
         event.registrar("1").playToClient(Thrust.TYPE,Thrust.CODEC,(m,ctx)->ctx.enqueueWork(()->{
             var p=ctx.player();
-            if(!m.active){p.getPersistentData().remove(CLIENT);p.setDeltaMovement(Vec3.ZERO);return;}
-            var n=new CompoundTag();n.putDouble("X",m.x);n.putDouble("Y",m.y);n.putDouble("Z",m.z);n.putInt("Until",p.tickCount+6);
+            if(!m.active){if(p.getPersistentData().contains(CLIENT))p.noCulling=p.getPersistentData().getCompound(CLIENT).getBoolean("OriginalCulling");p.getPersistentData().remove(CLIENT);p.setDeltaMovement(Vec3.ZERO);return;}
+            boolean original=p.getPersistentData().contains(CLIENT)?p.getPersistentData().getCompound(CLIENT).getBoolean("OriginalCulling"):p.noCulling;
+            var n=new CompoundTag();n.putBoolean("OriginalCulling",original);n.putDouble("X",m.x);n.putDouble("Y",m.y);n.putDouble("Z",m.z);n.putInt("Until",p.tickCount+6);
             p.getPersistentData().put(CLIENT,n);
         }));
     }

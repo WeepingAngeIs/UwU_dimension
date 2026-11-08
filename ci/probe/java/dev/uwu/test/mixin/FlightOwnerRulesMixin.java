@@ -1,4 +1,4 @@
-package dev.uwu.test;
+package dev.uwu.test.mixin;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.server.IntegratedServer;
 import org.spongepowered.asm.mixin.Mixin;
