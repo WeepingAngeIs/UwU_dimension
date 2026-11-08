@@ -27,6 +27,9 @@ public final class CounterProof {
         FakePlayer foe=new FakePlayer(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da12"),"SwordDuelist"));
         player.moveTo(.5,base.getY()+1,.5,0,0);foe.moveTo(.5,base.getY()+1,8.5,180,0);
         level.addNewPlayer(player);level.addNewPlayer(foe);
+        require(player.canHarmPlayer(foe),"Arena PvP disabled");
+        require(foe.isPickable(),"Simulated duelist is not collidable");
+        require(level.getEntities(player,player.getBoundingBox().inflate(12)).contains(foe),"Duelist absent from loaded entity index");
         foe.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);foe.setHealth(1000);
         try{
             require(CounterArsenal.ROSTER.size()==133,"Expected audited 133 weapon/relic identities");
@@ -45,7 +48,7 @@ public final class CounterProof {
                 for(var f:level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&f.isAlive();t++)f.tick();
                 for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6&&lash.isAlive();t++)lash.tick();
                 require(CounterEffects.active(player)!=null&&CounterEffects.active(player).target().equals(entry.target()),"Ward failed "+entry.id());
-                require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id());
+                require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id()+" projectiles="+level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(24)).stream().map(b->b.position()+" alive="+b.isAlive()).toList());
                 require(stack.getDamageValue()==1,"Cast durability "+entry.id());
                 clearProjectiles(level,player);
             }
