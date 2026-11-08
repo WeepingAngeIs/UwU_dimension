@@ -54,6 +54,7 @@ public final class ResidentProof {
             require(dusk.getType()==People.DUSK_KEEPER.get(),"Cure lost Dusk faction");
             var restored=new CompoundTag();dusk.saveWithoutId(restored);require(restored.getBoolean("Settled")&&restored.hasUUID("Companion"),"Cure lost recruitment");
             require(dusk.getOffers().size()==1&&dusk.getOffers().getFirst().getResult().is(Items.APPLE),"Cure changed existing trades");
+            dusk.discard(); // End the cure fixture before testing a separate, single-threat village attack.
             var guards=level.getEntitiesOfClass(BlossomWarden.class,new AABB(plaza).inflate(60));require(!guards.isEmpty(),"Generated village missing guardian");guard=guards.getFirst();
             for(var other:guards)if(other!=guard)other.discard();
             // Keep the generated houses/beds; prepare a straight, walkable plaza approach.
