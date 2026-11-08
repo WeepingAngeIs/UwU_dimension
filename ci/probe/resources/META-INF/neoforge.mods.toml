@@ -5,3 +5,6 @@ license="All Rights Reserved"
 modId="heartwater_probe"
 version="1.0"
 displayName="Heartwater hosted expedition test"
+
+[[mixins]]
+config="flight-probe.mixins.json"

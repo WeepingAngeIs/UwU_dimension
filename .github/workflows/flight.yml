@@ -1,0 +1,77 @@
+name: UwU visible guardian flight
+on:
+  push:
+    branches: [feature/visible-guardian-flight-1.2.2]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: flight-${{ github.ref }}-${{ contains(github.event.head_commit.message, 'server-only') }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: ${{ !contains(github.event.head_commit.message, 'client-only') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - run: ./gradlew build --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UwU-Dimension-1.2.2
+          path: build/libs/*.jar
+      - name: Verify real entity flight and native guardian defense
+        run: |
+          bash ci/flight-expedition.sh
+          bash ci/resident-expedition.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flight-server-evidence
+          path: |
+            build/resident-server/*.log
+            build/resident-server/logs/latest.log
+            build/resident-server/crash-reports
+  client:
+    if: ${{ !contains(github.event.head_commit.message, 'server-only') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      UWU_VISIT: flight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Verify rendered player trajectory
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config
+          printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:4\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 8m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee flight-client.log
+          grep -F 'UWU FLIGHT CLIENT PASSED' flight-client.log
+          ! grep -E 'moved too quickly|moved wrongly|kicked for floating' run/logs/latest.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flight-client-evidence
+          path: |
+            run/screenshots
+            run/logs/latest.log
+            run/crash-reports
+            flight-client.log

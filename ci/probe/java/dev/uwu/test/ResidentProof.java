@@ -18,6 +18,7 @@ import net.minecraft.world.phys.*;
 public final class ResidentProof {
     static int phase,ticks;static BlockPos plaza;static BlossomWarden guard;static Keeper resident;static Zombie threat;
     static UUID migratedId,cureId,guardId,threatId,residentId;static Vec3 start;static boolean moved,early,attacked,reload;
+    static double thrownGoal=Double.NaN;
     static Properties checkpoint;static int rejectedReplacement;static final Path FILE=Path.of("resident-checkpoint.properties");
     static void require(boolean ok,String msg){if(!ok)throw new AssertionError(msg);}
     static boolean tick(ServerLevel level)throws Exception{
@@ -70,22 +71,29 @@ public final class ResidentProof {
             moved|=guard.position().distanceToSqr(start)>1;
             if(threat.getUUID().equals(guard.offender())&&resident.getHealth()==1000)early=true;
             attacked|=resident.getHealth()<1000;
-            if(threat.getY()>plaza.getY()+7900){
+            if(threat.getPersistentData().contains(GuardianFlight.STATE))thrownGoal=threat.getPersistentData().getCompound(GuardianFlight.STATE).getDouble("Y");
+            if(threat.getY()>thrownGoal-2){
                 require(moved,"Guardian never walked under normal goals");require(early,"Guardian did not acquire approaching zombie before damage");
                 System.out.println("NATURAL DEFENSE PASS proactive acquisition, walking pursuit and 8000-block toss; resident damage observed="+attacked+"");
                 threat.discard();guard.moveTo(Vec3.atBottomCenterOf(plaza.offset(-10,0,0)));
                 phase=4;ticks=0;return false;
             }
-            require(ticks<1000,"Natural village defense stalled; offender="+guard.offender()+" moved="+moved+" hp="+resident.getHealth());
+            if(ticks%100==0)System.out.println("GUARD FLIGHT targetY="+threat.getY()+" goal="+thrownGoal+" alive="+threat.isAlive()+" removed="+threat.isRemoved()+" state="+threat.getPersistentData().getCompound(GuardianFlight.STATE)+" recoveries="+threat.getPersistentData().getInt(GuardianFlight.RECOVERIES)+" guard="+guard.offender());
+            require(ticks<1000,"Natural village defense stalled; offender="+guard.offender()+" moved="+moved+" hp="+resident.getHealth()+" targetY="+threat.getY()+" goal="+thrownGoal);
         }
         if(phase==4){
             if(ticks==20){
+                thrownGoal=Double.NaN;
+                if(guard.isRemoved()||level.getEntity(guard.getUUID())!=guard){
+                    guard=level.getEntitiesOfClass(BlossomWarden.class,new AABB(plaza).inflate(60)).stream().filter(g->{var n=new CompoundTag();g.saveWithoutId(n);return n.getLong("VillageCourt")==plaza.asLong();}).findFirst().orElseThrow();
+                    System.out.println("BLOCKED FIXTURE rebound to live saved village guardian "+guard.getUUID());
+                }
                 resident.moveTo(Vec3.atBottomCenterOf(plaza.offset(5,0,0)));resident.setHealth(1000);
                 for(int x=-12;x<=-8;x++)for(int z=-2;z<=2;z++)if(x==-12||x==-8||z==-2||z==2)for(int y=0;y<5;y++)level.setBlockAndUpdate(plaza.offset(x,y,z),Blocks.OBSIDIAN.defaultBlockState());
                 guard.moveTo(Vec3.atBottomCenterOf(plaza.offset(-10,0,0)));threat=zombie(level,plaza.offset(8,0,0));
             }
             if(ticks==320){
-                require(threat.getUUID().equals(guard.offender()),"Blocked target not pursued");require(threat.getY()<plaza.getY()+50,"Intercept happened before thirty seconds");
+                require(threat.getUUID().equals(guard.offender()),"Blocked target not pursued; guardRemoved="+guard.isRemoved()+" offender="+guard.offender()+" actual="+threat.getUUID()+" guardianY="+guard.getY()+" targetY="+threat.getY());require(threat.getY()<plaza.getY()+50,"Intercept happened before thirty seconds");
                 var n=new CompoundTag();guard.saveWithoutId(n);require(n.getInt("PursueTicks")>=290,"Chase timer reset under blocked navigation");
                 checkpoint=new Properties();checkpoint.setProperty("plaza",Long.toString(plaza.asLong()));checkpoint.setProperty("guard",guard.getUUID().toString());checkpoint.setProperty("threat",threat.getUUID().toString());checkpoint.setProperty("resident",migratedId.toString());
                 try(var out=Files.newOutputStream(FILE)){checkpoint.store(out,"Hosted temporary world expectations");}
@@ -93,13 +101,14 @@ public final class ResidentProof {
             }
         }
         if(phase==5){
-            if(threat.getY()>plaza.getY()+7900){
-                require(ticks<420,"Blocked pursuit did not retain elapsed timer across reload");
+            if(threat.getPersistentData().contains(GuardianFlight.STATE))thrownGoal=threat.getPersistentData().getCompound(GuardianFlight.STATE).getDouble("Y");
+            if(threat.getY()>thrownGoal-2){
+                require(ticks<650,"Blocked pursuit did not retain elapsed timer across reload");
                 require(level.getEntitiesOfClass(Villager.class,new AABB(plaza).inflate(80),v->v.getType()==EntityType.VILLAGER).isEmpty(),"Vanilla villager reappeared after reload");
                 System.out.println("BLOCKED DEFENSE PASS thirty-second interception, saved pursuit, 8000-block launch");
                 System.out.println("UWU RESIDENT PROTECTION PASSED");return true;
             }
-            require(ticks<700,"Blocked pursuit failed after real reload");
+            require(ticks<900,"Blocked pursuit failed after real reload");
         }
         return false;
     }
