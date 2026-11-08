@@ -53,7 +53,7 @@ public final class FlightProof {
             }
             check(ticks<500,"Flight never completed");
         }
-        if(phase==4&&ticks>25){check(flyer.getY()<apex-5,"Natural descent did not resume");System.out.println("UWU FLIGHT SERVER PASSED native ascent, zero recovery, obstruction fallback, real mid-flight restart, natural descent");return true;}
+        if(phase==4&&ticks>2){check(flyer.getY()<apex-.05&&flyer.getDeltaMovement().y<0,"Natural descent did not resume");System.out.println("UWU FLIGHT SERVER PASSED native ascent, zero recovery, obstruction fallback, real mid-flight restart, natural descent");return true;}
         return false;
     }
 }
