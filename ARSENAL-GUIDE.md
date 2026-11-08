@@ -1,4 +1,4 @@
-# UwU Dimension 1.2 â€” arsenal and Mirror Court
+# UwU Dimension 1.2 — arsenal and Mirror Court
 
 For Minecraft 1.21.1 / NeoForge 21.1.249, Cobblemon 1.8.4 and Simply Swords 1.70.2-1.21.1. Keep the existing Lootr, Another Furniture, Kotlin for Forge, Architectury, Fzzy Config and Simply Tooltips dependencies. Replace the old UwU JAR only after backing up your world; do not keep two UwU versions together. This delivery does not install itself.
 
@@ -21,7 +21,7 @@ Creative inventory and administrator commands remain available for testing. Alre
 - Axes, spears, daggers, greatswords and the scepter: use throws a visual copy. The scepter calls its hare when it lands on suitable solid ground. Blue Hour Wand fires its cold ray.
 - ERROR // Glitch Bow: draw to at least 40% power and release. The shot randomly selects a different form from the 148 other UwU weapons and immediately uses that form's ranged ability. Static briefly covers the held item; the selected form stays until your next fired shot. Rejected/cooldown/short draws do not reroll. The same stack retains its enchantments and cumulative durability; it does not grant other inventory items. A whip form lashes; a scythe form throws; other forms use their normal ranged dispatch.
 
-All base weapon damage remains 14â€“24, before target armor, enchantments and ability effects. Summon follow-up damage and healing are separate effects.
+All base weapon damage remains 14–24, before target armor, enchantments and ability effects. Summon follow-up damage and healing are separate effects.
 
 ## Matching Simply Swords
 
