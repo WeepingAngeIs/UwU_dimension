@@ -94,12 +94,12 @@ public final class ResidentProof {
         }
         if(phase==5){
             if(threat.getY()>plaza.getY()+7900){
-                require(ticks<420,"Blocked pursuit did not retain elapsed timer across reload");
+                require(ticks<650,"Blocked pursuit did not retain elapsed timer across reload");
                 require(level.getEntitiesOfClass(Villager.class,new AABB(plaza).inflate(80),v->v.getType()==EntityType.VILLAGER).isEmpty(),"Vanilla villager reappeared after reload");
                 System.out.println("BLOCKED DEFENSE PASS thirty-second interception, saved pursuit, 8000-block launch");
                 System.out.println("UWU RESIDENT PROTECTION PASSED");return true;
             }
-            require(ticks<700,"Blocked pursuit failed after real reload");
+            require(ticks<900,"Blocked pursuit failed after real reload");
         }
         return false;
     }

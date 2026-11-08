@@ -208,23 +208,14 @@ public final class BlossomWarden extends PathfinderMob {
             if (motionTicks % 4 == 0) petals(level,hands);
             if (++motionTicks >= 16) {
                 transition(THROW);
-                Vec3 away = destination.subtract(culprit.position()).multiply(1,0,1).normalize();
-                // The player-motion packet caps each component at 3.9. Send a visible legal
-                // impulse first and correct the measured rise below, including immune entities.
-                culprit.setDeltaMovement(away.x*.9, culprit instanceof ServerPlayer ? 3.75 : 150, away.z*.9);
-                culprit.hurtMarked = true;
-                if (culprit instanceof ServerPlayer player)
-                    player.connection.send(new ClientboundSetEntityMotionPacket(player));
+                GuardianFlight.start(culprit,destination);
                 level.sendParticles(ParticleTypes.GUST_EMITTER_SMALL,getX(),getY()+2,getZ(),1,0,0,0,0);
                 sound(level, SoundEvents.IRON_GOLEM_ATTACK, .72F);
             }
-        } else if (phase == THROW && ++motionTicks >= 12) {
-            if (culprit.getY() < destination.y-2 || culprit.position().distanceToSqr(destination) > 100) {
-                move(culprit,destination);
-                culprit.setDeltaMovement(Vec3.ZERO);
-                culprit.hurtMarked = true;
-                if (culprit instanceof ServerPlayer player) player.connection.send(new ClientboundSetEntityMotionPacket(player));
-            }
+        } else if (phase == THROW) {
+            // Migrate a saved pre-1.2.2 throw, or hand off the released target immediately.
+            if(!culprit.getPersistentData().contains(GuardianFlight.STATE)&&culprit.getY()<destination.y-1)
+                GuardianFlight.start(culprit,destination);
             finish(level);
         }
     }
