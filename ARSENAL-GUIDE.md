@@ -2,6 +2,10 @@
 
 For Minecraft 1.21.1 / NeoForge 21.1.249, Cobblemon 1.8.4 and Simply Swords 1.70.2-1.21.1. Keep the existing Lootr, Another Furniture, Kotlin for Forge, Architectury, Fzzy Config and Simply Tooltips dependencies. Replace the old UwU JAR only after backing up your world; do not keep two UwU versions together. This delivery does not install itself.
 
+## Travel
+
+Craft the Heartwater Locket with one compass, one amethyst shard and one small flower. Use it from the Overworld to visit the current Reach; use it again to return. Existing lockets and prior dimension IDs remain supported. Crouch-use from the Overworld revisits old Heartwater; crouch-use with pink petals in the offhand revisits the early test Reach. New rooms and terrain appear in newly explored chunks.
+
 ## Finding weapons
 
 The 15 named relics, 133 counter forms and ERROR // Glitch Bow have survival acquisition only through UwU dungeon chest tables, including the generated Lootr chests. No recipes, trades or ordinary mob drops grant them. Each chest rolls at most one weapon: Rose Bathhouse 5%, Inverted Shrine 8%, Tide Archive 12%, Mirror Court 12%. These are actual independent probabilities, with no pity guarantee. Each weapon is equally weighted within a successful roll. Tables reject weapon rewards outside Heartwater, Blossom Reach and Sakura Reach. Lootr keeps each player's own contents.
