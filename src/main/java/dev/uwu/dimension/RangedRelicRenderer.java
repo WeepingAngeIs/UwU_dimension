@@ -36,6 +36,8 @@ public final class RangedRelicRenderer {
             Vec3 end=e.tip().subtract(e.position());
             Vec3 dir=end.subtract(hand),side=dir.cross(new Vec3(0,1,0)).normalize();
             int col=switch(e.relic()){case FROST_WHIP->color(1);case RIFT_WHIP->color(2);case AXOLOTL_WHIP->0xffffb6c6;default->color(0);};
+            var counter=CounterArsenal.entry(e.counter());
+            if(counter!=null)col=counter.theme().equals("dusk")?0xffad83dc:0xffff8fc9;
             VertexConsumer b=buffers.getBuffer(RenderType.entityCutoutNoCull(LASH));
             for(int i=0;i<32;i++){
                 double t=i/32.0,t2=(i+1)/32.0;
