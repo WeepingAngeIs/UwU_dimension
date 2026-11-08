@@ -70,6 +70,8 @@ public final class CounterProof {
             for(String target:List.of("waxweaver","wickpiercer")){
                 var e=CounterArsenal.entry("counter_"+target);var stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.target())));foe.setItemInHand(InteractionHand.MAIN_HAND,stack);
                 net.sweenus.simplyswords.api.AwakeningApi.initializeFullyAwakened(stack);
+                net.sweenus.simplyswords.world.RevivalCooldownManager.setCooldown(level,foe,stack,0);
+                foe.getCooldowns().removeCooldown(stack.getItem());
                 require(((net.sweenus.simplyswords.item.interfaces.RevivalWeapon)stack.getItem()).canRevive(foe,stack,foe.damageSources().generic()),"Unsealed awakened revival must be ready: "+target);
                 CounterEffects.hit(level,player,foe,e);
                 require(net.sweenus.simplyswords.world.RevivalCooldownManager.isCoolingDown(level,foe,stack),"Revival seal failed "+target);
