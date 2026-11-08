@@ -15,9 +15,10 @@ public final class RibbonLash extends Entity {
     private static final EntityDataAccessor<Float> DX=SynchedEntityData.defineId(RibbonLash.class,EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DY=SynchedEntityData.defineId(RibbonLash.class,EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DZ=SynchedEntityData.defineId(RibbonLash.class,EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<String> COUNTER=SynchedEntityData.defineId(RibbonLash.class,EntityDataSerializers.STRING);
     private java.util.UUID victim;
     public RibbonLash(EntityType<? extends RibbonLash> type,Level level){super(type,level);noPhysics=true;}
-    @Override protected void defineSynchedData(SynchedEntityData.Builder b){b.define(OWNER,-1);b.define(RELIC,0);b.define(DX,0F);b.define(DY,0F);b.define(DZ,0F);}
+    @Override protected void defineSynchedData(SynchedEntityData.Builder b){b.define(COUNTER,"");b.define(OWNER,-1);b.define(RELIC,0);b.define(DX,0F);b.define(DY,0F);b.define(DZ,0F);}
     static void cast(ServerLevel level,Player player,Arsenal.Relic kind){
         RibbonLash lash=RangedRelics.LASH.get().create(level);if(lash==null)return;
         Vec3 start=player.getEyePosition().add(0,-.3,0);
@@ -27,6 +28,15 @@ public final class RibbonLash extends Entity {
         Vec3 d=end.subtract(start);lash.entityData.set(DX,(float)d.x);lash.entityData.set(DY,(float)d.y);lash.entityData.set(DZ,(float)d.z);
         if(target!=null)lash.victim=target.getUUID();level.addFreshEntity(lash);
     }
+    static void castCounter(ServerLevel level,Player p,CounterArsenal.Entry entry){
+        RibbonLash lash=RangedRelics.LASH.get().create(level);if(lash==null)return;
+        Vec3 start=p.getEyePosition().add(0,-.3,0);LivingEntity target=RangedRelics.aim(level,p,16);
+        Vec3 end=target==null?p.pick(16,1,false).getLocation():target.getBoundingBox().getCenter();
+        lash.setPos(start);lash.entityData.set(OWNER,p.getId());lash.entityData.set(RELIC,Arsenal.Relic.SATIN_WHIP.ordinal());lash.entityData.set(COUNTER,entry.id());
+        Vec3 d=end.subtract(start);lash.entityData.set(DX,(float)d.x);lash.entityData.set(DY,(float)d.y);lash.entityData.set(DZ,(float)d.z);
+        if(target!=null)lash.victim=target.getUUID();level.addFreshEntity(lash);
+    }
+    public String counter(){return entityData.get(COUNTER);}
     public Player owner(){return level().getEntity(entityData.get(OWNER)) instanceof Player p?p:null;}
     public Arsenal.Relic relic(){return Arsenal.Relic.values()[entityData.get(RELIC)];}
     public Vec3 tip(){return position().add(entityData.get(DX),entityData.get(DY),entityData.get(DZ));}
@@ -35,7 +45,10 @@ public final class RibbonLash extends Entity {
         super.tick();
         if(level() instanceof ServerLevel s){
             Player p=owner();if(p==null||!p.isAlive()){discard();return;}
-            if(tickCount==5&&victim!=null&&s.getEntity(victim) instanceof LivingEntity target&&p.distanceToSqr(target)<169&&p.hasLineOfSight(target))RangedRelics.strike(s,p,target,relic());
+            if(tickCount==5&&victim!=null&&s.getEntity(victim) instanceof LivingEntity target&&p.distanceToSqr(target)<289&&p.hasLineOfSight(target)){
+                if(counter().isEmpty())RangedRelics.strike(s,p,target,relic());
+                else CounterEffects.hit(s,p,target,CounterArsenal.entry(counter()));
+            }
             if(tickCount>=12)discard();
         }
     }

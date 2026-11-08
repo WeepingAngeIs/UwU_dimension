@@ -34,7 +34,7 @@ final class HeartMagic {
     static boolean friendly(Player keeper, LivingEntity entity) {
         if (entity instanceof VelvetVesper moth && moth.isCharmed(keeper)) return true;
         CompoundTag data = entity.getPersistentData();
-        return entity == keeper || keeper.isAlliedTo(entity)
+        return (data.hasUUID("uwu.twin_owner") && data.getUUID("uwu.twin_owner").equals(keeper.getUUID())) || entity == keeper || keeper.isAlliedTo(entity)
             || (entity instanceof TamableAnimal pet && pet.isOwnedBy(keeper))
             || (data.hasUUID(OWNER) && data.getUUID(OWNER).equals(keeper.getUUID()) && entity.level().getGameTime() < data.getLong(END))
             || (data.hasUUID(CALLER) && data.getUUID(CALLER).equals(keeper.getUUID()));

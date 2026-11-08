@@ -1,6 +1,26 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "uwudimension:item/vesper_scythe"
-  }
+    "layer0": "uwudimension:item/vesper_scythe_0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:element": 1
+      },
+      "model": "uwudimension:item/vesper_scythe_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:element": 2
+      },
+      "model": "uwudimension:item/vesper_scythe_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:element": 3
+      },
+      "model": "uwudimension:item/vesper_scythe_3"
+    }
+  ]
 }

@@ -13,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 @Mod("uwudimension")
 public final class UwUDimension {
     static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("uwudimension");
+    public static final java.util.function.Supplier<Item> GLITCH = ITEMS.register("glitch_bow", GlitchBow::new);
     static final java.util.function.Supplier<Item> LOCKET = ITEMS.register("heartwater_locket", () -> new HeartwaterLocket());
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
@@ -24,6 +25,7 @@ public final class UwUDimension {
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);
         Arsenal.register(bus);
+        CounterArsenal.register(bus);
         People.register(bus);
         MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);
@@ -35,6 +37,7 @@ public final class UwUDimension {
     }
 
     private static void creative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.COMBAT) event.accept(GLITCH.get());
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) event.accept(LOCKET.get());
     }
 }

@@ -36,3 +36,10 @@ type="required"
 versionRange="[4.0.2]"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.uwudimension]]
+modId="simplyswords"
+type="required"
+versionRange="[1.70.2-1.21.1]"
+ordering="AFTER"
+side="BOTH"

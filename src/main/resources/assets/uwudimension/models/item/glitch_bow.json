@@ -1,0 +1,902 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "uwudimension:item/glitch_bow"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:form": 1
+      },
+      "model": "uwudimension:item/cupid_bow"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 2
+      },
+      "model": "uwudimension:item/ripple_bow"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 3
+      },
+      "model": "uwudimension:item/ribbonhare_scepter"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 4
+      },
+      "model": "uwudimension:item/blossom_greatsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 5
+      },
+      "model": "uwudimension:item/bellheart_axe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 6
+      },
+      "model": "uwudimension:item/lockkeeper_axe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 7
+      },
+      "model": "uwudimension:item/vesper_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 8
+      },
+      "model": "uwudimension:item/axolotl_whip"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 9
+      },
+      "model": "uwudimension:item/frost_whip"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 10
+      },
+      "model": "uwudimension:item/rift_whip"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 11
+      },
+      "model": "uwudimension:item/rose_dagger"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 12
+      },
+      "model": "uwudimension:item/satin_whip"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 13
+      },
+      "model": "uwudimension:item/lantern_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 14
+      },
+      "model": "uwudimension:item/tidelace_trident"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 15
+      },
+      "model": "uwudimension:item/blue_hour_wand"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 16
+      },
+      "model": "uwudimension:item/counter_iron_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 17
+      },
+      "model": "uwudimension:item/counter_iron_twinblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 18
+      },
+      "model": "uwudimension:item/counter_iron_rapier"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 19
+      },
+      "model": "uwudimension:item/counter_iron_katana"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 20
+      },
+      "model": "uwudimension:item/counter_iron_sai"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 21
+      },
+      "model": "uwudimension:item/counter_iron_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 22
+      },
+      "model": "uwudimension:item/counter_iron_glaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 23
+      },
+      "model": "uwudimension:item/counter_iron_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 24
+      },
+      "model": "uwudimension:item/counter_iron_cutlass"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 25
+      },
+      "model": "uwudimension:item/counter_iron_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 26
+      },
+      "model": "uwudimension:item/counter_iron_greathammer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 27
+      },
+      "model": "uwudimension:item/counter_iron_greataxe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 28
+      },
+      "model": "uwudimension:item/counter_iron_chakram"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 29
+      },
+      "model": "uwudimension:item/counter_iron_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 30
+      },
+      "model": "uwudimension:item/counter_iron_halberd"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 31
+      },
+      "model": "uwudimension:item/counter_gold_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 32
+      },
+      "model": "uwudimension:item/counter_gold_twinblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 33
+      },
+      "model": "uwudimension:item/counter_gold_rapier"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 34
+      },
+      "model": "uwudimension:item/counter_gold_katana"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 35
+      },
+      "model": "uwudimension:item/counter_gold_sai"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 36
+      },
+      "model": "uwudimension:item/counter_gold_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 37
+      },
+      "model": "uwudimension:item/counter_gold_glaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 38
+      },
+      "model": "uwudimension:item/counter_gold_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 39
+      },
+      "model": "uwudimension:item/counter_gold_cutlass"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 40
+      },
+      "model": "uwudimension:item/counter_gold_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 41
+      },
+      "model": "uwudimension:item/counter_gold_greathammer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 42
+      },
+      "model": "uwudimension:item/counter_gold_greataxe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 43
+      },
+      "model": "uwudimension:item/counter_gold_chakram"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 44
+      },
+      "model": "uwudimension:item/counter_gold_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 45
+      },
+      "model": "uwudimension:item/counter_gold_halberd"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 46
+      },
+      "model": "uwudimension:item/counter_diamond_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 47
+      },
+      "model": "uwudimension:item/counter_diamond_twinblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 48
+      },
+      "model": "uwudimension:item/counter_diamond_rapier"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 49
+      },
+      "model": "uwudimension:item/counter_diamond_katana"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 50
+      },
+      "model": "uwudimension:item/counter_diamond_sai"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 51
+      },
+      "model": "uwudimension:item/counter_diamond_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 52
+      },
+      "model": "uwudimension:item/counter_diamond_glaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 53
+      },
+      "model": "uwudimension:item/counter_diamond_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 54
+      },
+      "model": "uwudimension:item/counter_diamond_cutlass"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 55
+      },
+      "model": "uwudimension:item/counter_diamond_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 56
+      },
+      "model": "uwudimension:item/counter_diamond_greathammer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 57
+      },
+      "model": "uwudimension:item/counter_diamond_greataxe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 58
+      },
+      "model": "uwudimension:item/counter_diamond_chakram"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 59
+      },
+      "model": "uwudimension:item/counter_diamond_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 60
+      },
+      "model": "uwudimension:item/counter_diamond_halberd"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 61
+      },
+      "model": "uwudimension:item/counter_netherite_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 62
+      },
+      "model": "uwudimension:item/counter_netherite_twinblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 63
+      },
+      "model": "uwudimension:item/counter_netherite_rapier"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 64
+      },
+      "model": "uwudimension:item/counter_netherite_katana"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 65
+      },
+      "model": "uwudimension:item/counter_netherite_sai"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 66
+      },
+      "model": "uwudimension:item/counter_netherite_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 67
+      },
+      "model": "uwudimension:item/counter_netherite_glaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 68
+      },
+      "model": "uwudimension:item/counter_netherite_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 69
+      },
+      "model": "uwudimension:item/counter_netherite_cutlass"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 70
+      },
+      "model": "uwudimension:item/counter_netherite_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 71
+      },
+      "model": "uwudimension:item/counter_netherite_greathammer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 72
+      },
+      "model": "uwudimension:item/counter_netherite_greataxe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 73
+      },
+      "model": "uwudimension:item/counter_netherite_chakram"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 74
+      },
+      "model": "uwudimension:item/counter_netherite_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 75
+      },
+      "model": "uwudimension:item/counter_netherite_halberd"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 76
+      },
+      "model": "uwudimension:item/counter_runic_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 77
+      },
+      "model": "uwudimension:item/counter_runic_twinblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 78
+      },
+      "model": "uwudimension:item/counter_runic_rapier"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 79
+      },
+      "model": "uwudimension:item/counter_runic_katana"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 80
+      },
+      "model": "uwudimension:item/counter_runic_sai"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 81
+      },
+      "model": "uwudimension:item/counter_runic_spear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 82
+      },
+      "model": "uwudimension:item/counter_runic_glaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 83
+      },
+      "model": "uwudimension:item/counter_runic_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 84
+      },
+      "model": "uwudimension:item/counter_runic_cutlass"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 85
+      },
+      "model": "uwudimension:item/counter_runic_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 86
+      },
+      "model": "uwudimension:item/counter_runic_chakram"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 87
+      },
+      "model": "uwudimension:item/counter_runic_greataxe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 88
+      },
+      "model": "uwudimension:item/counter_runic_greathammer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 89
+      },
+      "model": "uwudimension:item/counter_runic_scythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 90
+      },
+      "model": "uwudimension:item/counter_runic_halberd"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 91
+      },
+      "model": "uwudimension:item/counter_brimstone_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 92
+      },
+      "model": "uwudimension:item/counter_watcher_claymore"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 93
+      },
+      "model": "uwudimension:item/counter_the_devourer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 94
+      },
+      "model": "uwudimension:item/counter_storms_edge"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 95
+      },
+      "model": "uwudimension:item/counter_stormscale"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 96
+      },
+      "model": "uwudimension:item/counter_ionbound_stormscale"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 97
+      },
+      "model": "uwudimension:item/counter_stormbringer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 98
+      },
+      "model": "uwudimension:item/counter_sword_on_a_stick"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 99
+      },
+      "model": "uwudimension:item/counter_bramblethorn"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 100
+      },
+      "model": "uwudimension:item/counter_watching_warglaive"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 101
+      },
+      "model": "uwudimension:item/counter_toxic_longsword"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 102
+      },
+      "model": "uwudimension:item/counter_emberblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 103
+      },
+      "model": "uwudimension:item/counter_hearthflame"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 104
+      },
+      "model": "uwudimension:item/counter_soulkeeper"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 105
+      },
+      "model": "uwudimension:item/counter_twisted_blade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 106
+      },
+      "model": "uwudimension:item/counter_soulstealer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 107
+      },
+      "model": "uwudimension:item/counter_soulrender"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 108
+      },
+      "model": "uwudimension:item/counter_soulstalker"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 109
+      },
+      "model": "uwudimension:item/counter_soulpyre"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 110
+      },
+      "model": "uwudimension:item/counter_frostfall"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 111
+      },
+      "model": "uwudimension:item/counter_molten_edge"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 112
+      },
+      "model": "uwudimension:item/counter_livyatan"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 113
+      },
+      "model": "uwudimension:item/counter_icewhisper"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 114
+      },
+      "model": "uwudimension:item/counter_arcanethyst"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 115
+      },
+      "model": "uwudimension:item/counter_thunderbrand"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 116
+      },
+      "model": "uwudimension:item/counter_mjolnir"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 117
+      },
+      "model": "uwudimension:item/counter_slumbering_lichblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 118
+      },
+      "model": "uwudimension:item/counter_waking_lichblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 119
+      },
+      "model": "uwudimension:item/counter_awakened_lichblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 120
+      },
+      "model": "uwudimension:item/counter_shadowsting"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 121
+      },
+      "model": "uwudimension:item/counter_dormant_relic"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 122
+      },
+      "model": "uwudimension:item/counter_righteous_relic"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 123
+      },
+      "model": "uwudimension:item/counter_tainted_relic"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 124
+      },
+      "model": "uwudimension:item/counter_sunfire"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 125
+      },
+      "model": "uwudimension:item/counter_harbinger"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 126
+      },
+      "model": "uwudimension:item/counter_whisperwind"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 127
+      },
+      "model": "uwudimension:item/counter_dreadwhisper"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 128
+      },
+      "model": "uwudimension:item/counter_emberlash"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 129
+      },
+      "model": "uwudimension:item/counter_waxweaver"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 130
+      },
+      "model": "uwudimension:item/counter_hiveheart"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 131
+      },
+      "model": "uwudimension:item/counter_stars_edge"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 132
+      },
+      "model": "uwudimension:item/counter_wickpiercer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 133
+      },
+      "model": "uwudimension:item/counter_gloampiercer"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 134
+      },
+      "model": "uwudimension:item/counter_tempest"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 135
+      },
+      "model": "uwudimension:item/counter_flamewind"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 136
+      },
+      "model": "uwudimension:item/counter_ribboncleaver"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 137
+      },
+      "model": "uwudimension:item/counter_decaying_relic"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 138
+      },
+      "model": "uwudimension:item/counter_magiscythe"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 139
+      },
+      "model": "uwudimension:item/counter_enigma"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 140
+      },
+      "model": "uwudimension:item/counter_magispear"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 141
+      },
+      "model": "uwudimension:item/counter_magiblade"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 142
+      },
+      "model": "uwudimension:item/counter_caelestis"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 143
+      },
+      "model": "uwudimension:item/counter_dawnquiver"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 144
+      },
+      "model": "uwudimension:item/counter_riftmane"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 145
+      },
+      "model": "uwudimension:item/counter_wraithfang"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 146
+      },
+      "model": "uwudimension:item/counter_wraithmaw"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 147
+      },
+      "model": "uwudimension:item/counter_bloodwake"
+    },
+    {
+      "predicate": {
+        "uwudimension:form": 148
+      },
+      "model": "uwudimension:item/counter_chompolotl"
+    },
+    {
+      "predicate": {
+        "uwudimension:static": 1
+      },
+      "model": "uwudimension:item/glitch_static"
+    }
+  ]
+}

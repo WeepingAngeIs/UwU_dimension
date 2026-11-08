@@ -49,7 +49,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
     @Override protected void onHitEntity(EntityHitResult hit){
         if(returning)return;
         if(level() instanceof ServerLevel s&&getOwner() instanceof Player p&&hit.getEntity() instanceof LivingEntity target){
+            if(!RangedRelics.enemy(p,target)){finish();return;}
             RangedRelics.strike(s,p,target,relic());
+            if(relic()==Arsenal.Relic.RIBBONHARE_SCEPTER)summonHare(s,p,target.blockPosition());
             if(relic()==Arsenal.Relic.VESPER_SCYTHE){
                 switch(element()){
                     case 1->target.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,60,2));
@@ -61,7 +63,15 @@ public final class RelicFlight extends ThrowableItemProjectile {
         }
         finish();
     }
-    @Override protected void onHitBlock(BlockHitResult hit){finish();}
+    @Override protected void onHitBlock(BlockHitResult hit){
+        if(relic()==Arsenal.Relic.RIBBONHARE_SCEPTER && level() instanceof ServerLevel level && getOwner() instanceof Player p)summonHare(level,p,hit.getBlockPos().relative(hit.getDirection()));
+        finish();
+    }
+    private void summonHare(ServerLevel level,Player p,net.minecraft.core.BlockPos pos){
+        var hare=Arsenal.HARE.get().create(level);if(hare==null)return;
+        hare.moveTo(pos.getX()+.5,pos.getY(),pos.getZ()+.5,0,0);
+        if(level.noCollision(hare)&&level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),net.minecraft.core.Direction.UP))HeartMagic.callHare(level,p,hare);
+    }
     private void finish(){if(!wave()&&relic()==Arsenal.Relic.VESPER_SCYTHE){returning=true;setDeltaMovement(Vec3.ZERO);}else discard();}
     @Override public void addAdditionalSaveData(CompoundTag n){super.addAdditionalSaveData(n);n.putInt("relic",entityData.get(KIND));n.putInt("element",element());n.putBoolean("wave",wave());n.putBoolean("returning",returning);}
     @Override public void readAdditionalSaveData(CompoundTag n){super.readAdditionalSaveData(n);entityData.set(KIND,Math.max(0,Math.min(Arsenal.Relic.values().length-1,n.getInt("relic"))));entityData.set(ELEMENT,n.getInt("element")%4);entityData.set(WAVE,n.getBoolean("wave"));returning=n.getBoolean("returning");}
