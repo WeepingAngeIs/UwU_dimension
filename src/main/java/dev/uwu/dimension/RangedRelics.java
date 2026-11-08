@@ -42,7 +42,7 @@ public final class RangedRelics {
             RibbonLash.cast(level,player,relic);
             return true;
         }
-        if (relic==Arsenal.Relic.RIBBONHARE_SCEPTER || relic==Arsenal.Relic.BLUE_HOUR_WAND)
+        if (relic==Arsenal.Relic.BLUE_HOUR_WAND)
             return RelicAbilities.activate(level,player,relic);
         RelicFlight.cast(level,player,relic,false);
         return true;

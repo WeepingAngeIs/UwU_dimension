@@ -36,8 +36,12 @@ public class Expedition {
                     arenaReadyAt=level.getGameTime()+40;stage=1;return;
                 }
                 if(level.getGameTime()<arenaReadyAt)return;
-                CounterProof.run(level);
-                System.out.println("UWU COUNTER ARSENAL PASSED");stage=-1;server.halt(false);return;
+                if(stage==1){if(!CounterProof.ready(level))return;CounterProof.run(level);stage=2;}
+                var court=GroveSites.first(level).pos(-7,-17,146);
+                if(BossProof.tick(level,court)){
+                    System.out.println("UWU COUNTER ARSENAL PASSED");stage=-1;server.halt(false);
+                }
+                return;
             }
             if(Boolean.getBoolean("uwu.bossReload")) {
                 if(BossProof.verifyRestart(level)) { stage=-1; server.halt(false); }

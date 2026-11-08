@@ -20,17 +20,26 @@ import net.minecraft.server.level.ServerPlayer;
 /** Exercises registered survival item entrypoints against real player-held target stacks. */
 public final class CounterProof {
     private static void require(boolean value,String message){if(!value)throw new AssertionError(message);}
-    public static void run(ServerLevel level) throws Exception {
+    private static ServerPlayer player,foe;
+    private static long readyAt=-1;
+    public static boolean ready(ServerLevel level){
+        if(readyAt>=0)return level.getGameTime()>=readyAt;
         BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
         for(int x=-6;x<=6;x++)for(int z=-6;z<=24;z++)level.setBlockAndUpdate(base.offset(x,0,z),Blocks.STONE.defaultBlockState());
-        ServerPlayer player=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
-        ServerPlayer foe=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da12"),"SwordDuelist"));
+        player=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
+        foe=player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da12"),"SwordDuelist"));
         player.moveTo(.5,base.getY()+1,.5,0,0);foe.moveTo(.5,base.getY()+1,8.5,180,0);
         level.addNewPlayer(player);level.addNewPlayer(foe);
         require(player.canHarmPlayer(foe),"Arena PvP disabled");
         require(foe.isPickable(),"Simulated duelist is not collidable");
         require(level.getEntities(player,player.getBoundingBox().inflate(12)).contains(foe),"Duelist absent from loaded entity index");
         foe.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);foe.setHealth(1000);
+        player.setNoGravity(true);foe.setNoGravity(true);
+        readyAt=level.getGameTime()+70;
+        return false;
+    }
+    public static void run(ServerLevel level) throws Exception {
+        BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
         try{
             require(CounterArsenal.ROSTER.size()==133,"Expected audited 133 weapon/relic identities");
             Set<String> targets=new HashSet<>();
@@ -44,9 +53,9 @@ public final class CounterProof {
                 player.setItemInHand(InteractionHand.MAIN_HAND,stack);player.getCooldowns().removeCooldown(item);
                 item.use(level,player,InteractionHand.MAIN_HAND);
                 if(entry.shape().equals("scythe")){player.getPersistentData().remove("uwu.scythe_flight");item.onUseTick(level,player,stack,71988);}
-                for(var projectile:level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&projectile.isAlive();t++)projectile.tick();
-                for(var f:level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&f.isAlive();t++)f.tick();
-                for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6&&lash.isAlive();t++)lash.tick();
+                for(var projectile:level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&projectile.isAlive();t++){projectile.tickCount++;projectile.tick();}
+                for(var f:level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&f.isAlive();t++){f.tickCount++;f.tick();}
+                for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6&&lash.isAlive();t++){lash.tickCount++;lash.tick();}
                 require(CounterEffects.active(player)!=null&&CounterEffects.active(player).target().equals(entry.target()),"Ward failed "+entry.id());
                 require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id()+" projectiles="+level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(24)).stream().map(b->b.position()+" alive="+b.isAlive()).toList());
                 require(stack.getDamageValue()==1,"Cast durability "+entry.id());
@@ -67,14 +76,14 @@ public final class CounterProof {
             foe.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);foe.setHealth(1000);foe.invulnerableTime=0;foe.teleportTo(.5,base.getY()+1,7.5);
             var twin=Arsenal.WEAPONS.get(Arsenal.Relic.AXOLOTL_WHIP).get();player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(twin));twin.use(level,player,InteractionHand.MAIN_HAND);
             var lashes=level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3));require(lashes.size()==1,"Visible lash entity missing");
-            for(int t=0;t<6;t++)lashes.getFirst().tick();
+            for(int t=0;t<6;t++){lashes.getFirst().tickCount++;lashes.getFirst().tick();}
             require(level.getEntitiesOfClass(Axolotl.class,player.getBoundingBox().inflate(3),a->a.getTags().contains("uwu.twin")).size()==2,"Twinfin must summon exactly two");clearProjectiles(level,player);
             var scythe=Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();var scytheStack=new ItemStack(scythe);player.setItemInHand(InteractionHand.MAIN_HAND,scytheStack);player.getCooldowns().removeCooldown(scythe);player.getPersistentData().remove("uwu.scythe_flight");
             scythe.use(level,player,InteractionHand.MAIN_HAND);scythe.onUseTick(level,player,scytheStack,71988);
             var flights=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));require(flights.size()==1&&!flights.getFirst().wave(),"Held throw must fire without release");
             scythe.onUseTick(level,player,scytheStack,71987);require(level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)).size()==1,"Held throw duplicated");
             require(player.getMainHandItem()==scytheStack&&scytheStack.getCount()==1,"Scythe ownership changed");
-            for(int t=0;t<60&&flights.getFirst().isAlive();t++)flights.getFirst().tick();require(!flights.getFirst().isAlive(),"Thrown scythe failed to return");
+            for(int t=0;t<60&&flights.getFirst().isAlive();t++){flights.getFirst().tickCount++;flights.getFirst().tick();}require(!flights.getFirst().isAlive(),"Thrown scythe failed to return");
             System.out.println("RANGED RELICS PASS textured lash, exactly two axolotls, held scythe return");
             var glitch=(GlitchBow)UwUDimension.GLITCH.get();var bow=new ItemStack(glitch);player.setItemInHand(InteractionHand.MAIN_HAND,bow);
             int last=-1;

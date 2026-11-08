@@ -29,18 +29,18 @@ public final class Arsenal {
     public enum Relic {
         CUPID_BOW("Cupid Bow", 14, 1.4, 65, "Draw and release. A heart arrow befriends an ordinary creature for 40 seconds."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
-        RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Use on a ledge to call a pink hare. Its thumps draw monsters as it bounds back."),
-        BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Land a fully charged hit to scatter petals. Use while facing them within three seconds for a longer return sweep."),
-        BELLHEART_AXE("Bellheart Axe", 22, 0.95, 105, "Use to ring the blade. Its toll gathers nearby foes and slows them for your next swing."),
-        LOCKKEEPER_AXE("Lockkeeper's Axe", 21, 1.05, 85, "Use to send a turquoise wake through foes in front of you, driving them back."),
-        VESPER_SCYTHE("Vesper Scythe", 20, 1.15, 105, "Use to reap a wide arc. Each enemy struck restores one heart, up to three."),
+        RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Throw a ribbon scepter onto solid ground to call a pink hare. Its thumps draw monsters."),
+        BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Throw the blossom blade for a ranged strike. Fully charged melee hits still scatter petals."),
+        BELLHEART_AXE("Bellheart Axe", 22, 0.95, 105, "Throw the bell axe. Its impact draws the struck foe toward you."),
+        LOCKKEEPER_AXE("Lockkeeper's Axe", 21, 1.05, 85, "Throw the turquoise axe to drive the struck foe backward."),
+        VESPER_SCYTHE("Vesper Scythe", 20, 1.15, 105, "Attack to launch an elemental crescent. Hold use for 0.6 seconds to throw and cycle its aura."),
         AXOLOTL_WHIP("Twinfin Whip", 16, 1.6, 160, "Lash a foe to call exactly two axolotl companions for 30 seconds."),
         FROST_WHIP("Snowkiss Whip", 17, 1.6, 70, "Extend a frosted ribbon to freeze a target for three seconds."),
         RIFT_WHIP("Ribbonstep Whip", 18, 1.6, 80, "Lash to mark a foe. Sneak-use to teleport beside that marked foe within 24 blocks, when there is safe footing."),
         ROSE_DAGGER("Roseflight Dagger", 15, 2.2, 25, "Throw a rose blade. Its hit briefly reveals the target."),
         SATIN_WHIP("Satin Switch", 15, 2.1, 40, "Use to catch a creature up to eleven blocks away and pull it toward you."),
         LANTERN_SPEAR("Lanternfall Spear", 19, 1.25, 45, "Use to throw a light-forged copy. Its strike exposes the target in gold."),
-        TIDELACE_TRIDENT("Tidelace Trident", 23, 1.0, 75, "Use to cast a spectral trident. Its impact drags nearby foes to the splash."),
+        TIDELACE_TRIDENT("Tidelace Trident", 23, 1.0, 75, "Throw a spectral trident. Its impact draws the struck foe toward you."),
         BLUE_HOUR_WAND("Blue Hour Wand", 16, 1.55, 65, "Use to trace a ray of cold light. The first creature struck is slowed and revealed.");
 
         final String title, hint;
