@@ -24,3 +24,14 @@ jobs:
         with:
           name: UwU-Dimension-1.2.1
           path: build/libs/*.jar
+      - name: Verify residents and natural guardian defense on hosted Minecraft
+        run: bash ci/resident-expedition.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resident-protection-evidence
+          path: |
+            build/resident-server/*.log
+            build/resident-server/resident-checkpoint.properties
+            build/resident-server/logs/latest.log
+            build/resident-server/crash-reports

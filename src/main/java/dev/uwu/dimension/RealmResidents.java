@@ -39,7 +39,7 @@ public final class RealmResidents {
             if(level.addFreshEntity(keeper)){
                 if(vehicle!=null)keeper.startRiding(vehicle,true);
                 passengers.forEach(p->p.startRiding(keeper,true));pending.remove(v);
-            }else{v.unsetRemoved();level.addFreshEntity(v);}
+            }else{v.revive();level.addFreshEntity(v);}
         }
     }
     private static void converted(LivingConversionEvent.Post event){
