@@ -31,6 +31,11 @@ public final class ArsenalCamera {
     @SubscribeEvent public static void tick(ClientTickEvent.Post event){
         if(!"arsenal".equals(System.getenv("UWU_VISIT")))return;
         var mc=Minecraft.getInstance();ticks++;
+        if(ticks%200==0){
+            System.out.println("ARSENAL CAMERA STATE "+state+" tick="+ticks+" screen="+(mc.screen==null?"none":mc.screen.getClass().getName())+" world="+(mc.level!=null));
+            Screenshot.grab(mc.gameDirectory,"diagnostic-"+state+"-"+ticks+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+        }
+        if(ticks>1800)throw new AssertionError("Arsenal camera stalled in "+state+" screen="+(mc.screen==null?"none":mc.screen.getClass().getName()));
         if(state.equals("menu")&&mc.screen instanceof TitleScreen title){
             state="create";ticks=0;
             mc.createWorldOpenFlows().createFreshLevel("ArsenalVisit",new LevelSettings("Arsenal Visit",GameType.CREATIVE,false,Difficulty.NORMAL,true,new GameRules(),WorldDataConfiguration.DEFAULT),new WorldOptions(152045,true,false),WorldPresets::createNormalWorldDimensions,title);return;
