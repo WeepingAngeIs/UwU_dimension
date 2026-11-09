@@ -9,6 +9,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(RecipeManager.class)
 public abstract class AcquisitionRecipeMixin {
  @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final private net.minecraft.core.HolderLookup.Provider registries;
+ @Inject(method="getRecipesFor",at=@At("RETURN"),cancellable=true)
+ private <I extends RecipeInput,T extends Recipe<I>> void uwu$recipeChoices(RecipeType<T> type,I input,Level level,CallbackInfoReturnable<java.util.List<RecipeHolder<T>>> cir){
+  cir.setReturnValue(cir.getReturnValue().stream().filter(r->AcquisitionPolicy.allowsCraft(r.value().assemble(input,level.registryAccess()))).toList());
+ }
+ @Inject(method="getAllRecipesFor",at=@At("RETURN"),cancellable=true)
+ private <T extends Recipe<?>> void uwu$allChoices(RecipeType<T> type,CallbackInfoReturnable<java.util.List<RecipeHolder<T>>> cir){
+  cir.setReturnValue(cir.getReturnValue().stream().filter(r->AcquisitionPolicy.allowsCraft(r.value().getResultItem(registries))).toList());
+ }
  @Inject(method="getRecipes",at=@At("RETURN"),cancellable=true)
  private void uwu$recipeSync(CallbackInfoReturnable<java.util.Collection<RecipeHolder<?>>> cir){
   cir.setReturnValue(cir.getReturnValue().stream().filter(r->AcquisitionPolicy.allowsCraft(r.value().getResultItem(registries))).toList());

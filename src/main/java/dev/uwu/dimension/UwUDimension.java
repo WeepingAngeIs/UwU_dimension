@@ -19,6 +19,12 @@ public final class UwUDimension {
 
     public UwUDimension(IEventBus bus, net.neoforged.fml.ModContainer container) {
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,AcquisitionPolicy.SPEC,"uwudimension-server.toml");
+        bus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Loading event) -> {
+            if(event.getConfig().getSpec()==AcquisitionPolicy.SPEC){
+                AcquisitionPolicy.heartLocketCraftingEnabled();AcquisitionPolicy.weaponAcquisitionEnabled();
+            }
+        });
+        CupidParticles.TYPES.register(bus);
         HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
         ReefLife.register(bus);

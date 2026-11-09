@@ -22,6 +22,11 @@ import noobanidus.mods.lootr.common.block.entity.LootrChestBlockEntity;
 public final class ControlsProof {
  static int phase,ticks;static BlossomWarden guard;static float savedHealth;static net.minecraft.world.entity.monster.Zombie threat;static double startX;
  static void check(boolean v,String s){if(!v)throw new AssertionError(s);}
+ static void policy(boolean craft,boolean weapons){
+  AcquisitionPolicy.HEART_LOCKET_CRAFTING.set(craft);AcquisitionPolicy.WEAPON_ACQUISITION.set(weapons);
+  // Each matrix case simulates loading the next world's restart-bound server policy.
+  AcquisitionPolicy.SPEC.resetCaches(net.neoforged.neoforge.common.ModConfigSpec.RestartType.WORLD);
+ }
  static ResourceLocation id(String s){return ResourceLocation.parse(s);}
  static boolean tick(ServerLevel level)throws Exception{
   if(phase==0){
@@ -46,7 +51,7 @@ public final class ControlsProof {
     var player=visitor.player;
     var allOriginalRecipes=java.util.List.copyOf(level.getRecipeManager().getRecipes());
     for(boolean craft:List.of(true,false))for(boolean loot:List.of(true,false)){
-     AcquisitionPolicy.HEART_LOCKET_CRAFTING.set(craft);AcquisitionPolicy.WEAPON_ACQUISITION.set(loot);
+     policy(craft,loot);
      for(var click:List.of(ClickType.PICKUP,ClickType.QUICK_MOVE)){
       player.getInventory().clearContent();
       var menu=new CraftingMenu(19,player.getInventory(),ContainerLevelAccess.create(level,pos));player.containerMenu=menu;
@@ -84,12 +89,12 @@ public final class ControlsProof {
      }
      System.out.println("CONFIG COMBINATION PASS locket="+craft+" weapons="+loot+" native manual/shift crafting, sync,149 loot+trade outputs");
     }
-    AcquisitionPolicy.HEART_LOCKET_CRAFTING.set(true);AcquisitionPolicy.WEAPON_ACQUISITION.set(true);
+    policy(true,true);
     var chestPos=pos.offset(3,0,0);var block=BuiltInRegistries.BLOCK.get(id("lootr:lootr_chest"));level.setBlockAndUpdate(chestPos,block.defaultBlockState());
     var chest=(LootrChestBlockEntity)level.getBlockEntity(chestPos);
     chest.setLootTable(ResourceKey.create(Registries.LOOT_TABLE,id("heartwater_probe:all_weapons")),1234);
     var opened=ChestProof.open(level,chestPos,player);check(AcquisitionPolicy.isWeapon(opened.getItem(0)),"Enabled Lootr fixture generated no weapons");opened.setItem(0,weapons.getFirst().copy());opened.setChanged();player.closeContainer();
-    AcquisitionPolicy.WEAPON_ACQUISITION.set(false);
+    policy(true,false);
     check(AcquisitionPolicy.isWeapon(ChestProof.open(level,chestPos,player).getItem(0)),"Existing Lootr player content deleted");player.closeContainer();
     try(var other=new ChestProof.Visitor(level,pos.above(),"NewPolicy",UUID.randomUUID())){
      var fresh=ChestProof.open(level,chestPos,other.player);
@@ -97,7 +102,7 @@ public final class ControlsProof {
     }
     System.out.println("LOOTR PREEXISTING CHEST PASS existing player retains weapon; new player rolls disabled policy");
    }
-   AcquisitionPolicy.WEAPON_ACQUISITION.set(true);
+   policy(true,true);
    guard=People.BLOSSOM_WARDEN.get().create(level);guard.moveTo(.5,181,.5,0,0);guard.setNoAi(true);level.addFreshEntity(guard);
    check(guard.getMaxHealth()==6666&&guard.getHealth()==6666,"Guardian health clamped");
    var zombie=EntityType.ZOMBIE.create(level);check(zombie.getMaxHealth()==20,"Global attribute health changed");

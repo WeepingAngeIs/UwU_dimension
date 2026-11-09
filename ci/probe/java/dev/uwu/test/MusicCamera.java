@@ -22,7 +22,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 public final class MusicCamera {
  static String state="menu";static int ticks,scenario;static volatile boolean ready;
  static final String[] REALMS={"uwudimension:sakura_reach","uwudimension:sakura_reach","uwudimension:sakura_reach","minecraft:overworld","minecraft:the_nether","uwudimension:heartwater","uwudimension:blossom_reach"};
- static List<RMRuntimeEntry> entries;
+ static List<RMRuntimeEntry> entries;static volatile boolean charmed,expired;static java.util.UUID charmTarget;
  static void check(boolean b,String m){if(!b)throw new AssertionError(m);}
  static RMRuntimeEntry rule(SongpackZip pack,String song,String...conditions){var e=new SongpackEntry();e.events=conditions;e.songs=new String[]{song};return RMRuntimeEntry.create(pack,e);}
  @SubscribeEvent public static void tick(ClientTickEvent.Post event){
@@ -37,6 +37,26 @@ public final class MusicCamera {
    entries=List.of(rule(pack,"river_night","NIGHT","DIM=OVERWORLD","BIOME=biomeswevegone:sakura_grove || BIOME=minecraft:cherry_grove || BIOME=natures_spirit:aspen_forest"),rule(pack,"distant_shores","UNDERWATER || BIOME=ocean"),rule(pack,"pinwheel","BIOME=flower_forest || BIOME=cherry_grove || BIOMETAG=FLORAL"));
    state="setup";
   }
+  if(state.equals("cupidSetup")){
+   state="drawing";ticks=0;var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();
+   server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);var l=p.serverLevel();
+    for(int x=-3;x<=3;x++)for(int z=-2;z<=7;z++){l.setBlockAndUpdate(new BlockPos(x,179,z),Blocks.WHITE_CONCRETE.defaultBlockState());for(int y=180;y<=184;y++)l.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());}
+    p.teleportTo(.5,180,.5);p.setYRot(0);p.setXRot(0);
+    var mob=net.minecraft.world.entity.EntityType.ZOMBIE.create(l);mob.moveTo(.5,180,4.5,180,0);mob.setNoAi(true);l.addFreshEntity(mob);charmTarget=mob.getUUID();
+    var bow=new net.minecraft.world.item.ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get());p.setItemInHand(InteractionHand.MAIN_HAND,bow);bow.use(l,p,InteractionHand.MAIN_HAND);
+   });return;
+  }
+  if(state.equals("drawing")&&ticks>35){state="impact";ticks=0;var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);p.setYRot(0);p.setXRot(0);p.releaseUsingItem();});return;}
+  if(state.equals("impact")||state.equals("hearts")||state.equals("expiry")){
+   var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();
+   server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);var target=p.serverLevel().getEntity(charmTarget);charmed=target!=null&&target.getPersistentData().getBoolean("uwu.pastel_cupid");expired=target!=null&&!target.getPersistentData().hasUUID("uwudimension.charm_owner");});
+   mc.player.setYRot(0);mc.player.setXRot(0);mc.options.hideGui=true;
+   if(state.equals("impact")&&charmed){net.minecraft.client.Screenshot.grab(mc.gameDirectory,"cupid-pastel-impact.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));state="hearts";ticks=0;}
+   if(state.equals("hearts")&&ticks==45)net.minecraft.client.Screenshot.grab(mc.gameDirectory,"cupid-pastel-active.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+   if(state.equals("hearts")&&ticks>65){check(charmed,"Cupid charm visual marker ended prematurely");state="expiry";ticks=0;server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);p.serverLevel().getEntity(charmTarget).getPersistentData().putLong("uwudimension.charm_end",p.serverLevel().getGameTime()+2);});}
+   if(state.equals("expiry")&&ticks>15){check(expired&&!charmed,"Expired charm retained pastel visual state");System.out.println("UWU MUSIC CLIENT PASSED and actual Cupid hit/ongoing pastel charm/expiry verified");state="done";server.halt(false);mc.stop();}
+   return;
+  }
   if(state.equals("setup")){
    state="wait";ticks=0;ready=false;var server=mc.getSingleplayerServer();var uuid=mc.player.getUUID();final int test=scenario;
    server.execute(()->{
@@ -44,7 +64,7 @@ public final class MusicCamera {
     var at=new BlockPos(0,180,0);for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)level.getChunk(x,z);
     server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"execute in "+REALMS[test]+" run fillbiome -16 168 -16 16 196 16 minecraft:cherry_grove");
     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++){level.setBlockAndUpdate(new BlockPos(x,179,z),Blocks.WHITE_CONCRETE.defaultBlockState());for(int y=180;y<=184;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),(test==2?Blocks.WATER:Blocks.AIR).defaultBlockState());}
-    level.setDayTime(test==1||test==2?6000:18000);level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,server);
+    server.overworld().setDayTime(test==1||test==2?6000:18000);level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,server);
     p.teleportTo(level,.5,180,.5,0,0);p.getAbilities().flying=true;p.onUpdateAbilities();
     if(test==0){var g=People.BLOSSOM_WARDEN.get().create(level);g.moveTo(1.5,180,.5,0,0);level.addFreshEntity(g);}
     ready=true;
@@ -61,7 +81,7 @@ public final class MusicCamera {
    check(song.equals(expected),"Rule selection "+scenario+" expected "+expected+" got "+song);
    if(scenario==0){boolean seen=false;for(var e:mc.level.entitiesForRendering())if(e instanceof BlossomWarden g){seen=true;check(g.getMaxHealth()==6666&&g.getHealth()==6666,"Client guardian health clamped");check(g.getName().getString().equals("UwU Guardian"),"Guardian name missing translation");}check(seen,"Client guardian absent");}
    System.out.println("MUSIC MATCH PASS real="+REALMS[scenario]+" context="+dim+" biome="+SongPicker.currentBiomeName+" scenario="+scenario+" song="+song);
-   if(++scenario==REALMS.length){System.out.println("UWU MUSIC CLIENT PASSED (matcher verified; private soundtrack not played)");state="done";mc.getSingleplayerServer().halt(false);mc.stop();return;}
+   if(++scenario==REALMS.length){System.out.println("UWU MUSIC MATCHER PASSED (private soundtrack not played)");state="cupidSetup";ticks=0;return;}
    state="setup";
   }
  }

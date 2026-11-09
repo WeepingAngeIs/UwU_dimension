@@ -19,15 +19,17 @@ final class HeartMagic {
     private static final String CALLER = "uwudimension.hare_caller", THUMP_END = "uwudimension.hare_end";
     private static final TagKey<EntityType<?>> IMMUNE = TagKey.create(Registries.ENTITY_TYPE, Arsenal.id("charm_immune"));
 
-    static boolean charm(ServerLevel level, Player keeper, Mob mob) {
+    static boolean charm(ServerLevel level, Player keeper, Mob mob) { return charm(level,keeper,mob,false); }
+    static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid) {
         if (mob.getType().is(IMMUNE) || (mob.getBbWidth() >= 6 && mob.getBbHeight() >= 5)) return false;
         CompoundTag data = mob.getPersistentData();
         if (!data.hasUUID(OWNER) && mob.getTarget() != null) data.putUUID(PREVIOUS, mob.getTarget().getUUID());
         mob.addTag(OWNER);
         data.putUUID(OWNER, keeper.getUUID());
+        data.putBoolean("uwu.pastel_cupid",pastelCupid);
         data.putLong(END, level.getGameTime() + 800);
         clearTarget(mob);
-        level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, 0.5, 0.2, 0.5, 0.05);
+        level.sendParticles(pastelCupid?CupidParticles.PASTEL_HEART.get():ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, 0.5, 0.2, 0.5, 0.05);
         return true;
     }
 
@@ -61,13 +63,14 @@ final class HeartMagic {
             mob.removeTag(OWNER);
             data.remove(OWNER);
             data.remove(END);
+            data.remove("uwu.pastel_cupid");
             clearTarget(mob);
             if (data.hasUUID(PREVIOUS) && level.getEntity(data.getUUID(PREVIOUS)) instanceof LivingEntity old && old.isAlive()) mob.setTarget(old);
             data.remove(PREVIOUS);
             return;
         }
         if (mob.tickCount % 5 != 0) return;
-        if (mob.tickCount % 20 == 0) level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, 0.16, 0.1, 0.16, 0);
+        if (mob.tickCount % 20 == 0) level.sendParticles(data.getBoolean("uwu.pastel_cupid")?CupidParticles.PASTEL_HEART.get():ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, 0.16, 0.1, 0.16, 0);
         if (!(level.getEntity(data.getUUID(OWNER)) instanceof Player keeper)) { clearTarget(mob); return; }
         LivingEntity foe = keeper.tickCount - keeper.getLastHurtByMobTimestamp() < 220 ? keeper.getLastHurtByMob() : null;
         if (!eligible(keeper, mob, foe)) foe = keeper.tickCount - keeper.getLastHurtMobTimestamp() < 220 ? keeper.getLastHurtMob() : null;
