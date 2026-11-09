@@ -11,3 +11,5 @@ printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-seed=152045\nview-distance=3\nsimulation-distance=3\nmax-tick-time=600000\n' > server.properties
 UWU_CONTROLS=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee controls.log
 grep -F 'UWU CONTROLS SERVER PASSED' controls.log
+UWU_CONTROLS=1 timeout 8m java -Duwu.controlsReload=true -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee controls-reload.log
+grep -F 'UWU CONTROLS RESTART PASSED' controls-reload.log

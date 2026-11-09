@@ -33,7 +33,7 @@ jobs:
         with:
           name: controls-server-evidence
           path: |
-            build/resident-server/controls.log
+            build/resident-server/controls*.log
             build/resident-server/logs/latest.log
             build/resident-server/crash-reports
   client:
