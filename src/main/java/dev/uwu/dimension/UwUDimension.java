@@ -17,7 +17,8 @@ public final class UwUDimension {
     static final java.util.function.Supplier<Item> LOCKET = ITEMS.register("heartwater_locket", () -> new HeartwaterLocket());
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
-    public UwUDimension(IEventBus bus) {
+    public UwUDimension(IEventBus bus, net.neoforged.fml.ModContainer container) {
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,AcquisitionPolicy.SPEC,"uwudimension-server.toml");
         HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
         ReefLife.register(bus);
