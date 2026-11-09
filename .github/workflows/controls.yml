@@ -26,3 +26,13 @@ jobs:
         with:
           name: UwU-Dimension-1.2.3
           path: build/libs/*.jar
+      - name: Verify server controls and guardian vitality
+        run: bash ci/controls-expedition.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: controls-server-evidence
+          path: |
+            build/resident-server/controls.log
+            build/resident-server/logs/latest.log
+            build/resident-server/crash-reports

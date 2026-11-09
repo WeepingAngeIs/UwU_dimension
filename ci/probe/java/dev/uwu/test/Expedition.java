@@ -30,6 +30,7 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_CONTROLS")!=null){if(ControlsProof.tick(level)){stage=-1;server.halt(false);}return;}
             if(System.getenv("UWU_FLIGHT")!=null){if(FlightProof.tick(level)){stage=-1;server.halt(false);}return;}
             if(System.getenv("UWU_RESIDENTS")!=null){
                 if(ResidentProof.tick(level)){stage=-1;server.halt(false);}return;

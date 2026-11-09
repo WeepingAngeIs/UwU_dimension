@@ -40,7 +40,7 @@ import noobanidus.mods.lootr.common.data.LootrSavedData;
 
 public final class ChestProof {
     // Test-only connected server profiles with in-memory transports. No client process or account is used.
-    private static final class Visitor implements AutoCloseable {
+    static final class Visitor implements AutoCloseable {
         final ServerPlayer player;
         final EmbeddedChannel channel;
         Visitor(ServerLevel level, BlockPos near, String name, UUID id) {
@@ -116,7 +116,7 @@ public final class ChestProof {
         }
     }
 
-    private static Container open(ServerLevel level, BlockPos pos, ServerPlayer visitor) {
+    static Container open(ServerLevel level, BlockPos pos, ServerPlayer visitor) {
         var hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
         level.getBlockState(pos).useWithoutItem(level, visitor, hit);
         require(visitor.containerMenu instanceof ChestMenu, "Lootr did not open a chest menu for " + visitor.getName().getString());
