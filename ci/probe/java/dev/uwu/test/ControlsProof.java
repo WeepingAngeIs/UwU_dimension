@@ -106,13 +106,14 @@ public final class ControlsProof {
    restored.load(n);check(restored.getHealth()==3333,"Old guardian proportional migration failed "+restored.getHealth());
    guard.setNoAi(false);phase=2;ticks=0;return false;
   }
+  if(guard.tickCount<3){check(level.getServer().getTickCount()<500,"Guardian never began native ticking");return false;}
   ticks++;
   if(ticks==3){check(guard.hasEffect(MobEffects.REGENERATION)&&guard.getEffect(MobEffects.REGENERATION).getAmplifier()==3,"Missing Regen IV");guard.removeAllEffects();}
   if(ticks==6){check(guard.hasEffect(MobEffects.REGENERATION),"Milk-style removal not restored");check(!guard.hasEffect(MobEffects.MOVEMENT_SPEED),"Idle guardian has combat speed");guard.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,200,5));}
   if(ticks==9){check(guard.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier()==5,"External stronger speed removed");guard.removeEffect(MobEffects.MOVEMENT_SPEED);
    var keeper=People.PETAL_KEEPER.get().create(level);keeper.moveTo(12.5,181,.5,0,0);level.addFreshEntity(keeper);
    threat=EntityType.ZOMBIE.create(level);threat.moveTo(16.5,181,.5,0,0);threat.setItemSlot(EquipmentSlot.HEAD,new ItemStack(Items.IRON_HELMET));level.addFreshEntity(threat);startX=guard.getX();}
-  if(ticks==35){check(guard.offender()!=null,"Guardian did not acquire approaching zombie");check(guard.hasEffect(MobEffects.MOVEMENT_SPEED)&&guard.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier()==3,"Aggro Speed IV missing");check(guard.getX()>startX+.1,"Guardian failed to pursue normally");threat.discard();}
+  if(ticks==35){check(guard.offender()!=null,"Guardian did not acquire approaching zombie");check(guard.hasEffect(MobEffects.MOVEMENT_SPEED)&&guard.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier()==3,"Aggro Speed IV missing");check(guard.getX()>startX+.1,"Guardian failed to pursue normally");threat.setHealth(0);}
   if(ticks==60){check(guard.offender()==null&&!guard.hasEffect(MobEffects.MOVEMENT_SPEED),"Combat speed persisted idle");
    guard.setHealth(2345);var disk=new CompoundTag();guard.saveWithoutId(disk);net.minecraft.nbt.NbtIo.writeCompressed(disk,java.nio.file.Path.of("guardian-vitality.dat"));
    AcquisitionPolicy.HEART_LOCKET_CRAFTING.set(false);AcquisitionPolicy.WEAPON_ACQUISITION.set(false);AcquisitionPolicy.SPEC.save();
