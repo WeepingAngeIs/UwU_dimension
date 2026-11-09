@@ -124,7 +124,7 @@ public final class FieldCamera {
         p.teleportTo(p.serverLevel(),v.eye().x,v.eye().y-p.getEyeHeight(),v.eye().z,yaw,pitch);
     }
     @SubscribeEvent public static void step(ClientTickEvent.Post event){
-        if("arsenal".equals(System.getenv("UWU_VISIT"))||"flight".equals(System.getenv("UWU_VISIT")))return;
+        if("controls".equals(System.getenv("UWU_VISIT"))||"arsenal".equals(System.getenv("UWU_VISIT"))||"flight".equals(System.getenv("UWU_VISIT")))return;
         Minecraft mc=Minecraft.getInstance();ticks++;
         if(state.equals("closed")&&mc.level==null&&mc.getSingleplayerServer()==null){
             System.out.println("HEARTWATER CLIENT ROUND TRIP PASSED seed="+SEED+" with 1.0 and early-playtest locket access and clean disconnect");
