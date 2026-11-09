@@ -28,13 +28,13 @@ public final class HeartArrow extends Arrow {
     @Override public void tick() {
         super.tick();
         if (isAlive() && level() instanceof ServerLevel server && tickCount % 2 == 0)
-            server.sendParticles(getPersistentData().getBoolean("ripple") ? ParticleTypes.GLOW : ParticleTypes.HEART, getX(), getY(), getZ(), 1, 0, 0, 0, 0);
+            server.sendParticles(getPersistentData().getBoolean("ripple") ? ParticleTypes.GLOW : CupidParticles.PASTEL_HEART.get(), getX(), getY(), getZ(), 1, 0, 0, 0, 0);
     }
     @Override protected void onHitEntity(EntityHitResult hit) {
         if (!(level() instanceof ServerLevel server) || !(getOwner() instanceof Player player)) { super.onHitEntity(hit); return; }
         boolean ripple = getPersistentData().getBoolean("ripple");
         if (hit.getEntity() instanceof LivingEntity creature && !HeartMagic.friendly(player, creature)) {
-            boolean charmed = !ripple && creature instanceof Mob mob && HeartMagic.charm(server, player, mob);
+            boolean charmed = !ripple && creature instanceof Mob mob && HeartMagic.charm(server, player, mob,true);
             if (!charmed && (!(creature instanceof Player other) || player.canHarmPlayer(other)))
                 creature.hurt(damageSources().arrow(this, player), (ripple ? Arsenal.Relic.RIPPLE_BOW.damage : Arsenal.Relic.CUPID_BOW.damage) * getPersistentData().getFloat("strength"));
         }

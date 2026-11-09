@@ -49,10 +49,14 @@ public final class BlossomWarden extends PathfinderMob {
     private BlockPos court;
     private int pursueTicks, motionTicks, missingTicks;
     private double takeoffY;
+    private boolean ownCombatSpeed;
     private Vec3 destination = Vec3.ZERO;
 
     public BlossomWarden(EntityType<? extends BlossomWarden> type, Level level) {
         super(type, level);
+        ((GuardianVitality)getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)).uwu$guardianHealth();
+        getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
+        setHealth(6666);
         setPersistenceRequired();
 
     }
@@ -152,6 +156,19 @@ public final class BlossomWarden extends PathfinderMob {
 
     @Override public void aiStep() {
         super.aiStep();
+        if (!level().isClientSide) {
+            var regen=getEffect(net.minecraft.world.effect.MobEffects.REGENERATION);
+            if(regen==null||regen.getAmplifier()<3) addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.REGENERATION,-1,3,true,false,true));
+            var speed=getEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED);
+            if(!offenders.isEmpty()) {
+                if(speed==null||speed.getAmplifier()<3||(ownCombatSpeed&&speed.getAmplifier()==3&&speed.getDuration()<=10&&!speed.isInfiniteDuration())) {
+                    addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED,10,3,true,false,true)); ownCombatSpeed=true;
+                }
+            } else if(ownCombatSpeed) {
+                if(speed!=null&&speed.getAmplifier()==3&&speed.getDuration()<=10&&!speed.isInfiniteDuration())removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED);
+                ownCombatSpeed=false;
+            }
+        }
         if (!(level() instanceof ServerLevel level)) return;
         if (court == null) bindVillage(blockPosition());
         if (tickCount == 1 || tickCount % 120 == 0) {
@@ -266,6 +283,7 @@ public final class BlossomWarden extends PathfinderMob {
 
     @Override public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.putInt("GuardianVitalityVersion",1);
         if (court != null) tag.putLong("VillageCourt",court.asLong());
         ListTag list = new ListTag();
         for (UUID id:offenders) { var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry); }
@@ -275,6 +293,11 @@ public final class BlossomWarden extends PathfinderMob {
     }
     @Override public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        double oldMaximum=320;
+        var attributes=tag.getList("attributes",Tag.TAG_COMPOUND);
+        for(int i=0;i<attributes.size();i++) if(attributes.getCompound(i).getString("id").equals("minecraft:generic.max_health"))oldMaximum=attributes.getCompound(i).getDouble("base");
+        getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
+        if(!tag.contains("GuardianVitalityVersion"))setHealth((float)(6666*Math.clamp(tag.getFloat("Health")/Math.max(1,oldMaximum),0,1)));
         if(tag.contains("VillageCourt")) bindVillage(BlockPos.of(tag.getLong("VillageCourt")));
         offenders.clear();
         var list=tag.getList("Offenders",Tag.TAG_COMPOUND);
