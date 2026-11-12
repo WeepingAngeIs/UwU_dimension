@@ -756,6 +756,97 @@
           "weight": 1
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.18
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:blossom_ice_cream_bucket",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:strawberry_ice_cream_cake",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:flower_stuffed_chicken",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:heartberry_burger",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:blossom_hot_pocket",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:uwu_ramen_bowl",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:cherry_picnic_bento",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:berry_cinnamon_roll",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:starberry_waffle_stack",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:creamy_mushroom_stew",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:loaded_heart_potato",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:rose_berry_pie_slice",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:pastel_sakura_dumplings",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:honey_glazed_ham",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:moonberry_pudding",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:chicken_flower_pot_pie",
+          "weight": 1
+        }
+      ]
     }
   ]
 }
