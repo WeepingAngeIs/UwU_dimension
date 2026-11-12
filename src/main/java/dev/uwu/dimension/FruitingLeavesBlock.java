@@ -47,7 +47,7 @@ final class FruitingLeavesBlock extends LeavesBlock {
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.randomTick(state, level, pos, random);
         BlockState current = level.getBlockState(pos);
-        if (!current.is(this) || current.getValue(FRUITING) || !ReefLife.isReach(level)) return;
+        if (!current.is(this) || current.getValue(FRUITING) || !ReefLife.isProduceRealm(level)) return;
         if (level.getMaxLocalRawBrightness(pos) < 9 || random.nextInt(8) != 0) return;
         level.setBlock(pos, current.setValue(FRUITING, true), Block.UPDATE_CLIENTS);
         level.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + .5, pos.getY() + .55, pos.getZ() + .5,
@@ -57,7 +57,7 @@ final class FruitingLeavesBlock extends LeavesBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
-        if (!state.getValue(FRUITING) || !ReefLife.isReach(level)) return super.useWithoutItem(state, level, pos, player, hit);
+        if (!state.getValue(FRUITING) || !ReefLife.isProduceRealm(level)) return super.useWithoutItem(state, level, pos, player, hit);
         if (!level.isClientSide) {
             popResource(level, pos, new ItemStack(fruit.get(), 1 + player.getRandom().nextInt(2)));
             level.setBlock(pos, state.setValue(FRUITING, false), Block.UPDATE_CLIENTS);

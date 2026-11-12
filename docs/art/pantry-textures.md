@@ -33,11 +33,11 @@ The dishes take cues from Japanese regional cuisine and Canadian favorites such 
 
 ## Dimension-grown pantry garden
 
-Seven crops appear as small, varied patches in the UwU Dimension's Ribbon Bluffs, Lantern Fens, and Velvet Highlands. Their seeds only plant and grow in the dimension. Mature crops drop their harvest and a seed so players can start a farm. Harvests include heartberries, sakura rice, starfruit, frostpetals, sweetbean pods, glowginger, and vanilla beans.
+Seven crops appear as small, varied patches in the UwU Dimension's Ribbon Bluffs, Lantern Fens, and Velvet Highlands. Their seeds only plant and grow in the dimension. Each has a distinct 16-by-16 pixel silhouette, transparent edges, and harvest details that appear as it matures: rice grains, heartberries, starfruit, frostpetal blooms, bean pods, ginger flowers, and vanilla pods. Mature crops drop their harvest and a seed so players can start a farm. Harvests include heartberries, sakura rice, starfruit, frostpetals, sweetbean pods, glowginger, and vanilla beans.
 
 The harvests process into sakura rice flour, heartberry jam, sweetbean paste, petal sugar, and vanilla extract. Vanilla staples complete the pantry: snowballs make shaved ice, pink dye colors it pink, and cocoa beans with sugar and milk make chocolate syrup. Other recipes use honey bottles for maple syrup. These ingredients feed into the food recipes above without requiring Farmer's Delight or another food mod.
 
-![Pixel-art previews of the UwU Dimension crops](uwu_dimension_crop_preview.png)
+![Sprout, growing, and mature pixel-art stages for the UwU Dimension crops](uwu_dimension_crop_preview.png)
 
 ![Pixel-art previews of the UwU Dimension harvests and pantry ingredients](uwu_dimension_ingredients_preview.png)
 

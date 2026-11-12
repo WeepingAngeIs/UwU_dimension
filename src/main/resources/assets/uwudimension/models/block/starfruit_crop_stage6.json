@@ -1,5 +1,7 @@
 {
   "parent": "minecraft:block/crop",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
   "textures": {
     "crop": "uwudimension:block/starfruit_crop_stage6"
   }

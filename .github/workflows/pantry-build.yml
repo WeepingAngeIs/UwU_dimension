@@ -1,7 +1,7 @@
-name: UwU Dimension pantry build
+name: UwU Dimension crop visuals build
 on:
   push:
-    branches: [feature/orchard-trees-1.4.0]
+    branches: [feature/crop-plant-art-1.4.1]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,5 +22,5 @@ jobs:
         run: ./gradlew jar --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.4.0
+          name: UwU-Dimension-1.4.1
           path: build/libs/*.jar

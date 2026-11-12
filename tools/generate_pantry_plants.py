@@ -78,89 +78,168 @@ def crop_texture(kind, stage, spec):
     draw = ImageDraw.Draw(image)
     leaf, light, stem = map(hex_color, (spec["leaf"], spec["leaf_light"], spec["stem"]))
     fruit, fruit_dark, fruit_light = map(hex_color, (spec["fruit"], spec["fruit_dark"], spec["fruit_light"]))
-    if stage == 0:
-        draw.rectangle((7, 13, 8, 14), fill=stem)
-        draw.rectangle((6, 13, 7, 13), fill=fruit if kind == "frostpetal_crop" else leaf)
-        return image
+    growth = stage / 7
 
-    height = 4 + stage
-    top = 15 - height
-    if kind == "sakura_rice_crop":
-        for x, offset in ((4, 1), (7, 0), (10, 2), (12, 1)):
-            draw.line((x, 15, x, top + offset), fill=stem, width=1)
-            draw.line((x, max(8, top + 3), x - 2, max(9, top + 5)), fill=leaf, width=1)
-            draw.line((x, max(7, top + 5), x + 2, max(8, top + 7)), fill=light, width=1)
-            if stage >= 5:
-                draw.line((x, top + offset, x + 2, top + offset - 2), fill=fruit_dark, width=1)
-                for grain_y in range(top + offset - 2, min(14, top + offset + 2)):
-                    draw.point((x + 2, grain_y), fill=fruit_light if grain_y % 2 else fruit)
-        return image
+    def blade(points, base=leaf, highlight=None):
+        draw.polygon(points, fill=base)
+        if highlight:
+            draw.line(highlight[0], fill=light, width=1)
 
-    if kind == "glowginger_crop":
-        draw.line((8, 15, 8, top + 2), fill=stem, width=1)
-        draw.polygon([(8, 6), (4, 2), (5, 0), (8, 3), (10, 0), (12, 1), (9, 6)], fill=leaf)
+    def heart(x, y):
+        draw.polygon([(x, y + 2), (x - 2, y), (x - 1, y - 2), (x, y - 1),
+                      (x + 1, y - 2), (x + 2, y), (x + 1, y + 2)], fill=fruit_dark)
+        draw.point((x, y - 1), fill=fruit_light)
+
+    def star(x, y):
+        draw.polygon([(x, y - 3), (x + 1, y - 1), (x + 3, y - 1), (x + 1, y + 1),
+                      (x + 2, y + 3), (x, y + 2), (x - 2, y + 3), (x - 1, y + 1),
+                      (x - 3, y - 1), (x - 1, y - 1)], fill=fruit_dark)
+        draw.point((x, y), fill=fruit_light)
+
+    # Each crop has its own silhouette and harvest details instead of a shared stalk shape.
+    if kind == "heartberry_crop":
+        crown = 13 - int(growth * 7)
+        draw.line((8, 15, 8, crown + 1), fill=stem)
+        if stage == 0:
+            blade([(8, 14), (5, 13), (4, 11), (7, 12), (9, 14)], leaf, [(5, 12, 8, 13)])
+            blade([(8, 14), (10, 12), (12, 11), (11, 13), (9, 14)], light, [(10, 13, 12, 12)])
+        if stage >= 1:
+            blade([(8, 14), (5, 13), (3, 10), (6, 10), (9, 12)], leaf, [(5, 11, 8, 13)])
+            blade([(8, 13), (10, 10), (13, 9), (12, 12), (9, 14)], light, [(10, 12, 12, 10)])
         if stage >= 3:
-            draw.polygon([(8, 13), (5, 14), (4, 12), (6, 11), (7, 12), (10, 11), (12, 13), (10, 15)], fill=fruit_dark)
-            draw.rectangle((6, 12, 9, 14), fill=fruit)
-            draw.point((7, 12), fill=fruit_light)
-            if stage >= 6:
-                draw.point((11, 13), fill=fruit)
-        return image
-
-    draw.line((8, 15, 8, top + 2), fill=stem, width=1)
-    if stage >= 2:
-        draw.polygon([(8, 12), (4, 10), (3, 8), (6, 9), (8, 11)], fill=leaf)
-        draw.point((4, 9), fill=light)
-    if stage >= 3:
-        draw.polygon([(8, 10), (11, 7), (14, 7), (12, 9), (9, 11)], fill=light)
-        draw.point((12, 8), fill=leaf)
-    if stage >= 4:
-        draw.polygon([(8, 8), (5, 5), (3, 5), (5, 7), (8, 9)], fill=leaf)
-        draw.point((5, 6), fill=light)
-    if stage >= 5:
-        draw.polygon([(8, 6), (10, 3), (13, 3), (11, 5), (9, 7)], fill=light)
-    if kind == "vanilla_bean_crop":
-        if stage >= 4:
-            draw.line((9, 7, 12, 10), fill=fruit_dark, width=1)
-        if stage >= 6:
-            draw.line((10, 5, 13, 8), fill=fruit, width=1)
-        if stage >= 7:
-            draw.point((12, 10), fill=fruit_light)
-    elif kind == "heartberry_crop":
+            blade([(8, 11), (5, 9), (4, 6), (7, 7), (9, 10)], light, [(5, 7, 8, 10)])
+            blade([(8, 10), (10, 7), (13, 6), (12, 9), (9, 11)], leaf, [(10, 8, 12, 7)])
         if stage >= 5:
-            draw.rectangle((4, 11, 5, 12), fill=fruit_dark)
-            draw.point((4, 11), fill=fruit)
+            heart(4, 11)
         if stage >= 6:
-            draw.rectangle((10, 9, 11, 10), fill=fruit)
-            draw.point((10, 9), fill=fruit_light)
+            heart(12, 9)
         if stage >= 7:
-            draw.rectangle((6, 6, 7, 7), fill=fruit_dark)
-            draw.point((6, 6), fill=fruit_light)
+            heart(8, 6)
+        draw.point((8, 15), fill=stem)
+    elif kind == "sakura_rice_crop":
+        height = 3 + stage * 1.55
+        tops = [(4, 1), (7, 0), (10, 2), (12, 1)]
+        for index, (x, offset) in enumerate(tops):
+            top = max(2, int(15 - height + offset))
+            draw.line((x, 15, x, top), fill=stem if index % 2 else leaf)
+            if stage == 0 and index == 1:
+                blade([(7, 14), (5, 13), (5, 11), (7, 12), (8, 14)], leaf, [(6, 12, 8, 13)])
+                blade([(8, 14), (9, 12), (11, 11), (10, 13)], light, [(9, 12, 10, 13)])
+            if stage >= 1:
+                blade([(x, 14), (x - 2, 12), (x - 3, 9 - min(stage // 3, 2)),
+                       (x - 1, 10), (x + 1, 13)], leaf, [(x - 2, 11, x, 13)])
+            if stage >= 2:
+                blade([(x, 13), (x + 2, 11), (x + 3, 8 - min(stage // 4, 2)),
+                       (x + 3, 10), (x + 1, 14)], light, [(x + 2, 10, x + 1, 12)])
+            if stage >= 5 and index in (0, 1, 3):
+                head_y = max(3, top + 1)
+                draw.line((x, top + 1, x + 2, head_y + 2), fill=fruit_dark)
+                for grain_x, grain_y in ((x + 1, head_y), (x + 2, head_y + 1),
+                                         (x + 3, head_y + 2), (x + 2, head_y + 3)):
+                    if 0 <= grain_x < 16 and 0 <= grain_y < 16:
+                        draw.point((grain_x, grain_y), fill=fruit_light if grain_y % 2 else fruit)
+        draw.line((5, 15, 11, 15), fill=stem)
     elif kind == "starfruit_crop":
-        if stage >= 5:
-            draw.polygon([(4, 8), (5, 6), (6, 8), (8, 8), (6, 9), (6, 11), (5, 10), (3, 10)], fill=fruit_dark)
-            draw.point((5, 8), fill=fruit_light)
-        if stage >= 7:
-            draw.polygon([(10, 5), (11, 3), (12, 5), (14, 5), (12, 6), (12, 8), (11, 7), (9, 7)], fill=fruit)
-            draw.point((11, 5), fill=fruit_light)
-    elif kind == "frostpetal_crop":
+        top = 13 - int(growth * 9)
+        draw.line((8, 15, 8, top + 2), fill=stem, width=1)
+        if stage == 0:
+            blade([(8, 14), (5, 13), (4, 11), (7, 12), (9, 14)], leaf, [(5, 12, 8, 13)])
+            blade([(8, 14), (10, 12), (12, 11), (11, 13)], light, [(10, 12, 11, 13)])
+        if stage >= 1:
+            blade([(8, 14), (5, 12), (3, 8), (6, 9), (9, 13)], leaf, [(5, 10, 8, 13)])
+        if stage >= 2:
+            blade([(8, 13), (10, 10), (14, 8), (13, 11), (9, 14)], light, [(10, 11, 13, 9)])
+        if stage >= 3:
+            blade([(8, 10), (5, 8), (4, 5), (7, 6), (9, 10)], light, [(5, 6, 8, 9)])
         if stage >= 4:
-            draw.rectangle((6, 5, 9, 7), fill=fruit)
-            draw.rectangle((7, 4, 8, 8), fill=fruit_light)
-            draw.point((7, 6), fill=fruit_dark)
+            blade([(8, 9), (10, 6), (13, 4), (12, 8), (9, 10)], leaf, [(10, 7, 12, 5)])
+        if stage >= 5:
+            star(4, 8)
         if stage >= 7:
-            draw.rectangle((11, 8, 13, 10), fill=fruit)
-            draw.rectangle((12, 7, 12, 11), fill=fruit_light)
+            star(12, 5)
+        draw.point((8, 15), fill=stem)
+    elif kind == "frostpetal_crop":
+        # A low icy rosette stays visibly different from the tall grains and vines.
+        if stage < 2:
+            blade([(8, 14), (6, 13), (5, 11), (8, 12), (9, 14)], leaf, [(6, 12, 8, 13)])
+            blade([(8, 14), (10, 12), (12, 11), (11, 13)], light, [(10, 12, 11, 13)])
+        else:
+            blade([(8, 14), (5, 13), (2, 10), (6, 10), (8, 12)], leaf, [(4, 11, 7, 13)])
+            blade([(8, 13), (10, 10), (14, 9), (12, 12), (9, 14)], light, [(10, 12, 13, 10)])
+        if stage >= 2:
+            blade([(7, 12), (5, 9), (5, 6), (8, 8), (9, 12)], light, [(6, 8, 8, 11)])
+            blade([(8, 12), (10, 8), (12, 6), (12, 10), (9, 13)], leaf, [(10, 9, 11, 11)])
+        if stage >= 4:
+            draw.line((8, 10, 8, 6), fill=stem)
+            draw.rectangle((6, 5, 10, 7), fill=fruit)
+            draw.rectangle((7, 4, 9, 8), fill=fruit_light)
+            draw.point((8, 6), fill=fruit_dark)
+        if stage >= 7:
+            draw.line((12, 12, 12, 9), fill=stem)
+            draw.rectangle((10, 8, 14, 10), fill=fruit)
+            draw.rectangle((11, 7, 13, 11), fill=fruit_light)
             draw.point((12, 9), fill=fruit_dark)
     elif kind == "sweetbean_crop":
+        draw.line((8, 15, 8, 14 - int(growth * 5)), fill=stem)
+        if stage == 0:
+            blade([(8, 14), (5, 13), (4, 11), (7, 12), (9, 14)], leaf, [(5, 12, 8, 13)])
+            blade([(8, 14), (10, 12), (12, 11), (11, 13)], light, [(10, 12, 11, 13)])
+        if stage >= 1:
+            blade([(8, 14), (4, 12), (3, 9), (6, 9), (9, 12)], leaf, [(4, 10, 8, 13)])
+            blade([(8, 13), (10, 10), (14, 9), (12, 12), (9, 14)], light, [(10, 11, 13, 10)])
+        if stage >= 3:
+            blade([(8, 10), (5, 8), (4, 5), (7, 6), (9, 10)], light, [(5, 6, 8, 9)])
+            blade([(8, 10), (10, 7), (13, 5), (12, 8), (9, 11)], leaf, [(10, 8, 12, 6)])
         if stage >= 4:
-            draw.polygon([(4, 8), (7, 7), (8, 9), (7, 12), (5, 11)], fill=fruit_dark)
-            draw.point((6, 9), fill=fruit_light)
+            draw.polygon([(3, 8), (5, 7), (7, 9), (7, 12), (5, 13), (4, 10)], fill=fruit_dark)
+            draw.line((4, 9, 5, 12), fill=fruit_light)
         if stage >= 6:
-            draw.polygon([(10, 6), (13, 5), (14, 7), (13, 10), (11, 9)], fill=fruit)
-            draw.point((12, 7), fill=fruit_light)
+            draw.polygon([(10, 6), (12, 5), (14, 6), (14, 9), (12, 11), (10, 9)], fill=fruit)
+            draw.line((11, 7, 12, 10), fill=fruit_light)
         if stage >= 7:
-            draw.point((7, 10), fill=fruit_light)
+            draw.point((7, 11), fill=fruit_light)
+    elif kind == "glowginger_crop":
+        # Broad ginger blades fan upward; a warm flower marks a mature, harvestable plant.
+        if stage == 0:
+            blade([(8, 15), (6, 13), (6, 11), (8, 12), (9, 15)], leaf, [(7, 12, 8, 14)])
+        else:
+            blade([(8, 15), (5, 10), (4, 4), (7, 7), (9, 14)], leaf, [(6, 8, 8, 13)])
+        if stage >= 1:
+            blade([(8, 15), (8, 8), (8, 2), (10, 6), (9, 14)], light, [(8, 5, 9, 11)])
+        if stage >= 2:
+            blade([(8, 15), (11, 10), (13, 4), (13, 9), (10, 15)], leaf, [(11, 9, 12, 12)])
+        if stage >= 4:
+            blade([(8, 13), (3, 9), (2, 6), (6, 8), (9, 12)], light, [(4, 8, 8, 12)])
+        if stage >= 6:
+            draw.line((8, 5, 8, 2), fill=stem)
+            draw.rectangle((6, 1, 10, 3), fill=fruit_dark)
+            draw.point((7, 1), fill=fruit_light)
+            draw.point((9, 2), fill=fruit)
+        if stage >= 7:
+            draw.point((8, 15), fill=fruit_dark)
+            draw.point((7, 14), fill=fruit)
+            draw.point((9, 14), fill=fruit_light)
+    elif kind == "vanilla_bean_crop":
+        tip_x, tip_y = 5 + int(growth * 7), 15 - int(growth * 11)
+        draw.line((5, 15, tip_x, tip_y), fill=stem)
+        if stage == 0:
+            blade([(5, 14), (3, 13), (3, 11), (5, 12), (6, 14)], leaf, [(4, 12, 5, 13)])
+        if stage >= 1:
+            blade([(7, 12), (4, 10), (3, 7), (6, 8), (8, 11)], light, [(4, 8, 7, 11)])
+        if stage >= 2:
+            blade([(8, 9), (10, 7), (13, 7), (12, 9), (9, 11)], leaf, [(10, 8, 12, 8)])
+        if stage >= 3:
+            blade([(10, 6), (8, 4), (8, 2), (11, 3), (12, 5)], light, [(9, 3, 11, 5)])
+        if stage >= 5:
+            draw.point((12, 6), fill=fruit_light)
+            draw.point((13, 5), fill=fruit)
+            draw.point((12, 4), fill=fruit_light)
+        if stage >= 6:
+            draw.line((9, 9, 10, 12, 9, 14), fill=fruit_dark)
+            draw.line((10, 10, 11, 12), fill=fruit)
+        if stage >= 7:
+            draw.point((9, 13), fill=fruit_light)
+            draw.point((11, 12), fill=fruit_light)
     return image
 
 
@@ -296,6 +375,8 @@ def main():
             crop_texture(crop_id, stage, spec).save(ASSETS / f"textures/block/{tex}.png")
             write_json(ASSETS / f"models/block/{tex}.json", {
                 "parent": "minecraft:block/crop",
+                "render_type": "minecraft:cutout",
+                "ambientocclusion": False,
                 "textures": {"crop": f"uwudimension:block/{tex}"},
             })
         write_json(ASSETS / f"blockstates/{crop_id}.json", {"variants": block_models})
@@ -367,15 +448,18 @@ def main():
     preview_path.parent.mkdir(parents=True, exist_ok=True)
     preview.save(preview_path)
 
-    crop_preview = Image.new("RGBA", (4 * 104, 2 * 104), hex_color("#2B2233"))
+    row_height = 62
+    crop_preview = Image.new("RGBA", (270, 24 + len(PLANTS) * row_height), hex_color("#2B2233"))
     crop_draw = ImageDraw.Draw(crop_preview)
+    for x, heading in ((72, "Sprout"), (143, "Growing"), (213, "Ripe")):
+        crop_draw.text((x, 4), heading, fill=hex_color("#F6E8F4"))
     for index, (crop_id, spec) in enumerate(PLANTS.items()):
-        x = (index % 4) * 104 + 12
-        y = (index // 4) * 104 + 1
-        icon = crop_texture(crop_id, 7, spec)
-        crop_preview.alpha_composite(icon.resize((80, 80), Image.Resampling.NEAREST), (x, y))
-        label = crop_id.removesuffix("_crop").replace("_", " ")[:15]
-        crop_draw.text(((index % 4) * 104 + 3, (index // 4) * 104 + 84), label, fill=hex_color("#F6E8F4"))
+        y = 24 + index * row_height
+        label = crop_id.removesuffix("_crop").replace("_", " ")[:10]
+        crop_draw.text((3, y + 21), label, fill=hex_color("#F6E8F4"))
+        for column, stage in enumerate((0, 3, 7)):
+            icon = crop_texture(crop_id, stage, spec)
+            crop_preview.alpha_composite(icon.resize((48, 48), Image.Resampling.NEAREST), (68 + column * 67, y))
     crop_preview_path = ROOT / "docs/art/uwu_dimension_crop_preview.png"
     crop_preview.save(crop_preview_path)
     print(f"Generated {len(PLANTS)} dimension crops, {len(item_ids)} ingredient/seed textures, block models, loot tables, and translations.")

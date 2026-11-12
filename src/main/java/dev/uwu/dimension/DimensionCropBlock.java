@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** A normal, bonemealable crop that is placeable and grows only in Blossom Reach. */
+/** A normal, bonemealable crop that is placeable and grows only in the UwU realms. */
 final class DimensionCropBlock extends CropBlock {
     DimensionCropBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -22,12 +22,12 @@ final class DimensionCropBlock extends CropBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return ReefLife.isReach(context.getLevel()) ? super.getStateForPlacement(context) : null;
+        return ReefLife.isProduceRealm(context.getLevel()) ? super.getStateForPlacement(context) : null;
     }
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (ReefLife.isReach(level)) {
+        if (ReefLife.isProduceRealm(level)) {
             super.randomTick(state, level, pos, random);
         }
     }
@@ -44,18 +44,18 @@ final class DimensionCropBlock extends CropBlock {
 
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        return level instanceof Level actual && ReefLife.isReach(actual)
+        return level instanceof Level actual && ReefLife.isProduceRealm(actual)
                 && super.isValidBonemealTarget(level, pos, state);
     }
 
     @Override
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
-        return ReefLife.isReach(level) && super.isBonemealSuccess(level, random, pos, state);
+        return ReefLife.isProduceRealm(level) && super.isBonemealSuccess(level, random, pos, state);
     }
 
     @Override
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
-        if (ReefLife.isReach(level)) {
+        if (ReefLife.isProduceRealm(level)) {
             super.performBonemeal(level, random, pos, state);
         }
     }
