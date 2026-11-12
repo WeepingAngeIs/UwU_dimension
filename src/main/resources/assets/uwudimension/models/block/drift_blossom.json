@@ -1,39 +1,148 @@
 {
+  "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "flower": "uwudimension:block/drift_blossom",
-    "particle": "#flower"
+    "pad": "uwudimension:block/drift_blossom_pad",
+    "flower": "uwudimension:block/drift_blossom_flower",
+    "center": "uwudimension:block/drift_blossom_center",
+    "particle": "uwudimension:block/drift_blossom_pad"
   },
   "elements": [
     {
       "from": [
         0,
-        0.02,
+        0.25,
         0
       ],
       "to": [
         16,
-        0.1,
+        0.5,
         16
       ],
       "faces": {
-        "up": {
-          "texture": "#flower",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
         "down": {
-          "texture": "#flower",
+          "texture": "#pad"
+        },
+        "up": {
+          "texture": "#pad"
+        }
+      }
+    },
+    {
+      "from": [
+        0.8,
+        0.5,
+        8
+      ],
+      "to": [
+        15.2,
+        10.5,
+        8
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "y",
+        "angle": 45,
+        "rescale": true
+      },
+      "shade": false,
+      "faces": {
+        "north": {
           "uv": [
             0,
             0,
             16,
             16
-          ]
+          ],
+          "texture": "#flower"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#flower"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        0.5,
+        0.8
+      ],
+      "to": [
+        8,
+        10.5,
+        15.2
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "y",
+        "angle": 45,
+        "rescale": true
+      },
+      "shade": false,
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#flower"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#flower"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        7.5,
+        7
+      ],
+      "to": [
+        9,
+        9.5,
+        9
+      ],
+      "faces": {
+        "down": {
+          "texture": "#center"
+        },
+        "up": {
+          "texture": "#center"
+        },
+        "north": {
+          "texture": "#center"
+        },
+        "south": {
+          "texture": "#center"
+        },
+        "west": {
+          "texture": "#center"
+        },
+        "east": {
+          "texture": "#center"
         }
       }
     }

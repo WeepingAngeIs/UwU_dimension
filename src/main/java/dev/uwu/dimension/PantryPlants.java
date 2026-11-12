@@ -11,6 +11,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -52,7 +54,7 @@ public final class PantryPlants {
                 "heartberry", "sakura_rice", "starfruit", "frostpetal", "sweetbean_pods", "glowginger",
                 "vanilla_bean", "moonberry", "sakura_flour", "heartberry_jam", "shaved_ice", "pink_shaved_ice",
                 "chocolate_syrup", "sweetbean_paste", "maple_syrup", "petal_sugar", "vanilla_extract")) {
-            var item = ITEMS.registerSimpleItem(id, new Item.Properties());
+            var item = ITEMS.registerSimpleItem(id, ingredientProperties());
             INGREDIENT_ITEMS.put(id, item);
             CREATIVE_ITEMS.add(item);
         }
@@ -63,9 +65,17 @@ public final class PantryPlants {
     private static DeferredBlock<DimensionCropBlock> crop(String blockId, String seedId) {
         DeferredBlock<DimensionCropBlock> block = BLOCKS.register(blockId, () -> new DimensionCropBlock(
                 BlockBehaviour.Properties.of().noCollission().instabreak().randomTicks().sound(SoundType.CROP)));
-        var seed = ITEMS.registerSimpleBlockItem(seedId, block);
+        // Seeds remain placeable on their crop soil, and are also tiny snacks when
+        // used away from a block, as requested.
+        var seed = ITEMS.register(seedId, () -> new BlockItem(block.get(), ingredientProperties()));
         CREATIVE_ITEMS.add(seed);
         return block;
+    }
+
+    static Item.Properties ingredientProperties() {
+        FoodProperties snack = new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F)
+                .alwaysEdible().build();
+        return new Item.Properties().food(snack);
     }
 
     public static void register(IEventBus bus) {

@@ -41,23 +41,37 @@ def save_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
-def leaves_texture(spec, fruiting=False):
+def leaves_texture(spec, fruiting=False, variant=0):
     image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     dark, base, light = (color(spec[k]) for k in ("leaf_dark", "leaves", "leaf_light"))
-    clusters = [
-        (4, 2, 9, 6), (1, 5, 6, 10), (6, 5, 12, 11), (3, 9, 8, 14),
-        (9, 8, 14, 13), (7, 1, 12, 5),
-    ]
-    for index, box in enumerate(clusters):
-        draw.ellipse(box, fill=base if index % 2 == 0 else dark)
-        x1, y1, x2, y2 = box
-        draw.rectangle((x1 + 1, y1 + 1, x2 - 1, y2 - 1), fill=base)
-    for x, y in ((3, 6), (5, 3), (8, 7), (11, 4), (4, 11), (10, 10), (7, 12), (12, 8)):
-        draw.point((x, y), fill=light)
+    # Overlapping pixel clusters keep each leaf block visually full like
+    # vanilla cherry leaves, instead of reading as six isolated flower stickers.
+    # Four stable variants break up the repeated texture across a canopy.
+    index = 0
+    for row in range(-1, 5):
+        for column in range(-1, 5):
+            cx = column * 4 + (row % 2) * 2 + (variant % 2)
+            cy = row * 4 + (variant // 2)
+            shade = (row + column + variant) % 3
+            draw.ellipse((cx - 3, cy - 2, cx + 2, cy + 2), fill=dark if shade == 0 else base)
+            draw.ellipse((cx - 2, cy - 1, cx + 1, cy + 1), fill=base)
+            if (index + variant) % 2 == 0:
+                draw.point((cx - 1, cy - 1), fill=light)
+                draw.point((cx, cy), fill=light if shade == 1 else base)
+            index += 1
+    # Keep roughly the same cutout coverage as vanilla cherry foliage, so a
+    # Fancy/Fabulous view still has tiny sightlines between the pink leaf clusters.
+    for y in range(16):
+        for x in range(16):
+            noise = (x * 37 + y * 61 + x * y * 17 + variant * 23) % 100
+            if noise < 14:
+                image.putpixel((x, y), (0, 0, 0, 0))
     if fruiting:
-        fruits = ((3, 7), (10, 4), (8, 11))
+        fruits = ((3 + variant, 7), (10, 4 + variant), (8, 11 - variant // 2))
         for x, y in fruits:
+            x %= 16
+            y %= 16
             if spec["fruit"] == "heartberry":
                 draw.polygon([(x, y + 2), (x - 2, y), (x - 1, y - 2), (x, y - 1),
                               (x + 1, y - 2), (x + 2, y), (x + 1, y + 2)], fill=color(spec["fruit_color"]))
@@ -123,8 +137,8 @@ def sapling_texture(spec):
 def tree_preview(name, textures):
     tree = Image.new("RGBA", (64, 80), (0, 0, 0, 0))
     log = Image.open(textures / f"{name}_log.png")
-    fruiting = Image.open(textures / f"{name}_leaves_fruiting.png")
-    leaves = Image.open(textures / f"{name}_leaves.png")
+    fruiting = Image.open(textures / f"{name}_leaves_fruiting_v0.png")
+    leaves = Image.open(textures / f"{name}_leaves_v0.png")
     # A chunky four-by-four canopy with fruit-bearing clusters mixed through it.
     canopy = {
         (1, 0), (2, 0),
@@ -276,8 +290,11 @@ def main():
     for name, spec in TREES.items():
         log_side(spec).save(model_textures / f"{name}_log.png")
         log_top(spec).save(model_textures / f"{name}_log_top.png")
-        leaves_texture(spec).save(model_textures / f"{name}_leaves.png")
-        leaves_texture(spec, True).save(model_textures / f"{name}_leaves_fruiting.png")
+        for variant in range(4):
+            for fruiting in (False, True):
+                suffix = "_fruiting" if fruiting else ""
+                texture_id = f"{name}_leaves{suffix}_v{variant}"
+                leaves_texture(spec, fruiting, variant).save(model_textures / f"{texture_id}.png")
         sapling_texture(spec).save(sapling_textures / f"{name}_sapling.png")
 
         save_json(ASSETS / f"blockstates/{name}_log.json", {"variants": {
@@ -291,14 +308,32 @@ def main():
         })
         save_json(ASSETS / f"models/item/{name}_log.json", {"parent": f"uwudimension:block/{name}_log"})
 
+        def variants(fruiting):
+            suffix = "_fruiting" if fruiting else ""
+            return [{"model": f"uwudimension:block/{name}_leaves{suffix}_v{variant}", "weight": 1}
+                    for variant in range(4)]
+
         save_json(ASSETS / f"blockstates/{name}_leaves.json", {"multipart": [
-            {"when": {"fruiting": "false"}, "apply": {"model": f"uwudimension:block/{name}_leaves"}},
-            {"when": {"fruiting": "true"}, "apply": {"model": f"uwudimension:block/{name}_leaves_fruiting"}},
+            {"when": {"fruiting": "false"}, "apply": variants(False)},
+            {"when": {"fruiting": "true"}, "apply": variants(True)},
         ]})
-        for suffix in ("", "_fruiting"):
-            save_json(ASSETS / f"models/block/{name}_leaves{suffix}.json", {
+        for variant in range(4):
+            for fruiting in (False, True):
+                suffix = "_fruiting" if fruiting else ""
+                texture_id = f"{name}_leaves{suffix}_v{variant}"
+                save_json(ASSETS / f"models/block/{texture_id}.json", {
+                    "parent": "minecraft:block/cube_all", "render_type": "minecraft:cutout_mipped",
+                    "textures": {"all": f"uwudimension:block/{texture_id}"},
+                })
+        # The block item uses a stable, full-canopy preview model; placed leaf
+        # blocks choose among the randomized variants in their blockstate.
+        for fruiting in (False, True):
+            suffix = "_fruiting" if fruiting else ""
+            texture_id = f"{name}_leaves{suffix}"
+            leaves_texture(spec, fruiting, 0).save(model_textures / f"{texture_id}.png")
+            save_json(ASSETS / f"models/block/{texture_id}.json", {
                 "parent": "minecraft:block/cube_all", "render_type": "minecraft:cutout_mipped",
-                "textures": {"all": f"uwudimension:block/{name}_leaves{suffix}"},
+                "textures": {"all": f"uwudimension:block/{texture_id}"},
             })
         save_json(ASSETS / f"models/item/{name}_leaves.json", {"parent": f"uwudimension:block/{name}_leaves"})
 

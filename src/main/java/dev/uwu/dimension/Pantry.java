@@ -86,9 +86,12 @@ public final class Pantry {
 
     private static void registerFood(String id, int nutrition, float saturation, int stackSize, Item remainder) {
         FoodBuff buff = buffFor(id);
+        // Spice of Life Onion's default diversity formula gives 11 nutrition and a
+        // 1.0 saturation modifier a score above 8, before this meal's beneficial buff.
+        // Keep each prepared dish hearty enough to meet the requested minimum.
         FoodProperties.Builder builder = new FoodProperties.Builder()
-                .nutrition(nutrition)
-                .saturationModifier(saturation)
+                .nutrition(Math.max(nutrition, 11))
+                .saturationModifier(Math.max(saturation, 1.0F))
                 .alwaysEdible()
                 .effect(() -> new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()), 1.0F);
         if (remainder != null) {

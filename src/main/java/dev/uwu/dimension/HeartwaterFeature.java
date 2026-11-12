@@ -38,7 +38,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     static final DeferredBlock<Block> ROSETTE = stone("rosette_mosaic", 8);
     static final DeferredBlock<Block> LACE = stone("midnight_lace", 5);
     static final DeferredBlock<Blossom> BLOSSOM = BLOCKS.register("drift_blossom", Blossom::new);
-    static { ITEMS.register("drift_blossom", () -> new net.minecraft.world.item.PlaceOnWaterBlockItem(BLOSSOM.get(), new net.minecraft.world.item.Item.Properties())); }
+    static { ITEMS.register("drift_blossom", () -> new net.minecraft.world.item.PlaceOnWaterBlockItem(
+            BLOSSOM.get(), PantryPlants.ingredientProperties())); }
     public static final class Blossom extends WaterlilyBlock {
         public Blossom(){super(BlockBehaviour.Properties.of().instabreak().noCollission().noOcclusion().sound(SoundType.LILY_PAD));}
     }

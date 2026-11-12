@@ -365,7 +365,144 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def crop_block_model(texture):
+    faces_x = {
+        "west": {"uv": [0, 0, 16, 16], "texture": "#crop"},
+        "east": {"uv": [16, 0, 0, 16], "texture": "#crop"},
+    }
+    faces_z = {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#crop"},
+        "south": {"uv": [16, 0, 0, 16], "texture": "#crop"},
+    }
+    elements = [
+        {"from": [4, -1, 0], "to": [4, 15, 16], "shade": False, "faces": faces_x},
+        {"from": [12, -1, 0], "to": [12, 15, 16], "shade": False,
+         "faces": {"west": {"uv": [16, 0, 0, 16], "texture": "#crop"},
+                   "east": {"uv": [0, 0, 16, 16], "texture": "#crop"}}},
+        {"from": [0, -1, 4], "to": [16, 15, 4], "shade": False, "faces": faces_z},
+        {"from": [0, -1, 12], "to": [16, 15, 12], "shade": False,
+         "faces": {"north": {"uv": [16, 0, 0, 16], "texture": "#crop"},
+                   "south": {"uv": [0, 0, 16, 16], "texture": "#crop"}}},
+    ]
+    # Add two diagonal leaf planes to the vanilla crossed-crop planes. This
+    # keeps the plant readable between viewing angles and gives flower heads
+    # more depth without using a shader or non-vanilla geometry.
+    for angle in (45, -45):
+        elements.append({
+            "from": [0.8, -1, 8], "to": [15.2, 15, 8],
+            "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": angle, "rescale": True},
+            "shade": False,
+            "faces": {
+                "north": {"uv": [0, 0, 16, 16], "texture": "#crop"},
+                "south": {"uv": [0, 0, 16, 16], "texture": "#crop"},
+            },
+        })
+    return {
+        "ambientocclusion": False,
+        "render_type": "minecraft:cutout",
+        "textures": {"crop": texture, "particle": texture},
+        "elements": elements,
+    }
+
+
+def drift_blossom_assets():
+    block_textures = ASSETS / "textures/block"
+    block_textures.mkdir(parents=True, exist_ok=True)
+
+    pad = make_image()
+    pad_draw = ImageDraw.Draw(pad)
+    pad_dark = hex_color("#356F58")
+    pad_base = hex_color("#62A77A")
+    pad_light = hex_color("#A9D99A")
+    # A notched lily pad gives the blossom a clear floating base.
+    pad_draw.polygon([(1, 7), (3, 4), (7, 2), (11, 3), (14, 6), (10, 6),
+                      (13, 9), (11, 12), (7, 14), (3, 12)], fill=pad_dark)
+    pad_draw.polygon([(2, 7), (4, 4), (7, 3), (10, 4), (12, 6), (9, 7),
+                      (11, 9), (10, 11), (7, 13), (4, 11)], fill=pad_base)
+    pad_draw.line((3, 10, 6, 9, 8, 7, 10, 5), fill=pad_light)
+    for point in ((4, 6), (6, 5), (8, 4), (5, 10), (8, 9), (9, 11), (11, 7)):
+        pad_draw.point(point, fill=pad_light)
+    # Carve the familiar lily-pad notch back out of the rim.
+    pad.putpixel((13, 6), (0, 0, 0, 0))
+    pad.putpixel((12, 7), (0, 0, 0, 0))
+    pad.save(block_textures / "drift_blossom_pad.png")
+
+    flower = make_image()
+    flower_draw = ImageDraw.Draw(flower)
+    stem = hex_color("#3F7954")
+    stem_light = hex_color("#87BC74")
+    pink = hex_color("#F08AB7")
+    pink_light = hex_color("#FFD3E6")
+    pink_dark = hex_color("#BF5E98")
+    gold = hex_color("#F3C75C")
+    gold_dark = hex_color("#B77D46")
+    # Short stalk and two lifted leaves make this read as a growing flower.
+    flower_draw.line((8, 15, 8, 8), fill=stem, width=2)
+    flower_draw.line((8, 13, 5, 11, 3, 11), fill=stem_light, width=2)
+    flower_draw.line((8, 12, 11, 10, 13, 10), fill=stem_light, width=2)
+    flower_draw.point((4, 11), fill=pad_light)
+    flower_draw.point((12, 10), fill=pad_light)
+    # Five overlapping petals create an open sakura-like bloom around a raised core.
+    for box in ((6, 1, 9, 5), (3, 3, 7, 7), (9, 3, 13, 7), (4, 6, 8, 9), (8, 6, 12, 9)):
+        flower_draw.ellipse(box, fill=pink_dark)
+    for box in ((6, 1, 8, 4), (4, 3, 7, 6), (9, 3, 12, 6), (5, 6, 8, 8), (8, 6, 11, 8)):
+        flower_draw.ellipse(box, fill=pink)
+    for point in ((7, 2), (5, 4), (10, 4), (6, 6), (9, 6), (5, 7)):
+        flower_draw.point(point, fill=pink_light)
+    flower_draw.rectangle((7, 4, 9, 6), fill=gold_dark)
+    flower_draw.rectangle((7, 4, 8, 5), fill=gold)
+    flower_draw.point((7, 4), fill=pink_light)
+    flower.save(block_textures / "drift_blossom_flower.png")
+
+    center = Image.new("RGBA", (16, 16), gold)
+    center_draw = ImageDraw.Draw(center)
+    center_draw.rectangle((0, 0, 15, 2), fill=gold_dark)
+    center_draw.rectangle((0, 13, 15, 15), fill=gold_dark)
+    center_draw.rectangle((0, 0, 2, 15), fill=gold_dark)
+    center_draw.rectangle((13, 0, 15, 15), fill=gold_dark)
+    center_draw.rectangle((5, 4, 10, 11), fill=gold)
+    center_draw.point((5, 4), fill=pink_light)
+    center.save(block_textures / "drift_blossom_center.png")
+
+    write_json(ASSETS / "models/block/drift_blossom.json", {
+        "ambientocclusion": False,
+        "render_type": "minecraft:cutout",
+        "textures": {
+            "pad": "uwudimension:block/drift_blossom_pad",
+            "flower": "uwudimension:block/drift_blossom_flower",
+            "center": "uwudimension:block/drift_blossom_center",
+            "particle": "uwudimension:block/drift_blossom_pad",
+        },
+        "elements": [
+            {
+                "from": [0, 0.25, 0], "to": [16, 0.5, 16],
+                "faces": {side: {"texture": "#pad"} for side in ("down", "up")},
+            },
+            {
+                "from": [0.8, 0.5, 8], "to": [15.2, 10.5, 8],
+                "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": True},
+                "shade": False,
+                "faces": {"north": {"uv": [0, 0, 16, 16], "texture": "#flower"},
+                          "south": {"uv": [0, 0, 16, 16], "texture": "#flower"}},
+            },
+            {
+                "from": [8, 0.5, 0.8], "to": [8, 10.5, 15.2],
+                "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": True},
+                "shade": False,
+                "faces": {"west": {"uv": [0, 0, 16, 16], "texture": "#flower"},
+                          "east": {"uv": [0, 0, 16, 16], "texture": "#flower"}},
+            },
+            {
+                "from": [7, 7.5, 7], "to": [9, 9.5, 9],
+                "faces": {side: {"texture": "#center"} for side in
+                          ("down", "up", "north", "south", "west", "east")},
+            },
+        ],
+    })
+
+
 def main():
+    drift_blossom_assets()
     for crop_id, spec in PLANTS.items():
         block_models = {}
         for stage in range(8):
@@ -373,12 +510,7 @@ def main():
             block_models[f"age={stage}"] = {"model": f"uwudimension:block/{tex}"}
             (ASSETS / "textures/block").mkdir(parents=True, exist_ok=True)
             crop_texture(crop_id, stage, spec).save(ASSETS / f"textures/block/{tex}.png")
-            write_json(ASSETS / f"models/block/{tex}.json", {
-                "parent": "minecraft:block/crop",
-                "render_type": "minecraft:cutout",
-                "ambientocclusion": False,
-                "textures": {"crop": f"uwudimension:block/{tex}"},
-            })
+            write_json(ASSETS / f"models/block/{tex}.json", crop_block_model(f"uwudimension:block/{tex}"))
         write_json(ASSETS / f"blockstates/{crop_id}.json", {"variants": block_models})
 
         count = {"type": "minecraft:uniform", "min": spec["count"][0], "max": spec["count"][1]}
