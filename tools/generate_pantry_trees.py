@@ -10,22 +10,22 @@ DATA = ROOT / "src/main/resources/data/uwudimension"
 TREES = {
     "heartbloom": {
         "fruit": "heartberry", "fruit_name": "Heartberries", "leaves": "#F3AFCB",
-        "leaf_dark": "#C979A2", "leaf_light": "#FFDCEA", "wood": "#794657",
-        "wood_light": "#B77883", "wood_dark": "#4A3145", "fruit_color": "#EF638D",
+        "leaf_dark": "#C979A2", "leaf_light": "#FFDCEA", "wood": "#A46779",
+        "wood_light": "#D799A7", "wood_dark": "#714557", "fruit_color": "#EF638D",
         "fruit_light": "#FFE2EC", "sapling": "Heartbloom Sapling", "log": "Heartbloom Log",
         "leaf_name": "Heartbloom Fruiting Leaves", "biomes": ["ribbon_bluffs", "lantern_fens"],
     },
     "starpetal": {
         "fruit": "starfruit", "fruit_name": "Starfruit", "leaves": "#F5B8BD",
-        "leaf_dark": "#D3869D", "leaf_light": "#FFE5C5", "wood": "#8D4E54",
-        "wood_light": "#D38C7A", "wood_dark": "#543B4B", "fruit_color": "#F4C94F",
+        "leaf_dark": "#D3869D", "leaf_light": "#FFE5C5", "wood": "#A86268",
+        "wood_light": "#DB988B", "wood_dark": "#71434A", "fruit_color": "#F4C94F",
         "fruit_light": "#FFF4AB", "sapling": "Starpetal Sapling", "log": "Starpetal Log",
         "leaf_name": "Starpetal Fruiting Leaves", "biomes": ["velvet_highlands", "ribbon_bluffs"],
     },
     "moonberry": {
         "fruit": "moonberry", "fruit_name": "Moonberries", "leaves": "#C8B9E8",
-        "leaf_dark": "#9280C5", "leaf_light": "#EEE8FF", "wood": "#60507F",
-        "wood_light": "#A58BC0", "wood_dark": "#403752", "fruit_color": "#59427F",
+        "leaf_dark": "#9280C5", "leaf_light": "#EEE8FF", "wood": "#796796",
+        "wood_light": "#B7A0D1", "wood_dark": "#514568", "fruit_color": "#59427F",
         "fruit_light": "#A993D4", "sapling": "Moonberry Sapling", "log": "Moonberry Log",
         "leaf_name": "Moonberry Fruiting Leaves", "biomes": ["lantern_fens", "velvet_highlands"],
     },
