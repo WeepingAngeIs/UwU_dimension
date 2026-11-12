@@ -3,7 +3,7 @@ loaderVersion="[4,)"
 license="All Rights Reserved"
 [[mods]]
 modId="uwudimension"
-version="1.2.8"
+version="1.2.9"
 displayName="UwU Dimension"
 description="A flowering cliff, a lake of wandering lights, and a bathhouse waiting for its first guests."
 [[dependencies.uwudimension]]

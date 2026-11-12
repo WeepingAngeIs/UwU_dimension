@@ -4,6 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -81,17 +85,82 @@ public final class Pantry {
     }
 
     private static void registerFood(String id, int nutrition, float saturation, int stackSize, Item remainder) {
+        FoodBuff buff = buffFor(id);
         FoodProperties.Builder builder = new FoodProperties.Builder()
                 .nutrition(nutrition)
-                .saturationModifier(saturation);
+                .saturationModifier(saturation)
+                .alwaysEdible()
+                .effect(() -> new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()), 1.0F);
         if (remainder != null) {
             builder.usingConvertsTo(remainder);
         }
         Item.Properties properties = new Item.Properties()
                 .food(builder.build())
                 .stacksTo(stackSize);
-        FOOD.put(id, ITEMS.register(id, () -> new Item(properties)));
+        FOOD.put(id, ITEMS.register(id, () -> new PantryFoodItem(properties, buff.effect(), buff.durationTicks(), buff.amplifier())));
     }
+
+    private static FoodBuff buffFor(String id) {
+        return switch (id) {
+            case "sweet_berry_cheesecake_slice" -> buff(MobEffects.REGENERATION, 8, 0);
+            case "apple_pie_slice" -> buff(MobEffects.MOVEMENT_SPEED, 8, 0);
+            case "uwu_pancake_stack" -> buff(MobEffects.JUMP, 12, 0);
+            case "pink_melon_popsicle" -> buff(MobEffects.MOVEMENT_SPEED, 8, 0);
+            case "pink_fruit_salad" -> buff(MobEffects.JUMP, 12, 0);
+            case "sweet_berry_cookie" -> buff(MobEffects.REGENERATION, 8, 0);
+            case "blush_cabbage_roll" -> buff(MobEffects.DAMAGE_RESISTANCE, 10, 0);
+            case "strawberry_milk" -> buff(MobEffects.MOVEMENT_SPEED, 8, 0);
+            case "chorus_fruit_pie_slice" -> buff(MobEffects.JUMP, 8, 0);
+            case "chorus_blossom_tea" -> buff(MobEffects.DAMAGE_RESISTANCE, 8, 0);
+            case "dragon_breath_soda" -> buff(MobEffects.MOVEMENT_SPEED, 8, 0);
+            case "shulker_soup" -> buff(MobEffects.DAMAGE_RESISTANCE, 12, 0);
+            case "strider_moss_stew" -> buff(MobEffects.DAMAGE_BOOST, 16, 0);
+            case "nether_fungus_skewer" -> buff(MobEffects.DAMAGE_BOOST, 10, 0);
+            case "stuffed_hoglin_roast" -> buff(MobEffects.DAMAGE_BOOST, 18, 0);
+            case "magma_gelatin" -> buff(MobEffects.JUMP, 10, 0);
+
+            case "blossom_ice_cream_bucket" -> buff(MobEffects.JUMP, 20, 1);
+            case "strawberry_ice_cream_cake" -> buff(MobEffects.REGENERATION, 18, 0);
+            case "flower_stuffed_chicken" -> buff(MobEffects.DAMAGE_RESISTANCE, 32, 1);
+            case "heartberry_burger" -> buff(MobEffects.DAMAGE_BOOST, 24, 1);
+            case "blossom_hot_pocket" -> buff(MobEffects.DAMAGE_BOOST, 16, 0);
+            case "uwu_ramen_bowl" -> buff(MobEffects.REGENERATION, 28, 1);
+            case "cherry_picnic_bento" -> buff(MobEffects.MOVEMENT_SPEED, 28, 1);
+            case "berry_cinnamon_roll" -> buff(MobEffects.MOVEMENT_SPEED, 16, 0);
+            case "starberry_waffle_stack" -> buff(MobEffects.JUMP, 18, 0);
+            case "creamy_mushroom_stew" -> buff(MobEffects.DAMAGE_RESISTANCE, 22, 1);
+            case "loaded_heart_potato" -> buff(MobEffects.DAMAGE_RESISTANCE, 18, 0);
+            case "rose_berry_pie_slice" -> buff(MobEffects.REGENERATION, 16, 0);
+            case "pastel_sakura_dumplings" -> buff(MobEffects.DAMAGE_RESISTANCE, 18, 0);
+            case "honey_glazed_ham" -> buff(MobEffects.DAMAGE_BOOST, 28, 1);
+            case "moonberry_pudding" -> buff(MobEffects.REGENERATION, 16, 0);
+            case "chicken_flower_pot_pie" -> buff(MobEffects.DAMAGE_RESISTANCE, 24, 1);
+
+            case "sakura_katsu_curry" -> buff(MobEffects.DAMAGE_BOOST, 40, 1);
+            case "heart_omurice" -> buff(MobEffects.REGENERATION, 28, 1);
+            case "cherry_onigiri_bento" -> buff(MobEffects.MOVEMENT_SPEED, 24, 1);
+            case "golden_taiyaki" -> buff(MobEffects.DAMAGE_BOOST, 16, 0);
+            case "cozy_udon_hotpot" -> buff(MobEffects.DAMAGE_RESISTANCE, 32, 1);
+            case "sakura_melonpan" -> buff(MobEffects.MOVEMENT_SPEED, 16, 0);
+            case "strawberry_shokupan" -> buff(MobEffects.REGENERATION, 18, 0);
+            case "sweet_bean_dorayaki" -> buff(MobEffects.JUMP, 16, 0);
+            case "sakura_mochi_ice_cream" -> buff(MobEffects.JUMP, 18, 0);
+            case "maple_ice_cream_sundae" -> buff(MobEffects.MOVEMENT_SPEED, 20, 1);
+            case "maple_poutine" -> buff(MobEffects.DAMAGE_RESISTANCE, 40, 1);
+            case "tourtiere_hand_pie" -> buff(MobEffects.DAMAGE_BOOST, 28, 1);
+            case "nanaimo_heart_bar" -> buff(MobEffects.REGENERATION, 16, 0);
+            case "maple_butter_tart" -> buff(MobEffects.MOVEMENT_SPEED, 16, 0);
+            case "saskatoon_berry_pie_slice" -> buff(MobEffects.REGENERATION, 20, 0);
+            case "maple_glazed_salmon_bowl" -> buff(MobEffects.DAMAGE_RESISTANCE, 28, 1);
+            default -> throw new IllegalArgumentException("No pantry buff configured for " + id);
+        };
+    }
+
+    private static FoodBuff buff(Holder<MobEffect> effect, int durationSeconds, int amplifier) {
+        return new FoodBuff(effect, durationSeconds * 20, amplifier);
+    }
+
+    private record FoodBuff(Holder<MobEffect> effect, int durationTicks, int amplifier) {}
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

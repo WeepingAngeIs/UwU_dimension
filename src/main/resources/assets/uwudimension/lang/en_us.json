@@ -147,5 +147,6 @@
   "item.uwudimension.nanaimo_heart_bar": "Nanaimo Heart Bar",
   "item.uwudimension.maple_butter_tart": "Maple Butter Tart",
   "item.uwudimension.saskatoon_berry_pie_slice": "Saskatoon Berry Pie Slice",
-  "item.uwudimension.maple_glazed_salmon_bowl": "Maple-Glazed Salmon Bowl"
+  "item.uwudimension.maple_glazed_salmon_bowl": "Maple-Glazed Salmon Bowl",
+  "item.uwudimension.food_effect": "Buff when eaten: %1$s %2$s (%3$ss)"
 }
