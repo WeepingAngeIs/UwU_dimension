@@ -1,0 +1,41 @@
+{
+  "display": {
+    "icon": {
+      "id": "uwudimension:heartwater_locket"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.a_rather_pretty_place.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.a_rather_pretty_place.description"
+    },
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "enter_heartwater": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "uwudimension:heartwater"
+      }
+    },
+    "enter_blossom_reach": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "uwudimension:blossom_reach"
+      }
+    },
+    "enter_sakura_reach": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "uwudimension:sakura_reach"
+      }
+    }
+  },
+  "requirements": [
+    ["enter_heartwater", "enter_blossom_reach", "enter_sakura_reach"]
+  ]
+}
