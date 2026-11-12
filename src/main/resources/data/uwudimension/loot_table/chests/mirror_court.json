@@ -639,6 +639,97 @@
           "name": "minecraft:diamond"
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.35
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:peach_blossom_mochi",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:strawberry_cream_cake",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:heart_cookie",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:strawberry_milk",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:custard_bun",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:pink_starfruit",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:moonberry",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sunberry",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:lavender_dewberry",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:aqua_cherries",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:petal_jam",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:fairy_dew",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:blossom_lantern_charm",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:petal_parasol",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:shrine_bell_charm",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:seashell_picnic_basket",
+          "weight": 3
+        }
+      ]
     }
   ]
 }

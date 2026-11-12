@@ -6,7 +6,7 @@ A standalone adventure mod for Minecraft Java 1.21.1. Flowering cliffs surround 
 
 ## Install and travel
 
-Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.2.0.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
+Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.2.5.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
 
 Pick up a small flower to unlock the Heartwater Locket recipe. Craft **one compass, one amethyst shard and one small flower** anywhere in the crafting grid. Right-click the locket to travel. Carry the same locket and right-click it again to return to the place where you entered. A fresh unbound locket used inside takes you back to Overworld spawn.
 
@@ -43,6 +43,10 @@ Stained glass brings daylight into the homes through the back wall and roof. Pet
 A flower guardian pursues whoever hurts it, including hostile mobs. If it cannot reach its attacker within about 30 seconds, it closes the distance, grabs them and launches them roughly 8,000 blocks upward. Take care when aiming near one.
 
 While inside Blossom Reach, **crouch and use the locket** to receive coordinates for nearby Blush Reef water. Swim down to see the living coral, luminous Rose Nacre, fish and Ribbon Dolphins. Aquatic Pokémon use Cobblemon's normal player spawner. Allow time around deep open water for a school or Pokémon to arrive.
+
+## Pantry finds
+
+Search the dimension's Lootr chests for Peach Blossom Mochi, Strawberry Cream Cake, Heart Cookie, Strawberry Milk, Custard Bun, Pink Starfruit and four jewel-toned berries, plus Petal Jam and Fairy Dew. These use normal Minecraft food and hunger rules. Rare keepsakes include a Blossom Lantern Charm, Petal Parasol, Shrine Bell Charm and Seashell Picnic Basket. The pantry items have their own pixel textures and do not add weapon recipes.
 
 In the lower galleries, follow the lit walkway to the Mirror Court and ring its bell. Velvet Vesper has 500 health. Watch its boss bar and step away from its aimed needle and pollen attacks. Strike while its mirror is open. Hitting the raised mirror charms the attacker for 200 game ticks (10 seconds at normal speed), including when firing a projectile. Other players keep their own independent status. Ringing an occupied court cannot summon a second boss.
 
