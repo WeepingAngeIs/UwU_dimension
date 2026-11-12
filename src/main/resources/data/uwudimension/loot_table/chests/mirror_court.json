@@ -821,6 +821,97 @@
           "weight": 1
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.14
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sakura_katsu_curry",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:heart_omurice",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:cherry_onigiri_bento",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:golden_taiyaki",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:cozy_udon_hotpot",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sakura_melonpan",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:strawberry_shokupan",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sweet_bean_dorayaki",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sakura_mochi_ice_cream",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:maple_ice_cream_sundae",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:maple_poutine",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:tourtiere_hand_pie",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:nanaimo_heart_bar",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:maple_butter_tart",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:saskatoon_berry_pie_slice",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:maple_glazed_salmon_bowl",
+          "weight": 1
+        }
+      ]
     }
   ]
 }

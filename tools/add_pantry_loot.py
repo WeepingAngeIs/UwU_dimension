@@ -16,6 +16,14 @@ HEARTY_FOOD = (
     "starberry_waffle_stack", "creamy_mushroom_stew", "loaded_heart_potato", "rose_berry_pie_slice",
     "pastel_sakura_dumplings", "honey_glazed_ham", "moonberry_pudding", "chicken_flower_pot_pie",
 )
+
+CUISINE_FOOD = (
+    "sakura_katsu_curry", "heart_omurice", "cherry_onigiri_bento", "golden_taiyaki",
+    "cozy_udon_hotpot", "sakura_melonpan", "strawberry_shokupan", "sweet_bean_dorayaki",
+    "sakura_mochi_ice_cream", "maple_ice_cream_sundae", "maple_poutine", "tourtiere_hand_pie",
+    "nanaimo_heart_bar", "maple_butter_tart", "saskatoon_berry_pie_slice", "maple_glazed_salmon_bowl",
+)
+
 OLD_FOOD = (
     "peach_blossom_mochi", "strawberry_cream_cake", "heart_cookie", "custard_bun", "pink_starfruit",
     "moonberry", "sunberry", "lavender_dewberry", "aqua_cherries", "petal_jam", "fairy_dew",
@@ -24,7 +32,7 @@ OLD_FOOD = (
 
 
 def is_old_pantry_entry(entry: dict) -> bool:
-    known = set((*OLD_FOOD, *FOOD, *HEARTY_FOOD))
+    known = set((*OLD_FOOD, *FOOD, *HEARTY_FOOD, *CUISINE_FOOD))
     return entry.get("name") in {f"uwudimension:{item}" for item in known}
 
 
@@ -51,6 +59,7 @@ def main() -> None:
                 pools.append(pool)
         pools.append(item_pool(FOOD, 0.35))
         pools.append(item_pool(HEARTY_FOOD, 0.18))
+        pools.append(item_pool(CUISINE_FOOD, 0.14))
         table["pools"] = pools
         path.write_text(json.dumps(table, indent=2) + chr(10), encoding="utf-8")
 

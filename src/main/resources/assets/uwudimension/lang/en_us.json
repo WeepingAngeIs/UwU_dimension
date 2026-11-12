@@ -131,5 +131,21 @@
   "block.uwudimension.black_heartsill_carpet": "Black Heartsill Carpet",
   "entity.uwudimension.blossom_warden": "UwU Guardian",
   "advancements.uwudimension.a_rather_pretty_place.title": "A Rather Pretty Place",
-  "advancements.uwudimension.a_rather_pretty_place.description": "Step into a realm of petals, hearts, and quiet waters."
+  "advancements.uwudimension.a_rather_pretty_place.description": "Step into a realm of petals, hearts, and quiet waters.",
+  "item.uwudimension.sakura_katsu_curry": "Sakura Katsu Curry",
+  "item.uwudimension.heart_omurice": "Heart Omurice",
+  "item.uwudimension.cherry_onigiri_bento": "Cherry Onigiri Bento",
+  "item.uwudimension.golden_taiyaki": "Golden Taiyaki",
+  "item.uwudimension.cozy_udon_hotpot": "Cozy Udon Hotpot",
+  "item.uwudimension.sakura_melonpan": "Sakura Melonpan",
+  "item.uwudimension.strawberry_shokupan": "Strawberry Cream Shokupan",
+  "item.uwudimension.sweet_bean_dorayaki": "Sweet Bean Dorayaki",
+  "item.uwudimension.sakura_mochi_ice_cream": "Sakura Mochi Ice Cream",
+  "item.uwudimension.maple_ice_cream_sundae": "Maple Ice Cream Sundae",
+  "item.uwudimension.maple_poutine": "Maple Poutine",
+  "item.uwudimension.tourtiere_hand_pie": "Tourtière Hand Pie",
+  "item.uwudimension.nanaimo_heart_bar": "Nanaimo Heart Bar",
+  "item.uwudimension.maple_butter_tart": "Maple Butter Tart",
+  "item.uwudimension.saskatoon_berry_pie_slice": "Saskatoon Berry Pie Slice",
+  "item.uwudimension.maple_glazed_salmon_bowl": "Maple-Glazed Salmon Bowl"
 }

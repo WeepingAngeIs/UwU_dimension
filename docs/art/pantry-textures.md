@@ -1,6 +1,6 @@
 # Heartwater pantry pixel art
 
-The pantry has two original 4-by-4 pixel-art atlases. The split scripts reduce each illustrated tile to a crisp 16-by-16 inventory icon with a small palette, hard-edged transparency and a nearest-neighbor preview.
+The pantry has three original 4-by-4 pixel-art atlases. The split scripts reduce each illustrated tile to a crisp 16-by-16 inventory icon with a small palette, hard-edged transparency and nearest-neighbor previews.
 
 ## First pantry atlas
 
@@ -20,4 +20,13 @@ The pantry has two original 4-by-4 pixel-art atlases. The split scripts reduce e
 | 3 | starberry_waffle_stack, creamy_mushroom_stew, loaded_heart_potato, rose_berry_pie_slice |
 | 4 | pastel_sakura_dumplings, honey_glazed_ham, moonberry_pudding, chicken_flower_pot_pie |
 
-The silhouettes draw on familiar cooking and comfort-food themes from Farmer's Delight, End's Delight and Nether's Delight. The pastel treatment, names, and pixel artwork are original to UwU Dimension. The reference mods are not required. Pantry dishes appear as items in the dimension's Lootr chests and have no crafting recipes.
+## Japanese and Canadian atlas
+
+| Row | Sprite names, left to right |
+| --- | --- |
+| 1 | sakura_katsu_curry, heart_omurice, cherry_onigiri_bento, golden_taiyaki |
+| 2 | cozy_udon_hotpot, sakura_melonpan, strawberry_shokupan, sweet_bean_dorayaki |
+| 3 | sakura_mochi_ice_cream, maple_ice_cream_sundae, maple_poutine, tourtiere_hand_pie |
+| 4 | nanaimo_heart_bar, maple_butter_tart, saskatoon_berry_pie_slice, maple_glazed_salmon_bowl |
+
+The dishes take cues from Japanese regional cuisine and Canadian favorites such as poutine and tourtière, then give them an original pastel UwU Dimension presentation. The referenced cuisine mods are not required. Every pantry food has a shapeless recipe and may also appear in the dimension's Lootr chests.

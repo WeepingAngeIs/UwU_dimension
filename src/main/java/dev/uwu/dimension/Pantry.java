@@ -25,32 +25,49 @@ public final class Pantry {
         food("pink_fruit_salad", 6, 0.7F, 16);
         food("sweet_berry_cookie", 3, 0.4F, 64);
         food("blush_cabbage_roll", 5, 0.6F, 64);
-        food("strawberry_milk", 3, 0.4F, 16);
+        foodWithRemainder("strawberry_milk", 3, 0.4F, 16, Items.GLASS_BOTTLE);
         food("chorus_fruit_pie_slice", 4, 0.5F, 64);
-        food("chorus_blossom_tea", 3, 0.4F, 16);
-        food("dragon_breath_soda", 3, 0.4F, 16);
-        food("shulker_soup", 6, 0.7F, 16);
-        food("strider_moss_stew", 8, 0.6F, 16);
+        foodWithRemainder("chorus_blossom_tea", 3, 0.4F, 16, Items.GLASS_BOTTLE);
+        foodWithRemainder("dragon_breath_soda", 3, 0.4F, 16, Items.GLASS_BOTTLE);
+        foodWithRemainder("shulker_soup", 6, 0.7F, 16, Items.BOWL);
+        foodWithRemainder("strider_moss_stew", 8, 0.6F, 16, Items.BOWL);
         food("nether_fungus_skewer", 5, 0.6F, 64);
         food("stuffed_hoglin_roast", 8, 0.8F, 16);
         food("magma_gelatin", 5, 0.6F, 64);
 
-        heartyFood("blossom_ice_cream_bucket", 10, 0.9F, 1, Items.BUCKET);
+        foodWithRemainder("blossom_ice_cream_bucket", 10, 0.9F, 1, Items.BUCKET);
         food("strawberry_ice_cream_cake", 9, 0.9F, 16);
         food("flower_stuffed_chicken", 13, 1.0F, 1);
         food("heartberry_burger", 11, 0.95F, 16);
         food("blossom_hot_pocket", 8, 0.8F, 16);
-        heartyFood("uwu_ramen_bowl", 12, 0.95F, 1, Items.BOWL);
+        foodWithRemainder("uwu_ramen_bowl", 12, 0.95F, 1, Items.BOWL);
         food("cherry_picnic_bento", 12, 1.0F, 1);
         food("berry_cinnamon_roll", 8, 0.8F, 16);
         food("starberry_waffle_stack", 9, 0.9F, 16);
-        heartyFood("creamy_mushroom_stew", 10, 0.9F, 1, Items.BOWL);
+        foodWithRemainder("creamy_mushroom_stew", 10, 0.9F, 1, Items.BOWL);
         food("loaded_heart_potato", 9, 0.85F, 16);
         food("rose_berry_pie_slice", 8, 0.8F, 16);
         food("pastel_sakura_dumplings", 9, 0.85F, 16);
         food("honey_glazed_ham", 12, 1.0F, 1);
-        food("moonberry_pudding", 8, 0.85F, 16);
+        foodWithRemainder("moonberry_pudding", 8, 0.85F, 16, Items.BOWL);
         food("chicken_flower_pot_pie", 11, 0.95F, 1);
+
+        food("sakura_katsu_curry", 14, 1.0F, 1);
+        food("heart_omurice", 12, 1.0F, 1);
+        food("cherry_onigiri_bento", 11, 0.95F, 1);
+        food("golden_taiyaki", 8, 0.8F, 16);
+        foodWithRemainder("cozy_udon_hotpot", 13, 1.0F, 1, Items.BOWL);
+        food("sakura_melonpan", 8, 0.8F, 16);
+        food("strawberry_shokupan", 9, 0.9F, 16);
+        food("sweet_bean_dorayaki", 8, 0.8F, 16);
+        food("sakura_mochi_ice_cream", 8, 0.85F, 16);
+        foodWithRemainder("maple_ice_cream_sundae", 10, 0.9F, 1, Items.BOWL);
+        food("maple_poutine", 14, 1.0F, 1);
+        food("tourtiere_hand_pie", 12, 1.0F, 1);
+        food("nanaimo_heart_bar", 8, 0.85F, 16);
+        food("maple_butter_tart", 8, 0.85F, 16);
+        food("saskatoon_berry_pie_slice", 9, 0.9F, 16);
+        foodWithRemainder("maple_glazed_salmon_bowl", 12, 0.95F, 1, Items.BOWL);
     }
 
     private Pantry() {}
@@ -59,7 +76,7 @@ public final class Pantry {
         registerFood(id, nutrition, saturation, stackSize, null);
     }
 
-    private static void heartyFood(String id, int nutrition, float saturation, int stackSize, Item remainder) {
+    private static void foodWithRemainder(String id, int nutrition, float saturation, int stackSize, Item remainder) {
         registerFood(id, nutrition, saturation, stackSize, remainder);
     }
 
