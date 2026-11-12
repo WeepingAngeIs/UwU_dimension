@@ -12,10 +12,13 @@
       "item": "minecraft:honey_bottle"
     },
     {
-      "item": "minecraft:wheat"
+      "item": "uwudimension:sakura_flour"
     },
     {
-      "item": "minecraft:milk_bucket"
+      "item": "uwudimension:chocolate_syrup"
+    },
+    {
+      "item": "uwudimension:vanilla_extract"
     }
   ],
   "result": {

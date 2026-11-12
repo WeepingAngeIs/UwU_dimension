@@ -3,13 +3,13 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "minecraft:wheat"
+      "item": "uwudimension:sakura_flour"
     },
     {
       "item": "minecraft:milk_bucket"
     },
     {
-      "item": "minecraft:sweet_berries"
+      "item": "uwudimension:heartberry"
     },
     {
       "item": "minecraft:sugar"

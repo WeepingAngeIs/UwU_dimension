@@ -6,7 +6,7 @@
       "item": "minecraft:bowl"
     },
     {
-      "item": "minecraft:wheat"
+      "item": "uwudimension:sakura_flour"
     },
     {
       "item": "minecraft:cooked_porkchop"
@@ -19,6 +19,9 @@
     },
     {
       "item": "minecraft:brown_mushroom"
+    },
+    {
+      "item": "uwudimension:glowginger"
     }
   ],
   "result": {

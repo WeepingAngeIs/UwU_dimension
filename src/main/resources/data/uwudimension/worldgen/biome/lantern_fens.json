@@ -86,7 +86,8 @@
       "minecraft:trees_sparse_jungle"
     ],
     [
-      "uwudimension:heartwater_landscape"
+      "uwudimension:heartwater_landscape",
+      "uwudimension:pantry_garden"
     ]
   ],
   "has_precipitation": true,

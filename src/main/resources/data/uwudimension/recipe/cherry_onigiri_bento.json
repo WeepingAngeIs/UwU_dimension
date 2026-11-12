@@ -18,7 +18,10 @@
       "item": "minecraft:carrot"
     },
     {
-      "item": "minecraft:sweet_berries"
+      "item": "uwudimension:sakura_rice"
+    },
+    {
+      "item": "uwudimension:heartberry"
     }
   ],
   "result": {

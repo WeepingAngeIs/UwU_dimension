@@ -9,7 +9,7 @@
       "item": "minecraft:dried_kelp"
     },
     {
-      "item": "minecraft:sweet_berries"
+      "item": "uwudimension:heartberry"
     },
     {
       "item": "minecraft:baked_potato"
@@ -18,7 +18,7 @@
       "item": "minecraft:carrot"
     },
     {
-      "item": "minecraft:pink_petals"
+      "item": "uwudimension:sakura_rice"
     }
   ],
   "result": {

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "uwudimension:block/sakura_rice_crop_stage7"
+  }
+}

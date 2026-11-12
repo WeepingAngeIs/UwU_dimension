@@ -6,7 +6,7 @@
       "item": "minecraft:cooked_salmon"
     },
     {
-      "item": "minecraft:honey_bottle"
+      "item": "uwudimension:maple_syrup"
     },
     {
       "item": "minecraft:bowl"
@@ -18,7 +18,10 @@
       "item": "minecraft:beetroot"
     },
     {
-      "item": "minecraft:kelp"
+      "item": "uwudimension:sakura_rice"
+    },
+    {
+      "item": "uwudimension:glowginger"
     }
   ],
   "result": {

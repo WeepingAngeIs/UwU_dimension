@@ -6,19 +6,19 @@
       "item": "minecraft:milk_bucket"
     },
     {
-      "item": "minecraft:snowball"
+      "item": "uwudimension:shaved_ice"
     },
     {
       "item": "minecraft:sugar"
     },
     {
-      "item": "minecraft:honey_bottle"
+      "item": "uwudimension:maple_syrup"
     },
     {
       "item": "minecraft:bowl"
     },
     {
-      "item": "minecraft:pink_petals"
+      "item": "uwudimension:vanilla_extract"
     }
   ],
   "result": {

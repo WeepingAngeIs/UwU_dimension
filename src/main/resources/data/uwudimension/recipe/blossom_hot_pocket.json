@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "minecraft:wheat"
+      "item": "uwudimension:sakura_flour"
     },
     {
       "item": "minecraft:cooked_chicken"
@@ -15,7 +15,7 @@
       "item": "minecraft:egg"
     },
     {
-      "item": "minecraft:sweet_berries"
+      "item": "uwudimension:heartberry_jam"
     }
   ],
   "result": {
