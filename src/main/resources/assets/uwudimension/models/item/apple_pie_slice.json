@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/sunberry"
+    "layer0": "uwudimension:item/apple_pie_slice"
   }
 }

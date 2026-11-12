@@ -4,27 +4,29 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS = ROOT / "docs" / "art" / "uwu_pantry_sprite_atlas.png"
+ART = ROOT / "docs" / "art"
+ATLAS = ART / "uwu_pantry_sprite_atlas.png"
 OUTPUT = ROOT / "src" / "main" / "resources" / "assets" / "uwudimension" / "textures" / "item"
 MODELS = ROOT / "src" / "main" / "resources" / "assets" / "uwudimension" / "models" / "item"
+PREVIEW = ART / "uwu_pantry_textures_preview.png"
 
 SPRITES = (
-    "peach_blossom_mochi",
-    "strawberry_cream_cake",
-    "heart_cookie",
+    "sweet_berry_cheesecake_slice",
+    "apple_pie_slice",
+    "uwu_pancake_stack",
+    "pink_melon_popsicle",
+    "pink_fruit_salad",
+    "sweet_berry_cookie",
+    "blush_cabbage_roll",
     "strawberry_milk",
-    "custard_bun",
-    "pink_starfruit",
-    "moonberry",
-    "sunberry",
-    "lavender_dewberry",
-    "aqua_cherries",
-    "petal_jam",
-    "fairy_dew",
-    "blossom_lantern_charm",
-    "petal_parasol",
-    "shrine_bell_charm",
-    "seashell_picnic_basket",
+    "chorus_fruit_pie_slice",
+    "chorus_blossom_tea",
+    "dragon_breath_soda",
+    "shulker_soup",
+    "strider_moss_stew",
+    "nether_fungus_skewer",
+    "stuffed_hoglin_roast",
+    "magma_gelatin",
 )
 
 
@@ -36,21 +38,16 @@ def main() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     MODELS.mkdir(parents=True, exist_ok=True)
 
+    preview = Image.new("RGB", (512, 512), (39, 31, 48))
     for index, name in enumerate(SPRITES):
         row, column = divmod(index, 4)
-        sprite = atlas.crop((x_edges[column], y_edges[row], x_edges[column + 1], y_edges[row + 1]))
-        alpha = sprite.getchannel("A")
-        rgb = sprite.convert("RGB").quantize(
-            colors=32,
-            method=Image.Quantize.MEDIANCUT,
-            dither=Image.Dither.NONE,
-        ).convert("RGB")
-        pixel_art = rgb.resize((32, 32), Image.Resampling.NEAREST).convert("RGBA")
-        reduced_alpha = alpha.resize((32, 32), Image.Resampling.NEAREST).point(
-            lambda value: 255 if value >= 144 else 0
-        )
-        pixel_art.putalpha(reduced_alpha)
-        pixel_art.save(OUTPUT / f"{name}.png", optimize=True)
+        cell = atlas.crop((x_edges[column], y_edges[row], x_edges[column + 1], y_edges[row + 1]))
+        alpha = cell.getchannel("A").resize((16, 16), Image.Resampling.NEAREST)
+        rgb = cell.convert("RGB").resize((16, 16), Image.Resampling.NEAREST)
+        reduced = rgb.quantize(colors=12, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+        texture = reduced.convert("RGB").convert("RGBA")
+        texture.putalpha(alpha.point(lambda value: 255 if value >= 144 else 0))
+        texture.save(OUTPUT / f"{name}.png", optimize=True)
         model = (
             '{\n'
             '  "parent": "minecraft:item/generated",\n'
@@ -60,6 +57,10 @@ def main() -> None:
             '}\n'
         )
         (MODELS / f"{name}.json").write_text(model, encoding="utf-8")
+        preview_icon = texture.resize((128, 128), Image.Resampling.NEAREST)
+        preview.paste(preview_icon, (column * 128, row * 128), preview_icon)
+
+    preview.save(PREVIEW, optimize=True)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/pink_starfruit"
+    "layer0": "uwudimension:item/sweet_berry_cookie"
   }
 }

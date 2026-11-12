@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/seashell_picnic_basket"
+    "layer0": "uwudimension:item/strider_moss_stew"
   }
 }

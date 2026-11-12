@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/shrine_bell_charm"
+    "layer0": "uwudimension:item/dragon_breath_soda"
   }
 }

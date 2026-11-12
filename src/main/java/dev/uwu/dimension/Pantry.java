@@ -7,35 +7,32 @@ import java.util.function.Supplier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Cute dimension snacks and keepsakes, found in Heartwater's Lootr chests. */
+/** Pastel takes on familiar dishes, found in Heartwater's Lootr chests. */
 public final class Pantry {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("uwudimension");
     private static final Map<String, Supplier<Item>> FOOD = new LinkedHashMap<>();
-    private static final Map<String, Supplier<Item>> KEEPSAKES = new LinkedHashMap<>();
 
     static {
-        food("peach_blossom_mochi", 4, 0.6F, 64);
-        food("strawberry_cream_cake", 6, 0.7F, 64);
-        food("heart_cookie", 3, 0.4F, 64);
-        food("strawberry_milk", 4, 0.6F, 16);
-        food("custard_bun", 5, 0.6F, 64);
-        food("pink_starfruit", 4, 0.6F, 64);
-        food("moonberry", 2, 0.3F, 64);
-        food("sunberry", 3, 0.4F, 64);
-        food("lavender_dewberry", 2, 0.3F, 64);
-        food("aqua_cherries", 2, 0.3F, 64);
-        food("petal_jam", 4, 0.6F, 16);
-        food("fairy_dew", 2, 0.4F, 16);
-
-        keepsake("blossom_lantern_charm");
-        keepsake("petal_parasol");
-        keepsake("shrine_bell_charm");
-        keepsake("seashell_picnic_basket");
+        food("sweet_berry_cheesecake_slice", 4, 0.5F, 64);
+        food("apple_pie_slice", 4, 0.5F, 64);
+        food("uwu_pancake_stack", 6, 0.6F, 64);
+        food("pink_melon_popsicle", 3, 0.5F, 64);
+        food("pink_fruit_salad", 6, 0.7F, 16);
+        food("sweet_berry_cookie", 3, 0.4F, 64);
+        food("blush_cabbage_roll", 5, 0.6F, 64);
+        food("strawberry_milk", 3, 0.4F, 16);
+        food("chorus_fruit_pie_slice", 4, 0.5F, 64);
+        food("chorus_blossom_tea", 3, 0.4F, 16);
+        food("dragon_breath_soda", 3, 0.4F, 16);
+        food("shulker_soup", 6, 0.7F, 16);
+        food("strider_moss_stew", 8, 0.6F, 16);
+        food("nether_fungus_skewer", 5, 0.6F, 64);
+        food("stuffed_hoglin_roast", 8, 0.8F, 16);
+        food("magma_gelatin", 5, 0.6F, 64);
     }
 
     private Pantry() {}
@@ -49,21 +46,14 @@ public final class Pantry {
         FOOD.put(id, ITEMS.register(id, () -> new Item(properties)));
     }
 
-    private static void keepsake(String id) {
-        Item.Properties properties = new Item.Properties().rarity(Rarity.UNCOMMON).stacksTo(1);
-        KEEPSAKES.put(id, ITEMS.register(id, () -> new Item(properties)));
-    }
-
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
-        bus.addListener(Pantry::addToCreativeTabs);
+        bus.addListener(Pantry::addToCreativeTab);
     }
 
-    private static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+    private static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             FOOD.values().forEach(item -> event.accept(item.get()));
-        } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            KEEPSAKES.values().forEach(item -> event.accept(item.get()));
         }
     }
 }

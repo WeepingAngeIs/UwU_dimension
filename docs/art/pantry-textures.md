@@ -1,12 +1,12 @@
 # Heartwater pantry sprites
 
-The atlas is the original 4-by-4 pixel-art sheet. `tools/split_pantry_sprites.py` cuts it into separate transparent 32-by-32 item textures and matching generated-item models.
+The source atlas is an original 4-by-4 illustration sheet. `tools/split_pantry_sprites.py` reduces each cell to a crisp 16-by-16 item icon with a limited palette and hard-edged transparency, then writes the matching item model and enlarged nearest-neighbor preview.
 
 | Row | Sprite names, left to right |
 | --- | --- |
-| 1 | peach_blossom_mochi, strawberry_cream_cake, heart_cookie, strawberry_milk |
-| 2 | custard_bun, pink_starfruit, moonberry, sunberry |
-| 3 | lavender_dewberry, aqua_cherries, petal_jam, fairy_dew |
-| 4 | blossom_lantern_charm, petal_parasol, shrine_bell_charm, seashell_picnic_basket |
+| 1 | sweet_berry_cheesecake_slice, apple_pie_slice, uwu_pancake_stack, pink_melon_popsicle |
+| 2 | pink_fruit_salad, sweet_berry_cookie, blush_cabbage_roll, strawberry_milk |
+| 3 | chorus_fruit_pie_slice, chorus_blossom_tea, dragon_breath_soda, shulker_soup |
+| 4 | strider_moss_stew, nether_fungus_skewer, stuffed_hoglin_roast, magma_gelatin |
 
-Twelve are edible items and four are uncommon keepsakes. The game textures use a restrained color palette and hard-edged alpha so the icons stay crisp in inventories.
+The dish silhouettes riff on cozy food themes from Farmer's Delight, End's Delight, and Nether's Delight. The names, pastel presentation and pixel artwork are original to UwU Dimension. These are inventory foods found in the dimension's Lootr chests; the reference mods are not dependencies.

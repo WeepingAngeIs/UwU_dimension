@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/blossom_lantern_charm"
+    "layer0": "uwudimension:item/chorus_blossom_tea"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/strawberry_cream_cake"
+    "layer0": "uwudimension:item/shulker_soup"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/custard_bun"
+    "layer0": "uwudimension:item/blush_cabbage_roll"
   }
 }

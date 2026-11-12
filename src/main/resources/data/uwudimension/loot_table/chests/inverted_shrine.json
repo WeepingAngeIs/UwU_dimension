@@ -677,83 +677,83 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "uwudimension:peach_blossom_mochi",
-          "weight": 4
+          "name": "uwudimension:sweet_berry_cheesecake_slice",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:strawberry_cream_cake",
-          "weight": 4
+          "name": "uwudimension:apple_pie_slice",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:heart_cookie",
-          "weight": 4
+          "name": "uwudimension:uwu_pancake_stack",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:pink_melon_popsicle",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:pink_fruit_salad",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:sweet_berry_cookie",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:blush_cabbage_roll",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
           "name": "uwudimension:strawberry_milk",
-          "weight": 4
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:custard_bun",
-          "weight": 4
+          "name": "uwudimension:chorus_fruit_pie_slice",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:pink_starfruit",
-          "weight": 4
+          "name": "uwudimension:chorus_blossom_tea",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:moonberry",
-          "weight": 4
+          "name": "uwudimension:dragon_breath_soda",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:sunberry",
-          "weight": 4
+          "name": "uwudimension:shulker_soup",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:lavender_dewberry",
-          "weight": 4
+          "name": "uwudimension:strider_moss_stew",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:aqua_cherries",
-          "weight": 4
+          "name": "uwudimension:nether_fungus_skewer",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:petal_jam",
-          "weight": 4
+          "name": "uwudimension:stuffed_hoglin_roast",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:fairy_dew",
-          "weight": 4
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:blossom_lantern_charm",
-          "weight": 3
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:petal_parasol",
-          "weight": 3
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:shrine_bell_charm",
-          "weight": 3
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:seashell_picnic_basket",
-          "weight": 3
+          "name": "uwudimension:magma_gelatin",
+          "weight": 1
         }
       ]
     }

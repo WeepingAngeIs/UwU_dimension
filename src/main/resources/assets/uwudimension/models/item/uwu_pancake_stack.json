@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/heart_cookie"
+    "layer0": "uwudimension:item/uwu_pancake_stack"
   }
 }

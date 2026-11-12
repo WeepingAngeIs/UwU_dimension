@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "uwudimension:item/peach_blossom_mochi"
+    "layer0": "uwudimension:item/magma_gelatin"
   }
 }
