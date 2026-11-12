@@ -18,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** A visibly spinning weapon with an accelerated Loyalty-style return flight. */
+/** A point-first thrown weapon with an accelerated Loyalty-style return flight. */
 public final class RelicFlight extends ThrowableItemProjectile {
     private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> KIND =
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,

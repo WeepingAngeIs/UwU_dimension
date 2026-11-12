@@ -23,9 +23,9 @@ public final class RangedRelicRenderer {
     @SubscribeEvent public static void renderers(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(RangedRelics.LASH.get(),LashRenderer::new);
         event.registerEntityRenderer(RangedRelics.FLIGHT.get(),FlightRenderer::new);
-        event.registerEntityRenderer(RangedRelics.PROJECTILE.get(),net.minecraft.client.renderer.entity.SnowballRenderer::new);
+        event.registerEntityRenderer(RangedRelics.PROJECTILE.get(),net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
     }
-    private static void vertex(VertexConsumer b,PoseStack.Pose p,Vec3 v,float u,float texV,int color,int light){
+    static void vertex(VertexConsumer b,PoseStack.Pose p,Vec3 v,float u,float texV,int color,int light){
         b.addVertex(p,(float)v.x,(float)v.y,(float)v.z).setColor(color).setUv(u,texV).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(p,0,1,0);
     }
     static final class LashRenderer extends EntityRenderer<RibbonLash> {
