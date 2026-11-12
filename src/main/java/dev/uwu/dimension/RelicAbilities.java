@@ -78,10 +78,11 @@ final class RelicAbilities {
                 sound(level, player, whip ? SoundEvents.FISHING_BOBBER_THROW : SoundEvents.AMETHYST_BLOCK_CHIME, 1.15F);
             }
             case LANTERN_SPEAR, TIDELACE_TRIDENT -> {
-                Snowball copy = new Snowball(level, player);
+                RelicProjectile copy = RangedRelics.PROJECTILE.get().create(level);
+                if (copy == null) return false;
                 copy.setItem(new ItemStack(Arsenal.WEAPONS.get(relic).get()));
                 copy.getPersistentData().putString(THROW, relic.id());
-                copy.shootFromRotation(player, player.getXRot(), player.getYRot(), -1.5F, 1.85F, 0.4F);
+                copy.launchFrom(player, 1.85F, 0.4F);
                 level.addFreshEntity(copy);
                 sound(level, player, SoundEvents.TRIDENT_THROW.value(), 1.2F);
             }

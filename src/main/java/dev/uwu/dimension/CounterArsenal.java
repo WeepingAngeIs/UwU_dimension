@@ -84,8 +84,9 @@ public final class CounterArsenal {
         CounterEffects.ward(level,p,e);
         if(e.shape().equals("scythe")){RelicFlight.castCounter(level,p,e,false);return;}
         if(e.shape().equals("whip")){RibbonLash.castCounter(level,p,e);return;}
-        Snowball projectile=new Snowball(level,p);projectile.setItem(new ItemStack(ITEMS.get(e.id()).get()));
-        projectile.getPersistentData().putString("uwu.counter",e.id());projectile.setNoGravity(true);
-        projectile.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.65F,0);level.addFreshEntity(projectile);
+        RelicProjectile projectile=RangedRelics.PROJECTILE.get().create(level);if(projectile==null)return;
+        projectile.setItem(new ItemStack(ITEMS.get(e.id()).get()));
+        projectile.getPersistentData().putString("uwu.counter",e.id());
+        projectile.launchFrom(p,1.65F,0);level.addFreshEntity(projectile);
     }
 }

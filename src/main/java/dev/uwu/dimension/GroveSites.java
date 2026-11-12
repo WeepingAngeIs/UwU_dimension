@@ -13,6 +13,12 @@ import java.util.Random;
 /** Pure land survey. Base-height queries sample the generator, never a neighboring generating chunk. */
 public final class GroveSites {
     public static final int SPACING=768;
+    private static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome> RIBBON_BLUFFS =
+            net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("ribbon_bluffs"));
+    private static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome> LANTERN_FENS =
+            net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("lantern_fens"));
+    private static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome> VELVET_HIGHLANDS =
+            net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("velvet_highlands"));
     private static final class Maps {
         final Map<Long,Site> sites=new ConcurrentHashMap<>();
         final Map<Long,Integer> heights=new ConcurrentHashMap<>();
@@ -35,10 +41,12 @@ public final class GroveSites {
     }
     static boolean cherry(ServerLevel level,int x,int y,int z){
         var chunks=level.getChunkSource();
-        return chunks.getGenerator().getBiomeSource().getNoiseBiome(
+        var biome=chunks.getGenerator().getBiomeSource().getNoiseBiome(
                 net.minecraft.core.QuartPos.fromBlock(x),net.minecraft.core.QuartPos.fromBlock(y),
-                net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler())
-                .is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE);
+                net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler());
+        if(level.dimension().equals(ReefLife.HEARTWATER_REALM))
+            return biome.is(RIBBON_BLUFFS)||biome.is(LANTERN_FENS)||biome.is(VELVET_HIGHLANDS);
+        return biome.is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE);
     }
     public static Site site(ServerLevel level,int gx,int gz){
         Maps m=maps(level);
@@ -72,7 +80,7 @@ public final class GroveSites {
             if(Math.max(Math.abs(gx),Math.abs(gz))!=ring)continue;
             Site s=site(level,gx,gz);
             if(!s.usable())continue;
-            if(level.dimension().equals(ReefLife.REACH)){
+            if(ReefLife.isSettlementRealm(level)){
                 var village=BlossomVillage.survey(level,s,false);
                 if(village.isEmpty()||!walkToVillage(level,s,village.get()))continue;
             }

@@ -3,7 +3,10 @@
   "biomes": [
     "minecraft:cherry_grove",
     "minecraft:lush_caves",
-    "uwudimension:blush_reef"
+    "uwudimension:blush_reef",
+    "uwudimension:ribbon_bluffs",
+    "uwudimension:lantern_fens",
+    "uwudimension:velvet_highlands"
   ],
   "features": "uwudimension:blossom_settlements",
   "step": "surface_structures"

@@ -1,7 +1,7 @@
-name: UwU Dimension 1.4.3 hosted build
+name: UwU Dimension 1.4.4 hosted build
 on:
   push:
-    branches: [feature/weapon-loyalty-neon-lights-1.4.3]
+    branches: [feature/projectile-glow-residents-1.4.4]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,5 +22,5 @@ jobs:
         run: ./gradlew jar --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.4.3
+          name: UwU-Dimension-1.4.4
           path: build/libs/*.jar

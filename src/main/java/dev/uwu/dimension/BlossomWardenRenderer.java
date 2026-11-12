@@ -7,8 +7,15 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,11 +25,39 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,BlossomWardenRenderer.Model> {
     private static final ModelLayerLocation LAYER=new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("uwudimension","blossom_warden"),"petals");
     private static final ResourceLocation TEXTURE=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/entity/blossom_warden.png");
-    public BlossomWardenRenderer(EntityRendererProvider.Context context) { super(context,new Model(context.bakeLayer(LAYER)),.78F); }
+    private static final ResourceLocation PAD=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/block/drift_blossom_pad.png");
+    public BlossomWardenRenderer(EntityRendererProvider.Context context) {
+        super(context,new Model(context.bakeLayer(LAYER)),.78F);
+        addLayer(new LilyPadCrownLayer(this));
+    }
     @Override public ResourceLocation getTextureLocation(BlossomWarden entity) { return TEXTURE; }
     @SubscribeEvent public static void model(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER,Model::layer); }
     @SubscribeEvent public static void renderer(EntityRenderersEvent.RegisterRenderers e) {
         e.registerEntityRenderer(People.BLOSSOM_WARDEN.get(),BlossomWardenRenderer::new);
+    }
+
+    private static final class LilyPadCrownLayer extends RenderLayer<BlossomWarden,Model> {
+        LilyPadCrownLayer(BlossomWardenRenderer renderer){super(renderer);}
+        @Override public void render(PoseStack poses,MultiBufferSource buffers,int light,BlossomWarden entity,
+                float limbSwing,float limbSwingAmount,float partialTick,float age,float netHeadYaw,float headPitch){
+            poses.pushPose();
+            getParentModel().root().getChild("head").translateAndRotate(poses);
+            VertexConsumer consumer=buffers.getBuffer(RenderType.entityCutoutNoCull(PAD));
+            for(int i=0;i<10;i++){
+                float angle=(float)(Math.PI*2*i/10.0);
+                poses.pushPose();
+                poses.translate(Math.cos(angle)*.48,-.48,Math.sin(angle)*.48);
+                poses.mulPose(Axis.YP.rotationDegrees(-angle*Mth.RAD_TO_DEG));
+                poses.mulPose(Axis.XP.rotationDegrees(-42));
+                float half=.245F;
+                RangedRelicRenderer.vertex(consumer,poses.last(),new Vec3(-half,-half,0),0,1,0xffffffff,light);
+                RangedRelicRenderer.vertex(consumer,poses.last(),new Vec3(half,-half,0),1,1,0xffffffff,light);
+                RangedRelicRenderer.vertex(consumer,poses.last(),new Vec3(half,half,0),1,0,0xffffffff,light);
+                RangedRelicRenderer.vertex(consumer,poses.last(),new Vec3(-half,half,0),0,0,0xffffffff,light);
+                poses.popPose();
+            }
+            poses.popPose();
+        }
     }
 
     static final class Model extends HierarchicalModel<BlossomWarden> {
@@ -40,10 +75,6 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
                     .texOffs(0,70).addBox(-7,10,-5,14,3,10),PartPose.ZERO);
             var head=body.addOrReplaceChild("head",CubeListBuilder.create().texOffs(0,0).addBox(-8,-10,-6,16,11,12)
                     .texOffs(58,0).addBox(-9,-10.5F,-7,18,4,14),PartPose.offset(0,-4,0));
-            for(int i=0;i<5;i++) {
-                float x=(i-2)*3.4F, y=-11.3F-(i%2)*1.4F, z=-5.7F+(i%3)*1.2F;
-                flower(head,"crown"+i,x,y,z,(i-2)*.12F);
-            }
             flower(body,"brooch",-4,1,-6.6F,-.2F);
             for(int sign:new int[]{-1,1}) {
                 var arm=body.addOrReplaceChild(sign<0?"right":"left",CubeListBuilder.create()

@@ -27,9 +27,9 @@ public final class HeartArrow extends Arrow {
     }
     @Override public void tick() {
         super.tick();
-        if (isAlive() && level() instanceof ServerLevel server && tickCount % 2 == 0) {
-            server.sendParticles(getPersistentData().getBoolean("ripple") ? ParticleTypes.GLOW : CupidParticles.PASTEL_HEART.get(), getX(), getY(), getZ(), 1, 0, 0, 0, 0);
-            if (tickCount % 4 == 0) HeartCombatGlow.trail(server, position(), getPersistentData().getBoolean("ripple") ? 1 : 0);
+        if (isAlive() && level() instanceof ServerLevel server) {
+            server.sendParticles(getPersistentData().getBoolean("ripple") ? ParticleTypes.GLOW : CupidParticles.PASTEL_HEART.get(), getX(), getY(), getZ(), 1, .025, .025, .025, 0);
+            HeartCombatGlow.trail(server, position(), getPersistentData().getBoolean("ripple") ? 1 : 0);
         }
     }
     @Override protected void onHitEntity(EntityHitResult hit) {

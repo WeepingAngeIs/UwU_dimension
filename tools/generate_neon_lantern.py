@@ -9,17 +9,17 @@ ASSETS = ROOT / "src/main/resources/assets/uwudimension"
 DATA = ROOT / "src/main/resources/data/uwudimension"
 
 COLORS = {
-    "edge": (122, 25, 73, 255),
-    "edge_light": (183, 43, 103, 255),
-    "pink": (236, 77, 139, 255),
-    "light": (255, 145, 190, 255),
-    "pale": (255, 201, 224, 255),
-    "core": (255, 237, 246, 255),
+    "edge": (202, 86, 139, 255),
+    "edge_light": (232, 126, 174, 255),
+    "pink": (247, 161, 198, 255),
+    "light": (255, 193, 219, 255),
+    "pale": (255, 222, 237, 255),
+    "core": (255, 244, 250, 255),
     "white": (255, 255, 255, 255),
-    "silver_dark": (79, 91, 108, 255),
-    "silver": (174, 190, 210, 255),
-    "silver_light": (232, 239, 249, 255),
-    "silver_white": (250, 252, 255, 255),
+    "silver_dark": (91, 105, 123, 255),
+    "silver": (188, 201, 217, 255),
+    "silver_light": (230, 237, 247, 255),
+    "silver_white": (255, 255, 255, 255),
 }
 
 
@@ -112,17 +112,45 @@ def row_runs(image):
 
 def silver_bezel_pixels(heart):
     shape = {(x, y) for y in range(16) for x in range(16) if heart.getpixel((x, y))[3]}
+    inside = set(shape)
+    for _ in range(3):
+        inside = {
+            (x, y) for x, y in inside
+            if all((x + dx, y + dy) in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        }
     outline = {
-        (x + dx, y + dy)
-        for x, y in shape
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
-        if 0 <= x + dx < 16 and 0 <= y + dy < 16 and (x + dx, y + dy) not in shape
+        (x, y) for x, y in shape
+        if any((x + dx, y + dy) not in shape for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
     }
+    inner_outline = {
+        (x, y) for x, y in inside
+        if any((x + dx, y + dy) not in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+    }
+    outline |= inner_outline
     image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     metal = metal_texture()
     for x, y in outline:
         image.putpixel((x, y), metal.getpixel((x, y)))
     return image
+
+
+def heart_ring_pixels(heart):
+    shape = {(x, y) for y in range(16) for x in range(16) if heart.getpixel((x, y))[3]}
+    inside = set(shape)
+    for _ in range(3):
+        inside = {
+            (x, y) for x, y in inside
+            if all((x + dx, y + dy) in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        }
+    metal = {(x, y) for x, y in shape
+             if any((x + dx, y + dy) not in shape for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    metal |= {(x, y) for x, y in inside
+              if any((x + dx, y + dy) not in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    ring = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    for x, y in shape - inside:
+        if (x, y) not in metal:
+            ring.putpixel((x, y), heart.getpixel((x, y)))
+    return ring
 
 
 def face(texture, uv=None, shade=None):
@@ -135,16 +163,17 @@ def face(texture, uv=None, shade=None):
 
 
 def heart_model(hanging):
-    heart = heart_pixels()
-    bezel = silver_bezel_pixels(heart)
+    silhouette = heart_pixels()
+    heart = heart_ring_pixels(silhouette)
+    bezel = silver_bezel_pixels(silhouette)
     elements = []
-    # A polished silver bezel traces the stepped heart silhouette immediately
-    # around the pink glass, with the outer rails continuing into the hanger.
+    # Trace both edges of the open heart with slim silver pixelwork. The pink
+    # glass sits between the rails, leaving the center genuinely open.
     for left, right, row, color in row_runs(bezel):
         y = 14 - row
         elements.append({
-            "from": [left, y, 3],
-            "to": [right, y + 1, 4],
+            "from": [left, y, 4],
+            "to": [right, y + 1, 12],
             "shade": False,
             "faces": {
                 "north": face("metal", [left, row, right, row + 1], False),
@@ -158,8 +187,8 @@ def heart_model(hanging):
     for left, right, row, color in row_runs(heart):
         y = 14 - row
         elements.append({
-            "from": [left, y, 4],
-            "to": [right, y + 1, 12],
+            "from": [left, y, 5],
+            "to": [right, y + 1, 11],
             "shade": False,
             "faces": {
                 "north": face("heart", [left, row, right, row + 1], False),
@@ -170,42 +199,19 @@ def heart_model(hanging):
                 "down": face("rim", [0, 0, right - left, 8]),
             },
         })
-
-    # The silver cage stays visible outside the stepped heart and frames its glow.
-    for left, right, bottom, top in ((0, 1, 2, 14), (15, 16, 2, 14)):
-        elements.append({
-            "from": [left, bottom, 3], "to": [right, top, 13], "shade": False,
-            "faces": {
-                "north": face("metal", [0, 2, 2, 14], False),
-                "south": face("metal", [0, 2, 2, 14], False),
-                "east": face("metal"), "west": face("metal"),
-                "up": face("metal"), "down": face("metal"),
-            },
-        })
-    for bottom, top in ((1, 3), (13, 15)):
-        elements.append({
-            "from": [5, bottom, 3], "to": [11, top, 13], "shade": False,
-            "faces": {
-                "north": face("metal", [5, bottom, 11, top], False),
-                "south": face("metal", [5, bottom, 11, top], False),
-                "east": face("metal"), "west": face("metal"),
-                "up": face("metal"), "down": face("metal"),
-            },
-        })
-
     if hanging:
         elements.extend([
-            {"from": [6, 14, 6], "to": [10, 15, 10], "shade": False,
+            {"from": [7, 12, 7], "to": [9, 14, 9], "shade": False,
              "faces": {name: face("metal") for name in ("north", "south", "east", "west", "up", "down")}},
-            {"from": [7, 15, 7], "to": [9, 16, 9], "shade": False,
+            {"from": [7.5, 14, 7.5], "to": [8.5, 16, 8.5], "shade": False,
              "faces": {name: face("metal") for name in ("north", "south", "east", "west", "up", "down")}},
         ])
     else:
-        # A small polished bail loop mirrors the handle on a standing vanilla lantern.
+        # A tight silver bail joins the heart's cleft to the hanging point.
         elements.extend([
-            {"from": [7, 14, 7], "to": [9, 15, 9], "shade": False,
+            {"from": [7, 12, 7], "to": [9, 14, 9], "shade": False,
              "faces": {name: face("metal") for name in ("north", "south", "east", "west", "up", "down")}},
-            {"from": [6, 15, 7], "to": [10, 16, 9], "shade": False,
+            {"from": [6.5, 14, 7], "to": [9.5, 15, 9], "shade": False,
              "faces": {name: face("metal") for name in ("north", "south", "east", "west", "up", "down")}},
         ])
 
@@ -235,16 +241,10 @@ def preview(heart, flower):
     metal = metal_texture()
     bezel = silver_bezel_pixels(heart)
     lantern.alpha_composite(bezel)
-    for y in range(3, 13):
-        lantern.putpixel((0, y), metal.getpixel((4, y)))
-        lantern.putpixel((15, y), metal.getpixel((4, y)))
-    for y in (1, 2, 13, 14):
-        for x in range(5, 11):
-            lantern.putpixel((x, y), metal.getpixel((x, y)))
     for y in (0, 1):
         lantern.putpixel((7, y), metal.getpixel((7, y)))
         lantern.putpixel((8, y), metal.getpixel((8, y)))
-    lantern.alpha_composite(heart)
+    lantern.alpha_composite(heart_ring_pixels(heart))
     enlarged_heart = lantern.resize((192, 192), Image.Resampling.NEAREST)
     enlarged_flower = flower.resize((128, 128), Image.Resampling.NEAREST)
     enlarged_heart.putalpha(enlarged_heart.getchannel("A"))
@@ -259,9 +259,10 @@ def main():
     block_textures = ASSETS / "textures/block"
     particle_textures = ASSETS / "textures/particle"
     heart = heart_pixels()
+    heart_ring = heart_ring_pixels(heart)
     flower = flower_particle()
-    heart.save(block_textures / "heart_neon_heart.png")
-    heart.save(particle_textures / "neon_heart.png")
+    heart_ring.save(block_textures / "heart_neon_heart.png")
+    heart_ring.save(particle_textures / "neon_heart.png")
     flower.save(particle_textures / "neon_flower.png")
     metal_texture().save(block_textures / "heart_neon_metal.png")
     Image.new("RGBA", (16, 16), COLORS["edge"]).save(block_textures / "heart_neon_rim.png")

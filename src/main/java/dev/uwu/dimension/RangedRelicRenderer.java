@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -17,10 +18,12 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 public final class RangedRelicRenderer {
     static final ResourceLocation LASH=Arsenal.id("textures/entity/ribbon_lash.png");
     static final ResourceLocation SLASH=Arsenal.id("textures/entity/element_slash.png");
+    private static final ResourceLocation HARE_ORB=Arsenal.id("textures/particle/neon_heart.png");
     static int color(int element){return switch(element){case 1->0xff9deeff;case 2->0xff9961d4;case 3->0xffffd175;default->0xffff86c2;};}
     @SubscribeEvent public static void renderers(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(RangedRelics.LASH.get(),LashRenderer::new);
         event.registerEntityRenderer(RangedRelics.FLIGHT.get(),FlightRenderer::new);
+        event.registerEntityRenderer(RangedRelics.PROJECTILE.get(),net.minecraft.client.renderer.entity.SnowballRenderer::new);
     }
     private static void vertex(VertexConsumer b,PoseStack.Pose p,Vec3 v,float u,float texV,int color,int light){
         b.addVertex(p,(float)v.x,(float)v.y,(float)v.z).setColor(color).setUv(u,texV).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(p,0,1,0);
@@ -59,20 +62,39 @@ public final class RangedRelicRenderer {
         @Override public ResourceLocation getTextureLocation(RelicFlight e){return SLASH;}
         @Override public void render(RelicFlight e,float yaw,float partial,PoseStack poses,MultiBufferSource buffers,int light){
             poses.pushPose();
-            // Pixel silhouettes stay face-on to each viewer while the scythe rotates in its plane.
-            poses.mulPose(entityRenderDispatcher.cameraOrientation());
             if(e.wave()){
+                poses.mulPose(entityRenderDispatcher.cameraOrientation());
                 poses.scale(2.3F,2.3F,2.3F);
                 var b=buffers.getBuffer(RenderType.entityTranslucent(SLASH));
                 vertex(b,poses.last(),new Vec3(-1,-.5,0),0,1,color(e.element()),15728880);
                 vertex(b,poses.last(),new Vec3(1,-.5,0),1,1,color(e.element()),15728880);
                 vertex(b,poses.last(),new Vec3(1,.5,0),1,0,color(e.element()),15728880);
                 vertex(b,poses.last(),new Vec3(-1,.5,0),0,0,color(e.element()),15728880);
+            }else if(e.hareOrb()){
+                // The scepter itself returns to the player, but its travelling cast is a
+                // bright pastel heart instead of a second copy of the item.
+                poses.mulPose(entityRenderDispatcher.cameraOrientation());
+                var glow=buffers.getBuffer(RenderType.entityTranslucent(HARE_ORB));
+                heart(glow,poses,.56F,0x78ff83c7);
+                heart(glow,poses,.34F,0xffffffff);
             }else{
-                poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*42));poses.scale(1.8F,1.8F,1.8F);
+                // Trident-style alignment: the long axis points along the projectile's
+                // velocity, leaving the 2-D pixel weapon edge-on during forward flight.
+                float flightYaw=Mth.rotLerp(partial,e.yRotO,e.getYRot());
+                float flightPitch=Mth.lerp(partial,e.xRotO,e.getXRot());
+                poses.mulPose(Axis.YP.rotationDegrees(flightYaw-90.0F));
+                poses.mulPose(Axis.ZP.rotationDegrees(flightPitch+90.0F));
+                poses.scale(1.8F,1.8F,1.8F);
                 itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,15728880,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }
             poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
+        }
+        private static void heart(VertexConsumer consumer,PoseStack poses,float size,int tint){
+            float half=size*.5F;
+            vertex(consumer,poses.last(),new Vec3(-half,-half,0),0,1,tint,15728880);
+            vertex(consumer,poses.last(),new Vec3(half,-half,0),1,1,tint,15728880);
+            vertex(consumer,poses.last(),new Vec3(half,half,0),1,0,tint,15728880);
+            vertex(consumer,poses.last(),new Vec3(-half,half,0),0,0,tint,15728880);
         }
     }
 }

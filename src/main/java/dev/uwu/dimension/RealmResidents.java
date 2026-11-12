@@ -14,9 +14,13 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class RealmResidents {
     public static final String ORIGIN="uwu.keeper_origin";
     private static final Set<Villager> pending=Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<ZombieVillager> pendingUndead=Collections.newSetFromMap(new IdentityHashMap<>());
     public static boolean applies(Level level){
-        var id=level.dimension().location();
-        return level instanceof ServerLevel&&id.getNamespace().equals("uwudimension")&&Set.of("heartwater","blossom_reach","sakura_reach").contains(id.getPath());
+        return level instanceof ServerLevel&&appliesDimension(level.dimension());
+    }
+    public static boolean appliesDimension(net.minecraft.resources.ResourceKey<Level> dimension){
+        var id=dimension.location();
+        return id.getNamespace().equals("uwudimension")&&Set.of("heartwater","blossom_reach","sakura_reach").contains(id.getPath());
     }
     public static void register(){
         NeoForge.EVENT_BUS.addListener(RealmResidents::join);
@@ -25,8 +29,31 @@ public final class RealmResidents {
     }
     private static void join(EntityJoinLevelEvent event){
         if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.VILLAGER&&event.getEntity() instanceof Villager v)pending.add(v);
+        else if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.ZOMBIE_VILLAGER
+                &&event.getEntity() instanceof ZombieVillager zombie)pendingUndead.add(zombie);
     }
     private static void tick(ServerTickEvent.Post event){
+        for(var zombie:List.copyOf(pendingUndead)){
+            if(zombie.isRemoved()||!zombie.isAlive()){pendingUndead.remove(zombie);continue;}
+            if(!applies(zombie.level())){pendingUndead.remove(zombie);continue;}
+            if(!(zombie.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(zombie.blockPosition()))continue;
+            if(level.getEntity(zombie.getUUID())!=zombie)continue;
+            boolean dusk=zombie.getPersistentData().getCompound(ORIGIN).getBoolean("WasDusk");
+            var custom=(dusk?People.DUSK_ZOMBIE:People.PETAL_ZOMBIE).get().create(level);if(custom==null)continue;
+            var saved=new CompoundTag();zombie.saveWithoutId(saved);custom.load(saved);
+            var passengers=List.copyOf(zombie.getPassengers());var vehicle=zombie.getVehicle();
+            zombie.setRemoved(Entity.RemovalReason.DISCARDED);
+            if(level.addFreshEntity(custom)){
+                if(vehicle!=null)custom.startRiding(vehicle,true);
+                passengers.forEach(p->p.startRiding(custom,true));pendingUndead.remove(zombie);
+            }else{
+                zombie.revive();
+                if(level.addFreshEntity(zombie)){
+                    if(vehicle!=null)zombie.startRiding(vehicle,true);
+                    passengers.forEach(p->p.startRiding(zombie,true));
+                }
+            }
+        }
         for(var v:List.copyOf(pending)){
             if(v.isRemoved()||!v.isAlive()){pending.remove(v);continue;}
             if(!applies(v.level())){pending.remove(v);continue;}
@@ -63,7 +90,14 @@ public final class RealmResidents {
         if(event.getEntity() instanceof Keeper keeper&&event.getOutcome() instanceof ZombieVillager zombie){
             var tag=new CompoundTag();keeper.saveWithoutId(tag);tag.putBoolean("WasDusk",keeper.getType()==People.DUSK_KEEPER.get());
             zombie.getPersistentData().put(ORIGIN,tag);
-        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof Keeper keeper&&zombie.getPersistentData().contains(ORIGIN)){
+            var customType=tag.getBoolean("WasDusk")?People.DUSK_ZOMBIE.get():People.PETAL_ZOMBIE.get();
+            if(zombie.getType()!=customType&&zombie.convertTo(customType,true) instanceof ZombieVillager custom)
+                custom.getPersistentData().put(ORIGIN,tag.copy());
+        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof ZombieVillager undead
+                &&zombie.getPersistentData().contains(ORIGIN)){
+            undead.getPersistentData().put(ORIGIN,zombie.getPersistentData().getCompound(ORIGIN).copy());
+        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof Keeper keeper
+                &&zombie.getPersistentData().contains(ORIGIN)){
             var prior=zombie.getPersistentData().getCompound(ORIGIN);var now=new CompoundTag();keeper.saveWithoutId(now);
             for(String key:List.of("Companion","Hearth","Settled","NextGift","OfferedJobLevel","VillageCourt","SeekLegacyCourt","Inventory"))if(prior.contains(key))now.put(key,prior.get(key).copy());
             keeper.readAdditionalSaveData(now);

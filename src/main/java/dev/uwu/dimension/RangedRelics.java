@@ -29,6 +29,8 @@ public final class RangedRelics {
         EntityType.Builder.<RibbonLash>of(RibbonLash::new, MobCategory.MISC).sized(.15F,.15F).clientTrackingRange(12).updateInterval(1).build("uwudimension:ribbon_lash"));
     public static final Supplier<EntityType<RelicFlight>> FLIGHT = TYPES.register("relic_flight", () ->
         EntityType.Builder.<RelicFlight>of(RelicFlight::new, MobCategory.MISC).sized(.4F,.4F).clientTrackingRange(12).updateInterval(1).build("uwudimension:relic_flight"));
+    public static final Supplier<EntityType<RelicProjectile>> PROJECTILE = TYPES.register("relic_projectile", () ->
+        EntityType.Builder.<RelicProjectile>of(RelicProjectile::new, MobCategory.MISC).sized(.25F,.25F).clientTrackingRange(12).updateInterval(1).build("uwudimension:relic_projectile"));
     static void register(IEventBus bus) {
         TYPES.register(bus);
         bus.addListener(ScytheInput::register);

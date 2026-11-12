@@ -1,0 +1,10 @@
+{
+  "match": {
+    "type": [
+      "uwudimension:votive_arrow",
+      "uwudimension:relic_flight",
+      "uwudimension:relic_projectile"
+    ]
+  },
+  "luminance": 14
+}

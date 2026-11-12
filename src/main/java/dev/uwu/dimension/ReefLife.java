@@ -29,6 +29,10 @@ public final class ReefLife {
     public static final ResourceKey<Level> REACH = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("sakura_reach"));
     public static final ResourceKey<Level> PREVIEW = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("blossom_reach"));
     static final ResourceKey<Level> HEARTWATER_REALM = ResourceKey.create(Registries.DIMENSION, UwUDimension.id("heartwater"));
+    static boolean isSettlementRealm(Level level) {
+        return level.dimension().equals(REACH) || level.dimension().equals(PREVIEW)
+                || level.dimension().equals(HEARTWATER_REALM);
+    }
     static boolean isReach(Level level) { return level.dimension().equals(REACH)||level.dimension().equals(PREVIEW); }
     static boolean isProduceRealm(Level level) { return isReach(level) || level.dimension().equals(HEARTWATER_REALM); }
     public static final ResourceKey<Biome> REEF = ResourceKey.create(Registries.BIOME, UwUDimension.id("blush_reef"));

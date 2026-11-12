@@ -41,7 +41,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     static { ITEMS.register("drift_blossom", () -> new net.minecraft.world.item.PlaceOnWaterBlockItem(
             BLOSSOM.get(), PantryPlants.ingredientProperties())); }
     public static final class Blossom extends WaterlilyBlock {
-        public Blossom(){super(BlockBehaviour.Properties.of().instabreak().noCollission().noOcclusion().sound(SoundType.LILY_PAD));}
+        public Blossom(){super(BlockBehaviour.Properties.of().instabreak().noOcclusion().sound(SoundType.LILY_PAD));}
     }
     public static void reveal(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity rabbit, net.minecraft.world.entity.Entity keeper){
         Bellwake.reveal(level,rabbit,keeper);
@@ -68,9 +68,9 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     private HeartwaterFeature(boolean surface) { super(NoneFeatureConfiguration.CODEC);this.surface=surface; }
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
         // The biome modifier also participates in vanilla cherry and lush biomes. It must
-        // never write a landmark in any dimension other than the new Blossom Reach.
+        // never write UwU landmarks outside one of the three UwU dimensions.
         var level=context.level().getLevel();
-        if (!level.dimension().equals(ReefLife.REACH)) return false;
+        if (!ReefLife.isSettlementRealm(level)) return false;
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
         if(!site.usable())return false;
@@ -83,7 +83,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     // Work only through the supplied chunk, without requesting a neighboring live chunk.
     private static void finishNewStairs(net.neoforged.neoforge.event.level.ChunkEvent.Load event){
         if(!event.isNewChunk() || !(event.getLevel() instanceof net.minecraft.server.level.ServerLevel level)
-                || !level.dimension().equals(ReefLife.REACH))return;
+                || !ReefLife.isSettlementRealm(level))return;
         var chunk=event.getChunk();
         var site=GroveSites.forChunk(level,chunk.getPos());
         if(!site.usable())return;

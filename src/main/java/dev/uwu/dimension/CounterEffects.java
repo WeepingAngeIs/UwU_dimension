@@ -100,7 +100,7 @@ public final class CounterEffects {
     private static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity().level() instanceof ServerLevel level))return;
         Entity entity=event.getEntity();
-        if(entity instanceof Snowball ball&&ball.getPersistentData().contains("uwu.counter")&&ball.tickCount>60){ball.discard();return;}
+        if(entity instanceof Snowball ball&&ball.getPersistentData().contains("uwu.counter")&&ball.tickCount>200){ball.discard();return;}
         if(!(entity instanceof LivingEntity l))return;
         var n=l.getPersistentData();
         if(n.hasUUID("uwu.echo_owner")&&level.getGameTime()>=n.getLong("uwu.echo_at")){

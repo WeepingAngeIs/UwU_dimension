@@ -29,6 +29,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
     private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> WAVE =
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
                     net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> HARE_ORB =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
     private static final net.minecraft.network.syncher.EntityDataAccessor<String> COUNTER =
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
                     net.minecraft.network.syncher.EntityDataSerializers.STRING);
@@ -48,6 +51,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         builder.define(KIND, 0);
         builder.define(ELEMENT, 0);
         builder.define(WAVE, false);
+        builder.define(HARE_ORB, false);
     }
 
     @Override protected net.minecraft.world.item.Item getDefaultItem() {
@@ -57,6 +61,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     public Arsenal.Relic relic() { return Arsenal.Relic.values()[entityData.get(KIND)]; }
     public int element() { return entityData.get(ELEMENT); }
     public boolean wave() { return entityData.get(WAVE); }
+    public boolean hareOrb() { return entityData.get(HARE_ORB); }
 
     /** Legacy visual cast used for the Glitch Bow and scythe's detached wave. */
     static void cast(ServerLevel level, Player owner, Arsenal.Relic kind, boolean wave) {
@@ -117,6 +122,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             }
         }
         flight.entityData.set(ELEMENT, element);
+        flight.entityData.set(HARE_ORB, kind == Arsenal.Relic.RIBBONHARE_SCEPTER);
         if (kind == Arsenal.Relic.VESPER_SCYTHE || !counter.isEmpty()) {
             final int selectedElement = element;
             net.minecraft.world.item.component.CustomData.update(
@@ -126,7 +132,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
         flight.setItem(display);
         flight.setOwner(owner);
         flight.setPos(owner.getX(), owner.getEyeY() - .15, owner.getZ());
-        flight.setNoGravity(true);
+        // Match a thrown trident's real flight arc. The rapid Loyalty return has its
+        // own no-gravity phase after impact or timeout.
+        flight.setNoGravity(wave);
         flight.physicalWeapon = physical;
         flight.physicalOwner = physical ? owner.getUUID() : null;
         flight.returnHand = hand;
@@ -201,11 +209,11 @@ public final class RelicFlight extends ThrowableItemProjectile {
         super.tick();
         if (server == null || !isAlive()) return;
 
-        if (physicalWeapon && !returning && tickCount >= 18) beginReturn();
+        if (physicalWeapon && !returning && tickCount >= 120) beginReturn();
         else if (!physicalWeapon && !wave() && relic() == Arsenal.Relic.VESPER_SCYTHE && tickCount >= 12)
             beginReturn();
-        if (tickCount % 3 == 0) HeartCombatGlow.trail(server, position(), element());
-        if (tickCount > 100) {
+        HeartCombatGlow.trail(server, position(), element());
+        if (tickCount > 240) {
             if (physicalWeapon) dropCarried(server);
             else discard();
         }
@@ -273,6 +281,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         tag.putInt("relic", entityData.get(KIND));
         tag.putInt("element", element());
         tag.putBoolean("wave", wave());
+        tag.putBoolean("hare_orb", hareOrb());
         tag.putBoolean("returning", returning);
         tag.putBoolean("physical_weapon", physicalWeapon);
         tag.putInt("return_hand", returnHand == InteractionHand.OFF_HAND ? 1 : 0);
@@ -285,6 +294,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         entityData.set(KIND, Math.max(0, Math.min(Arsenal.Relic.values().length - 1, tag.getInt("relic"))));
         entityData.set(ELEMENT, Math.floorMod(tag.getInt("element"), 4));
         entityData.set(WAVE, tag.getBoolean("wave"));
+        entityData.set(HARE_ORB, tag.getBoolean("hare_orb"));
         returning = tag.getBoolean("returning");
         physicalWeapon = tag.getBoolean("physical_weapon");
         returnHand = tag.getInt("return_hand") == 1 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
