@@ -25,8 +25,10 @@ public final class UwUDimension {
             }
         });
         CupidParticles.TYPES.register(bus);
+        MagicGlowParticles.TYPES.register(bus);
         HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
+        HeartLanterns.register(bus);
         ReefLife.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));

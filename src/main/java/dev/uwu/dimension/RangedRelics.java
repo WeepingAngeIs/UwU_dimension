@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import net.neoforged.bus.api.IEventBus;
@@ -36,7 +37,7 @@ public final class RangedRelics {
     static boolean isWhip(Arsenal.Relic r) {
         return r==Arsenal.Relic.SATIN_WHIP || r==Arsenal.Relic.FROST_WHIP || r==Arsenal.Relic.RIFT_WHIP || r==Arsenal.Relic.AXOLOTL_WHIP;
     }
-    static boolean activate(ServerLevel level, Player player, Arsenal.Relic relic) {
+    static boolean activate(ServerLevel level, Player player, Arsenal.Relic relic, InteractionHand hand) {
         if (isWhip(relic)) {
             if (relic==Arsenal.Relic.RIFT_WHIP && player.isShiftKeyDown()) return teleport(level,player);
             RibbonLash.cast(level,player,relic);
@@ -44,8 +45,7 @@ public final class RangedRelics {
         }
         if (relic==Arsenal.Relic.BLUE_HOUR_WAND)
             return RelicAbilities.activate(level,player,relic);
-        RelicFlight.cast(level,player,relic,false);
-        return true;
+        return RelicFlight.castWeapon(level, player, relic, hand);
     }
     static boolean enemy(Player owner, LivingEntity target) {
         return target.isAlive() && !HeartMagic.friendly(owner,target)

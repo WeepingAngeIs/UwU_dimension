@@ -57,6 +57,11 @@ public final class Arsenal {
         String id() { return name().toLowerCase(Locale.ROOT); }
         boolean axe() { return this == BELLHEART_AXE || this == LOCKKEEPER_AXE; }
         boolean bow() { return this == CUPID_BOW || this == RIPPLE_BOW; }
+        boolean throwable() {
+            return this == RIBBONHARE_SCEPTER || this == BLOSSOM_GREATSWORD || this == BELLHEART_AXE
+                || this == LOCKKEEPER_AXE || this == VESPER_SCYTHE || this == ROSE_DAGGER
+                || this == LANTERN_SPEAR || this == TIDELACE_TRIDENT;
+        }
     }
 
     static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("uwudimension", path); }
@@ -102,6 +107,8 @@ public final class Arsenal {
         @Override public Component getName(ItemStack stack) { return Component.translatableWithFallback(getDescriptionId(), relic.title); }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tips, TooltipFlag flag) {
             tips.add(Component.literal(relic.hint).withStyle(ChatFormatting.LIGHT_PURPLE));
+            if (relic.throwable()) tips.add(Component.literal("Innate Swift Loyalty III • returns to your hand")
+                    .withStyle(ChatFormatting.AQUA));
         }
         @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
             ItemStack stack = player.getItemInHand(hand);
@@ -111,9 +118,10 @@ public final class Arsenal {
                 return InteractionResultHolder.consume(stack);
             }
             if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
-            if (level instanceof ServerLevel server && RangedRelics.activate(server, player, relic)) {
+            if (level instanceof ServerLevel server && RangedRelics.activate(server, player, relic, hand)) {
                 player.getCooldowns().addCooldown(this, relic.cooldown);
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                if (!relic.throwable()) stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), false);
             }
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
@@ -129,10 +137,10 @@ public final class Arsenal {
         @Override public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
             if (relic != Relic.VESPER_SCYTHE || !(level instanceof ServerLevel server) || !(user instanceof Player p)) return;
             if (getUseDuration(stack,user)-remaining == 12 && p.getPersistentData().getLong("uwu.scythe_flight") <= level.getGameTime()) {
-                RelicFlight.cast(server,p,relic,false);
-                net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,stack,n -> n.putInt("uwu_element",p.getPersistentData().getInt("uwu.scythe_element")));
-                p.getCooldowns().addCooldown(this,60);
-                stack.hurtAndBreak(1,p,LivingEntity.getSlotForHand(p.getUsedItemHand()));
+                if (RelicFlight.castWeapon(server, p, relic, p.getUsedItemHand())) {
+                    p.getCooldowns().addCooldown(this, 60);
+                    p.stopUsingItem();
+                }
             }
         }
         @Override public void releaseUsing(ItemStack stack, Level level, LivingEntity user, int left) {

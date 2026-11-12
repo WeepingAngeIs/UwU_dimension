@@ -70,7 +70,7 @@ public final class RangedRelicRenderer {
                 vertex(b,poses.last(),new Vec3(-1,.5,0),0,0,color(e.element()),15728880);
             }else{
                 poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*42));poses.scale(1.8F,1.8F,1.8F);
-                itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,light,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
+                itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,15728880,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }
             poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
         }

@@ -108,6 +108,7 @@ final class RelicAbilities {
         tag.putString("dimension", level.dimension().location().toString());
         player.getPersistentData().put(PETALS, tag);
         level.sendParticles(ParticleTypes.CHERRY_LEAVES, center.x, center.y, center.z, 21, 0.6, 0.1, 0.6, 0.025);
+        HeartCombatGlow.burst(level, center, 2.2, 2);
     }
     private static boolean returnSweep(ServerLevel level, Player p) {
         CompoundTag tag = p.getPersistentData().getCompound(PETALS);
@@ -120,6 +121,7 @@ final class RelicAbilities {
         p.getPersistentData().remove(PETALS);
         arc(level, p, 7, ParticleTypes.CHERRY_LEAVES);
         for (Mob foe : nearby(level, p, 7)) if (inFront(p, foe)) foe.hurt(p.damageSources().playerAttack(p), 16);
+        HeartCombatGlow.burst(level, p.position().add(p.getLookAngle().scale(3)), 2.8, 2);
         sound(level, p, SoundEvents.PLAYER_ATTACK_SWEEP, 0.72F);
         return true;
     }
@@ -137,6 +139,7 @@ final class RelicAbilities {
             for (Mob foe : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(4), m -> !HeartMagic.friendly(player, m)))
                 pushToward(foe, at, 1.1);
         }
+        HeartCombatGlow.burst(level, at, tide ? 2.8 : 1.2, tide ? 1 : 0);
         ring(level, at, tide ? 3.5 : 0.7, tide ? ParticleTypes.SPLASH : ParticleTypes.END_ROD);
         ball.discard();
         event.setCanceled(true);
@@ -157,6 +160,7 @@ final class RelicAbilities {
             double a = Math.PI * 2 * i / 28;
             level.sendParticles(effect, spot.x + radius * Math.cos(a), spot.y + 0.25, spot.z + radius * Math.sin(a), 1, 0, 0, 0, 0);
         }
+        HeartCombatGlow.burst(level, spot, radius, 0);
     }
     private static void arc(ServerLevel level, Player p, double radius, ParticleOptions effect) {
         double center = Math.toRadians(p.getYRot() + 90);
@@ -164,6 +168,8 @@ final class RelicAbilities {
             double a = center + i * 0.105;
             level.sendParticles(effect, p.getX() + radius * Math.cos(a), p.getY() + 1.15, p.getZ() + radius * Math.sin(a), 2, 0.12, 0.1, 0.12, 0.01);
         }
+        HeartCombatGlow.burst(level, p.position().add(p.getLookAngle().scale(Math.min(radius * .6, 3))),
+                Math.max(1, radius * .45), effect == ParticleTypes.CHERRY_LEAVES ? 2 : 0);
     }
     private static void line(ServerLevel level, Vec3 start, Vec3 end, ParticleOptions effect) {
         int steps = Math.max(1, (int)(start.distanceTo(end) * 2));
@@ -171,6 +177,7 @@ final class RelicAbilities {
             Vec3 v = start.lerp(end, (double)i / steps);
             level.sendParticles(effect, v.x, v.y, v.z, 1, 0, 0, 0, 0);
         }
+        HeartCombatGlow.burst(level, start.lerp(end, .72), .8, 0);
     }
     private static void sound(ServerLevel level, Player p, SoundEvent sound, float pitch) {
         level.playSound(null, p.blockPosition(), sound, SoundSource.PLAYERS, 0.8F, pitch);

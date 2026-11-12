@@ -56,7 +56,7 @@ final class VillageHouse {
         if(original==Blocks.SPRUCE_STAIRS)block=PinkRoofTiles.stairs(dark);
         if(original==Blocks.SPRUCE_SLAB)block=PinkRoofTiles.slab(dark);
         if(original==Blocks.RED_TERRACOTTA)block=PinkRoofTiles.tile(dark);
-        if(dark&&original==Blocks.LANTERN)block=Blocks.SOUL_LANTERN;
+        if(original==Blocks.LANTERN||original==Blocks.SOUL_LANTERN)block=HeartLanterns.HEART.get();
         var state=block.defaultBlockState();
         if(parts.length==2)for(String pair:parts[1].substring(0,parts[1].length()-1).split(",")){
             String[] value=pair.split("=");

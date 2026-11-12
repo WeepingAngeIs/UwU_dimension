@@ -181,7 +181,7 @@ public final class BlossomVillage {
         v.put(x-1,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));
         v.put(x-1,y+1,z+side,bed.setValue(BedBlock.PART,BedPart.HEAD));
         v.block(x+1,y+1,z+side,h.job());
-        v.block(x+1,y+1,z-side,dark?Blocks.SOUL_LANTERN:Blocks.LANTERN);
+        v.block(x+1,y+1,z-side,HeartLanterns.HEART.get());
         v.block(x-w+1,y+1,z+d-1,h.style()==0?Blocks.BOOKSHELF:dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_ALLIUM);
         InteriorFurnishings.house(v,h,dark,house);
         resident(v,p,x,y+1,z,false);

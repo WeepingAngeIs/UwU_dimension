@@ -27,8 +27,10 @@ public final class HeartArrow extends Arrow {
     }
     @Override public void tick() {
         super.tick();
-        if (isAlive() && level() instanceof ServerLevel server && tickCount % 2 == 0)
+        if (isAlive() && level() instanceof ServerLevel server && tickCount % 2 == 0) {
             server.sendParticles(getPersistentData().getBoolean("ripple") ? ParticleTypes.GLOW : CupidParticles.PASTEL_HEART.get(), getX(), getY(), getZ(), 1, 0, 0, 0, 0);
+            if (tickCount % 4 == 0) HeartCombatGlow.trail(server, position(), getPersistentData().getBoolean("ripple") ? 1 : 0);
+        }
     }
     @Override protected void onHitEntity(EntityHitResult hit) {
         if (!(level() instanceof ServerLevel server) || !(getOwner() instanceof Player player)) { super.onHitEntity(hit); return; }
@@ -38,11 +40,13 @@ public final class HeartArrow extends Arrow {
             if (!charmed && (!(creature instanceof Player other) || player.canHarmPlayer(other)))
                 creature.hurt(damageSources().arrow(this, player), (ripple ? Arsenal.Relic.RIPPLE_BOW.damage : Arsenal.Relic.CUPID_BOW.damage) * getPersistentData().getFloat("strength"));
         }
+        HeartCombatGlow.burst(server, hit.getLocation(), 1.5, ripple ? 1 : 0);
         burst(server, hit.getLocation(), player);
         discard();
     }
     @Override protected void onHitBlock(BlockHitResult hit) {
         if (level() instanceof ServerLevel server) {
+            HeartCombatGlow.burst(server, hit.getLocation(), .9, getPersistentData().getBoolean("ripple") ? 1 : 0);
             if (getOwner() instanceof Player player) burst(server, hit.getLocation(), player);
             discard();
         }
