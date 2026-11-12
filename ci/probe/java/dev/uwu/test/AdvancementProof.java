@@ -18,6 +18,12 @@ final class AdvancementProof {
         ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("uwudimension:sakura_reach"))
     );
 
+    private static int completedCriteria(net.minecraft.advancements.AdvancementProgress progress) {
+        int count = 0;
+        for (var ignored : progress.getCompletedCriteria()) count++;
+        return count;
+    }
+
     static boolean tick(ServerLevel level) {
         var server = level.getServer();
         AdvancementHolder advancement = server.getAdvancements().get(ID);
@@ -31,11 +37,11 @@ final class AdvancementProof {
                 CriteriaTriggers.CHANGED_DIMENSION.trigger(visitor.player, Level.OVERWORLD, destination);
                 if (!visitor.player.getAdvancements().getOrStartProgress(advancement).isDone())
                     throw new AssertionError("Entry into " + destination.location() + " did not complete the advancement");
-                int completed = visitor.player.getAdvancements().getOrStartProgress(advancement).countCompletedRequirements();
+                int completed = completedCriteria(visitor.player.getAdvancements().getOrStartProgress(advancement));
                 if (completed != 1) throw new AssertionError("A single realm entry granted unexpected criteria: " + completed);
                 CriteriaTriggers.CHANGED_DIMENSION.trigger(visitor.player, destination, Level.OVERWORLD);
                 CriteriaTriggers.CHANGED_DIMENSION.trigger(visitor.player, Level.OVERWORLD, destination);
-                if (visitor.player.getAdvancements().getOrStartProgress(advancement).countCompletedRequirements() != 1)
+                if (completedCriteria(visitor.player.getAdvancements().getOrStartProgress(advancement)) != 1)
                     throw new AssertionError("Repeated visits changed the one-time reward");
             }
         }
