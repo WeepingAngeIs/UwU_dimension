@@ -178,5 +178,15 @@
   "item.uwudimension.sweetbean_paste": "Sweetbean Paste",
   "item.uwudimension.maple_syrup": "Maple Syrup",
   "item.uwudimension.petal_sugar": "Petal Sugar",
-  "item.uwudimension.vanilla_extract": "Vanilla Extract"
+  "item.uwudimension.vanilla_extract": "Vanilla Extract",
+  "item.uwudimension.moonberry": "Moonberries",
+  "block.uwudimension.heartbloom_log": "Heartbloom Log",
+  "block.uwudimension.heartbloom_leaves": "Heartbloom Fruiting Leaves",
+  "block.uwudimension.heartbloom_sapling": "Heartbloom Sapling",
+  "block.uwudimension.starpetal_log": "Starpetal Log",
+  "block.uwudimension.starpetal_leaves": "Starpetal Fruiting Leaves",
+  "block.uwudimension.starpetal_sapling": "Starpetal Sapling",
+  "block.uwudimension.moonberry_log": "Moonberry Log",
+  "block.uwudimension.moonberry_leaves": "Moonberry Fruiting Leaves",
+  "block.uwudimension.moonberry_sapling": "Moonberry Sapling"
 }

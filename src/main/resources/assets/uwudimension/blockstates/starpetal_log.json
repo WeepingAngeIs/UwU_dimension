@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "uwudimension:block/starpetal_log"
+    },
+    "axis=z": {
+      "model": "uwudimension:block/starpetal_log",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "uwudimension:block/starpetal_log",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

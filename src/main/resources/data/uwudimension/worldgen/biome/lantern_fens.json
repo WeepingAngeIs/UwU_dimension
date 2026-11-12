@@ -83,7 +83,9 @@
     ],
     [
       "minecraft:patch_grass_plain",
-      "minecraft:trees_sparse_jungle"
+      "minecraft:trees_sparse_jungle",
+      "uwudimension:heartbloom_tree",
+      "uwudimension:moonberry_tree"
     ],
     [
       "uwudimension:heartwater_landscape",

@@ -53,6 +53,7 @@ ITEM_NAMES = {
     "sweetbean_pods": "Sweetbean Pods",
     "glowginger": "Glowginger",
     "vanilla_bean": "Vanilla Bean",
+    "moonberry": "Moonberries",
     "sakura_flour": "Sakura Rice Flour",
     "heartberry_jam": "Heartberry Jam",
     "shaved_ice": "Shaved Ice",
@@ -239,6 +240,13 @@ def item_texture(name):
             draw.rectangle((7, 8, 9, 10), fill=white)
         else:
             draw.ellipse((5, 8, 10, 12), fill=brown)
+    elif name == "moonberry":
+        violet = hex_color("#684F9D")
+        lavender = hex_color("#A48AD2")
+        for x, y in ((4, 8), (8, 5), (11, 8), (7, 11)):
+            draw.ellipse((x - 2, y - 2, x + 1, y + 1), fill=violet)
+            draw.point((x - 1, y - 1), fill=lavender)
+        draw.line((7, 4, 8, 2, 10, 2), fill=green)
     elif name == "heartberry_jam":
         draw.rectangle((4, 6, 11, 13), fill=dark_pink)
         draw.rectangle((5, 7, 10, 12), fill=pink)

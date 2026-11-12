@@ -39,6 +39,7 @@ public final class UwUDimension {
         MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);
         PantryPlants.register(bus);
+        PantryTrees.register(bus);
         Pantry.register(bus);
         bus.addListener(UwUDimension::creative);
     }

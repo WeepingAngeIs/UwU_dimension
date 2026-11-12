@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:heartbloom_log",
+    "uwudimension:heartbloom_leaves",
+    "uwudimension:starpetal_log",
+    "uwudimension:starpetal_leaves",
+    "uwudimension:moonberry_log",
+    "uwudimension:moonberry_leaves",
+    "uwudimension:heartbloom_sapling",
+    "uwudimension:starpetal_sapling",
+    "uwudimension:moonberry_sapling"
+  ]
+}

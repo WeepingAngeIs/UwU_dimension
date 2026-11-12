@@ -83,7 +83,9 @@
     ],
     [
       "minecraft:flower_cherry",
-      "minecraft:trees_cherry"
+      "minecraft:trees_cherry",
+      "uwudimension:heartbloom_tree",
+      "uwudimension:starpetal_tree"
     ],
     [
       "uwudimension:heartwater_landscape",

@@ -1,6 +1,7 @@
 package dev.uwu.dimension;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -35,6 +36,7 @@ public final class PantryPlants {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD);
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, MOD);
     private static final List<Supplier<? extends Item>> CREATIVE_ITEMS = new ArrayList<>();
+    private static final Map<String, Supplier<? extends Item>> INGREDIENT_ITEMS = new HashMap<>();
     private static final Map<String, Supplier<? extends CropBlock>> CROPS = Map.of(
             "heartberry_crop", crop("heartberry_crop", "heartberry_seeds"),
             "sakura_rice_crop", crop("sakura_rice_crop", "sakura_rice_seeds"),
@@ -48,9 +50,10 @@ public final class PantryPlants {
         FEATURES.register("pantry_garden", PantryGarden::new);
         for (String id : List.of(
                 "heartberry", "sakura_rice", "starfruit", "frostpetal", "sweetbean_pods", "glowginger",
-                "vanilla_bean", "sakura_flour", "heartberry_jam", "shaved_ice", "pink_shaved_ice",
+                "vanilla_bean", "moonberry", "sakura_flour", "heartberry_jam", "shaved_ice", "pink_shaved_ice",
                 "chocolate_syrup", "sweetbean_paste", "maple_syrup", "petal_sugar", "vanilla_extract")) {
             var item = ITEMS.registerSimpleItem(id, new Item.Properties());
+            INGREDIENT_ITEMS.put(id, item);
             CREATIVE_ITEMS.add(item);
         }
     }
@@ -70,6 +73,12 @@ public final class PantryPlants {
         ITEMS.register(bus);
         FEATURES.register(bus);
         bus.addListener(PantryPlants::addToCreativeTab);
+    }
+
+    static Supplier<? extends Item> ingredient(String id) {
+        Supplier<? extends Item> item = INGREDIENT_ITEMS.get(id);
+        if (item == null) throw new IllegalArgumentException("Unknown pantry ingredient: " + id);
+        return item;
     }
 
     private static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {

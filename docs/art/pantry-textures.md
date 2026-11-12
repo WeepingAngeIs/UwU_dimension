@@ -40,3 +40,9 @@ The harvests process into sakura rice flour, heartberry jam, sweetbean paste, pe
 ![Pixel-art previews of the UwU Dimension crops](uwu_dimension_crop_preview.png)
 
 ![Pixel-art previews of the UwU Dimension harvests and pantry ingredients](uwu_dimension_ingredients_preview.png)
+
+## Orchard trees
+
+Heartbloom carries heartberries beneath pastel pink leaves, Starpetal bears starfruit, and Moonberry grows lavender fruit clusters. Their pixel-art saplings, custom logs and fruiting leaves appear in matching UwU Dimension surface biomes. Pick the visible fruit by interacting with a fruiting leaf block; fruit regrows over time.
+
+![Pixel-art previews of the UwU Dimension fruit trees](uwu_dimension_trees_preview.png)

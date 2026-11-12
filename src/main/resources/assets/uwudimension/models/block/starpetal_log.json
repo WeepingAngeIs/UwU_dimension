@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "uwudimension:block/starpetal_log_top",
+    "side": "uwudimension:block/starpetal_log"
+  }
+}

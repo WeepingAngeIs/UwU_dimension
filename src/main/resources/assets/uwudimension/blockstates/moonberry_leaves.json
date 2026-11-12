@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "fruiting": "false"
+      },
+      "apply": {
+        "model": "uwudimension:block/moonberry_leaves"
+      }
+    },
+    {
+      "when": {
+        "fruiting": "true"
+      },
+      "apply": {
+        "model": "uwudimension:block/moonberry_leaves_fruiting"
+      }
+    }
+  ]
+}
