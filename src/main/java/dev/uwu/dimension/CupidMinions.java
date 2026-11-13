@@ -14,8 +14,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.ClipContext;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -29,7 +29,6 @@ final class CupidMinions {
     static final String COMMAND_TARGET = "uwudimension.cupid_target";
     static final String COMMAND_END = "uwudimension.cupid_target_end";
     private static final String CLIENT_CONTROL = "uwudimension.cupid_control";
-    private static final double COMMAND_RANGE = 512.0;
     private static final int CHARM_TICKS = 800;
 
     record Designate() implements CustomPacketPayload {
@@ -190,22 +189,31 @@ final class CupidMinions {
     private static LivingEntity rayTarget(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
         Vec3 start = player.getEyePosition();
-        Vec3 end = start.add(player.getLookAngle().scale(COMMAND_RANGE));
-        BlockHitResult blockHit = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER,
-            ClipContext.Fluid.NONE, player));
-        if (blockHit.getType() != net.minecraft.world.phys.HitResult.Type.MISS) end = blockHit.getLocation();
-        AABB search = player.getBoundingBox().expandTowards(end.subtract(start)).inflate(1.25);
+        Vec3 look = player.getLookAngle();
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
-        for (Entity candidate : level.getEntities(player, search, entity -> entity instanceof LivingEntity living
-            && living.isAlive() && validTarget(player, living))) {
-            Optional<Vec3> intersection = candidate.getBoundingBox().inflate(.3).clip(start, end);
+        Vec3 bestIntersection = null;
+        for (Entity candidate : level.getAllEntities()) {
+            if (!(candidate instanceof LivingEntity living) || !living.isAlive() || !validTarget(player, living)) continue;
+            AABB bounds = living.getBoundingBox().inflate(.3);
+            Vec3 toCenter = bounds.getCenter().subtract(start);
+            double projectedDistance = toCenter.dot(look);
+            if (projectedDistance <= 0) continue;
+            Vec3 end = start.add(look.scale(projectedDistance + bounds.getSize()));
+            Optional<Vec3> intersection = bounds.clip(start, end);
             if (intersection.isEmpty()) continue;
             double distance = start.distanceToSqr(intersection.get());
             if (distance < bestDistance) {
                 bestDistance = distance;
-                best = (LivingEntity) candidate;
+                best = living;
+                bestIntersection = intersection.get();
             }
+        }
+        if (bestIntersection != null) {
+            BlockHitResult blockHit = level.clip(new ClipContext(start, bestIntersection, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, player));
+            if (blockHit.getType() != net.minecraft.world.phys.HitResult.Type.MISS
+                && start.distanceToSqr(blockHit.getLocation()) < bestDistance) return null;
         }
         return best;
     }
