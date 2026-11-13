@@ -1,7 +1,7 @@
-name: UwU Dimension 1.4.5 hosted build
+name: UwU Dimension 1.4.6 hosted build
 on:
   push:
-    branches: [feature/uwu-dimension-startup-fix-1.4.5]
+    branches: [feature/uwu-hearts-loyalty-1.4.6]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,5 +22,5 @@ jobs:
         run: ./gradlew jar --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.4.5
+          name: UwU-Dimension-1.4.6
           path: build/libs/*.jar

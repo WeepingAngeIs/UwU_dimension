@@ -5,6 +5,8 @@ import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Entity;
@@ -32,14 +34,20 @@ public final class RelicFlight extends ThrowableItemProjectile {
     private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> HARE_ORB =
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
                     net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> LANDED =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> RETURNING =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
     private static final net.minecraft.network.syncher.EntityDataAccessor<String> COUNTER =
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
                     net.minecraft.network.syncher.EntityDataSerializers.STRING);
 
-    private boolean returning;
     private boolean physicalWeapon;
     private UUID physicalOwner;
     private InteractionHand returnHand = InteractionHand.MAIN_HAND;
+    private int landedTicks;
 
     public RelicFlight(net.minecraft.world.entity.EntityType<? extends RelicFlight> type, Level level) {
         super(type, level);
@@ -52,6 +60,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         builder.define(ELEMENT, 0);
         builder.define(WAVE, false);
         builder.define(HARE_ORB, false);
+        builder.define(LANDED, false);
+        builder.define(RETURNING, false);
     }
 
     @Override protected net.minecraft.world.item.Item getDefaultItem() {
@@ -62,6 +72,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
     public int element() { return entityData.get(ELEMENT); }
     public boolean wave() { return entityData.get(WAVE); }
     public boolean hareOrb() { return entityData.get(HARE_ORB); }
+    public boolean landed() { return entityData.get(LANDED); }
+    public boolean returning() { return entityData.get(RETURNING); }
 
     /** Legacy visual cast used for the Glitch Bow and scythe's detached wave. */
     static void cast(ServerLevel level, Player owner, Arsenal.Relic kind, boolean wave) {
@@ -153,10 +165,25 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     private void beginReturn() {
-        returning = true;
+        entityData.set(LANDED, false);
+        entityData.set(RETURNING, true);
         setNoGravity(true);
         noPhysics = true;
         setDeltaMovement(Vec3.ZERO);
+    }
+
+    private void landOnBlock(ServerLevel server, BlockHitResult hit) {
+        entityData.set(LANDED, true);
+        landedTicks = 0;
+        setNoGravity(true);
+        noPhysics = true;
+        setDeltaMovement(Vec3.ZERO);
+        var face = hit.getDirection();
+        setPos(hit.getLocation().x + face.getStepX() * .16,
+                hit.getLocation().y + face.getStepY() * .16,
+                hit.getLocation().z + face.getStepZ() * .16);
+        server.playSound(null, hit.getBlockPos(), SoundEvents.TRIDENT_HIT_GROUND.value(), SoundSource.PLAYERS,
+                .85F, .92F + server.random.nextFloat() * .16F);
     }
 
     private void returnTo(Player player) {
@@ -174,20 +201,32 @@ public final class RelicFlight extends ThrowableItemProjectile {
         discard();
     }
 
-    private void dropCarried(ServerLevel level) {
-        if (physicalWeapon && !getItem().isEmpty()) spawnAtLocation(getItem().copy());
-        discard();
-    }
-
     @Override public void tick() {
         ServerLevel server = level() instanceof ServerLevel s ? s : null;
-        if (returning && server != null) {
+        if (server == null && (landed() || returning())) {
+            setNoGravity(true);
+            noPhysics = true;
+            setDeltaMovement(Vec3.ZERO);
+        }
+        if (server != null && landed() && !returning()) {
+            landedTicks++;
+            setNoGravity(true);
+            noPhysics = true;
+            setDeltaMovement(Vec3.ZERO);
+            if (landedTicks >= 16) beginReturn();
+        }
+        if (returning() && server != null) {
             Player owner = findOwner(server);
-            if (owner == null) {
-                if (tickCount > 80) dropCarried(server);
-            } else if (!owner.isAlive()) {
-                dropCarried(server);
-                return;
+            if (owner == null || !owner.isAlive()) {
+                // Keep the item attached to its projectile until its owner returns;
+                // Loyalty must not silently delete a weapon during logout or death.
+                setNoGravity(true);
+                noPhysics = true;
+                setDeltaMovement(Vec3.ZERO);
+                if (!physicalWeapon && tickCount > 80) {
+                    discard();
+                    return;
+                }
             } else {
                 if (owner.level() != level()) {
                     returnTo(owner);
@@ -209,24 +248,21 @@ public final class RelicFlight extends ThrowableItemProjectile {
         super.tick();
         if (server == null || !isAlive()) return;
 
-        if (physicalWeapon && !returning && tickCount >= 120) beginReturn();
+        if (physicalWeapon && !returning() && tickCount >= 120) beginReturn();
         else if (!physicalWeapon && !wave() && relic() == Arsenal.Relic.VESPER_SCYTHE && tickCount >= 12)
             beginReturn();
         HeartCombatGlow.trail(server, position(), element());
-        if (tickCount > 240) {
-            if (physicalWeapon) dropCarried(server);
-            else discard();
-        }
+        if (tickCount > 240 && !physicalWeapon) discard();
     }
 
     @Override protected boolean canHitEntity(Entity target) {
-        return !returning && super.canHitEntity(target)
+        return !returning() && super.canHitEntity(target)
                 && (!(getOwner() instanceof Player owner) || !(target instanceof LivingEntity living)
                         || RangedRelics.enemy(owner, living));
     }
 
     @Override protected void onHitEntity(EntityHitResult hit) {
-        if (returning) return;
+        if (returning()) return;
         if (level() instanceof ServerLevel server && getOwner() instanceof Player player
                 && hit.getEntity() instanceof LivingEntity target) {
             if (!RangedRelics.enemy(player, target)) {
@@ -257,6 +293,10 @@ public final class RelicFlight extends ThrowableItemProjectile {
         if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && level() instanceof ServerLevel server
                 && getOwner() instanceof Player player)
             summonHare(server, player, hit.getBlockPos().relative(hit.getDirection()));
+        if (physicalWeapon && level() instanceof ServerLevel server) {
+            landOnBlock(server, hit);
+            return;
+        }
         finish();
     }
 
@@ -282,7 +322,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
         tag.putInt("element", element());
         tag.putBoolean("wave", wave());
         tag.putBoolean("hare_orb", hareOrb());
-        tag.putBoolean("returning", returning);
+        tag.putBoolean("landed", landed());
+        tag.putInt("landed_ticks", landedTicks);
+        tag.putBoolean("returning", returning());
         tag.putBoolean("physical_weapon", physicalWeapon);
         tag.putInt("return_hand", returnHand == InteractionHand.OFF_HAND ? 1 : 0);
         if (physicalOwner != null) tag.putUUID("physical_owner", physicalOwner);
@@ -295,9 +337,15 @@ public final class RelicFlight extends ThrowableItemProjectile {
         entityData.set(ELEMENT, Math.floorMod(tag.getInt("element"), 4));
         entityData.set(WAVE, tag.getBoolean("wave"));
         entityData.set(HARE_ORB, tag.getBoolean("hare_orb"));
-        returning = tag.getBoolean("returning");
+        entityData.set(LANDED, tag.getBoolean("landed"));
+        landedTicks = Math.max(0, Math.min(15, tag.getInt("landed_ticks")));
+        entityData.set(RETURNING, tag.getBoolean("returning"));
         physicalWeapon = tag.getBoolean("physical_weapon");
         returnHand = tag.getInt("return_hand") == 1 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         physicalOwner = tag.hasUUID("physical_owner") ? tag.getUUID("physical_owner") : null;
+        if (returning() || landed()) {
+            setNoGravity(true);
+            noPhysics = true;
+        }
     }
 }

@@ -12,7 +12,7 @@ public final class CupidParticleClient {
  private static final class Heart extends TextureSheetParticle {
   Heart(ClientLevel level,double x,double y,double z,double dx,double dy,double dz,SpriteSet sprites){
    super(level,x,y,z,dx,dy,dz);pickSprite(sprites);xd=dx*.15;yd=.035+Math.abs(dy)*.12;zd=dz*.15;
-   lifetime=30+random.nextInt(12);quadSize=.16F;gravity=0;friction=.92F;hasPhysics=false;
+   lifetime=30+random.nextInt(12);quadSize=.28F;gravity=0;friction=.92F;hasPhysics=false;
   }
   @Override public ParticleRenderType getRenderType(){return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;}
   @Override public int getLightColor(float partial){return 0xf000f0;}

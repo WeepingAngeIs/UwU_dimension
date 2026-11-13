@@ -10,9 +10,14 @@ final class HeartCombatGlow {
     private HeartCombatGlow() {}
 
     static void trail(ServerLevel level, Vec3 at, int element) {
+        trail(level, at, element, true);
+    }
+
+    static void trail(ServerLevel level, Vec3 at, int element, boolean pastelHeart) {
         var sigil = element == 2 ? MagicGlowParticles.FLOWER.get() : MagicGlowParticles.HEART.get();
         level.sendParticles(sigil, at.x, at.y, at.z, 1, .035, .035, .035, .005);
-        level.sendParticles(CupidParticles.PASTEL_HEART.get(), at.x, at.y, at.z, 1, .045, .045, .045, .008);
+        if (pastelHeart)
+            level.sendParticles(CupidParticles.PASTEL_HEART.get(), at.x, at.y, at.z, 1, .045, .045, .045, .008);
         level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z, 1, .035, .035, .035, .01);
     }
 
