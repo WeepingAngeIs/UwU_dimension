@@ -60,7 +60,7 @@ public final class HeartArrow extends Arrow {
         if (!(level() instanceof ServerLevel server) || !(getOwner() instanceof Player player)) { super.onHitEntity(hit); return; }
         boolean ripple = rippleBow();
         if (hit.getEntity() instanceof LivingEntity creature && !HeartMagic.friendly(player, creature)) {
-            boolean charmed = !ripple && creature instanceof Mob mob && HeartMagic.charm(server, player, mob,true);
+            boolean charmed = !ripple && HeartMagic.charm(server, player, creature, true);
             if (!charmed && (!(creature instanceof Player other) || player.canHarmPlayer(other)))
                 creature.hurt(damageSources().arrow(this, player), (ripple ? Arsenal.Relic.RIPPLE_BOW.damage : Arsenal.Relic.CUPID_BOW.damage) * getPersistentData().getFloat("strength"));
         }
@@ -81,7 +81,7 @@ public final class HeartArrow extends Arrow {
     private static void heartBurst(ServerLevel level, Vec3 center, boolean ripple) {
         if (ripple) return;
         level.sendParticles(CupidParticles.PASTEL_HEART.get(), center.x, center.y, center.z,
-                8, .18, .16, .18, .02);
+                20, .24, .30, .24, .035);
     }
 
     private void burst(ServerLevel level, Vec3 spot, Player player) {

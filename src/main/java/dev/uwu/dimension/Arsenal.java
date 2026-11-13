@@ -27,7 +27,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class Arsenal {
     public enum Relic {
-        CUPID_BOW("Cupid Bow", 14, 1.4, 65, "Draw and release. A heart arrow befriends an ordinary creature for 40 seconds."),
+        CUPID_BOW("Cupid Bow", 14, 1.4, 65, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
         RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Throw a ribbon scepter onto solid ground to call a pink hare. Its thumps draw monsters."),
         BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Throw the blossom blade for a ranged strike. Fully charged melee hits still scatter petals."),
@@ -84,6 +84,7 @@ public final class Arsenal {
         NeoForge.EVENT_BUS.addListener(HeartMagic::tick);
         NeoForge.EVENT_BUS.addListener(HeartMagic::filterTarget);
         NeoForge.EVENT_BUS.addListener(HeartMagic::protectKeeper);
+        CupidMinions.register(bus);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::onThrowImpact);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::beforeAttack);
         RangedRelics.register(bus);

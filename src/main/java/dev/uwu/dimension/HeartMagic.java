@@ -15,7 +15,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 final class HeartMagic {
-    private static final String OWNER = "uwudimension.charm_owner", END = "uwudimension.charm_end", PREVIOUS = "uwudimension.previous_target";
+    static final String OWNER = "uwudimension.charm_owner", END = "uwudimension.charm_end", PREVIOUS = "uwudimension.previous_target";
     private static final String CALLER = "uwudimension.hare_caller", THUMP_END = "uwudimension.hare_end";
     private static final TagKey<EntityType<?>> IMMUNE = TagKey.create(Registries.ENTITY_TYPE, Arsenal.id("charm_immune"));
 
@@ -28,9 +28,18 @@ final class HeartMagic {
         data.putUUID(OWNER, keeper.getUUID());
         data.putBoolean("uwu.pastel_cupid",pastelCupid);
         data.putLong(END, level.getGameTime() + 800);
+        data.remove(CupidMinions.COMMAND_TARGET);
+        data.remove(CupidMinions.COMMAND_END);
         clearTarget(mob);
         level.sendParticles(pastelCupid?CupidParticles.PASTEL_HEART.get():ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, 0.5, 0.2, 0.5, 0.05);
         return true;
+    }
+
+    static boolean charm(ServerLevel level, Player keeper, LivingEntity target, boolean pastelCupid) {
+        if (target instanceof Mob mob) return charm(level, keeper, mob, pastelCupid);
+        if (target instanceof net.minecraft.server.level.ServerPlayer player)
+            return CupidMinions.charm(level, keeper, player, pastelCupid);
+        return false;
     }
 
     static boolean friendly(Player keeper, LivingEntity entity) {
@@ -48,11 +57,21 @@ final class HeartMagic {
             && mob.level().getGameTime() < mob.getPersistentData().getLong(END)) e.setNewAboutToBeSetTarget(null);
     }
     static void protectKeeper(LivingIncomingDamageEvent e) {
-        if (e.getSource().getEntity() instanceof LivingEntity mob && mob.getTags().contains(OWNER) && mob.getPersistentData().hasUUID(OWNER)
-            && mob.getPersistentData().getUUID(OWNER).equals(e.getEntity().getUUID()) && mob.level().getGameTime() < mob.getPersistentData().getLong(END)) e.setCanceled(true);
+        if (!(e.getSource().getEntity() instanceof LivingEntity attacker)) return;
+        CompoundTag attackerData = attacker.getPersistentData();
+        CompoundTag victimData = e.getEntity().getPersistentData();
+        long now = e.getEntity().level().getGameTime();
+        boolean attackerIsMinion = attacker.getTags().contains(OWNER) && attackerData.hasUUID(OWNER) && now < attackerData.getLong(END);
+        boolean victimIsMinion = e.getEntity().getTags().contains(OWNER) && victimData.hasUUID(OWNER) && now < victimData.getLong(END);
+        if ((attackerIsMinion && attackerData.getUUID(OWNER).equals(e.getEntity().getUUID()))
+            || (victimIsMinion && victimData.getUUID(OWNER).equals(attacker.getUUID()))) e.setCanceled(true);
     }
 
     static void tick(EntityTickEvent.Post e) {
+        if (e.getEntity() instanceof net.minecraft.server.level.ServerPlayer player && player.level() instanceof ServerLevel playerLevel) {
+            CupidMinions.tick(playerLevel, player);
+            return;
+        }
         if (!(e.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) return;
         // Avoid allocating persistent tags on unrelated mobs.
         if (!mob.getTags().contains(OWNER) && !mob.getTags().contains(CALLER)) return;
@@ -64,16 +83,24 @@ final class HeartMagic {
             data.remove(OWNER);
             data.remove(END);
             data.remove("uwu.pastel_cupid");
+            data.remove(CupidMinions.COMMAND_TARGET);
+            data.remove(CupidMinions.COMMAND_END);
             clearTarget(mob);
             if (data.hasUUID(PREVIOUS) && level.getEntity(data.getUUID(PREVIOUS)) instanceof LivingEntity old && old.isAlive()) mob.setTarget(old);
             data.remove(PREVIOUS);
             return;
         }
         if (mob.tickCount % 5 != 0) return;
-        if (mob.tickCount % 20 == 0) level.sendParticles(data.getBoolean("uwu.pastel_cupid")?CupidParticles.PASTEL_HEART.get():ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, 0.16, 0.1, 0.16, 0);
+        if (data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 8 == 0)
+            level.sendParticles(CupidParticles.PASTEL_HEART.get(), mob.getX(), mob.getEyeY(), mob.getZ(), 2, .2, .2, .2, .015);
+        else if (!data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 20 == 0)
+            level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, .16, .1, .16, 0);
         if (!(level.getEntity(data.getUUID(OWNER)) instanceof Player keeper)) { clearTarget(mob); return; }
-        LivingEntity foe = keeper.tickCount - keeper.getLastHurtByMobTimestamp() < 220 ? keeper.getLastHurtByMob() : null;
-        if (!eligible(keeper, mob, foe)) foe = keeper.tickCount - keeper.getLastHurtMobTimestamp() < 220 ? keeper.getLastHurtMob() : null;
+        LivingEntity foe = CupidMinions.assignedTarget(level, keeper, mob);
+        if (foe == null) {
+            foe = keeper.tickCount - keeper.getLastHurtByMobTimestamp() < 220 ? keeper.getLastHurtByMob() : null;
+            if (!eligible(keeper, mob, foe)) foe = keeper.tickCount - keeper.getLastHurtMobTimestamp() < 220 ? keeper.getLastHurtMob() : null;
+        }
         if (eligible(keeper, mob, foe)) {
             mob.setTarget(foe);
             mob.getNavigation().moveTo(foe, 1.2);

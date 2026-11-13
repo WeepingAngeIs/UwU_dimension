@@ -1,12 +1,12 @@
-# UwU Dimension 1.4.3
+# UwU Dimension 1.4.7
 
-The current release adds hand-thrown weapons with a fast Loyalty-style return, a silver-framed neon heart lantern, and brief glowing combat flashes that illuminate nearby blocks. It includes the ranged counter arsenal, animated whips, elemental scythes, Glitch Bow, rare dimension-only loot and discoverable Mirror Court. Start with [the arsenal guide](ARSENAL-GUIDE.md) and [the audited counter roster](COUNTER-ROSTER.md).
+The current release adds Cupid Bow player minions with pink love hearts and a left-click command that sends every charmed ally after the target in your sights. It also includes hand-thrown weapons with a fast Loyalty-style return, a silver-framed neon heart lantern, and brief glowing combat flashes that illuminate nearby blocks. Start with [the arsenal guide](ARSENAL-GUIDE.md) and [the audited counter roster](COUNTER-ROSTER.md).
 
 A standalone adventure mod for Minecraft Java 1.21.1. Flowering cliffs surround Heartwater, the first valley. Behind its waterfalls, a lamp-lit boardwalk leads to an underground bathhouse where three towels still wait for guests.
 
 ## Install and travel
 
-Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.4.3.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
+Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.4.7.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
 
 Pick up a small flower to unlock the Heartwater Locket recipe. Craft **one compass, one amethyst shard and one small flower** anywhere in the crafting grid. Right-click the locket to travel. Carry the same locket and right-click it again to return to the place where you entered. A fresh unbound locket used inside takes you back to Overworld spawn.
 
@@ -62,7 +62,7 @@ Heartsill comes in all 16 Minecraft dye colors, with a full tile, slab and carpe
 
 | Relic | Melee damage | Bow, throw or use ability | Ability |
 | --- | ---: | ---: | --- |
-| Cupid Bow | 14 | 14 on a full draw against a charm-immune target, 0 on a successful charm | Draw and release to charm a mob for 40 seconds. It follows and guards its archer. Giant bosses resist it. |
+| Cupid Bow | 14 | 14 on a full draw against a charm-immune target, 0 on a successful charm | Draw and release to charm eligible mobs or PvP-enabled players for 40 seconds. Allies follow and defend the archer. Left-click with the bow to direct them at a visible living target. Giant bosses resist charm. |
 | Rippleglass Bow | 17 | 17 on a full draw | A splash slows and outlines enemies near the impact. |
 | Ribbonhare Scepter | 14 | 0 on summon or thump | Call a pink thumping decoy at the ledge you aim at. |
 | Blossom Greatsword | 24 | 16 on the return sweep | Land a charged hit, then face the hanging petals and use within three seconds for a longer sweep. |
