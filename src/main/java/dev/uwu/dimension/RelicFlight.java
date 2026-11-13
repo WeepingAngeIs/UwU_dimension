@@ -182,7 +182,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         setPos(hit.getLocation().x + face.getStepX() * .16,
                 hit.getLocation().y + face.getStepY() * .16,
                 hit.getLocation().z + face.getStepZ() * .16);
-        server.playSound(null, hit.getBlockPos(), SoundEvents.TRIDENT_HIT_GROUND.value(), SoundSource.PLAYERS,
+        server.playSound(null, hit.getBlockPos(), SoundEvents.TRIDENT_HIT_GROUND, SoundSource.PLAYERS,
                 .85F, .92F + server.random.nextFloat() * .16F);
     }
 
