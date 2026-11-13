@@ -1,7 +1,7 @@
-name: UwU Dimension 1.4.4 hosted build
+name: UwU Dimension 1.4.5 hosted build
 on:
   push:
-    branches: [feature/projectile-glow-residents-1.4.4]
+    branches: [feature/uwu-dimension-startup-fix-1.4.5]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,5 +22,5 @@ jobs:
         run: ./gradlew jar --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.4.4
+          name: UwU-Dimension-1.4.5
           path: build/libs/*.jar

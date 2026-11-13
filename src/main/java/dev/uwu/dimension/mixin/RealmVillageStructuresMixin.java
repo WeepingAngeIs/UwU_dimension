@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(StructureManager.class)
 public abstract class RealmVillageStructuresMixin {
     @Shadow @Final private LevelAccessor level;
-    @Shadow @Final private RegistryAccess registryAccess;
+    @Shadow public abstract RegistryAccess registryAccess();
 
     @Inject(method="setStartForStructure", at=@At("HEAD"), cancellable=true)
     private void uwu$skipVanillaVillageStarts(SectionPos section, Structure structure, StructureStart start,
@@ -30,7 +30,7 @@ public abstract class RealmVillageStructuresMixin {
         var dimension = level instanceof ServerLevel server ? server.dimension()
                 : level instanceof WorldGenRegion region ? region.getLevel().dimension() : null;
         if (dimension == null || !RealmResidents.appliesDimension(dimension)) return;
-        var id = registryAccess.registryOrThrow(Registries.STRUCTURE).getKey(structure);
+        var id = registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(structure);
         if (id != null && id.getNamespace().equals("minecraft") && id.getPath().startsWith("village_"))
             callback.cancel();
     }
