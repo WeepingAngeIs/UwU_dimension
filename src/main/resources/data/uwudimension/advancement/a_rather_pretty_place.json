@@ -16,18 +16,6 @@
     "hidden": false
   },
   "criteria": {
-    "enter_heartwater": {
-      "trigger": "minecraft:changed_dimension",
-      "conditions": {
-        "to": "uwudimension:heartwater"
-      }
-    },
-    "enter_blossom_reach": {
-      "trigger": "minecraft:changed_dimension",
-      "conditions": {
-        "to": "uwudimension:blossom_reach"
-      }
-    },
     "enter_sakura_reach": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
@@ -36,6 +24,6 @@
     }
   },
   "requirements": [
-    ["enter_heartwater", "enter_blossom_reach", "enter_sakura_reach"]
+    ["enter_sakura_reach"]
   ]
 }

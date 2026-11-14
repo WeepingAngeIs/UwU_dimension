@@ -21,7 +21,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class MusicCamera {
  static String state="menu";static int ticks,scenario;static volatile boolean ready;
- static final String[] REALMS={"uwudimension:sakura_reach","uwudimension:sakura_reach","uwudimension:sakura_reach","minecraft:overworld","minecraft:the_nether","uwudimension:heartwater","uwudimension:blossom_reach"};
+ static final String[] REALMS={"uwudimension:sakura_reach","uwudimension:sakura_reach","uwudimension:sakura_reach","minecraft:overworld","minecraft:the_nether"};
  static List<RMRuntimeEntry> entries;static volatile boolean charmed,expired;static java.util.UUID charmTarget;
  static void check(boolean b,String m){if(!b)throw new AssertionError(m);}
  static RMRuntimeEntry rule(SongpackZip pack,String song,String...conditions){var e=new SongpackEntry();e.events=conditions;e.songs=new String[]{song};return RMRuntimeEntry.create(pack,e);}

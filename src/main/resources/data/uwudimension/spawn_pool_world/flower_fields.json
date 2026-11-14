@@ -16,8 +16,6 @@
       "weight": 8,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
@@ -42,8 +40,6 @@
       "weight": 7,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
@@ -68,8 +64,6 @@
       "weight": 6,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
@@ -94,8 +88,6 @@
       "weight": 5,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,
@@ -120,8 +112,6 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "minSkyLight": 8,

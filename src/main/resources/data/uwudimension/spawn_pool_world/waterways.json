@@ -16,8 +16,6 @@
       "weight": 7,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ]
       }
@@ -35,8 +33,6 @@
       "weight": 6,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ]
       }
@@ -54,8 +50,6 @@
       "weight": 5,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ]
       }
@@ -73,8 +67,6 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ]
       }

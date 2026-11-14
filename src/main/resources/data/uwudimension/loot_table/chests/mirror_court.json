@@ -10,18 +10,6 @@
             {
               "condition": "minecraft:location_check",
               "predicate": {
-                "dimension": "uwudimension:heartwater"
-              }
-            },
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
-                "dimension": "uwudimension:blossom_reach"
-              }
-            },
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
                 "dimension": "uwudimension:sakura_reach"
               }
             }

@@ -13,8 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 final class AdvancementProof {
     private static final ResourceLocation ID = ResourceLocation.parse("uwudimension:a_rather_pretty_place");
     private static final List<ResourceKey<Level>> REALMS = List.of(
-        ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("uwudimension:heartwater")),
-        ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("uwudimension:blossom_reach")),
         ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("uwudimension:sakura_reach"))
     );
 
@@ -50,7 +48,7 @@ final class AdvancementProof {
             if (visitor.player.getAdvancements().getOrStartProgress(advancement).isDone())
                 throw new AssertionError("Entering another dimension incorrectly granted the advancement");
         }
-        System.out.println("UWU ADVANCEMENT SERVER PASSED all three realm entry criteria, one-time completion, and unrelated-dimension exclusion");
+        System.out.println("UWU ADVANCEMENT SERVER PASSED Sakura Reach entry, one-time completion, and unrelated-dimension exclusion");
         return true;
     }
 }

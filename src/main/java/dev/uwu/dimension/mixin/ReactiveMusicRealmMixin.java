@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.*;
 public abstract class ReactiveMusicRealmMixin {
  @Redirect(method="tickEventMap",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"))
  private static ResourceKey<Level> uwu$musicRealm(Level level){
-  var id=level.dimension().location();
-  return id.getNamespace().equals("uwudimension")&&java.util.Set.of("heartwater","blossom_reach","sakura_reach").contains(id.getPath())?Level.OVERWORLD:level.dimension();
+  return level.dimension().equals(dev.uwu.dimension.ReefLife.REACH)?Level.OVERWORLD:level.dimension();
  }
 }

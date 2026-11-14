@@ -53,9 +53,6 @@ public final class RouteProof {
         if(level.getSeed()==152045L)supportedTrees(level,new BlockPos(-632,89,-28),8,false,"FORMER ROOF FRAGMENT");
         if(level.getSeed()==4372191L)supportedTrees(level,new BlockPos(-2222,68,-1007),8,false,"FORMER EDGE FRAGMENT");
         terrain(level,2787,-1117);
-        var legacy=level.getServer().getLevel(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
-                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("uwudimension","heartwater")));
-        if(legacy!=null)terrain(legacy,2787,-1117);
         terrain(level,first.x()+198,first.z()+192);
     }
     private static void terrain(ServerLevel level,int x,int z){

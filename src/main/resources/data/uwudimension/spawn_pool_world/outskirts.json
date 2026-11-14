@@ -14,8 +14,6 @@
       "weight": 4,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,
@@ -37,8 +35,6 @@
       "weight": 4,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,
@@ -60,8 +56,6 @@
       "weight": 3,
       "condition": {
         "dimensions": [
-          "uwudimension:heartwater",
-          "uwudimension:blossom_reach",
           "uwudimension:sakura_reach"
         ],
         "canSeeSky": true,

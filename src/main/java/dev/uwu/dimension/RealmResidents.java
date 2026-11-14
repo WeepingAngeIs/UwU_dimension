@@ -19,8 +19,7 @@ public final class RealmResidents {
         return level instanceof ServerLevel&&appliesDimension(level.dimension());
     }
     public static boolean appliesDimension(net.minecraft.resources.ResourceKey<Level> dimension){
-        var id=dimension.location();
-        return id.getNamespace().equals("uwudimension")&&Set.of("heartwater","blossom_reach","sakura_reach").contains(id.getPath());
+        return dimension.equals(ReefLife.REACH);
     }
     public static void register(){
         NeoForge.EVENT_BUS.addListener(RealmResidents::join);
