@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -27,12 +28,14 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -238,14 +241,22 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 
-    private void acquireThreat(ServerLevel level){
-        var residents=level.getEntitiesOfClass(Keeper.class,new AABB(court).inflate(48),k->k.isAlive()&&(k.villageCourt()==null||court.equals(k.villageCourt())));
-        if(residents.isEmpty())return;
-        level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,new AABB(court).inflate(48),mob->{
-            if(!mob.isAlive()||mob==this||mob instanceof Keeper||mob instanceof BlossomWarden||mob.getPersistentData().contains(GuardianFlight.STATE))return false;
-            boolean hostileUndead=mob instanceof net.minecraft.world.entity.monster.Zombie && !(mob instanceof net.minecraft.world.entity.monster.ZombifiedPiglin);
-            return residents.stream().anyMatch(k->mob.distanceToSqr(k)<=24*24&&(hostileUndead||mob.getTarget()==k));
-        }).stream().min(Comparator.comparingDouble(this::distanceToSqr)).ifPresent(this::accuse);
+    private void acquireThreat(ServerLevel level) {
+        AABB area = new AABB(this.court).inflate(48.0D);
+        List<Keeper> keepers = level.getEntitiesOfClass(Keeper.class, area,
+                keeper -> keeper.isAlive()
+                        && (keeper.villageCourt() == null || this.court.equals(keeper.villageCourt())));
+        if (keepers.isEmpty()) return;
+        level.getEntitiesOfClass(Mob.class, area, mob -> isHostileThreat(mob, keepers))
+                .stream()
+                .min(Comparator.comparingDouble((Mob mob) -> this.distanceToSqr(mob)))
+                .ifPresent(this::accuse);
+    }
+
+    private boolean isHostileThreat(Mob mob, List<Keeper> keepers) {
+        if (mob == this || mob instanceof BlossomWarden || mob instanceof Keeper || !mob.isAlive()) return false;
+        if (mob.getPersistentData().contains(GuardianFlight.STATE) || !(mob instanceof Enemy)) return false;
+        return keepers.stream().anyMatch(keeper -> mob.distanceToSqr(keeper) <= 24.0D * 24.0D);
     }
 
     private double reachSquared(LivingEntity foe) {

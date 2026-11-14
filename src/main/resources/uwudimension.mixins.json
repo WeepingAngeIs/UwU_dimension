@@ -11,6 +11,7 @@
     "RealmCureMixin",
     "GuardianFlightConnectionMixin",
     "GuardianHealthMixin",
+    "GuardianTargetMixin",
     "AcquisitionRecipeMixin",
     "AcquisitionLootMixin",
     "AcquisitionTradeMixin"

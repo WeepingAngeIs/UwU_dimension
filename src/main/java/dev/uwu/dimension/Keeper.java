@@ -3,6 +3,7 @@ package dev.uwu.dimension;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -15,9 +16,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -27,17 +32,24 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public final class Keeper extends Villager {
     private static final String ALLEGIANCE = "uwudimension_fellowship";
@@ -52,6 +64,13 @@ public final class Keeper extends Villager {
     private boolean checkedVillageSites;
     private int offeredJobLevel;
     private boolean adaptedResident;
+    private static final double UWU_FEAR_RADIUS = 8.0D;
+    private static final long UWU_FEAR_LINGER_TICKS = 100L;
+    private static final float UWU_FLEE_SPEED = 0.7F;
+    private boolean uwuFleeing;
+    private long uwuLastThreatTick;
+    private Vec3 uwuThreatPos = Vec3.ZERO;
+    private BlockPos uwuLastRefuge;
     public void markAdaptedResident(){adaptedResident=true;}
     private static final int FACTION_OFFERS = 4;
 
@@ -184,6 +203,120 @@ public final class Keeper extends Villager {
             }
         }
         super.aiStep();
+        if (level() instanceof ServerLevel server) tickUwuRoutine(server);
+    }
+
+    private void tickUwuRoutine(ServerLevel level) {
+        if (this.tickCount % 40 == 0) ensureHomeBed(level);
+        if (this.tickCount % 10 == 0) {
+            LivingEntity threat = nearestUwuThreat(level);
+            if (threat != null && this.getTarget() == null && !this.isSleeping() && !this.isTrading()) {
+                if (!this.uwuFleeing) {
+                    this.uwuFleeing = true;
+                    this.playSound(SoundEvents.VILLAGER_NO, 1.0F, 1.3F + this.random.nextFloat() * 0.2F);
+                }
+                this.uwuLastThreatTick = level.getGameTime();
+                this.uwuThreatPos = threat.position();
+            }
+        }
+        if (!this.uwuFleeing) return;
+        if (this.isSleeping() || this.isTrading()
+                || level.getGameTime() - this.uwuLastThreatTick > UWU_FEAR_LINGER_TICKS) {
+            stopUwuFleeing();
+            return;
+        }
+        MobEffectInstance speed = this.getEffect(MobEffects.MOVEMENT_SPEED);
+        if (speed == null || speed.getAmplifier() < 3 || speed.getDuration() < 20) {
+            this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 3, false, true, true));
+        }
+        runToUwuRefuge(level);
+        if (this.horizontalCollision && this.onGround()) this.jumpFromGround();
+        if (this.tickCount % 5 == 0) closeDoorsBehind(level);
+        if (this.tickCount % 60 == 0) {
+            this.playSound(SoundEvents.VILLAGER_HURT, 1.0F, 1.2F + this.random.nextFloat() * 0.2F);
+        }
+    }
+
+    /** Claims a free bed when HOME is missing; unsettled companions keep following their player. */
+    private void ensureHomeBed(ServerLevel level) {
+        if (this.isSleeping() || this.isTrading()) return;
+        if (this.companion != null && !this.settled) return;
+        if (this.getBrain().getMemory(MemoryModuleType.HOME).isPresent()) return;
+        Optional<BlockPos> bed = level.getPoiManager().take(
+                holder -> holder.is(PoiTypes.HOME),
+                (holder, pos) -> {
+                    Path path = this.getNavigation().createPath(pos, 1);
+                    return path != null && path.canReach();
+                },
+                this.blockPosition(),
+                32);
+        bed.ifPresent(pos -> this.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(level.dimension(), pos)));
+    }
+
+    private LivingEntity nearestUwuThreat(ServerLevel level) {
+        LivingEntity nearest = null;
+        double bestDistSq = UWU_FEAR_RADIUS * UWU_FEAR_RADIUS;
+        for (LivingEntity candidate : level.getEntitiesOfClass(LivingEntity.class,
+                this.getBoundingBox().inflate(UWU_FEAR_RADIUS),
+                entity -> entity instanceof Enemy && entity.isAlive())) {
+            double distSq = this.distanceToSqr(candidate);
+            if (distSq <= bestDistSq && this.hasLineOfSight(candidate)) {
+                bestDistSq = distSq;
+                nearest = candidate;
+            }
+        }
+        return nearest;
+    }
+
+    private void runToUwuRefuge(ServerLevel level) {
+        BlockPos refuge = uwuRefuge(level);
+        if (this.position().distanceToSqr(Vec3.atBottomCenterOf(refuge)) <= 4.0D) return;
+        boolean hasWalkTarget = this.getBrain().getMemory(MemoryModuleType.WALK_TARGET).isPresent();
+        if (!hasWalkTarget || !refuge.equals(this.uwuLastRefuge) || this.tickCount % 10 == 0) {
+            this.uwuLastRefuge = refuge;
+            this.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(refuge, UWU_FLEE_SPEED, 1));
+        }
+    }
+
+    /** Uses the HOME bed when available, then the keeper's hearth, then a point away from danger. */
+    private BlockPos uwuRefuge(ServerLevel level) {
+        Optional<GlobalPos> bed = this.getBrain().getMemory(MemoryModuleType.HOME);
+        if (bed.isPresent() && bed.get().dimension().equals(level.dimension())) return bed.get().pos();
+        if (this.home != null) return this.home;
+        Vec3 away = this.position().subtract(this.uwuThreatPos).normalize().scale(12.0D);
+        Vec3 spot = this.position().add(away);
+        return BlockPos.containing(spot.x, spot.y, spot.z);
+    }
+
+    private void stopUwuFleeing() {
+        if (!this.uwuFleeing) return;
+        this.uwuFleeing = false;
+        this.uwuLastRefuge = null;
+        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        this.getNavigation().stop();
+    }
+
+    /** Closes open nearby doors once the doorway is clear. */
+    private void closeDoorsBehind(ServerLevel level) {
+        BlockPos origin = this.blockPosition();
+        for (BlockPos spot : BlockPos.betweenClosed(origin.offset(-2, -1, -2), origin.offset(2, 1, 2))) {
+            BlockPos doorPos = spot.immutable();
+            BlockState state = level.getBlockState(doorPos);
+            if (!(state.getBlock() instanceof DoorBlock) || !state.getValue(DoorBlock.OPEN)) continue;
+            if (!level.getEntitiesOfClass(LivingEntity.class, new AABB(doorPos), entity -> true).isEmpty()) continue;
+            setUwuDoorOpen(level, doorPos, state, false);
+        }
+    }
+
+    private void setUwuDoorOpen(ServerLevel level, BlockPos pos, BlockState state, boolean open) {
+        level.setBlock(pos, state.setValue(DoorBlock.OPEN, open), 10);
+        BlockPos otherHalf = state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
+        BlockState other = level.getBlockState(otherHalf);
+        if (other.getBlock() instanceof DoorBlock && other.getValue(DoorBlock.OPEN) != open) {
+            level.setBlock(otherHalf, other.setValue(DoorBlock.OPEN, open), 10);
+        }
+        level.playSound(null, pos, open ? SoundEvents.WOODEN_DOOR_OPEN : SoundEvents.WOODEN_DOOR_CLOSE,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     // Worldgen writes the house into a protochunk before the live POI manager is available.
