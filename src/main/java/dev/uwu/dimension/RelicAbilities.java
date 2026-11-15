@@ -94,7 +94,7 @@ final class RelicAbilities {
     private static final String FULL_SWING = "uwudimension.full_swing";
     static void beforeAttack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide || !player.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get())) return;
+        if (player.level().isClientSide || !GlitchBow.isRelic(player.getMainHandItem(), Arsenal.Relic.BLOSSOM_GREATSWORD)) return;
         if (player.getAttackStrengthScale(0.5F) >= 0.9F) player.getPersistentData().putLong(FULL_SWING, player.level().getGameTime());
         else player.getPersistentData().remove(FULL_SWING);
     }

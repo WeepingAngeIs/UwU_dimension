@@ -158,7 +158,7 @@ final class CupidMinions {
     }
 
     private static void designate(ServerPlayer owner) {
-        if (owner.isSpectator() || !owner.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get())) return;
+        if (owner.isSpectator() || !GlitchBow.isRelic(owner.getMainHandItem(), Arsenal.Relic.CUPID_BOW)) return;
         if (owner.isShiftKeyDown()) {
             CupidWishes.aim(owner);
             return;

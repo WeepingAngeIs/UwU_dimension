@@ -28,16 +28,29 @@ public final class HeartArrow extends Arrow {
     boolean rippleBow() { return entityData.get(RIPPLE); }
 
     static void fire(ServerLevel level, Player player, Arsenal.Relic kind, float draw) {
+        fire(level, player, kind, draw, null);
+    }
+
+    static boolean fire(ServerLevel level, Player player, Arsenal.Relic kind, float draw, java.util.UUID glitchToken) {
         HeartArrow arrow = new HeartArrow(Arsenal.ARROW.get(), level);
         arrow.setOwner(player);
         arrow.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
         arrow.entityData.set(RIPPLE, kind == Arsenal.Relic.RIPPLE_BOW);
         arrow.getPersistentData().putBoolean("ripple", arrow.rippleBow());
         arrow.getPersistentData().putFloat("strength", draw);
+        if (glitchToken != null) arrow.getPersistentData().putUUID("uwu.glitch_token", glitchToken);
         arrow.pickup = Pickup.DISALLOWED;
         arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 3.0F * draw, 0.3F);
-        level.addFreshEntity(arrow);
+        if (!level.addFreshEntity(arrow)) return false;
         level.playSound(null, player.blockPosition(), SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 0.9F, 1.25F - 0.25F * draw);
+        return true;
+    }
+
+    @Override public void remove(Entity.RemovalReason reason) {
+        if (reason.shouldDestroy() && level() instanceof ServerLevel server
+                && getPersistentData().hasUUID("uwu.glitch_token"))
+            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_token"));
+        super.remove(reason);
     }
     @Override public void tick() {
         super.tick();

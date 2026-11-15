@@ -126,7 +126,7 @@ final class CupidWishes {
     private static void finish(ServerPlayer p,Wish w) {
         ServerLevel level=p.serverLevel();
         Entity first=level.getEntity(w.first), second=level.getEntity(w.second);
-        if(p.level().dimension()!=w.world || !p.isAlive() || !enabled(p) || !p.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()) ||
+        if(p.level().dimension()!=w.world || !p.isAlive() || !enabled(p) || !GlitchBow.isRelic(p.getMainHandItem(),Arsenal.Relic.CUPID_BOW) ||
            !(first instanceof LivingEntity a) || !(second instanceof LivingEntity b) || !pairAllowed(p,a,b) ||
            NeoForge.EVENT_BUS.post(new CupidPairEvent(p,a,b)).isCanceled()) {
             tell(p,"The wish faded before both hearts were ready."); return;

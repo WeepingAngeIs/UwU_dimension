@@ -894,6 +894,446 @@
     },
     {
       "predicate": {
+        "uwudimension:glitch_scythe": 28
+      },
+      "model": "uwudimension:item/vesper_scythe_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 29
+      },
+      "model": "uwudimension:item/vesper_scythe_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 30
+      },
+      "model": "uwudimension:item/vesper_scythe_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 31
+      },
+      "model": "uwudimension:item/vesper_scythe_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 372
+      },
+      "model": "uwudimension:item/counter_the_devourer_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 373
+      },
+      "model": "uwudimension:item/counter_the_devourer_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 374
+      },
+      "model": "uwudimension:item/counter_the_devourer_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 375
+      },
+      "model": "uwudimension:item/counter_the_devourer_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 380
+      },
+      "model": "uwudimension:item/counter_stormscale_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 381
+      },
+      "model": "uwudimension:item/counter_stormscale_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 382
+      },
+      "model": "uwudimension:item/counter_stormscale_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 383
+      },
+      "model": "uwudimension:item/counter_stormscale_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 396
+      },
+      "model": "uwudimension:item/counter_bramblethorn_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 397
+      },
+      "model": "uwudimension:item/counter_bramblethorn_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 398
+      },
+      "model": "uwudimension:item/counter_bramblethorn_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 399
+      },
+      "model": "uwudimension:item/counter_bramblethorn_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 424
+      },
+      "model": "uwudimension:item/counter_soulstealer_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 425
+      },
+      "model": "uwudimension:item/counter_soulstealer_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 426
+      },
+      "model": "uwudimension:item/counter_soulstealer_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 427
+      },
+      "model": "uwudimension:item/counter_soulstealer_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 428
+      },
+      "model": "uwudimension:item/counter_soulrender_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 429
+      },
+      "model": "uwudimension:item/counter_soulrender_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 430
+      },
+      "model": "uwudimension:item/counter_soulrender_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 431
+      },
+      "model": "uwudimension:item/counter_soulrender_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 440
+      },
+      "model": "uwudimension:item/counter_frostfall_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 441
+      },
+      "model": "uwudimension:item/counter_frostfall_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 442
+      },
+      "model": "uwudimension:item/counter_frostfall_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 443
+      },
+      "model": "uwudimension:item/counter_frostfall_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 448
+      },
+      "model": "uwudimension:item/counter_livyatan_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 449
+      },
+      "model": "uwudimension:item/counter_livyatan_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 450
+      },
+      "model": "uwudimension:item/counter_livyatan_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 451
+      },
+      "model": "uwudimension:item/counter_livyatan_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 452
+      },
+      "model": "uwudimension:item/counter_icewhisper_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 453
+      },
+      "model": "uwudimension:item/counter_icewhisper_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 454
+      },
+      "model": "uwudimension:item/counter_icewhisper_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 455
+      },
+      "model": "uwudimension:item/counter_icewhisper_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 464
+      },
+      "model": "uwudimension:item/counter_mjolnir_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 465
+      },
+      "model": "uwudimension:item/counter_mjolnir_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 466
+      },
+      "model": "uwudimension:item/counter_mjolnir_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 467
+      },
+      "model": "uwudimension:item/counter_mjolnir_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 488
+      },
+      "model": "uwudimension:item/counter_righteous_relic_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 489
+      },
+      "model": "uwudimension:item/counter_righteous_relic_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 490
+      },
+      "model": "uwudimension:item/counter_righteous_relic_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 491
+      },
+      "model": "uwudimension:item/counter_righteous_relic_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 496
+      },
+      "model": "uwudimension:item/counter_sunfire_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 497
+      },
+      "model": "uwudimension:item/counter_sunfire_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 498
+      },
+      "model": "uwudimension:item/counter_sunfire_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 499
+      },
+      "model": "uwudimension:item/counter_sunfire_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 512
+      },
+      "model": "uwudimension:item/counter_emberlash_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 513
+      },
+      "model": "uwudimension:item/counter_emberlash_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 514
+      },
+      "model": "uwudimension:item/counter_emberlash_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 515
+      },
+      "model": "uwudimension:item/counter_emberlash_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 516
+      },
+      "model": "uwudimension:item/counter_waxweaver_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 517
+      },
+      "model": "uwudimension:item/counter_waxweaver_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 518
+      },
+      "model": "uwudimension:item/counter_waxweaver_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 519
+      },
+      "model": "uwudimension:item/counter_waxweaver_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 528
+      },
+      "model": "uwudimension:item/counter_wickpiercer_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 529
+      },
+      "model": "uwudimension:item/counter_wickpiercer_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 530
+      },
+      "model": "uwudimension:item/counter_wickpiercer_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 531
+      },
+      "model": "uwudimension:item/counter_wickpiercer_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 552
+      },
+      "model": "uwudimension:item/counter_magiscythe_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 553
+      },
+      "model": "uwudimension:item/counter_magiscythe_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 554
+      },
+      "model": "uwudimension:item/counter_magiscythe_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 555
+      },
+      "model": "uwudimension:item/counter_magiscythe_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 556
+      },
+      "model": "uwudimension:item/counter_enigma_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 557
+      },
+      "model": "uwudimension:item/counter_enigma_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 558
+      },
+      "model": "uwudimension:item/counter_enigma_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_scythe": 559
+      },
+      "model": "uwudimension:item/counter_enigma_3"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_cupid_drawing": 1
+      },
+      "model": "uwudimension:item/cupid_bow_draw0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_cupid_drawing": 1,
+        "uwudimension:glitch_cupid_draw": 0.5
+      },
+      "model": "uwudimension:item/cupid_bow_draw1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_cupid_drawing": 1,
+        "uwudimension:glitch_cupid_draw": 0.9
+      },
+      "model": "uwudimension:item/cupid_bow_draw2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_ripple_draw": 0.05
+      },
+      "model": "uwudimension:item/ripple_bow_draw1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_ripple_draw": 0.85
+      },
+      "model": "uwudimension:item/ripple_bow_draw2"
+    },
+    {
+      "predicate": {
         "uwudimension:static": 1
       },
       "model": "uwudimension:item/glitch_static"

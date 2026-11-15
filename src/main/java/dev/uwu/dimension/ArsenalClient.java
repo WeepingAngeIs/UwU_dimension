@@ -32,8 +32,18 @@ public final class ArsenalClient {
                     ? player.getCooldowns().getCooldownPercent(stack.getItem(), 0) : 0);
             for(var entry:CounterArsenal.ROSTER)if(entry.shape().equals("scythe"))ItemProperties.register(CounterArsenal.ITEMS.get(entry.id()).get(),Arsenal.id("element"),(stack,level,holder,seed)->stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("form"),(stack,level,holder,seed)-> {
-                var n=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-                return n.contains("uwu_form")?n.getInt("uwu_form")+1:0;
+                return GlitchBow.currentIndex(stack)+1;
+            });
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_cupid_drawing"),(stack,level,holder,seed) ->
+                GlitchBow.relic(stack)==Arsenal.Relic.CUPID_BOW && holder!=null && holder.isUsingItem() && holder.getUseItem()==stack ? 1F : 0F);
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_cupid_draw"),(stack,level,holder,seed) ->
+                GlitchBow.relic(stack)==Arsenal.Relic.CUPID_BOW && holder!=null && holder.getUseItem()==stack ? Math.min(1,holder.getTicksUsingItem()/20F) : 0F);
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_ripple_draw"),(stack,level,holder,seed) ->
+                GlitchBow.relic(stack)==Arsenal.Relic.RIPPLE_BOW && holder!=null && holder.getUseItem()==stack ? Math.min(1,holder.getTicksUsingItem()/20F) : 0F);
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_scythe"),(stack,level,holder,seed) -> {
+                if(!GlitchBow.isScythe(stack))return 0;
+                int element=Math.floorMod(stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"),4);
+                return (GlitchBow.currentIndex(stack)+1)*4+element;
             });
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("static"),(stack,level,holder,seed)-> {
                 var n=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();

@@ -196,7 +196,7 @@ public final class CupidMinionClient {
             event.setSwingHand(false);
             return;
         }
-        if (event.isAttack() && player.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get())) {
+        if (event.isAttack() && GlitchBow.isRelic(player.getMainHandItem(), Arsenal.Relic.CUPID_BOW)) {
             event.setCanceled(true);
             event.setSwingHand(false);
             PacketDistributor.sendToServer(new CupidMinions.Designate());

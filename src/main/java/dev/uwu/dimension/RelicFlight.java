@@ -134,6 +134,42 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 entry.theme().equals("dusk") ? 2 : 0, true, hand, cycleScythe) != null;
     }
 
+    /** The reserved item is the actual Glitch stack, never a newly manufactured form. */
+    static boolean castGlitchWeapon(ServerLevel level, Player owner, InteractionHand hand,
+            Arsenal.Relic kind, CounterArsenal.Entry counter) {
+        ItemStack held = owner.getItemInHand(hand);
+        if (!(held.getItem() instanceof GlitchBow)) return false;
+        ItemStack carried = held.copy();
+        carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
+        if (carried.isEmpty()) {
+            owner.setItemInHand(hand, ItemStack.EMPTY);
+            return true;
+        }
+        boolean scythe = counter != null ? counter.shape().equals("scythe") : kind == Arsenal.Relic.VESPER_SCYTHE;
+        return launch(level, owner, counter == null ? kind : Arsenal.Relic.VESPER_SCYTHE, false,
+                counter == null ? "" : counter.id(), carried,
+                counter != null && counter.theme().equals("dusk") ? 2 : 0, true, hand, scythe) != null;
+    }
+
+    static boolean castGlitchWave(ServerLevel level, Player owner, ItemStack stack, CounterArsenal.Entry counter) {
+        java.util.UUID token = java.util.UUID.randomUUID();
+        var flight = launch(level, owner, Arsenal.Relic.VESPER_SCYTHE, true,
+                counter == null ? "" : counter.id(), stack.copy(),
+                counter != null && counter.theme().equals("dusk") ? 2 : 0,
+                false, InteractionHand.MAIN_HAND, false);
+        if (flight == null) return false;
+        flight.getPersistentData().putUUID("uwu.glitch_token", token);
+        GlitchBow.begin(stack, level, 14, token);
+        return true;
+    }
+
+    @Override public void remove(Entity.RemovalReason reason) {
+        if (reason.shouldDestroy() && level() instanceof ServerLevel server
+                && getPersistentData().hasUUID("uwu.glitch_token"))
+            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_token"));
+        super.remove(reason);
+    }
+
     private static RelicFlight launch(ServerLevel level, Player owner, Arsenal.Relic kind, boolean wave,
             String counter, ItemStack display, int fallbackElement, boolean physical, InteractionHand hand,
             boolean cycleScythe) {

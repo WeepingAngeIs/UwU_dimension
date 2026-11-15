@@ -27,9 +27,12 @@ public final class DaggerBackstab {
     }
 
     public static boolean isDagger(Player player) {
-        var item = player.getMainHandItem().getItem();
+        var stack = player.getMainHandItem();
+        var item = stack.getItem();
+        var form = GlitchBow.counter(stack);
         return item instanceof Arsenal.RelicItem relic && relic.relic == Arsenal.Relic.ROSE_DAGGER
-                || item instanceof CounterArsenal.CounterItem counter && counter.entry.shape().equals("dagger");
+                || item instanceof CounterArsenal.CounterItem counter && counter.entry.shape().equals("dagger")
+                || GlitchBow.relic(stack) == Arsenal.Relic.ROSE_DAGGER || form != null && form.shape().equals("dagger");
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
