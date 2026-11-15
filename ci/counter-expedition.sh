@@ -15,9 +15,14 @@ python3 - <<'PY'
 from pathlib import Path
 import re
 p = Path('world/serverconfig/uwudimension-server.toml')
-config = p.read_text()
-config, count = re.subn(r'(?m)^(\s*weaponAcquisitionEnabled\s*=\s*)true\s*$', r'\g<1>false', config)
-assert count == 1, 'Could not set the restart-required acquisition policy'
+p.parent.mkdir(parents=True, exist_ok=True)
+config = p.read_text() if p.exists() else ''
+config, count = re.subn(r'(?m)^([ \t]*weaponAcquisitionEnabled[ \t]*=[ \t]*)true[ \t]*$', r'\g<1>false', config)
+if count == 0:
+    assert not re.search(r'(?m)^[ \t]*weaponAcquisitionEnabled[ \t]*=', config), 'Unexpected existing policy value'
+    config = 'weaponAcquisitionEnabled = false\n' + config
+else:
+    assert count == 1, 'Duplicate acquisition policy values'
 p.write_text(config)
 PY
 UWU_ROSTER_POLICY=1 timeout 12m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee counter-policy.log
