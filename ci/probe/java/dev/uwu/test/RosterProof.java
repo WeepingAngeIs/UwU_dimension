@@ -1,6 +1,7 @@
 package dev.uwu.test;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import dev.uwu.dimension.CounterArsenal;
 import dev.uwu.dimension.GlitchBow;
 import dev.uwu.dimension.CounterRetuning;
@@ -8,6 +9,8 @@ import dev.uwu.dimension.AcquisitionPolicy;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -60,8 +63,38 @@ final class RosterProof {
         require(root!=null&&root.getChild("counter")!=null&&root.getChild("journal")!=null
                 &&root.getChild("effects")!=null&&root.getChild("cupid")!=null&&root.getChild("trail")!=null,
                 "Counter registration replaced existing Sakura commands");
+        acquisition();
         System.out.println("UWU LEGACY ROSTER PASS all 133 ids, target/mechanics, saved Glitch indices and custom stack round trips");
         retuning(player);
+    }
+    private static String mechanics(CounterArsenal.Entry e) {return e.school()+"|"+e.shape()+"|"+e.theme()+"|"+e.runic();}
+    private static void acquisition() throws Exception {
+        Set<String> direct=new HashSet<>(),allMechanics=new HashSet<>(),directMechanics=new HashSet<>();
+        for(var e:CounterArsenal.ROSTER) {
+            allMechanics.add(mechanics(e));
+            if(CounterArsenal.active(e)){require(direct.add(e.id()),"Duplicate direct counter "+e.id());directMechanics.add(mechanics(e));}
+        }
+        require(direct.size()==32,"Wrong direct counter count: "+direct.size());
+        require(directMechanics.equals(allMechanics),"A unique school/shape/theme/runic combination is absent from direct acquisition");
+        for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")) {
+            var stream=RosterProof.class.getResourceAsStream("/data/uwudimension/loot_table/chests/"+name+".json");
+            require(stream!=null,"Missing loot table "+name);
+            var found=new HashSet<String>();int weight=0;
+            try(var reader=new InputStreamReader(stream,StandardCharsets.UTF_8)) {
+                var pools=JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("pools");
+                for(var pool:pools)for(var value:pool.getAsJsonObject().getAsJsonArray("entries")) {
+                    var entry=value.getAsJsonObject();
+                    if(!entry.has("name"))continue;
+                    String id=entry.get("name").getAsString();
+                    if(!id.startsWith("uwudimension:counter_"))continue;
+                    require(found.add(id.substring("uwudimension:".length())),"Duplicate counter in loot "+name+" "+id);
+                    weight+=entry.has("weight")?entry.get("weight").getAsInt():1;
+                }
+            }
+            require(found.equals(direct),"Loot/direct counter mismatch "+name);
+            require(weight==123,"Counter loot weight changed "+name+" "+weight);
+        }
+        System.out.println("UWU ROSTER ACQUISITION PASS 32 direct, complete ability families and duplicate-free weighted loot in four tables");
     }
     private static void retuning(ServerPlayer player) {
         for(int i=0;i<player.getInventory().getContainerSize();i++)player.getInventory().setItem(i,new ItemStack(Items.COBBLESTONE,64));
@@ -104,20 +137,27 @@ final class RosterProof {
             player.getCooldowns().removeCooldown(destination);
             require(ItemStack.isSameItemSameComponents(before,player.getItemInHand(hand)),"Blocked retune mutated stack");
         }
-        boolean original=AcquisitionPolicy.WEAPON_ACQUISITION.get();
-        try {
-            AcquisitionPolicy.WEAPON_ACQUISITION.set(false);
-            player.setGameMode(GameType.SURVIVAL);
-            require(!player.hasPermissions(2),"Policy fixture unexpectedly has operator permissions");
-            player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
-            player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(initial));
-            String other=CounterArsenal.ROSTER.get(1).id();
-            require(CounterRetuning.retune(player,CounterArsenal.ROSTER.getFirst().id()),"Same-form no-op rejected");
-            require(!CounterRetuning.retune(player,other)&&player.getMainHandItem().is(initial),"Disabled policy permitted survival acquisition");
-            player.setGameMode(GameType.CREATIVE);
-            require(CounterRetuning.retune(player,other),"Creative policy exception rejected");
-        } finally { AcquisitionPolicy.WEAPON_ACQUISITION.set(original);player.setGameMode(GameType.SURVIVAL); }
         player.getInventory().clearContent();
-        System.out.println("UWU RETUNING PASS 133 targets in both hands, full inventory, stack data, invalid IDs, both cooldowns and acquisition policy");
+        System.out.println("UWU RETUNING PASS 133 targets in both hands, full inventory, stack data, invalid IDs and both cooldowns");
+    }
+    /** Runs after a real server restart, as required by the world-restart policy setting. */
+    static void policy(ServerPlayer player) {
+        require(AcquisitionPolicy.SPEC.isLoaded()&&!AcquisitionPolicy.weaponAcquisitionEnabled(),"Disabled acquisition policy did not load at startup");
+        player.setGameMode(GameType.SURVIVAL);
+        require(!player.hasPermissions(2),"Policy fixture unexpectedly has operator permissions");
+        var initial=CounterArsenal.ITEMS.get(CounterArsenal.ROSTER.getFirst().id()).get();
+        player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(initial));
+        String original=CounterArsenal.ROSTER.getFirst().id(),other=CounterArsenal.ROSTER.get(1).id();
+        require(CounterRetuning.retune(player,original),"Same-form no-op rejected");
+        require(!CounterRetuning.retune(player,other)&&player.getMainHandItem().is(initial),"Disabled policy permitted survival acquisition");
+        player.setGameMode(GameType.CREATIVE);
+        require(CounterRetuning.retune(player,other),"Creative policy exception rejected");
+        player.setGameMode(GameType.SURVIVAL);
+        try {
+            player.getServer().getPlayerList().op(player.getGameProfile());
+            require(player.hasPermissions(2)&&CounterRetuning.retune(player,original),"Operator policy exception rejected");
+        } finally { player.getServer().getPlayerList().deop(player.getGameProfile()); }
+        System.out.println("UWU RETUNING RESTART POLICY PASS survival restriction, same-form no-op, creative and operator exceptions");
     }
 }

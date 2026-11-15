@@ -34,6 +34,12 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_ROSTER_POLICY")!=null){
+                var actor=CounterProof.player(level,new com.mojang.authlib.GameProfile(java.util.UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
+                level.addNewPlayer(actor);
+                try { RosterProof.policy(actor); } finally { actor.discard(); }
+                stage=-1;server.halt(false);return;
+            }
             if (System.getenv("UWU_RENEWAL") != null) {
                 boolean restart = java.nio.file.Files.exists(java.nio.file.Path.of("first-site.txt"));
                 if (stage == 99) {

@@ -20,6 +20,7 @@ jobs:
       - run: ./gradlew jar && python3 ci/verify-roster-assets.py build/libs/UwU-Dimension-*.jar && bash ci/counter-expedition.sh
       - run: |
           grep -F 'UWU LEGACY ROSTER PASS' build/counter-server/counter.log
+          grep -F 'UWU ROSTER ACQUISITION PASS' build/counter-server/counter.log
           grep -F 'UWU RETUNING PASS 133 targets in both hands' build/counter-server/counter.log
           grep -F 'COUNTER ROSTER PASS 133 normal casts' build/counter-server/counter.log
           grep -F 'GLITCH PASS 180' build/counter-server/counter.log
@@ -29,6 +30,7 @@ jobs:
           name: roster-server-evidence
           path: |
             build/counter-server/counter.log
+            build/counter-server/counter-policy.log
             build/counter-server/logs/latest.log
             build/counter-server/crash-reports
   better-combat:
@@ -100,13 +102,13 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 25m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee arsenal-client.log
           grep -F 'UWU ARSENAL CLIENT PASSED' arsenal-client.log
-          for weapon in twinfin-lash frost-lash dusk-element-wave spinning-scythe glitch-static; do
+          for weapon in twinfin-lash frost-lash dusk-element-wave spinning-scythe glitch-static counter-spear counter-glaive counter-twinblade counter-rapier counter-greataxe counter-greathammer counter-chakram rose-dagger; do
             for view in first third; do test -s "run/screenshots/$weapon-held-$view.png"; done
           done
           for weapon in spinning-scythe glitch-static; do
             for view in first third; do test -s "run/screenshots/$weapon-draw-$view.png"; done
           done
-          for weapon in dusk-element-wave spinning-scythe; do test -s "run/screenshots/$weapon-flight-third.png"; done
+          for weapon in dusk-element-wave spinning-scythe counter-spear counter-glaive counter-twinblade counter-rapier counter-greataxe counter-greathammer counter-chakram rose-dagger; do test -s "run/screenshots/$weapon-flight-third.png"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:

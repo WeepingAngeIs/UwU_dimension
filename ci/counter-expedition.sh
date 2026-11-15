@@ -11,3 +11,14 @@ printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-seed=152045\nview-distance=3\nsimulation-distance=3\nmax-tick-time=600000\n' > server.properties
 UWU_ARSENAL=1 timeout 18m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee counter.log
 grep -F 'UWU COUNTER ARSENAL PASSED' counter.log
+python3 - <<'PY'
+from pathlib import Path
+import re
+p = Path('world/serverconfig/uwudimension-server.toml')
+config = p.read_text()
+config, count = re.subn(r'(?m)^(\s*weaponAcquisitionEnabled\s*=\s*)true\s*$', r'\g<1>false', config)
+assert count == 1, 'Could not set the restart-required acquisition policy'
+p.write_text(config)
+PY
+UWU_ROSTER_POLICY=1 timeout 12m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee counter-policy.log
+grep -F 'UWU RETUNING RESTART POLICY PASS' counter-policy.log
