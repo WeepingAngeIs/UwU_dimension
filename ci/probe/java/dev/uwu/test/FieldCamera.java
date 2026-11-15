@@ -178,7 +178,21 @@ public final class FieldCamera {
         var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
         if(state.equals("create")&&ticks>70){
             enter("arriving");server.execute(()->{
-                var p=server.getPlayerList().getPlayer(id); home=p.position();
+                var p=server.getPlayerList().getPlayer(id);
+                // A new world's player may still be falling from the login position
+                // when the client reaches this stage. Give the round trip a known
+                // safe departure floor in this disposable camera world.
+                var overworld=p.serverLevel();
+                var floor=new BlockPos(p.getBlockX(),overworld.getMaxBuildHeight()-16,p.getBlockZ());
+                overworld.getChunkAt(floor);
+                for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++) {
+                    overworld.setBlockAndUpdate(floor.offset(dx,0,dz),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                    for(int dy=1;dy<=3;dy++)overworld.setBlockAndUpdate(floor.offset(dx,dy,dz),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                }
+                p.teleportTo(overworld,floor.getX()+.5,floor.getY()+1,floor.getZ()+.5,p.getYRot(),0);
+                p.setDeltaMovement(Vec3.ZERO);
+                home=p.position();
+                System.out.println("FIELD LOCKET ORIGIN "+home);
                 p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:heartwater_locket"))));
                 use(p,false);
             });return;
@@ -284,7 +298,8 @@ public final class FieldCamera {
             // Allow queued terrain to settle before checking the crouch-use route.
             mc.options.renderDistance().set(3);
             if(seconds()<15)return;
-            if(mc.player.position().distanceToSqr(home)>30)throw new AssertionError("Locket lost saved origin");
+            if(mc.player.position().distanceToSqr(home)>.25)
+                throw new AssertionError("Locket lost saved origin: expected="+home+" actual="+mc.player.position());
             enter("sneak-visit");server.execute(()->use(server.getPlayerList().getPlayer(id),true));return;
         }
         if(state.equals("sneak-visit")&&mc.level.dimension().equals(ReefLife.REACH)&&seconds()>15){
