@@ -37,7 +37,8 @@ public final class UnderstoryProof {
 
     public static void run(ServerLevel level){
         for(var side:List.of("petal","dusk"))sample(level,side);
-        BlockPos base=new BlockPos(3616,level.getMaxBuildHeight()-28,-3168);
+        // The arena chunk is already entity-ticking, so survival drops are immediately observable.
+        BlockPos base=new BlockPos(8,level.getMaxBuildHeight()-28,8);
         try(var visitor=new ChestProof.Visitor(level,base,"GroveBotanist",UUID.randomUUID())){
             for(var side:List.of("petal","dusk")){
                 Block turf=block(side.equals("petal")?"sakura_grass_block":"dusk_grass_block");
@@ -110,13 +111,15 @@ public final class UnderstoryProof {
         boolean tall=cut.equals("tall_grass");
         boolean grass=tall||cut.equals("short_grass")||cut.equals("lace_fern");
         check(herb.defaultBlockState().is(tag(side+"_understory")),"missing flora tag for "+name);
-        for(int i=0;i<3;i++)level.removeBlock(foot.above(i),false);
+        for(int i=0;i<3;i++)level.setBlockAndUpdate(foot.above(i),Blocks.AIR.defaultBlockState());
         level.setBlockAndUpdate(foot.below(),Blocks.STONE.defaultBlockState());
         check(!place(level,player,foot,herb),"planted on stone "+name);
         level.setBlockAndUpdate(foot.below(),turf.defaultBlockState());
         level.setBlockAndUpdate(foot,Blocks.WATER.defaultBlockState());
         check(!place(level,player,foot,herb)&&level.getBlockState(foot).is(Blocks.WATER),"displaced water "+name);
-        level.removeBlock(foot,false);
+        // removeBlock preserves the existing fluid. Drain the test square before testing dry placement.
+        level.setBlockAndUpdate(foot,Blocks.AIR.defaultBlockState());
+        check(level.getFluidState(foot).isEmpty(),"test square still flooded "+foot);
         for(int half=0;half<(tall?2:1);half++)for(boolean sheared:new boolean[]{false,true}){
             Block support=sheared?turf:Blocks.DIRT;
             level.setBlockAndUpdate(foot.below(),support.defaultBlockState());

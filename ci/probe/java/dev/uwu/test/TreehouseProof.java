@@ -68,7 +68,7 @@ final class TreehouseProof {
         probe.moveTo(from.getX()+.5,from.getY(),from.getZ()+.5,0,0);
         probe.setOnGround(true);
         var path=probe.getNavigation().createPath(goal,tolerance);
-        check(path!=null&&path.canReach(),"native villager route "+from+" -> "+goal+"; final node="+(path==null?"none":path.getEndNode()));
+        check(path!=null&&path.canReach(),"native villager route "+from+" -> "+goal+"; final node="+(path==null?"none":path.getEndNode())+" nodes="+(path==null?"[]":java.util.stream.IntStream.range(0,path.getNodeCount()).mapToObj(i->path.getNode(i).asBlockPos().toShortString()).toList()));
     }
     private static void survey(ServerLevel level,MoonveilTreehouse.Plot p,Properties ledger){
         check(p.village().dusk()==p.dusk(),"wrong faction at "+p.door());
@@ -105,8 +105,8 @@ final class TreehouseProof {
         check(assigned.size()==2&&assigned.containsAll(List.of(p.residentId(0),p.residentId(1))),"duplicate or missing residents "+assigned);
         // Local north is the entrance side, independent of the rotated site's direction.
         var front=p.at(0,1,-9);
-        for(int i=0;i<7;i++)for(int x=-4;x<=-3;x++){
-            var step=p.at(x,i+1,3-i);
+        for(int i=0;i<7;i++)for(int x=-2;x<=-1;x++){
+            var step=p.at(x,i+1,-5+i);
             check(key(level,step).equals("moonveil_stairs"),"missing stair "+step);
             check(level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()
                     &&level.getBlockState(step.above(2)).getCollisionShape(level,step.above(2)).isEmpty(),"blocked stair headroom "+step);
@@ -158,6 +158,7 @@ final class TreehouseProof {
     static void run(ServerLevel level,boolean restart){
         try{
             Properties actual=new Properties();
+            if(!restart)MoonveilMaterialsProof.run(level);
             for(var p:plots)survey(level,p,actual);
             if(restart){
                 var original=new Properties();
@@ -166,7 +167,6 @@ final class TreehouseProof {
                 System.out.println("MOONVEIL TREEHOUSE RESTART PASS two saved factions, four original residents and their individual beds and jobs");
             }else{
                 rejectedTerrain(level,plots.getFirst());
-                MoonveilMaterialsProof.run(level);
                 try(var out=Files.newOutputStream(LEDGER)){actual.store(out,"Native world-generated treehouses and assigned residents");}
                 System.out.println("MOONVEIL TREEHOUSES PASS two inhabited giant trees with native wood, distinct beds/jobs, functional door and native villager paths");
             }

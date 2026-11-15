@@ -236,14 +236,15 @@ public final class MoonveilTreehouse {
             }
         }
         void interior(){
-            // Two-wide, seven-step flight. Remove the floor above the ascending stairs for headroom.
-            for(int i=0;i<7;i++)for(int x=-4;x<=-3;x++){
-                int z=3-i;
-                if(i>=3)block(x,7,z,Blocks.AIR);
+            // Enter directly onto the seven-step flight. A detour around the rear wall
+            // would exceed a keeper's native 24-block navigation budget going to the upper beds.
+            for(int i=0;i<7;i++)for(int x=-2;x<=-1;x++){
+                int z=-5+i;
+                if(i>=2)block(x,7,z,Blocks.AIR);
                 if(i>0)box(x,1,z,x,i,z,boards);
-                put(x,i+1,z,v.stair(MoonveilWood.STAIRS.get(),Direction.NORTH));
+                put(x,i+1,z,v.stair(MoonveilWood.STAIRS.get(),Direction.SOUTH));
             }
-            for(int z=-3;z<=0;z++)block(-2,8,z,MoonveilWood.FENCE.get());
+            for(int z=-3;z<=1;z++)block(-3,8,z,MoonveilWood.FENCE.get());
             for(int slot=0;slot<2;slot++){
                 int z=slot==0?-3:3;
                 var bed=(p.dusk()?Blocks.PURPLE_BED:Blocks.PINK_BED).defaultBlockState().setValue(BedBlock.FACING,v.face(Direction.EAST));

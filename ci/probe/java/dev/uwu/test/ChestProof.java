@@ -69,7 +69,10 @@ public final class ChestProof {
                         receivedCupidHearts += particles.getCount();
                     if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles) {
                         var type = particles.getParticle().getType();
-                        if (type == dev.uwu.dimension.CupidParticles.DRAW_HEART.get()) drawCues += particles.getCount();
+                        if (type == dev.uwu.dimension.CupidParticles.DRAW_HEART.get()) {
+                            require(particles.getCount()==0,"Full draw should trigger one client-side ripple");
+                            drawCues++;
+                        }
                         if (type == dev.uwu.dimension.CupidParticles.IMPACT_OUTLINE.get()) {
                             impactCues++;
                             require(particles.getCount()==0, "Impact should be one client-side outline");
