@@ -66,6 +66,7 @@ final class TreehouseProof {
     private static String key(ServerLevel level,BlockPos pos){return BuiltInRegistries.BLOCK.getKey(level.getBlockState(pos).getBlock()).getPath();}
     private static void route(ServerLevel level,Keeper probe,BlockPos from,BlockPos goal,int tolerance){
         probe.moveTo(from.getX()+.5,from.getY(),from.getZ()+.5,0,0);
+        probe.setOnGround(true);
         var path=probe.getNavigation().createPath(goal,tolerance);
         check(path!=null&&path.canReach(),"native villager route "+from+" -> "+goal+"; final node="+(path==null?"none":path.getEndNode()));
     }
@@ -91,10 +92,11 @@ final class TreehouseProof {
             var resident=(Keeper) level.getEntity(id);
             check(resident.getType()==expected&&resident.isAlive()&&resident.isPersistenceRequired(),"wrong faction/persistence "+id);
             ledger.setProperty(idPrefix+i,id.toString());
-            var bed=level.getBlockState(p.bedHead(i));
+            var bedHead=p.bedHead(i);var workstation=p.job(i);
+            var bed=level.getBlockState(bedHead);
             check(bed.is(BlockTags.BEDS)&&bed.getValue(BedBlock.PART)==BedPart.HEAD,"missing bed head "+p.bedHead(i));
-            check(resident.getBrain().getMemory(MemoryModuleType.HOME).filter(g->g.dimension().equals(level.dimension())&&g.pos().equals(p.bedHead(i))).isPresent(),"wrong home for "+id);
-            check(resident.getBrain().getMemory(MemoryModuleType.JOB_SITE).filter(g->g.dimension().equals(level.dimension())&&g.pos().equals(p.job(i))).isPresent(),"wrong job for "+id);
+            check(resident.getBrain().getMemory(MemoryModuleType.HOME).filter(g->g.dimension().equals(level.dimension())&&g.pos().equals(bedHead)).isPresent(),"wrong home for "+id);
+            check(resident.getBrain().getMemory(MemoryModuleType.JOB_SITE).filter(g->g.dimension().equals(level.dimension())&&g.pos().equals(workstation)).isPresent(),"wrong job for "+id);
             route(level,visitor,inside,p.bedHead(i),1);
             route(level,visitor,inside,p.job(i),1);
         }
