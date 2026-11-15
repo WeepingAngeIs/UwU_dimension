@@ -16,8 +16,9 @@ final class GiantSakuraCamera {
             int h=tree.height();
             BlockPos eye,aim;
             switch(name){
-                case "giant-sakura-front" -> {eye=tree.pos(0,11,-31);aim=tree.pos(0,12,0);}
-                case "giant-sakura-side" -> {eye=tree.pos(30,12,0);aim=tree.pos(0,12,0);}
+                // Wider views include both the tallest lobe and the lower trunk.
+                case "giant-sakura-front" -> {eye=tree.pos(0,h+10,-52);aim=tree.pos(0,h/2+7,0);}
+                case "giant-sakura-side" -> {eye=tree.pos(52,h+10,0);aim=tree.pos(0,h/2+7,0);}
                 case "giant-sakura-base" -> {eye=tree.pos(8,3,-11);aim=tree.pos(0,3,0);}
                 case "giant-sakura-canopy" -> {eye=tree.pos(27,h+11,-27);aim=tree.pos(0,h+3,0);}
                 default -> throw new IllegalArgumentException(name);

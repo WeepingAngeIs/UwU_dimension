@@ -38,7 +38,7 @@ final class GiantSakuraProof {
         return true;
     }
     private static void plant(ServerLevel level,BlockPos p){
-        for(int x=0;x<2;x++)for(int z=0;z<2;z++)level.setBlockAndUpdate(p.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
+        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(p.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
         level.setBlockAndUpdate(p,GiantSakuraSapling.SAPLING.get().defaultBlockState().setValue(SaplingBlock.STAGE,1));
     }
     private static void bonemeal(ServerLevel level,BlockPos p,int attempts){
@@ -62,6 +62,15 @@ final class GiantSakuraProof {
             var stack=new ItemStack(Items.CHERRY_SAPLING);visitor.getInventory().setItem(0,stack);
             CriteriaTriggers.INVENTORY_CHANGED.trigger(visitor,visitor.getInventory(),stack);
             check(visitor.getRecipeBook().contains(id),"inventory criterion did not unlock recipe book");
+            for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(origin.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
+            visitor.moveTo(origin.getX()+3.5,origin.getY(),origin.getZ()+.5,0,0);
+            var sapling=new ItemStack(GiantSakuraSapling.SAPLING.get());
+            visitor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,sapling);
+            var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atBottomCenterOf(origin),
+                    Direction.UP,origin.below(),false);
+            check(sapling.useOn(new net.minecraft.world.item.context.UseOnContext(visitor,net.minecraft.world.InteractionHand.MAIN_HAND,hit)).consumesAction()
+                    && level.getBlockState(origin).is(GiantSakuraSapling.SAPLING.get())
+                    && level.getBlockState(origin).getValue(SaplingBlock.STAGE)==0,"survival sapling planting");
         } finally {visitor.discard();}
         var drops=Block.getDrops(GiantSakuraSapling.SAPLING.get().defaultBlockState(),level,origin,null,null,new ItemStack(Items.DIAMOND_AXE));
         check(drops.stream().anyMatch(s->s.is(GiantSakuraSapling.SAPLING.get().asItem())),"sapling self drop");
@@ -78,7 +87,7 @@ final class GiantSakuraProof {
                 &&c.getItem(0).is(Items.DIAMOND)&&c.getItem(0).getCount()==3,"chest contents changed");
         check(level.getBlockState(blockPos).is(Blocks.OBSIDIAN),"player block overwritten");
         level.setBlockAndUpdate(chestPos,Blocks.AIR.defaultBlockState());level.setBlockAndUpdate(blockPos,Blocks.AIR.defaultBlockState());
-        var soil=origin.offset(1,-1,1);level.setBlockAndUpdate(soil,Blocks.STONE.defaultBlockState());
+        var soil=origin.offset(-1,-1,-1);level.setBlockAndUpdate(soil,Blocks.STONE.defaultBlockState());
         bonemeal(level,origin,35);originalSapling(level,origin,"missing support");
         check(level.getBlockState(soil).is(Blocks.STONE),"unsupported soil changed");
         level.setBlockAndUpdate(soil,Blocks.DIRT.defaultBlockState());
@@ -88,12 +97,14 @@ final class GiantSakuraProof {
         BlockPos high=origin.atY(level.getMaxBuildHeight()-1);plant(level,high);
         bonemeal(level,high,35);originalSapling(level,high,"build-height refusal");
         level.setBlockAndUpdate(high,Blocks.AIR.defaultBlockState());
-        for(int x=0;x<2;x++)for(int z=0;z<2;z++)level.setBlockAndUpdate(high.offset(x,-1,z),Blocks.AIR.defaultBlockState());
+        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(high.offset(x,-1,z),Blocks.AIR.defaultBlockState());
     }
     private static void connectivity(ServerLevel level,BlockPos p,String label){
-        for(int y=0;y<17;y++)for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
-            boolean isLog=level.getBlockState(p.offset(x,y,z)).is(Blocks.CHERRY_LOG);
-            check(isLog==(x>=0&&x<2&&z>=0&&z<2),label+" trunk not contiguous 2x2 y="+y+" x="+x+" z="+z);
+        for(int y=0;y<17;y++)for(int x=0;x<2;x++)for(int z=0;z<2;z++)
+            check(level.getBlockState(p.offset(x,y,z)).is(Blocks.CHERRY_LOG),label+" missing 2x2 core y="+y);
+        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
+            check(level.getBlockState(p.offset(x,0,z)).is(Blocks.CHERRY_LOG),label+" missing flared base");
+            check(level.getBlockState(p.offset(x,-1,z)).is(net.minecraft.tags.BlockTags.DIRT),label+" unsupported base");
         }
         Set<BlockPos> logs=new HashSet<>();int leaves=0;
         for(int x=-17;x<=17;x++)for(int z=-17;z<=17;z++)for(int y=0;y<=42;y++){

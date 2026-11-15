@@ -38,7 +38,7 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
     private static final java.util.function.Supplier<Item> ITEM=ITEMS.register("giant_sakura_sapling",()->new BlockItem(SAPLING.get(),new Item.Properties()) {
         @Override public void appendHoverText(ItemStack stack,Item.TooltipContext context,List<Component> tips,TooltipFlag flag) {
             tips.add(Component.literal("One sapling grows a giant 2×2-trunk sakura.").withStyle(ChatFormatting.GRAY));
-            tips.add(Component.literal("Needs flat soil, open space, and loaded chunks.").withStyle(ChatFormatting.GRAY));
+            tips.add(Component.literal("Needs 4×4 flat soil, open space, and loaded chunks.").withStyle(ChatFormatting.GRAY));
         }
     });
     public GiantSakuraSapling(){super(NoneFeatureConfiguration.CODEC);}
@@ -70,7 +70,7 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
             if(level.isOutsideBuildHeight(at) || !server.getWorldBorder().isWithinBounds(at))return false;
             if(checkedChunks.add(net.minecraft.world.level.ChunkPos.asLong(at)) && !server.hasChunkAt(at))return false;
         }
-        for(int x=0;x<2;x++)for(int z=0;z<2;z++){
+        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
             var soil=origin.offset(x,-1,z);var state=level.getBlockState(soil);
             if(!state.is(BlockTags.DIRT) || !state.isFaceSturdy(level,soil,Direction.UP))return false;
         }

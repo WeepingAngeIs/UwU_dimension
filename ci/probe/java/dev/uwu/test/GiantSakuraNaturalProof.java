@@ -41,9 +41,12 @@ final class GiantSakuraNaturalProof {
                 actualLogs.add(world);
             }else if(actual.is(Blocks.CHERRY_LEAVES))leaves++;
         }
-        for(int y=0;y<17;y++)for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
-            boolean log=level.getBlockState(tree.pos(x,y,z)).is(Blocks.CHERRY_LOG);
-            check(log==(x>=0&&x<2&&z>=0&&z<2),"trunk not contiguous 2x2 at "+tree.pos(x,y,z));
+        for(int y=0;y<17;y++)for(int x=0;x<2;x++)for(int z=0;z<2;z++)
+            check(level.getBlockState(tree.pos(x,y,z)).is(Blocks.CHERRY_LOG),"missing 2x2 core at "+tree.pos(x,y,z));
+        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
+            var base=tree.pos(x,0,z);
+            check(level.getBlockState(base).is(Blocks.CHERRY_LOG),"missing flared base at "+base);
+            check(level.getBlockState(base.below()).is(net.minecraft.tags.BlockTags.DIRT),"unsupported base at "+base);
         }
         Set<BlockPos> reached=new HashSet<>();ArrayDeque<BlockPos> q=new ArrayDeque<>();
         q.add(tree.pos(0,0,0));reached.add(tree.pos(0,0,0));

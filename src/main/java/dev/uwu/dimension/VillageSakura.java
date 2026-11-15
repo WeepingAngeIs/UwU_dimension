@@ -61,9 +61,9 @@ final class VillageSakura {
                         int h = GroveSites.height(level,wx+dx,wz+dz);
                         if (h <= 63 || Math.abs(h-y) > 2 || !GroveSites.cherry(level,wx+dx,h+1,wz+dz)) suitable = false;
                     }
-                    // All four trunk columns must meet the same soil surface: do not
-                    // build independent, exposed pillars down a sloping hillside.
-                    for(int dx=0;dx<2;dx++)for(int dz=0;dz<2;dz++)
+                    // Support the entire 4x4 root flare on the same surface;
+                    // do not build independent pillars down a sloping hillside.
+                    for(int dx=-1;dx<=2;dx++)for(int dz=-1;dz<=2;dz++)
                         if(GroveSites.height(level,site.wx(x+dx,z+dz),site.wz(x+dx,z+dz))!=y)suitable=false;
                     if (suitable) {
                         int height = 20 + Math.floorMod(HeartwaterFeature.Valley.mix(wx,wz,level.getSeed()),6);
