@@ -72,6 +72,15 @@ final class ToolLoreProof {
         player.setItemInHand(InteractionHand.MAIN_HAND, dagger);
         var cooldown = LivingEntity.class.getDeclaredField("attackStrengthTicker");
         cooldown.setAccessible(true);
+        // Apothic Attributes independently rolls criticals, which would skew one
+        // side of this deterministic front/rear comparison. Restore it afterwards.
+        var chanceKey = net.minecraft.resources.ResourceKey.create(
+                net.minecraft.core.registries.Registries.ATTRIBUTE,
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("apothic_attributes", "crit_chance"));
+        var chance = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getHolder(chanceKey)
+                .map(player::getAttribute).orElse(null);
+        double previousChance = chance == null ? 0 : chance.getBaseValue();
+        if (chance != null) chance.setBaseValue(0);
         try {
             player.moveTo(target.getX(), target.getY(), target.getZ()+1.5, 180, 0);
             cooldown.setInt(player, 100);
@@ -90,6 +99,7 @@ final class ToolLoreProof {
             require(front > 0 && rear > front * 1.8F && rear < front * 2.2F,
                     "Dagger front/rear damage incorrect: " + front + "/" + rear);
         } finally {
+            if (chance != null) chance.setBaseValue(previousChance);
             target.discard();
             player.getInventory().clearContent();
         }
