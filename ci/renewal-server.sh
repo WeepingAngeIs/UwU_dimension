@@ -4,6 +4,12 @@ bash ci/get-mods.sh
 ./gradlew expeditionJar
 mkdir -p build/renewal-server/mods
 cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2,simplyswords,fzzy_config,architectury,simplytooltips}.jar build/libs/*.jar build/expedition/*.jar build/renewal-server/mods/
+if [[ "$UWU_FIELD_SEED" = 152045 ]]; then
+  export UWU_TEST_APOTHEOSIS=1
+  bash ci/cupid-apotheosis.sh build/renewal-server/mods
+else
+  export UWU_TEST_APOTHEOSIS=0
+fi
 cd build/renewal-server
 curl --retry 4 -fsSL 'https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.249/neoforge-21.1.249-installer.jar' -o installer.jar
 java -jar installer.jar --installServer
@@ -23,6 +29,7 @@ if [[ "$UWU_FIELD_SEED" = 4372191 ]]; then
 fi
 for visit in first restart; do
   UWU_RENEWAL=1 timeout 24m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$visit.log"
+  grep -F 'SAKURA FULL SERVER VISIT PASS' "$visit.log"
   if [[ "$visit" = first ]]; then
     grep -F 'VILLAGE RENEWAL PASS' first.log
     if [[ "$UWU_FIELD_SEED" = 152045 ]]; then grep -F 'VILLAGE LIFE PASS' first.log; fi

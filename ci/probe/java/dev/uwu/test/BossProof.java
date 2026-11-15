@@ -48,6 +48,7 @@ public final class BossProof {
     private static boolean folding,peerDamage,blockedArrow,nearExpiry,expiry,secondGuard;
     private static long start=-1, readyAt=-1;
     private static boolean preparingRestart;
+    private static long repairAfter=-1;
     private static Properties checkpoint;
     private static final Path CHECKPOINT=Path.of("mirror-checkpoint.properties");
     private static float healthBeforeBeam;
@@ -242,13 +243,27 @@ public final class BossProof {
 
     /** After the first process has saved and stopped, locate its real entity on disk. */
     public static boolean verifyRestart(ServerLevel level) {
-        if(++ticks>150)throw new AssertionError("Saved court did not load in time");
+        if(++ticks>300)throw new AssertionError("Saved court recovery timed out");
         if(checkpoint==null) {
             checkpoint=new Properties();
             try(var in=Files.newInputStream(CHECKPOINT)){checkpoint.load(in);}
             catch(IOException e){throw new UncheckedIOException(e);}
         }
         BlockPos bell=BlockPos.of(Long.parseLong(checkpoint.getProperty("bell")));
+        if (repairAfter>=0) {
+            if (level.getGameTime()<repairAfter) return false;
+            require(diagnose(level,bell,"reconcile").contains("stale encounter cleared"),"Operator failed to clear stale UUID");
+            require(diagnose(level,bell,"status").contains("no active encounter"),"Repaired bell is still occupied");
+            require(MirrorCourt.hasSeal(level,bell,WREN),"Reconciliation erased a personal seal");
+            for(ChunkPos ch:forced)level.setChunkForced(ch.x,ch.z,false);
+            System.out.println("MIRROR COURT DISK RESTART PASS | same UUID at 473/500 HP in guard, per-player expiry, participation seals, occupied bell, operator stale recovery");
+            return true;
+        }
+        if (ticks==1) {
+            String status=diagnose(level,bell,"status");
+            require(status.contains("unloaded") || status.contains("guardian"),
+                    "Operator did not distinguish saved guardian status: "+status);
+        }
         var state=level.getBlockState(bell);
         require(state.is(MirrorCourt.BELL.get()),"Saved arena bell disappeared");
         BlockPos center=bell.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING),6);
@@ -279,11 +294,30 @@ public final class BossProof {
                 "Restart altered absolute expiry");
         ring(level,bell,vale.player);
         require(livingMoths(level,center).size()==1,"Restart lost bell occupancy");
-        saved.discard();
+        require(diagnose(level,bell,"status").contains(saved.getUUID().toString()),"Live diagnostics missed tracked guardian");
+        // Emulate an externally lost entity without clearing its persisted bell key.
+        saved.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
         reed.close(level);vale.close(level);
-        for(ChunkPos ch:forced)level.setChunkForced(ch.x,ch.z,false);
-        System.out.println("MIRROR COURT DISK RESTART PASS | new Minecraft process loaded the same UUID at 473/500 HP in guard, exact per-player expiry, participation seals and occupied bell");
-        return true;
+        require(diagnose(level,bell,"status").contains("absent from its loaded chamber"),"Loaded missing guardian reported incorrectly");
+        require(diagnose(level,bell,"reconcile").contains("repeat in"),"Operator repair skipped its grace period");
+        repairAfter=level.getGameTime()+100;
+        return false;
+    }
+
+    private static String diagnose(ServerLevel level, BlockPos bell, String action) {
+        var answer=new StringBuilder();
+        var receiver=new net.minecraft.commands.CommandSource() {
+            public void sendSystemMessage(net.minecraft.network.chat.Component message){answer.append(message.getString());}
+            public boolean acceptsSuccess(){return true;}
+            public boolean acceptsFailure(){return true;}
+            public boolean shouldInformAdmins(){return false;}
+        };
+        var source=level.getServer().createCommandSourceStack().withLevel(level).withSource(receiver);
+        String command="uwucourt "+action+" "+bell.getX()+" "+bell.getY()+" "+bell.getZ();
+        try {
+            require(level.getServer().getCommands().getDispatcher().execute(command,source)==1,"Operator command failed: "+command);
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {throw new AssertionError(command,e);}
+        return answer.toString();
     }
 
     private static void fire(ServerLevel level,ServerPlayer player,VelvetVesper boss) {

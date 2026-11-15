@@ -14,10 +14,11 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 @EventBusSubscriber(modid = "uwudimension", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ArsenalClient {
     private static final ResourceLocation ARROW = Arsenal.id("textures/entity/votive_arrow.png");
+    private static final ResourceLocation CUPID_ARROW = Arsenal.id("textures/entity/cupid_heart_arrow.png");
     private static final ResourceLocation HARE = Arsenal.id("textures/entity/ribbonhare.png");
     @SubscribeEvent public static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(Arsenal.ARROW.get(), ctx -> new ArrowRenderer<HeartArrow>(ctx) {
-            @Override public ResourceLocation getTextureLocation(HeartArrow arrow) { return ARROW; }
+            @Override public ResourceLocation getTextureLocation(HeartArrow arrow) { return arrow.rippleBow() ? ARROW : CUPID_ARROW; }
         });
         event.registerEntityRenderer(Arsenal.HARE.get(), ctx -> new RabbitRenderer(ctx) {
             @Override public ResourceLocation getTextureLocation(Rabbit rabbit) { return HARE; }
@@ -38,6 +39,10 @@ public final class ArsenalClient {
                 stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             for (Arsenal.Relic relic : new Arsenal.Relic[]{Arsenal.Relic.CUPID_BOW, Arsenal.Relic.RIPPLE_BOW}) {
                 var bow = Arsenal.WEAPONS.get(relic).get();
+                if (relic == Arsenal.Relic.CUPID_BOW) {
+                    ItemProperties.register(bow, Arsenal.id("drawing"), (stack, level, holder, seed) ->
+                            holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1F : 0F);
+                }
                 ItemProperties.register(bow, Arsenal.id("draw"), (stack, level, holder, seed) ->
                     holder != null && holder.getUseItem() == stack ? Math.min(1, holder.getTicksUsingItem() / 20F) : 0);
             }

@@ -16,7 +16,7 @@ Keep a complete offline backup and open a copy with matching client and server j
 
 New terrain, ore, reefs and settlements appear in new chunks. Existing homes and stored items stay in their saved chunks. A 1.4.9 save acquires a persistent arrival record on first use. An old locket has no personal return anchor until the player enters again. The boundary between older and newer terrain can be visible.
 
-At the village, read the field journal. Sneak-use an empty hand on the plaza bell for waterfall bearings and restoration supplies. At the arrival meadow, face the waterfalls. Follow the stepping stones through the middle curtain. Descend the mossy stairs and stay on the cherry boardwalk to reach the pink-tiled bathhouse. Open the golden Lootr chest beyond the towels. Every player can claim a Ribbonhare Scepter and another relic there. Aim at a solid ledge and use the scepter. The rabbit's thumps draw nearby monsters before it hops back. Take it to a deep lake. One gentle creature in each pool can answer the thump.
+At the village, read the field journal. Sneak-use an empty hand on the plaza bell for waterfall bearings and restoration supplies. At the arrival meadow, face the waterfalls. Follow the stepping stones through the middle curtain. Descend the mossy stairs and stay on the cherry boardwalk to reach the pink-tiled bathhouse. Open the golden Lootr chest beyond the towels. Each visitor gets a personal roll. If you find a Ribbonhare Scepter, aim at a solid ledge and use it. The rabbit's thumps draw nearby monsters before it hops back. Take it to a deep lake. One gentle creature in each pool can answer the thump.
 
 ## Along the water
 
@@ -74,7 +74,7 @@ Heartsill comes in all 16 Minecraft dye colors, with a full tile, slab and carpe
 | Lockkeeper's Axe | 21 | 21 on the wave | Drive enemies back in a wave ahead of you. |
 | Vesper Scythe | 20 | 20 on the reap | Reap a broad arc and recover health for each enemy caught. |
 | Satin Switch | 15 | 15 on the hook | Hook a creature up to eleven blocks away. |
-| Lanternfall Spear | 19 | 19 on the throw | Throw a luminous copy that marks its target. |
+| Lanternfall Spear | 19 | 19 on the throw | Throw the luminous spear to mark its target. |
 | Tidelace Trident | 23 | 23 on the throw | Throw a spectral trident that pulls targets into its splash. |
 | Blue Hour Wand | 16 | 16 on the ray | Trace a ray that reveals and slows its first target. |
 

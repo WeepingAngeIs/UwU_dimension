@@ -90,7 +90,7 @@ public final class CombatRenewalProof {
         System.out.println("UWU RELIC RESTART PASS persisted owner, changed dimension, stale projectile and creeper rule");
     }
 
-    private static void bows(ServerLevel level, ServerPlayer player) {
+    private static void bows(ServerLevel level, ServerPlayer player) throws ReflectiveOperationException {
         for (var kind : new Arsenal.Relic[]{Arsenal.Relic.CUPID_BOW, Arsenal.Relic.RIPPLE_BOW}) {
             ItemStack bow = new ItemStack(Arsenal.WEAPONS.get(kind).get());
             player.setItemInHand(InteractionHand.MAIN_HAND, bow);
@@ -101,9 +101,37 @@ public final class CombatRenewalProof {
                     "Wrong firing cooldown for " + kind);
             require(bow.getDamageValue() == 1, "Draw and release did not fire");
             require(bow.getRarity() == (kind == Arsenal.Relic.CUPID_BOW ? Rarity.EPIC : Rarity.RARE), "Rarity leaked");
+            if (kind == Arsenal.Relic.CUPID_BOW) rarity(level, bow);
         }
         for (var arrow : level.getEntitiesOfClass(HeartArrow.class, player.getBoundingBox().inflate(4),
                 arrow -> arrow.getOwner() == player)) arrow.discard();
+    }
+
+    private static void rarity(ServerLevel level, ItemStack bow) throws ReflectiveOperationException {
+        boolean expected = "1".equals(System.getenv("UWU_TEST_APOTHEOSIS"));
+        require(net.neoforged.fml.ModList.get().isLoaded("apotheosis") == expected,
+                "Optional Apotheosis fixture mismatch");
+        var loaded = ItemStack.parseOptional(level.registryAccess(), (CompoundTag)bow.save(level.registryAccess()));
+        for (var stack : new ItemStack[]{bow, loaded}) {
+            require(stack.getRarity() == Rarity.EPIC
+                    && stack.getHoverName().getStyle().getColor().getValue() == 0xFFAA00, "Cupid Epic/gold fallback");
+            var text = new java.util.ArrayList<net.minecraft.network.chat.Component>();
+            stack.getItem().appendHoverText(stack, net.minecraft.world.item.Item.TooltipContext.EMPTY,
+                    text, net.minecraft.world.item.TooltipFlag.NORMAL);
+            require(text.stream().anyMatch(c -> c.getString().equals("Mythic")) == expected, "Mythic tooltip mismatch");
+            if (!expected) continue;
+            // Call the installed mod's public API without adding a dependency to either jar.
+            var api = Class.forName("dev.shadowsoffire.apotheosis.affix.AffixHelper");
+            Object holder = api.getMethod("getRarity", ItemStack.class).invoke(null, stack);
+            require(holder != null && holder.getClass().getMethod("getId").invoke(holder).toString()
+                    .equals("apotheosis:mythic"), "Apotheosis did not recognize the bow as Mythic");
+            Object rarity = ((java.util.function.Supplier<?>)holder).get();
+            Object render = rarity.getClass().getMethod("renderData").invoke(rarity);
+            var color = (net.minecraft.network.chat.TextColor)rarity.getClass().getMethod("color").invoke(rarity);
+            float height = (float)render.getClass().getMethod("beamHeight").invoke(render);
+            require(color.getValue()==0xED7014 && height>0, "Mythic beam render data did not resolve");
+        }
+        System.out.println("SAKURA CUPID RARITY PASS "+(expected?"Apotheosis Mythic":"standalone Epic"));
     }
 
     private static void charm(ServerLevel level, BlockPos at, ServerPlayer owner) {
@@ -362,10 +390,16 @@ public final class CombatRenewalProof {
             var natural = EntityType.IRON_GOLEM.create(level);
             natural.moveTo(at.getX(), at.getY(), at.getZ());
             require(!level.addFreshEntity(natural), "Natural golem escaped replacement");
-            boolean female = guardian.female();
             var restored = People.BLOSSOM_WARDEN.get().create(level);
-            restored.load(guardian.saveWithoutId(new CompoundTag()));
-            require(restored.female() == female, "Guardian model changed on load");
+            var guardianSave = guardian.saveWithoutId(new CompoundTag());
+            for (boolean female : new boolean[]{false, true}) {
+                guardianSave.putBoolean("FemaleGuardian", female);
+                restored.load(guardianSave);
+                require(restored.female() == female && restored.getMaxHealth()==6666, "Guardian variant changed on load");
+            }
+            guardianSave.remove("FemaleGuardian");
+            restored.load(guardianSave);
+            require(!restored.female(), "Legacy saved guardian unexpectedly changed appearance");
             boolean before = GuardianTargeting.creeperAggroOn(level);
             GuardianTargeting.setCreeperAggro(level, !before, level.getServer());
             require(GuardianTargeting.creeperAggroOn(level) != before, "Creeper setting did not change");

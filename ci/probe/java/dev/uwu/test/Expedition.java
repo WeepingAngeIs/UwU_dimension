@@ -47,14 +47,20 @@ public class Expedition {
                     if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
                     try {
                         RenewalProof.run(level);
+                    } catch (Throwable error) {
+                        recordFailure("renewal checks", error);
                     } finally {
                         for (var chunk : arenaTickets) level.setChunkForced(chunk.x,chunk.z,false);
                         arenaTickets.clear();
                     }
                     if (!restart) { stage = 2; return; }
                 } else if (stage == 2) {
-                    if ("152045".equals(System.getenv("UWU_FIELD_SEED"))
-                            && !VillageProof.tick(level,GroveSites.village(level,false))) return;
+                    try {
+                        if ("152045".equals(System.getenv("UWU_FIELD_SEED"))
+                                && !VillageProof.tick(level,GroveSites.village(level,false))) return;
+                    } catch (Throwable error) {
+                        recordFailure("village life and guardian flight",error);
+                    }
                     stage = 3;
                     return;
                 } else if (stage == 3) {
@@ -62,6 +68,8 @@ public class Expedition {
                     if (!site.usable()) throw new AssertionError("Both hosted seeds should have a generated Mirror Court");
                     if (!BossProof.tick(level,site.pos(-7,-17,146))) return;
                 }
+                if (failed) throw new AssertionError("Renewal checks failed; see each recorded failure above");
+                System.out.println("SAKURA FULL SERVER VISIT PASS");
                 stage = -1;
                 server.halt(false);
                 return;

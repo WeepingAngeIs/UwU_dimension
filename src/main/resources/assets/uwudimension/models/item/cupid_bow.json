@@ -6,13 +6,21 @@
   "overrides": [
     {
       "predicate": {
-        "uwudimension:draw": 0.05
+        "uwudimension:drawing": 1
+      },
+      "model": "uwudimension:item/cupid_bow_draw0"
+    },
+    {
+      "predicate": {
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 0.5
       },
       "model": "uwudimension:item/cupid_bow_draw1"
     },
     {
       "predicate": {
-        "uwudimension:draw": 0.85
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 0.9
       },
       "model": "uwudimension:item/cupid_bow_draw2"
     }

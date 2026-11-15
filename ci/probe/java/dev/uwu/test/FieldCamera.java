@@ -32,7 +32,7 @@ public final class FieldCamera {
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","cupid-gallery","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -58,6 +58,7 @@ public final class FieldCamera {
         if(FURNISHINGS)return FurnishingCamera.view(p,name);
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
+        if(name.startsWith("cupid-") || name.equals("female-guardian")) return RelicPortraits.frame(p,name);
         if (name.equals("sakura-night")) return StrataCamera.night(p,arrival);
         if (name.equals("roseglass-cavern") || name.equals("moonwake-trench")) return StrataCamera.frame(p,arrival,name);
         if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
@@ -200,7 +201,8 @@ public final class FieldCamera {
             return;
         }
         if(state.equals("pose")){
-            mc.options.hideGui=true;
+            boolean bowPortrait=view.file().startsWith("cupid-");
+            mc.options.hideGui=!bowPortrait;
             if(mc.screen!=null && mc.level.dimension().equals(ReefLife.REACH))mc.setScreen(null);
             if(view.sea()&&ticks%40==0)server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);boolean inland=view.file().equals("grove-water");SeaWatch.observe(p,inland);observation=SeaWatch.snapshot(inland);
@@ -211,11 +213,19 @@ public final class FieldCamera {
             if(ticks%400==0)System.out.println("FIELD WAIT "+view.file()+" secs="+seconds()+" clientEye="+mc.player.getEyePosition()
                     +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+sample.counts());
             if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+sample.counts());
+            if(view.file().equals("female-guardian") && !RelicPortraits.guardian(mc)) {
+                readySince=0;return;
+            }
             if(seconds()<(RENEWAL?5:38)||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
                 readySince=0;return;
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
+            if(bowPortrait){
+                if(!RelicPortraits.gallery(mc))return;
+                server.execute(()->RelicPortraits.restore(server.getPlayerList().getPlayer(id)));
+                index++;enter("advance");return;
+            }
             if(index==0&&!SEA){MusicProof.surface();if(!RENEWAL){WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}}
             if(view.file().equals("sakura-night")) MusicProof.night(mc);
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}

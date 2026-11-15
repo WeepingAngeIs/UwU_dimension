@@ -11,7 +11,7 @@ In the 1.4.9 source, Relic.CUPID_BOW specifies a 65-tick cooldown (3.25 seconds 
 
 On feature/sakura-renewal the Cupid Bow specifies zero cooldown. A successful release starts no item cooldown, so the player can begin the next draw immediately. Each shot still requires a draw strength of at least 0.15 and uses one durability in Survival. The 14 attack damage, 1.4 attack speed and 1,024 maximum durability remain. Rippleglass Bow keeps its own cooldown. The attack speed attribute is a melee statistic.
 
-The Cupid Bow has vanilla Epic rarity and a gold display name. If Apotheosis supplies its rarity data component, the bow requests apotheosis:mythic. Mythic is the highest default tier found in the pack's Apotheosis 8.9.0 jar. The default Mythic beam color is orange (#ED7014). A separate client-side gold particle effect circles the dropped bow, including in installations without Apotheosis. This presentation does not grant extra affixes, damage, or a lower drop chance. Other client or server packs can customize the native beam, rarity label, and color. Actual rendering of the complete pack's beam has not been confirmed.
+The Cupid Bow has vanilla Epic rarity and a gold display name. If Apotheosis supplies its rarity data component, the bow requests apotheosis:mythic. Mythic is the highest default tier found in the pack's Apotheosis 8.9.0 jar. The default Mythic beam color is orange (#ED7014). A separate client-side gold particle effect circles the dropped bow, including in installations without Apotheosis. Existing bows that inherited their item defaults also inherit the new presentation. A saved stack with its own explicit rarity component keeps that override. This presentation does not grant extra affixes, damage, or a lower drop chance. Other client or server packs can customize the native beam, rarity label, and color. Actual rendering of the complete pack's beam has not been confirmed.
 
 Code map (paths relative to the folder containing gradlew)
 
@@ -19,7 +19,7 @@ src/main/java/dev/uwu/dimension/Arsenal.java
   Relic.CUPID_BOW and RelicItem.properties define stats, usage hint, durability and base rarity. RelicItem.use starts drawing. RelicItem.releaseUsing validates the draw, creates the arrow, applies any positive cooldown, and consumes durability. RelicItem.getName, appendHoverText and onEntityItemUpdate handle gold naming, the optional Mythic line, and dropped-item gold particles. Search by these symbols if line numbers drift.
 
 src/main/java/dev/uwu/dimension/CupidRarity.java
-  apply resolves the optional apotheosis:rarity component and sets its default to apotheosis:mythic through the component's own codec. hasMythicPresentation checks the actual stack's component before displaying the Mythic line. The hook is registered in src/main/java/dev/uwu/dimension/UwUDimension.java. The mod can load without Apotheosis.
+  apply resolves the optional apotheosis:rarity component and sets its default to apotheosis:mythic through the component's own codec. hasMythicPresentation checks the actual stack's component before displaying the Mythic line. The hook is registered in src/main/java/dev/uwu/dimension/UwUDimension.java. Apotheosis 8.9.0's AffixItemEffectRenderer calls AffixHelper.getRarity on the dropped stack and checks whether its holder is bound. The mod can load without Apotheosis.
 
 src/main/java/dev/uwu/dimension/HeartArrow.java
   fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. onHitBlock and heartBurst produce the pink impact effect. Rippleglass shares this entity and has its own behavior.
@@ -45,12 +45,21 @@ src/main/resources/assets/uwudimension/dynamiclights/entity/traveling_relics.jso
   Handle the combat particles, short-lived attack lighting, and compatible client dynamic lighting for moving projectiles.
 
 src/main/resources/assets/uwudimension/models/item/cupid_bow.json
+src/main/resources/assets/uwudimension/models/item/cupid_bow_draw0.json
 src/main/resources/assets/uwudimension/models/item/cupid_bow_draw1.json
 src/main/resources/assets/uwudimension/models/item/cupid_bow_draw2.json
   These models reference the bow's resting and drawn item textures in assets/uwudimension/textures/item/.
 
+src/main/java/dev/uwu/dimension/ArsenalClient.java
+src/main/resources/assets/uwudimension/textures/entity/cupid_heart_arrow.png
+tools/generate_cupid_bow.py
+  ArsenalClient selects the Cupid projectile's texture. The artwork script produces the bow's resting and drawn sprites and the projectile texture. The hand-held bow art and the dropped-item aura have separate rendering paths.
+
 Code-level checks for a collaborator
 
-ci/probe/java/dev/uwu/test/CombatRenewalProof.java exercises firing, the Cupid/Rippleglass cooldown distinction, durability, base Epic rarity, and eligibility/cleanup for a player struck by a heart arrow. A clean compile alone cannot establish the appearance of a customized Apotheosis client. Consult the Actions result for the precise branch revision under review.
+ci/probe/java/dev/uwu/test/CombatRenewalProof.java exercises firing, the Cupid/Rippleglass cooldown distinction, durability, base Epic rarity, and eligibility/cleanup for a player struck by a heart arrow. On seed 152045 the hosted script installs pinned Apotheosis 8.9.0, Placebo 9.9.2 and Apothic Attributes 2.11.0. The rarity check resolves fresh and reloaded bows through Apotheosis's own API. Seed 4372191 checks the standalone Epic behavior. A dedicated server can verify the beam's render data; its output does not show a customized client's final pixels. Consult the Actions result for the precise branch revision under review.
 
 The supplied source tree includes the Gradle wrapper and project configuration. Runtime libraries normally resolve through Gradle. The repository handoff can be reviewed independently of the author's CurseForge test profile.
+
+Signature artwork
+Anya supplied the approved bow picture directly on November 15 and specified soft pastel pink for the heart gem. tools/generate_cupid_bow.py draws the four 64 by 64 sprites and the in-flight Cupid arrow atlas. The rest, early, half and full-draw sprites share their ribbon loops, gold-rimmed pink heart gems, ivory wing tips and lace detailing. Only the string, limb flex, and the nocked arrow move. ArsenalClient selects the Cupid-specific arrow texture while Rippleglass uses the existing arrow texture.

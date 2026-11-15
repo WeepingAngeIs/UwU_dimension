@@ -31,6 +31,11 @@ def check_jar(jar):
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
     assert meta["mods"][0]["version"] == "1.5.0-beta.1"
     locale = read(art + "lang/en_us.json")
+    bow = read(art + "models/item/cupid_bow.json")
+    assert [o["model"].split("/")[-1] for o in bow["overrides"]] == [f"cupid_bow_draw{i}" for i in range(3)]
+    for frame in ("cupid_bow","cupid_bow_draw0","cupid_bow_draw1","cupid_bow_draw2"):
+        image(f"item/{frame}.png", (64, 64))
+    image("entity/cupid_heart_arrow.png", (64, 64))
     for family in ("petalweave", "nightbriar"):
         for part in ("helmet", "chestplate", "leggings", "boots"):
             name = family + "_" + part

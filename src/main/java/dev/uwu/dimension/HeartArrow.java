@@ -25,7 +25,7 @@ public final class HeartArrow extends Arrow {
         builder.define(RIPPLE, false);
     }
 
-    private boolean rippleBow() { return entityData.get(RIPPLE); }
+    boolean rippleBow() { return entityData.get(RIPPLE); }
 
     static void fire(ServerLevel level, Player player, Arsenal.Relic kind, float draw) {
         HeartArrow arrow = new HeartArrow(Arsenal.ARROW.get(), level);
