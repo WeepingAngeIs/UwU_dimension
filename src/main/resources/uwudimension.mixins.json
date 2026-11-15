@@ -15,6 +15,7 @@
     "GuardianFlightConnectionMixin",
     "GuardianHealthMixin",
     "GuardianTargetMixin",
+    "GuardianCreeperSwellMixin",
     "AcquisitionRecipeMixin",
     "AcquisitionLootMixin",
     "AcquisitionTradeMixin"
