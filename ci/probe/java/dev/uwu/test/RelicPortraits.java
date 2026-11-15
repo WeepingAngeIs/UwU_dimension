@@ -20,6 +20,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 /** Photographs real held models and one moving, server-fired Cupid arrow through the production renderer. */
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
@@ -36,8 +40,34 @@ public final class RelicPortraits {
     private static boolean filmedArrow,drawCue;
     private static Vec3 impactCue;
     private static int impactFrames;
+    private static int inspect;
+    private static boolean turned;
     private static UUID targetId;
     public record Lens(Vec3 eye,Vec3 aim) {}
+    public static void turnForInspection(ItemStack held,PoseStack pose) {
+        if(inspect==0 || !held.is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()))return;
+        var matrix=pose.last().pose();
+        var center=matrix.transformPosition(.5F,.5F,.5F,new Vector3f());
+        var scale=matrix.getScale(new Vector3f());
+        // Keep the real display scale and wrist position. Face the front normal toward the eye,
+        // then rotate around local Y for the almost edge-on side view.
+        var normal=new Vector3f(center).negate().normalize();
+        var right=new Vector3f(0,1,0).cross(normal).normalize();
+        var up=new Vector3f(normal).cross(right);
+        var basis=new Matrix3f().setColumn(0,right).setColumn(1,up).setColumn(2,normal);
+        var rotation=new Quaternionf().setFromNormalized(basis);
+        if(inspect==2)rotation.rotateY((float)java.lang.Math.toRadians(87));
+        var face=new Vector3f(0,0,1).rotate(rotation);
+        double degrees=Math.toDegrees(Math.acos(Math.clamp(normal.dot(face),-1F,1F)));
+        if(Math.abs(degrees-(inspect==2?87:0))>.2)
+            throw new AssertionError("Wrist inspection angle "+degrees);
+        pose.setIdentity();
+        pose.translate(center.x,center.y,center.z);
+        pose.mulPose(rotation);
+        pose.scale(scale.x,scale.y,scale.z);
+        pose.translate(-.5F,-.5F,-.5F);
+        turned=true;
+    }
     public static void rendered(Entity arrow){
         if(flight && !finished && arrow==tracked && tracked.tickCount>=2) filmArrow=true;
     }
@@ -70,6 +100,7 @@ public final class RelicPortraits {
         }
         oldMain=p.getMainHandItem().copy();
         oldOff=p.getOffhandItem().copy();
+        p.server.getCommands().performPrefixedCommand(p.createCommandSourceStack().withSuppressedOutput(),"sakura effects distance 24");
         putBow(p,InteractionHand.MAIN_HAND);
         // Give the real hand renderer multiple frames at each draw stage under software rendering.
         p.server.tickRateManager().setTickRate(8F);
@@ -84,15 +115,27 @@ public final class RelicPortraits {
         player.containerMenu.broadcastChanges();
         if(hand==InteractionHand.OFF_HAND) {
             var level=player.serverLevel();
-            var bank=BlockPos.containing(player.getEyePosition().add(0,1.45,-17));
-            for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
-                level.setBlockAndUpdate(bank.offset(x,-1,z),net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState());
             var cow=EntityType.COW.create(level);
             if(cow==null)throw new AssertionError("Missing archery subject");
-            cow.moveTo(player.getX(),bank.getY(),player.getZ()-17,90,0);
+            Vec3 point=player.getEyePosition().add(0,-.1,0), velocity=player.getLookAngle().scale(3);
+            for(int i=0;i<6;i++) {
+                Vec3 next=point.add(velocity);
+                var block=level.clip(new net.minecraft.world.level.ClipContext(point,next,
+                        net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                        net.minecraft.world.level.ClipContext.Fluid.NONE,player));
+                if(block.getType()!=net.minecraft.world.phys.HitResult.Type.MISS)
+                    throw new AssertionError("Cupid gallery line of fire obstructed at "+block.getBlockPos());
+                point=next;
+                velocity=velocity.scale(.99).add(0,-.05,0);
+            }
+            var bank=BlockPos.containing(point.x,Math.round(point.y-cow.getBbHeight()*.5),point.z);
+            for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
+                level.setBlockAndUpdate(bank.offset(x,-1,z),net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState());
+            cow.moveTo(point.x,bank.getY(),point.z,90,0);
             cow.setNoAi(true);cow.setPersistenceRequired();
             if(!level.addFreshEntity(cow))throw new AssertionError("Archery subject did not join");
             targetId=cow.getUUID();
+            System.out.println("CUPID CAMERA TARGET playerEye="+player.getEyePosition()+" target="+cow.position()+" arc="+point);
         }
     }
 
@@ -135,6 +178,8 @@ public final class RelicPortraits {
     }
 
     public static Lens flightLens(float partial) {
+        var orbit=CupidAngles.lens(partial);
+        if(orbit!=null)return orbit;
         if(!recording||!flight||finished)return null;
         var mc=Minecraft.getInstance();
         if(tracked==null) for(var entity:mc.level.entitiesForRendering())
@@ -191,11 +236,21 @@ public final class RelicPortraits {
         var sprite=rendered.getParticleIcon().contents().name().toString();
         String expected="uwudimension:item/cupid_bow"+(stage==0?"":"_draw"+(stage-1));
         if(!sprite.equals(expected))throw new AssertionError("Draw stage "+stage+" at "+t+" ticks selected "+sprite+" expected "+expected);
+        CupidAngles.measure(rendered,stage);
         if(side==0) {
             for(int i=0;i<stage;i++) if(MODELS[i]==rendered)throw new AssertionError("Duplicate Cupid bow model "+stage);
             MODELS[stage]=rendered;
         } else if(MODELS[stage]!=rendered)throw new AssertionError("Offhand selected wrong model "+stage);
-        photo(mc,"cupid-"+(side==0?"right":"left")+"-"+NAMES[stage]);
+        if(inspect!=0) {
+            if(!turned)return;
+            photo(mc,"cupid-first-"+NAMES[stage]+"-"+(inspect==1?"front":"edge"));
+            turned=false;
+            if(inspect==1){inspect=2;return;}
+            inspect=0;
+        } else {
+            photo(mc,"cupid-"+(side==0?"right":"left")+"-"+NAMES[stage]);
+            if(side==0&&(stage==0||stage==3)){inspect=1;turned=false;return;}
+        }
         stage++;
     }
     private static void photo(Minecraft mc,String name) {
@@ -205,6 +260,7 @@ public final class RelicPortraits {
         p.stopUsingItem();
         p.setItemInHand(InteractionHand.MAIN_HAND,oldMain);
         p.setItemInHand(InteractionHand.OFF_HAND,oldOff);
+        p.server.getCommands().performPrefixedCommand(p.createCommandSourceStack().withSuppressedOutput(),"sakura effects distance 12");
         p.server.tickRateManager().setTickRate(20F);
         p.containerMenu.broadcastChanges();
     }

@@ -35,6 +35,7 @@ public final class CombatRenewalProof {
         try (var owner = new ChestProof.Visitor(level, at, "RelicKeeper", UUID.randomUUID())) {
             bows(level, owner.player);
             charm(level, at, owner.player);
+            trailQuality(level, at, owner.player);
             landing(level, owner.player);
             returns(level, owner.player);
             deathDuringThrow(level, at);
@@ -239,8 +240,51 @@ public final class CombatRenewalProof {
         owner.stopUsingItem();
         for (var arrow : level.getEntitiesOfClass(HeartArrow.class, owner.getBoundingBox().inflate(3),
                 a -> a.getOwner()==owner)) {
-            for (int t=0; t<5 && arrow.isAlive(); t++) arrow.tick();
+            for (int t=0; t<5 && arrow.isAlive(); t++) level.tickNonPassenger(arrow);
             arrow.discard();
+        }
+    }
+
+    private static void trailQuality(ServerLevel level, BlockPos at, ServerPlayer owner) {
+        try (var full = new ChestProof.Visitor(level, at, "FullPetals", UUID.randomUUID());
+             var quiet = new ChestProof.Visitor(level, at, "QuietPetals", UUID.randomUUID())) {
+            int offset = -3;
+            for (var viewer : new ChestProof.Visitor[]{full, quiet}) {
+                viewer.player.moveTo(owner.getX()+offset, owner.getY()+8, owner.getZ());
+                viewer.player.setNoGravity(true);
+                var prefs = new CompoundTag();
+                prefs.putInt("sakura_distance",24);
+                prefs.putInt("sakura_effects", viewer==full ? 2 : 0);
+                viewer.player.getPersistentData().put(Player.PERSISTED_NBT_TAG,prefs);
+                level.addNewPlayer(viewer.player);
+                offset = 3;
+            }
+            try {
+                var bow = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get());
+                owner.setItemInHand(InteractionHand.MAIN_HAND,bow);
+                owner.setXRot(-90); // One rising shot, both viewers, a single already-loaded horizontal chunk.
+                bow.use(level,owner,InteractionHand.MAIN_HAND);
+                bow.releaseUsing(level,owner,bow.getUseDuration(owner)-20);
+                owner.stopUsingItem();
+                var arrow = level.getEntitiesOfClass(HeartArrow.class,owner.getBoundingBox().inflate(3),
+                        a -> a.getOwner()==owner).getFirst();
+                try {
+                    for (int tick=1; tick<=8; tick++) {
+                        level.tickNonPassenger(arrow);
+                        require(arrow.isAlive() && arrow.tickCount==tick, "Native flight interrupted at "+tick);
+                    }
+                    require(full.receivedCupidHearts==8 && quiet.receivedCupidHearts==2,
+                            "Wrong native trail counts: full="+full.receivedCupidHearts+" quiet="+quiet.receivedCupidHearts);
+                    System.out.println("SAKURA CUPID NATIVE TRAIL PASS ticks="+arrow.tickCount+" full="
+                            +full.receivedCupidHearts+" quiet="+quiet.receivedCupidHearts);
+                } finally {
+                    arrow.discard();
+                }
+            } finally {
+                full.player.discard();
+                quiet.player.discard();
+                owner.setXRot(0);
+            }
         }
     }
 

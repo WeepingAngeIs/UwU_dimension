@@ -68,3 +68,10 @@ The supplied source tree includes the Gradle wrapper and project configuration. 
 
 Signature artwork
 Anya supplied the approved bow picture directly on November 15 and specified soft pastel pink for the heart gem. tools/generate_cupid_bow.py draws the four 64 by 64 sprites and the in-flight Cupid arrow atlas. The rest, early, half and full-draw sprites share their ribbon loops, gold-rimmed pink heart gems, ivory wing tips and lace detailing. Only the string, limb flex, and the nocked arrow move. ArsenalClient selects the Cupid-specific arrow texture while Rippleglass uses the existing arrow texture.
+
+Bow depth and the string
+The four original 64 × 64 color sprites reproduce the approved front artwork. Every pose has a second pair of masked textures for its decorated body and its string. Combining the two visible masks recreates the original pixels, including the lace, gems and feathers. The four explicit item models give both parts a front, a back and colored side faces following each opaque edge. Both lie on the same center plane.
+
+On Minecraft's 16-unit model grid, the previous generated item ran from Z 7.5 to 8.5 for body and string. The decorated body now runs from 7.75 to 8.25 (0.50 units). The laced string runs from 7.9375 to 8.0625 (0.125 units). This halves the body depth and takes seven eighths off the string depth at rest and at each draw stage. The shared cupid_bow_handheld.json defines the original hand, ground, frame and inventory positioning. With the first-person Z scale of 0.28, the two corresponding local depths are 0.14 and 0.035 units. The third-person scale is 0.9, giving 0.45 and 0.1125 units. Camera perspective changes their screen widths.
+
+To regenerate the editable meshes, run python tools/generate_cupid_bow.py with Pillow. ci/renewal-assets.py checks the packaged artwork and both layers' geometry. The field visit under ci/probe uses the actual Minecraft item renderer.

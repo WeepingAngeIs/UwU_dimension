@@ -1,4 +1,5 @@
 """Render the signature bow directly on Minecraft's 64-pixel grid in each draw pose."""
+import json
 import math
 from pathlib import Path
 from PIL import Image, ImageDraw
@@ -141,8 +142,7 @@ class BowSprite:
         head("gem",[(-7,-3),(-5,-3),(-1,0),(-5,3),(-7,3),(-4,0)])
         head("milk",[(-6,-3),(-5,-3),(-3,-1),(-5,-1)])
 
-    def render(self):
-        self.string()
+    def decorated_body(self):
         self.limbs()
         self.arrow()
         self.stroke("outline",[(44,26),(44,38)],4)
@@ -153,6 +153,10 @@ class BowSprite:
         self.wing(46,32,-1,1,.88)
         self.jewel(44,32,1.12)
         return self.image
+
+    def render(self):
+        self.string()
+        return self.decorated_body()
 
 
 def flight_arrow():
@@ -178,7 +182,85 @@ def flight_arrow():
     return image
 
 
+# A generated 1.21.1 item is one model unit thick. These depths are measured on the
+# same 16-unit grid, before Minecraft applies its normal hand and GUI transforms.
+BODY_DEPTH = 0.5
+STRING_DEPTH = 0.125
+
+
+def layered_sprites(stage):
+    complete = BowSprite(stage).render()
+    body_alpha = BowSprite(stage).decorated_body().getchannel("A")
+    body = Image.new("RGBA", complete.size)
+    body.paste(complete, mask=body_alpha)
+    cord = complete.copy()
+    cord.paste((0, 0, 0, 0), mask=body_alpha)
+    return complete, body, cord
+
+
+def ribbon_mesh(mask, texture, depth):
+    """Two textured faces and a narrow side wall along every exposed pixel edge."""
+    size = mask.width
+    step = 16 / size
+    z0, z1 = 8 - depth / 2, 8 + depth / 2
+    def face(uv):
+        return {"uv": uv, "texture": "#" + texture}
+    yield {"from": [0, 0, z0], "to": [16, 16, z1], "faces": {
+        "south": face([0, 0, 16, 16]), "north": face([16, 0, 0, 16])}}
+    alpha = mask.getchannel("A").load()
+    def occupied(x, y):
+        return 0 <= x < size and 0 <= y < size and alpha[x, y] != 0
+    # Combine neighboring edges into one quad. Sample inside the edge texels
+    # to keep a one-pixel strand colored even when seen exactly from the side.
+    for side, dx, dy in (("up", 0, -1), ("down", 0, 1), ("west", -1, 0), ("east", 1, 0)):
+        for across in range(size):
+            begin = None
+            for along in range(size + 1):
+                x, y = (across, along) if dx else (along, across)
+                exposed = occupied(x, y) and not occupied(x + dx, y + dy)
+                if exposed and begin is None:
+                    begin = along
+                if exposed or begin is None:
+                    continue
+                start, end = begin * step, along * step
+                lo, hi = (across + .25) * step, (across + .75) * step
+                if dx:
+                    edge = (across + int(dx > 0)) * step
+                    a, b = [edge, 16-end, z0], [edge, 16-start, z1]
+                    uv = [lo, start, hi, end]
+                else:
+                    edge = 16 - (across + int(dy > 0)) * step
+                    a, b = [start, edge, z0], [end, edge, z1]
+                    uv = [start, lo, end, hi]
+                yield {"from": a, "to": b, "faces": {side: face(uv)}}
+                begin = None
+
+
+def write_pose(stage, name, model_dir):
+    complete, body, cord = layered_sprites(stage)
+    for suffix, image in (("", complete), ("_body", body), ("_string", cord)):
+        image.save(TEXTURES / "item" / (name + suffix + ".png"), optimize=True)
+    sprite = "uwudimension:item/" + name
+    model = {
+        "parent": "uwudimension:item/cupid_bow_handheld",
+        "textures": {"particle": "#layer0", "layer0": sprite,
+                     "body": sprite + "_body", "string": sprite + "_string"},
+        "overrides": [],
+    }
+    if stage == 0:
+        for pose, amount in enumerate((0, .5, .9)):
+            predicate = {"uwudimension:drawing": 1}
+            if amount:
+                predicate["uwudimension:draw"] = amount
+            model["overrides"].append({"predicate": predicate, "model": sprite + "_draw" + str(pose)})
+    quads = [*ribbon_mesh(body, "body", BODY_DEPTH), *ribbon_mesh(cord, "string", STRING_DEPTH)]
+    # Use one line per element so the outline coordinates remain reviewable.
+    header = json.dumps(model, indent=2).removesuffix("\n}")
+    elements = ",\n".join("    " + json.dumps(quad, separators=(",", ":")) for quad in quads)
+    (model_dir / (name + ".json")).write_text(header + ',\n  "elements": [\n' + elements + "\n  ]\n}\n",encoding="utf8")
+
+
 if __name__ == "__main__":
-    for stage, name in enumerate(("cupid_bow","cupid_bow_draw0","cupid_bow_draw1","cupid_bow_draw2")):
-        BowSprite(stage).render().save(TEXTURES / "item" / (name+".png"), optimize=True)
+    for stage, name in enumerate(("cupid_bow", "cupid_bow_draw0", "cupid_bow_draw1", "cupid_bow_draw2")):
+        write_pose(stage, name, TEXTURES.parent / "models/item")
     flight_arrow().save(TEXTURES / "entity/cupid_heart_arrow.png", optimize=True)
