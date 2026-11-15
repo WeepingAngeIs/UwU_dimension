@@ -157,10 +157,70 @@
           }
         },
         {
-          "biome": "uwudimension:velvet_highlands",
+          "biome": "uwudimension:starlace_frostlands",
           "parameters": {
             "temperature": [
               -2,
+              -0.31
+            ],
+            "humidity": [
+              -2,
+              0
+            ],
+            "erosion": [
+              -2,
+              -0.47
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:dusk_frostlands",
+          "parameters": {
+            "temperature": [
+              -2,
+              -0.31
+            ],
+            "humidity": [
+              0.01,
+              2
+            ],
+            "erosion": [
+              -2,
+              -0.47
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:velvet_highlands",
+          "parameters": {
+            "temperature": [
+              -0.3,
               2
             ],
             "humidity": [

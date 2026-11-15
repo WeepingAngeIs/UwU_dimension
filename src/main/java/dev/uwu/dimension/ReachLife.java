@@ -33,6 +33,9 @@ final class ReachLife {
         BLOCKS.register(bus);
         NeoForge.EVENT_BUS.addListener(ReachArrival::onLoad);
         NeoForge.EVENT_BUS.addListener(VillageCommons::visit);
+        NeoForge.EVENT_BUS.addListener(LoreDiscovery::chestInteraction);
+        NeoForge.EVENT_BUS.addListener(LoreDiscovery::containerOpened);
+        NeoForge.EVENT_BUS.addListener(LoreDiscovery::tick);
         NeoForge.EVENT_BUS.addListener(ReachLife::commands);
     }
     static int preference(ServerPlayer player, String key, int fallback) {

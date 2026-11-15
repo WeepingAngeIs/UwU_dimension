@@ -3,6 +3,10 @@
   "values": [
     "uwudimension:sakura_grass_block",
     "uwudimension:rainbow_gravel",
-    "uwudimension:dusk_grass_block"
+    "uwudimension:dusk_grass_block",
+    "uwudimension:sakura_loam",
+    "uwudimension:dusk_loam",
+    "uwudimension:sakura_sand",
+    "uwudimension:dusk_sand"
   ]
 }

@@ -30,10 +30,10 @@ public final class Arsenal {
         CUPID_BOW("Cupid Bow", 14, 1.4, 0, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights. Crouch and left-click two charmed targets to make a wish."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
         RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Send a glowing pink orb to solid ground to call a pink hare. Its thumps draw monsters."),
-        BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Throw the blossom blade for a ranged strike. Fully charged melee hits still scatter petals."),
+        BLOSSOM_GREATSWORD("Blossom Great Axe", 30, 0.85, 44, "Throw the blossom axe for a ranged strike. Fully charged melee hits still scatter petals."),
         BELLHEART_AXE("Bellheart Axe", 22, 0.95, 105, "Throw the bell axe. Its impact draws the struck foe toward you."),
         LOCKKEEPER_AXE("Lockkeeper's Axe", 21, 1.05, 85, "Throw the turquoise axe to drive the struck foe backward."),
-        VESPER_SCYTHE("Vesper Scythe", 20, 1.15, 105, "Attack to launch an elemental crescent. Hold use for 0.6 seconds to throw and cycle its aura."),
+        VESPER_SCYTHE("Vesper Scythe", 20, 1.15, 105, "Attack to launch an elemental crescent. Hold use for 0.6 seconds and release to throw. Till soil like a hoe."),
         AXOLOTL_WHIP("Twinfin Whip", 16, 1.6, 160, "Lash a foe to call exactly two axolotl companions for 30 seconds."),
         FROST_WHIP("Snowkiss Whip", 17, 1.6, 70, "Extend a frosted ribbon to freeze a target for three seconds."),
         RIFT_WHIP("Ribbonstep Whip", 18, 1.6, 80, "Lash to mark a foe. Sneak-use to teleport beside that marked foe within 24 blocks, when there is safe footing."),
@@ -55,7 +55,7 @@ public final class Arsenal {
             this.hint = hint;
         }
         String id() { return name().toLowerCase(Locale.ROOT); }
-        boolean axe() { return this == BELLHEART_AXE || this == LOCKKEEPER_AXE; }
+        boolean axe() { return this == BELLHEART_AXE || this == LOCKKEEPER_AXE || this == BLOSSOM_GREATSWORD; }
         boolean bow() { return this == CUPID_BOW || this == RIPPLE_BOW; }
         boolean throwable() {
             return this == RIBBONHARE_SCEPTER || this == BLOSSOM_GREATSWORD || this == BELLHEART_AXE
@@ -104,6 +104,8 @@ public final class Arsenal {
             Item.Properties properties = new Item.Properties().durability(1024).rarity(relic == Relic.CUPID_BOW ? Rarity.EPIC : Rarity.RARE).attributes(attributes.build());
             if (relic.axe()) properties.component(net.minecraft.core.component.DataComponents.TOOL,
                 Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
+            if (relic == Relic.VESPER_SCYTHE) properties.component(net.minecraft.core.component.DataComponents.TOOL,
+                Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_HOE));
             return properties;
         }
         @Override public boolean onEntityItemUpdate(ItemStack stack, net.minecraft.world.entity.item.ItemEntity item) {
@@ -150,10 +152,20 @@ public final class Arsenal {
         }
         @Override public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
             // Let the native axe handle stripping, scraping, and removing wax with this stack.
-            return relic.axe() ? Items.DIAMOND_AXE.useOn(context) : super.useOn(context);
+            if (relic.axe()) return Items.DIAMOND_AXE.useOn(context);
+            if (relic == Relic.VESPER_SCYTHE) return Items.DIAMOND_HOE.useOn(context);
+            return super.useOn(context);
         }
         @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
-            return relic.axe() && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability);
+            return (relic.axe() && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability))
+                || (relic == Relic.VESPER_SCYTHE && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability));
+        }
+        @Override public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
+                net.minecraft.core.BlockPos pos, LivingEntity user) {
+            if ((relic.axe() || relic == Relic.VESPER_SCYTHE) && !level.isClientSide
+                    && state.getDestroySpeed(level, pos) != 0)
+                stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
+            return true;
         }
         @Override public int getUseDuration(ItemStack stack, LivingEntity user) { return relic.bow() || relic == Relic.VESPER_SCYTHE ? 72000 : 0; }
         @Override public UseAnim getUseAnimation(ItemStack stack) { return relic.bow() ? UseAnim.BOW : UseAnim.NONE; }
@@ -161,15 +173,15 @@ public final class Arsenal {
             if (!(level instanceof ServerLevel server) || !(user instanceof Player p)) return;
             if (relic == Relic.CUPID_BOW && BowItem.getPowerForTime(getUseDuration(stack,user)-remaining) >= 1)
                 CupidEffects.fullDraw(server,p);
-            if (relic != Relic.VESPER_SCYTHE) return;
-            if (getUseDuration(stack,user)-remaining == 12 && p.getPersistentData().getLong("uwu.scythe_flight") <= level.getGameTime()) {
-                if (RelicFlight.castWeapon(server, p, relic, p.getUsedItemHand())) {
-                    p.getCooldowns().addCooldown(this, 60);
-                    p.stopUsingItem();
-                }
-            }
         }
         @Override public void releaseUsing(ItemStack stack, Level level, LivingEntity user, int left) {
+            if (relic == Relic.VESPER_SCYTHE && level instanceof ServerLevel server && user instanceof Player player) {
+                if (getUseDuration(stack, user) - left >= 12
+                        && player.getPersistentData().getLong("uwu.scythe_flight") <= level.getGameTime()
+                        && RelicFlight.castWeapon(server, player, relic, player.getUsedItemHand()))
+                    player.getCooldowns().addCooldown(this, 60);
+                return;
+            }
             if (!relic.bow() || !(level instanceof ServerLevel server) || !(user instanceof Player player)) return;
             float draw = BowItem.getPowerForTime(getUseDuration(stack, user) - left);
             if (relic == Relic.CUPID_BOW) {

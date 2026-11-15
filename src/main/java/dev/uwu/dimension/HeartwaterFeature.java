@@ -396,6 +396,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             level.setBlock(p,state,2);
             if(level.getBlockEntity(p) instanceof RandomizableContainerBlockEntity chest){
                 chest.setLootTable(ResourceKey.create(Registries.LOOT_TABLE,ResourceLocation.fromNamespaceAndPath(MOD,"chests/"+table)));
+                chest.getPersistentData().putBoolean("uwu_lore_natural_chest",true);
                 chest.setChanged();
             } else throw new IllegalStateException("Missing Lootr chest block entity at "+p);
         }

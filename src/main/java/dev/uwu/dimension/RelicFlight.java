@@ -211,6 +211,26 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 hit.getLocation().z + face.getStepZ() * .16);
         server.playSound(null, hit.getBlockPos(), SoundEvents.TRIDENT_HIT_GROUND, SoundSource.PLAYERS,
                 .85F, .92F + server.random.nextFloat() * .16F);
+        if (relic() == Arsenal.Relic.VESPER_SCYTHE && !wave()
+                && (counter().isEmpty() || (CounterArsenal.entry(counter()) != null
+                    && CounterArsenal.entry(counter()).shape().equals("scythe")))) {
+            charmOnLanding(server, hit.getLocation());
+        }
+    }
+
+    private void charmOnLanding(ServerLevel server, Vec3 impact) {
+        if (!(findOwner(server) instanceof net.minecraft.server.level.ServerPlayer owner)) return;
+        HeartCombatGlow.charmHearts(server, impact.x, impact.y + .5, impact.z, 8, .5, .2, .5, .01);
+        var area = new net.minecraft.world.phys.AABB(impact.x - 3, impact.y - 3, impact.z - 3,
+                impact.x + 3, impact.y + 3, impact.z + 3);
+        for (LivingEntity target : server.getEntitiesOfClass(LivingEntity.class, area,
+                entity -> entity.position().distanceToSqr(impact) <= 9 && RangedRelics.enemy(owner, entity))) {
+            if (!(target instanceof Mob) && !(target instanceof net.minecraft.server.level.ServerPlayer)) continue;
+            if (!server.hasChunkAt(target.blockPosition()) || !SakuraAccess.mayInteract(owner, target.blockPosition())) continue;
+            var data = target.getPersistentData();
+            if (data.hasUUID(HeartMagic.OWNER) && server.getGameTime() < data.getLong(HeartMagic.END)) continue;
+            if (server.random.nextFloat() < .10F) HeartMagic.charm(server, owner, target, true, 200);
+        }
     }
 
     private void returnTo(Player player) {
@@ -304,8 +324,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 finish();
                 return;
             }
-            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic());
-            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()));
+            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), position());
+            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), position());
             if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER)
                 summonHare(server, player, target.blockPosition());
             if (relic() == Arsenal.Relic.VESPER_SCYTHE) {

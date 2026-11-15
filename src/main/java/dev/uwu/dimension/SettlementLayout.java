@@ -29,6 +29,8 @@ public final class SettlementLayout extends SavedData {
     private final Map<Long,BitSet> previous=new HashMap<>();
     private final Map<Long,BitSet> beforeTreehouses=new HashMap<>();
     private boolean treehouseSnapshot;
+    private final Map<Long,BitSet> beforeVillageSakura=new HashMap<>();
+    private boolean villageSakuraSnapshot;
     private final Map<Long,Integer> legacySites=new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> oldCells=new HashSet<>();
     private int distance;
@@ -47,6 +49,11 @@ public final class SettlementLayout extends SavedData {
         if(!data.treehouseSnapshot){
             indexPrevious(regions,data.beforeTreehouses);
             data.treehouseSnapshot=true;
+            data.setDirty();
+        }
+        if(!data.villageSakuraSnapshot){
+            indexPrevious(regions,data.beforeVillageSakura);
+            data.villageSakuraSnapshot=true;
             data.setDirty();
         }
         data.previous.forEach((key,bits)->{
@@ -85,6 +92,12 @@ public final class SettlementLayout extends SavedData {
     }
     static boolean untouchedForTreehouse(ServerLevel level,int x1,int z1,int x2,int z2) {
         var snapshot=active(level).beforeTreehouses;
+        return untouched(snapshot,x1,z1,x2,z2);
+    }
+    static boolean untouchedForVillageSakura(ServerLevel level,int x1,int z1,int x2,int z2) {
+        return untouched(active(level).beforeVillageSakura,x1,z1,x2,z2);
+    }
+    private static boolean untouched(Map<Long,BitSet> snapshot,int x1,int z1,int x2,int z2) {
         for(int x=x1>>4;x<=(x2>>4);x++)for(int z=z1>>4;z<=(z2>>4);z++){
             var bits=snapshot.get(ChunkPos.asLong(x>>5,z>>5));
             if(bits!=null && bits.get((x&31)+32*(z&31)))return false;
@@ -162,6 +175,9 @@ public final class SettlementLayout extends SavedData {
         data.treehouseSnapshot=tag.getBoolean("TreehouseSnapshot");
         var trees=tag.getCompound("BeforeTreehouses");
         for(String key:trees.getAllKeys())data.beforeTreehouses.put(Long.parseLong(key),BitSet.valueOf(trees.getLongArray(key)));
+        data.villageSakuraSnapshot=tag.getBoolean("VillageSakuraSnapshot");
+        var sakura=tag.getCompound("BeforeVillageSakura");
+        for(String key:sakura.getAllKeys())data.beforeVillageSakura.put(Long.parseLong(key),BitSet.valueOf(sakura.getLongArray(key)));
         return data;
     }
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries){
@@ -173,6 +189,10 @@ public final class SettlementLayout extends SavedData {
         var trees=new CompoundTag();
         beforeTreehouses.forEach((key,bits)->trees.putLongArray(Long.toString(key),bits.toLongArray()));
         tag.put("BeforeTreehouses",trees);
+        tag.putBoolean("VillageSakuraSnapshot",villageSakuraSnapshot);
+        var sakura=new CompoundTag();
+        beforeVillageSakura.forEach((key,bits)->sakura.putLongArray(Long.toString(key),bits.toLongArray()));
+        tag.put("BeforeVillageSakura",sakura);
         return tag;
     }
 }

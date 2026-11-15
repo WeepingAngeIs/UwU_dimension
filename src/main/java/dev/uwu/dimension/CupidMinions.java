@@ -84,6 +84,9 @@ final class CupidMinions {
     }
 
     static boolean charm(ServerLevel level, Player keeper, ServerPlayer target, boolean pastelCupid) {
+        return charm(level, keeper, target, pastelCupid, CHARM_TICKS);
+    }
+    static boolean charm(ServerLevel level, Player keeper, ServerPlayer target, boolean pastelCupid, int duration) {
         if (target == keeper || target.isCreative() || target.isSpectator() || !keeper.canHarmPlayer(target)) return false;
         var data = target.getPersistentData();
         if (data.hasUUID(HeartMagic.OWNER)
@@ -93,11 +96,11 @@ final class CupidMinions {
         target.addTag(HeartMagic.OWNER);
         data.putUUID(HeartMagic.OWNER, keeper.getUUID());
         data.putBoolean("uwu.pastel_cupid", pastelCupid);
-        data.putLong(HeartMagic.END, level.getGameTime() + CHARM_TICKS);
+        data.putLong(HeartMagic.END, level.getGameTime() + duration);
         data.remove(COMMAND_TARGET);
         data.remove(COMMAND_END);
         target.displayClientMessage(net.minecraft.network.chat.Component.literal("You have been charmed into a temporary minion."), true);
-        keeper.displayClientMessage(net.minecraft.network.chat.Component.literal(target.getGameProfile().getName() + " is charmed for 40 seconds."), true);
+        keeper.displayClientMessage(net.minecraft.network.chat.Component.literal(target.getGameProfile().getName() + " is charmed for " + (duration / 20) + " seconds."), true);
         sendControl(target, keeper, 3.0);
         return true;
     }

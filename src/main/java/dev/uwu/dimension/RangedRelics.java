@@ -59,8 +59,13 @@ public final class RangedRelics {
         return hit!=null && hit.getEntity() instanceof LivingEntity l ? l:null;
     }
     static void strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic) {
+        strike(level, player, target, relic, player.position());
+    }
+    static void strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic, Vec3 attackPosition) {
         if (!enemy(player,target)) return;
-        if (!target.hurt(player.damageSources().playerAttack(player),relic.damage)) return;
+        boolean rear = relic == Arsenal.Relic.ROSE_DAGGER && DaggerBackstab.isBehind(target, attackPosition);
+        if (!target.hurt(player.damageSources().playerAttack(player), rear ? relic.damage * 2F : relic.damage)) return;
+        if (rear) player.crit(target);
         switch(relic) {
             case FROST_WHIP -> {
                 target.setTicksFrozen(160);

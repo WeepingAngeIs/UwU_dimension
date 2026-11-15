@@ -22,6 +22,7 @@ public final class UwUDimension {
 
     public UwUDimension(IEventBus bus, net.neoforged.fml.ModContainer container) {
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,AcquisitionPolicy.SPEC,"uwudimension-server.toml");
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,HeartLauncher.SPEC,"uwudimension-launcher.toml");
         bus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Loading event) -> {
             if(event.getConfig().getSpec()==AcquisitionPolicy.SPEC){
                 AcquisitionPolicy.heartLocketCraftingEnabled();AcquisitionPolicy.weaponAcquisitionEnabled();
@@ -44,6 +45,7 @@ public final class UwUDimension {
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);
         Arsenal.register(bus);
+        HeartLauncher.register(bus);
         CounterArsenal.register(bus);
         People.register(bus);
         RealmResidents.register();

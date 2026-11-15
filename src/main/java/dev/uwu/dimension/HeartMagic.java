@@ -21,6 +21,9 @@ final class HeartMagic {
 
     static boolean charm(ServerLevel level, Player keeper, Mob mob) { return charm(level,keeper,mob,false); }
     static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid) {
+        return charm(level, keeper, mob, pastelCupid, 800);
+    }
+    private static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid, int duration) {
         if (mob.getType().is(IMMUNE) || (mob.getBbWidth() >= 6 && mob.getBbHeight() >= 5)) return false;
         CompoundTag data = mob.getPersistentData();
         if (pastelCupid && data.hasUUID(OWNER) && level.getGameTime()<data.getLong(END)
@@ -29,7 +32,7 @@ final class HeartMagic {
         mob.addTag(OWNER);
         data.putUUID(OWNER, keeper.getUUID());
         data.putBoolean("uwu.pastel_cupid",pastelCupid);
-        data.putLong(END, level.getGameTime() + 800);
+        data.putLong(END, level.getGameTime() + duration);
         data.remove(CupidMinions.COMMAND_TARGET);
         data.remove(CupidMinions.COMMAND_END);
         clearTarget(mob);
@@ -39,9 +42,12 @@ final class HeartMagic {
     }
 
     static boolean charm(ServerLevel level, Player keeper, LivingEntity target, boolean pastelCupid) {
-        if (target instanceof Mob mob) return charm(level, keeper, mob, pastelCupid);
+        return charm(level, keeper, target, pastelCupid, 800);
+    }
+    static boolean charm(ServerLevel level, Player keeper, LivingEntity target, boolean pastelCupid, int duration) {
+        if (target instanceof Mob mob) return charm(level, keeper, mob, pastelCupid, duration);
         if (target instanceof net.minecraft.server.level.ServerPlayer player)
-            return CupidMinions.charm(level, keeper, player, pastelCupid);
+            return CupidMinions.charm(level, keeper, player, pastelCupid, duration);
         return false;
     }
 

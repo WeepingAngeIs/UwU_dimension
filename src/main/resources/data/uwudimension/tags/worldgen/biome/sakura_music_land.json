@@ -1,1 +1,10 @@
-{"replace":false,"values":["uwudimension:lantern_fens","uwudimension:velvet_highlands","uwudimension:ribbon_bluffs"]}
+{
+  "replace": false,
+  "values": [
+    "uwudimension:lantern_fens",
+    "uwudimension:velvet_highlands",
+    "uwudimension:ribbon_bluffs",
+    "uwudimension:starlace_frostlands",
+    "uwudimension:dusk_frostlands"
+  ]
+}

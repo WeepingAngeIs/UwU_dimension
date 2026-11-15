@@ -53,6 +53,9 @@ public final class CounterEffects {
         var e=CounterArsenal.entry(n.getString(MARK));return e!=null&&holds(target,e.target())?e:null;
     }
     public static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e){
+        hit(level, owner, target, e, owner.position());
+    }
+    public static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition){
         if(e==null||!RangedRelics.enemy(owner,target))return;
         if(holds(target,e.target())){
             SimplyCounterHooks.interrupt(level,target,e);
@@ -65,10 +68,12 @@ public final class CounterEffects {
                 Vec3 push=target.position().subtract(owner.position()).multiply(1,0,1).normalize().scale(1.4);target.push(push.x,.2,push.z);target.hurtMarked=true;
             }
         }
+        boolean rear=e.shape().equals("dagger") && DaggerBackstab.isBehind(target,attackPosition);
         if(e.school().equals("FEINT")||e.school().equals("SHATTER")){
             var n=target.getPersistentData();n.putUUID("uwu.echo_owner",owner.getUUID());n.putString("uwu.echo_counter",e.id());n.putLong("uwu.echo_at",level.getGameTime()+14);
-            if(e.school().equals("SHATTER"))target.hurt(owner.damageSources().playerAttack(owner),2);
-        }else target.hurt(owner.damageSources().playerAttack(owner),e.damage());
+            n.putBoolean("uwu.echo_backstab",rear);
+            if(e.school().equals("SHATTER") && target.hurt(owner.damageSources().playerAttack(owner),rear ? 4F : 2F) && rear)owner.crit(target);
+        }else if(target.hurt(owner.damageSources().playerAttack(owner),rear ? e.damage()*2F : e.damage()) && rear)owner.crit(target);
     }
     private static void impact(ProjectileImpactEvent event){
         if(!(event.getProjectile() instanceof Snowball p)||!(p.level() instanceof ServerLevel level)||!(p.getOwner() instanceof Player owner)||!p.getPersistentData().contains("uwu.counter"))return;
@@ -105,8 +110,12 @@ public final class CounterEffects {
         var n=l.getPersistentData();
         if(n.hasUUID("uwu.echo_owner")&&level.getGameTime()>=n.getLong("uwu.echo_at")){
             var e=CounterArsenal.entry(n.getString("uwu.echo_counter"));
-            if(e!=null&&level.getEntity(n.getUUID("uwu.echo_owner")) instanceof Player p&&RangedRelics.enemy(p,l)&&p.distanceToSqr(l)<1024)l.hurt(p.damageSources().playerAttack(p),e.damage());
+            if(e!=null&&level.getEntity(n.getUUID("uwu.echo_owner")) instanceof Player p&&RangedRelics.enemy(p,l)&&p.distanceToSqr(l)<1024){
+                boolean rear=n.getBoolean("uwu.echo_backstab");
+                if(l.hurt(p.damageSources().playerAttack(p),rear ? e.damage()*2F : e.damage()) && rear)p.crit(l);
+            }
             n.remove("uwu.echo_owner");n.remove("uwu.echo_counter");n.remove("uwu.echo_at");
+            n.remove("uwu.echo_backstab");
         }
         var mark=marked(l);
         if(mark!=null&&mark.school().equals("ANCHOR")){

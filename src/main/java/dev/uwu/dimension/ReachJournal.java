@@ -44,6 +44,13 @@ final class ReachJournal {
         return stack.is(Items.WRITTEN_BOOK) && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
                 .copyTag().getBoolean("uwudimension_journal");
     }
+    static void refresh(ServerPlayer player) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (journal(stack) && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                    .copyTag().getInt("uwudimension_journal_version") < 2) write(stack, Math.max(1, chapter(player)));
+        }
+    }
     static void give(ServerPlayer player) {
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         CompoundTag tag = new CompoundTag();
@@ -58,11 +65,12 @@ final class ReachJournal {
                 Component.literal(heading).withStyle(net.minecraft.ChatFormatting.DARK_PURPLE)).append("\n\n" + words));
     }
     private static void write(ItemStack book, int stage) {
+        CustomData.update(DataComponents.CUSTOM_DATA, book, tag -> tag.putInt("uwudimension_journal_version", 2));
         List<Filterable<Component>> pages = new ArrayList<>();
         pages.add(page('A', "The bell and the falls", "From the Petal bell, find the mossy spring. Follow the tideglass through its falling water. The locket remembers the place you left, even if you borrow another."));
         pages.add(page('B', "Kitchen garden", "Till soil here in the Reach. Plant sakura rice and sweetbeans by water. A Heartberry Burger grants Strength II. Bring seeds, lanterns or a hot meal to a village bell to help restore its commons."));
         pages.add(page('C', "The two houses", "Petal and Dusk keep different customs. Ask a keeper about joining before offering four emeralds. Friends can gather at the same village bell to share provisions."));
-        pages.add(page('D', "Relics", "Draw the Cupid Bow to befriend a creature. Left-click a foe to direct your allies. A thrown blade returns to its keeper. Read its inscription for the throwing gesture."));
+        pages.add(page('D', "Relics", "Explore the Reach for unusual relics. Read each inscription for its abilities and throwing gesture."));
         pages.add(page('E', "Reef lights", "Blush Reef shoals shelter swimmers and water Pokémon. Sneak-use your locket for bearings. Surface lights spread gently. Deep lights gather. Ink among the sparks points toward a pursuer."));
         if (stage >= 2) pages.add(page('E', "Under the falls", "Follow the boardwalk across the bright pool. Turn down the lit steps. The plum mosaic marks the court. Sound its bell together when everyone is ready."));
         if (stage >= 2) pages.add(page('C', "Cutting roseglass", "In pink Sazanami Tuff, Y 10 to 54, an iron pick frees roseglass. Refine the prism in a furnace. Petalweave pieces protect travellers. Look up each piece in your recipe viewer."));

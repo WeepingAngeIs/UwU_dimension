@@ -17,6 +17,7 @@ public final class ArsenalClient {
     private static final ResourceLocation CUPID_ARROW = Arsenal.id("textures/entity/cupid_heart_arrow.png");
     private static final ResourceLocation HARE = Arsenal.id("textures/entity/ribbonhare.png");
     @SubscribeEvent public static void renderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(HeartLauncher.SHOT.get(), net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
         event.registerEntityRenderer(Arsenal.ARROW.get(), ctx -> new ArrowRenderer<HeartArrow>(ctx) {
             @Override public ResourceLocation getTextureLocation(HeartArrow arrow) { return arrow.rippleBow() ? ARROW : CUPID_ARROW; }
         });
@@ -26,6 +27,9 @@ public final class ArsenalClient {
     }
     @SubscribeEvent public static void poses(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            ItemProperties.register(HeartLauncher.LAUNCHER.get(), Arsenal.id("recoil"), (stack, level, holder, seed) ->
+                holder instanceof net.minecraft.world.entity.player.Player player
+                    ? player.getCooldowns().getCooldownPercent(stack.getItem(), 0) : 0);
             for(var entry:CounterArsenal.ROSTER)if(entry.shape().equals("scythe"))ItemProperties.register(CounterArsenal.ITEMS.get(entry.id()).get(),Arsenal.id("element"),(stack,level,holder,seed)->stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("form"),(stack,level,holder,seed)-> {
                 var n=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();

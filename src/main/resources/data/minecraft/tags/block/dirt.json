@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "uwudimension:sakura_grass_block",
-    "uwudimension:dusk_grass_block"
+    "uwudimension:dusk_grass_block",
+    "uwudimension:sakura_loam",
+    "uwudimension:dusk_loam"
   ]
 }

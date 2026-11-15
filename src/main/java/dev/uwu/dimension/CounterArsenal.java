@@ -40,7 +40,38 @@ public final class CounterArsenal {
     }
     public static final class CounterItem extends Item {
         public final Entry entry;
-        CounterItem(Entry entry){super(new Properties().durability(1100).rarity(Rarity.EPIC).attributes(net.minecraft.world.item.component.ItemAttributeModifiers.builder().add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_DAMAGE_ID,entry.damage()-1,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED,new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_SPEED_ID,-2.7,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).build()));this.entry=entry;}
+        CounterItem(Entry entry){super(properties(entry));this.entry=entry;}
+        private static Properties properties(Entry entry) {
+            Properties properties = new Properties().durability(1100).rarity(Rarity.EPIC).attributes(
+                net.minecraft.world.item.component.ItemAttributeModifiers.builder()
+                    .add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,
+                        new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_DAMAGE_ID,entry.damage()-1,
+                            net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND)
+                    .add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED,
+                        new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_SPEED_ID,-2.7,
+                            net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND).build());
+            if (entry.shape().equals("axe"))
+                properties.component(net.minecraft.core.component.DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
+            if (entry.shape().equals("scythe"))
+                properties.component(net.minecraft.core.component.DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_HOE));
+            return properties;
+        }
+        @Override public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+            if (entry.shape().equals("axe")) return Items.DIAMOND_AXE.useOn(context);
+            if (entry.shape().equals("scythe")) return Items.DIAMOND_HOE.useOn(context);
+            return super.useOn(context);
+        }
+        @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
+            return (entry.shape().equals("axe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability))
+                || (entry.shape().equals("scythe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability));
+        }
+        @Override public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
+                net.minecraft.core.BlockPos pos, LivingEntity user) {
+            if ((entry.shape().equals("axe") || entry.shape().equals("scythe")) && !level.isClientSide
+                    && state.getDestroySpeed(level, pos) != 0)
+                stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
+            return true;
+        }
         @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged){return slotChanged||before.getItem()!=after.getItem();}
         @Override public Component getName(ItemStack stack){return Component.literal(entry.name());}
         @Override public void appendHoverText(ItemStack stack,TooltipContext ctx,List<Component> tips,TooltipFlag flag){
@@ -70,13 +101,12 @@ public final class CounterArsenal {
         }
         @Override public int getUseDuration(ItemStack s,LivingEntity e){return entry.shape().equals("scythe")?72000:0;}
         @Override public UseAnim getUseAnimation(ItemStack s){return UseAnim.NONE;}
-        @Override public void onUseTick(Level world,LivingEntity user,ItemStack stack,int remaining){
-            if(!entry.shape().equals("scythe")||!(world instanceof ServerLevel level)||!(user instanceof Player p)||72000-remaining!=12)return;
+        @Override public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remaining) {
+            if(!entry.shape().equals("scythe")||!(world instanceof ServerLevel level)||!(user instanceof Player p)||72000-remaining<12)return;
             if(p.getPersistentData().getLong("uwu.scythe_flight")>level.getGameTime())return;
             CounterEffects.ward(level,p,entry);
             if(RelicFlight.castCounterWeapon(level,p,entry,p.getUsedItemHand())){
                 p.getCooldowns().addCooldown(this,60);
-                p.stopUsingItem();
             }
         }
     }

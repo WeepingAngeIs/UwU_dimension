@@ -1,4 +1,6 @@
 {
+  "item.uwudimension.heart_launcher": "Heart Launcher",
+  "item.uwudimension.launcher_heart": "Heart Projectile",
   "item.uwudimension.heartwater_locket": "Heartwater Locket",
   "item.uwudimension.sweet_berry_cheesecake_slice": "Sweet Berry Cheesecake Slice",
   "item.uwudimension.apple_pie_slice": "Apple Pie Slice",
@@ -42,7 +44,7 @@
   "item.uwudimension.cupid_bow": "Cupid Bow",
   "item.uwudimension.ripple_bow": "Rippleglass Bow",
   "item.uwudimension.ribbonhare_scepter": "Ribbonhare Scepter",
-  "item.uwudimension.blossom_greatsword": "Blossom Greatsword",
+  "item.uwudimension.blossom_greatsword": "Blossom Great Axe",
   "item.uwudimension.bellheart_axe": "Bellheart Axe",
   "item.uwudimension.lockkeeper_axe": "Lockkeeper’s Axe",
   "item.uwudimension.vesper_scythe": "Vesper Scythe",
@@ -352,5 +354,11 @@
   "block.uwudimension.dusk_star_clover": "Dusk Star Clover",
   "block.uwudimension.dusk_rain_bell": "Dusk Rain Bell",
   "block.uwudimension.dusk_wood_aster": "Dusk Wood Aster",
-  "block.uwudimension.dusk_frost_sorrel": "Dusk Frost Sorrel"
+  "block.uwudimension.dusk_frost_sorrel": "Dusk Frost Sorrel",
+  "block.uwudimension.sakura_loam": "Sakura Loam",
+  "block.uwudimension.dusk_loam": "Dusk Loam",
+  "block.uwudimension.sakura_sand": "Sakura Sand",
+  "block.uwudimension.dusk_sand": "Dusk Sand",
+  "biome.uwudimension.starlace_frostlands": "Starlace Frostlands",
+  "biome.uwudimension.dusk_frostlands": "Dusk Frostlands"
 }

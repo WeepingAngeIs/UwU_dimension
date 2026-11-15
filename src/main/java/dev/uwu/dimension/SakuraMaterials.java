@@ -42,6 +42,21 @@ public final class SakuraMaterials {
     }
     public static final DeferredBlock<GrassBlock> GRASS=variant("sakura_grass_block",Blocks.GRASS_BLOCK,()->turf(MapColor.COLOR_CYAN));
     public static final DeferredBlock<GrassBlock> DUSK_GRASS=building("dusk_grass_block",()->turf(MapColor.COLOR_PURPLE));
+    private static Block loam() {
+        return new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT)) {
+            @Override public BlockState getToolModifiedState(BlockState state, UseOnContext context, ItemAbility action, boolean simulate) {
+                if (action == ItemAbilities.HOE_TILL || action == ItemAbilities.SHOVEL_FLATTEN)
+                    return Blocks.DIRT.getToolModifiedState(Blocks.DIRT.defaultBlockState(), context, action, simulate);
+                return super.getToolModifiedState(state, context, action, simulate);
+            }
+        };
+    }
+    public static final DeferredBlock<Block> LOAM=variant("sakura_loam",Blocks.DIRT,SakuraMaterials::loam);
+    public static final DeferredBlock<Block> DUSK_LOAM=building("dusk_loam",SakuraMaterials::loam);
+    public static final DeferredBlock<ColoredFallingBlock> SAND=variant("sakura_sand",Blocks.SAND,()->
+            new ColoredFallingBlock(new net.minecraft.util.ColorRGBA(0xFFF1D5C6), BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)));
+    public static final DeferredBlock<ColoredFallingBlock> DUSK_SAND=building("dusk_sand",()->
+            new ColoredFallingBlock(new net.minecraft.util.ColorRGBA(0xFFBEB5C6), BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)));
     public static final net.minecraft.tags.TagKey<Block> TURF=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,
             ResourceLocation.fromNamespaceAndPath(MOD,"grove_turf"));
     private static final net.minecraft.tags.TagKey<net.minecraft.world.level.biome.Biome> DUSK_BIOMES=
@@ -120,6 +135,10 @@ public final class SakuraMaterials {
                     var next=swaps.get(section.getBlockState(x,y,z));
                     if(next!=null && next.is(GRASS.get()) && section.getNoiseBiome(x>>2,y>>2,z>>2).is(DUSK_BIOMES))
                         next=DUSK_GRASS.get().withPropertiesOf(next);
+                    if(next!=null && next.is(LOAM.get()) && section.getNoiseBiome(x>>2,y>>2,z>>2).is(DUSK_BIOMES))
+                        next=DUSK_LOAM.get().withPropertiesOf(next);
+                    if(next!=null && next.is(SAND.get()) && section.getNoiseBiome(x>>2,y>>2,z>>2).is(DUSK_BIOMES))
+                        next=DUSK_SAND.get().withPropertiesOf(next);
                     if(next!=null)section.setBlockState(x,y,z,next,false);
                 }
             }finally{section.release();}

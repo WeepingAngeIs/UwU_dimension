@@ -7,6 +7,8 @@
     "minecraft:coarse_dirt",
     "minecraft:podzol",
     "minecraft:rooted_dirt",
-    "minecraft:moss_block"
+    "minecraft:moss_block",
+    "uwudimension:sakura_loam",
+    "uwudimension:dusk_loam"
   ]
 }
