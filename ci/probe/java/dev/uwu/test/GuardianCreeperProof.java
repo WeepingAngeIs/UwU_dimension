@@ -18,6 +18,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
  * Runs against real server entity ticks in an isolated world. The second and third
@@ -33,6 +35,12 @@ final class GuardianCreeperProof {
 
     private static void check(boolean condition,String message) {
         if(!condition)throw new AssertionError("Guardian creeper: "+message);
+    }
+
+    // BlossomWarden has custom combat in aiStep even with setNoAi(true). Freeze
+    // these four fixture guardians only; the creepers retain their real AI ticks.
+    private static void freezeFixtureGuardian(EntityTickEvent.Pre event){
+        if(guardians.contains(event.getEntity()))event.setCanceled(true);
     }
 
     private static void toggle(ServerLevel level,boolean enabled)throws Exception {
@@ -76,6 +84,7 @@ final class GuardianCreeperProof {
         }
         if(stage==0){
             check(!GuardianTargeting.creeperAggroOn(level),"new-world default must be off");
+            NeoForge.EVENT_BUS.addListener(GuardianCreeperProof::freezeFixtureGuardian);
             BlockPos origin=new BlockPos(0,level.getMaxBuildHeight()-24,0);
             for(int cx=-1;cx<=3;cx++)for(int cz=-1;cz<=1;cz++)level.setChunkForced(cx,cz,true);
             for(int n=0;n<4;n++){
