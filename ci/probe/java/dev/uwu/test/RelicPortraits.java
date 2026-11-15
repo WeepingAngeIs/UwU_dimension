@@ -31,13 +31,16 @@ public final class RelicPortraits {
     private static UUID sitter;
     private static int side,stage,handTicks;
     private static boolean recording,flight,finished;
-    private static Entity camera;
     private static HeartArrow tracked;
     private static boolean filmArrow;
     private static boolean filmedArrow,drawCue;
     private static Vec3 impactCue;
     private static int impactFrames;
     private static UUID targetId;
+    public record Lens(Vec3 eye,Vec3 aim) {}
+    public static void rendered(Entity arrow){
+        if(flight && !finished && arrow==tracked && tracked.tickCount>=2) filmArrow=true;
+    }
 
     public static void received(ClientboundLevelParticlesPacket packet) {
         if(!recording || finished)return;
@@ -131,29 +134,25 @@ public final class RelicPortraits {
         return false;
     }
 
-    @SubscribeEvent public static void beforeFrame(RenderFrameEvent.Pre event) {
-        if(!recording||!flight||finished)return;
+    public static Lens flightLens(float partial) {
+        if(!recording||!flight||finished)return null;
         var mc=Minecraft.getInstance();
         if(tracked==null) for(var entity:mc.level.entitiesForRendering())
             if(entity instanceof HeartArrow arrow && arrow.getOwner()==mc.player && !previousShots.contains(arrow.getUUID())
                     && arrow.getDeltaMovement().lengthSqr()>.1) {
                 tracked=arrow;break;
             }
-        if(tracked==null || (!filmedArrow && tracked.getDeltaMovement().lengthSqr()<=.1))return;
-        if(camera==null) {
-            camera=EntityType.ARMOR_STAND.create(mc.level);
-            if(camera==null)throw new AssertionError("Missing photo camera");
-            mc.setCameraEntity(camera);
-        }
+        if(tracked==null || (!filmedArrow && tracked.getDeltaMovement().lengthSqr()<=.1))return null;
         Vec3 focus,eye;
         if(!filmedArrow) {
-            focus=tracked.getPosition(event.getPartialTick().getGameTimeDeltaPartialTick(false));
+            focus=tracked.getPosition(partial);
             var lateral=tracked.getDeltaMovement().normalize().cross(new Vec3(0,1,0)).normalize();
-            eye=focus.add(lateral.scale(1.5)).add(0,.25,0);
+            eye=focus.add(lateral.scale(1.85)).add(0,.25,0);
+            filmArrow=false;
         } else {
             Entity subject=null;
             for(var entity:mc.level.entitiesForRendering()) if(entity.getUUID().equals(targetId)){subject=entity;break;}
-            if(subject==null)return;
+            if(subject==null)return null;
             focus=subject.position().add(0,subject.getBbHeight()+.38,0);
             eye=focus.add(1,.1,2.9);
             if(impactCue!=null) {
@@ -162,14 +161,7 @@ public final class RelicPortraits {
                 impactFrames++;
             }
         }
-        var aim=focus.subtract(eye);
-        float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
-        float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,Math.hypot(aim.x,aim.z)));
-        // Camera eye height is carried over from the same-sized player, then interpolates to the stand.
-        var pos=eye.subtract(0,camera.getEyeHeight(),0);
-        camera.moveTo(pos.x,pos.y,pos.z,yaw,pitch);
-        camera.setOldPosAndRot();
-        filmArrow=true;
+        return new Lens(eye,focus);
     }
 
     @SubscribeEvent public static void afterFrame(RenderFrameEvent.Post event) {
@@ -188,7 +180,7 @@ public final class RelicPortraits {
             if(impactFrames<2)return;
             photo(mc,"cupid-impact-outline");
             System.out.println("CUPID HELD MODEL PASS four distinct models in both hands, moving heart-tipped arrow, full-draw and real impact cues");
-            mc.setCameraEntity(mc.player);finished=true;return;
+            finished=true;return;
         }
         if(stage>=4 || handTicks<8)return;  // Allow the hand-transition animation to settle before the idle photo.
         var stack=mc.player.getItemInHand(hand());

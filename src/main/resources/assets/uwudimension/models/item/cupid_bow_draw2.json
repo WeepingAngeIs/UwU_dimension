@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:item/bow",
+  "parent": "uwudimension:item/cupid_bow_handheld",
   "textures": {
     "layer0": "uwudimension:item/cupid_bow_draw2"
   },

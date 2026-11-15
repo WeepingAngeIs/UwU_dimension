@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:item/bow",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -32,
+        29
+      ],
+      "translation": [
+        -1.25,
+        4.0,
+        -0.85
+      ],
+      "scale": [
+        0.54,
+        0.54,
+        0.28
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        32,
+        -29
+      ],
+      "translation": [
+        -1.25,
+        4.0,
+        -0.85
+      ],
+      "scale": [
+        0.54,
+        0.54,
+        0.28
+      ]
+    }
+  },
+  "overrides": []
+}
