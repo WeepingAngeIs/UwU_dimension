@@ -60,6 +60,8 @@ jobs:
             build/renewal-server/*.log
             build/renewal-server/first-site.txt
             build/renewal-server/old-native-dusk.txt
+            build/renewal-server/guardian-family-evidence/
+            build/renewal-server/guardian-family-checkpoint.properties
             build/renewal-server/crash-reports/
 
   client:

@@ -31,7 +31,9 @@ final class GuardianFamilyDisk {
             var pos=home.offset((i%2)*3-2,0,(i/2)*3-2);
             g.teleportTo(pos.getX()+.5,pos.getY(),pos.getZ()+.5);
             g.setNoGravity(true);g.setNoAi(true);
+            g.setHealth(g.getMaxHealth()*.55F);
             check(g.chunkPosition().equals(CHUNK)&&level.getEntity(g.getUUID())==g,"arrive "+key);
+            check(g.isPersistenceRequired(),"transported guardian must be persistent "+key);
             state.setProperty(key,g.getUUID().toString());
             state.setProperty(key+".cooldown",Long.toString(g.familyRestUntil()));
             state.setProperty(key+".remaining",Integer.toString(g.familyGrowthTicks()));
@@ -49,15 +51,28 @@ final class GuardianFamilyDisk {
     }
     private static void inspect(ServerLevel level,long allowedAgeDelta,String kind){
         for(String key:MEMBERS){
+            var g=member(level,key);
+            String details=g==null?"UUID absent from loaded entities":("pos="+g.position()+" chunk="+g.chunkPosition()+" alive="+g.isAlive()
+                    +" hp="+g.getHealth()+" female="+g.female()+" growth="+g.familyGrowthTicks()+" motion="+g.getDeltaMovement()
+                    +" court="+BlockPos.of(g.saveWithoutId(new CompoundTag()).getLong("VillageCourt"))+" offender="+g.offender());
+            System.out.println("OWL GUARDIAN UUID CHECK "+kind+" "+key+" "+state.getProperty(key)+" "+details);
+        }
+        for(String key:MEMBERS){
             var guardian=member(level,key);check(guardian!=null&&guardian.isAlive()&&guardian.chunkPosition().equals(CHUNK),kind+" missing "+key);
             boolean baby=key.equals("son")||key.equals("daughter");
             check(guardian.isBaby()==baby && guardian.female()==(key.equals("girl")||key.equals("daughter")),kind+" changed age/sex "+key);
             check(guardian.familyRestUntil()==Long.parseLong(state.getProperty(key+".cooldown")),kind+" changed cooldown "+key);
+            check(guardian.getHealth()>=guardian.getMaxHealth()*.55F-.02,"lost saved health "+key);
+            if(kind.equals("dedicated restart")){
+                float saved=Float.parseFloat(state.getProperty(key+".savedHealth"));
+                check(guardian.getHealth()+.02>=saved&&guardian.getHealth()<=saved+allowedAgeDelta+1,"wounded health from raw save "+key);
+            }
             if(baby){
                 var n=guardian.saveWithoutId(new CompoundTag()).getCompound("OwlFamily");
                 check(n.getUUID("Mother").toString().equals(state.getProperty("girl"))&&n.getUUID("Father").toString().equals(state.getProperty("male")),kind+" changed parent UUIDs");
                 long initial=Long.parseLong(state.getProperty(key+".remaining")),now=guardian.familyGrowthTicks();
                 check(now>0&&now<=initial&&initial-now<=allowedAgeDelta,kind+" advanced unloaded "+key+" initial="+initial+" current="+now+" max delta="+allowedAgeDelta);
+                if(kind.equals("dedicated restart"))check(now<=Long.parseLong(state.getProperty(key+".savedGrowth")),kind+" reset disk age "+key);
             }
         }
     }

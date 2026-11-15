@@ -50,6 +50,7 @@ public final class BlossomWarden extends PathfinderMob {
     private static final int MISSING_GRACE = 10;
     /** Ticks without closing the gap before the guardian intercepts instead of waiting on a blocked route. */
     private static final int STALL_LIMIT = 60;
+    private static final int PATROL_RETURN_RANGE = 50;
     private static final byte IDLE = 0, CHASE = 1, GRIP = 2, THROW = 3;
     private static final EntityDataAccessor<Byte> POSE = SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FEMALE =
@@ -244,6 +245,8 @@ public final class BlossomWarden extends PathfinderMob {
         if (!(level() instanceof ServerLevel level)) return;
         family.tick(this,level);
         if (court == null) bindVillage(blockPosition());
+        else if (family.offspring && distanceToSqr(Vec3.atBottomCenterOf(court)) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE)
+            relocateFamilyPatrol(level);
         if (!summoned && !family.offspring && (tickCount == 1 || tickCount % 120 == 0)) {
             Registry registry = directory(level);
             BlossomWarden other = registry.active(level, court);
@@ -323,6 +326,21 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 
+    /** Family guardians patrol where their players have brought them, including after a saved move. */
+    private void relocateFamilyPatrol(ServerLevel level) {
+        UUID previous=offender();
+        bindVillage(blockPosition());
+        offenders.removeIf(id -> !(level.getEntity(id) instanceof LivingEntity foe)
+                || !foe.isAlive() || distanceToSqr(foe) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE);
+        unreachableUntil.clear();
+        if(previous!=null && !previous.equals(offender())){
+            setTarget(null);
+            getNavigation().stop();
+            pursueTicks=0; missingTicks=0; stallTicks=0; bestGap=Double.MAX_VALUE;
+            transition(offenders.isEmpty()?IDLE:CHASE);
+        }
+    }
+
     private boolean temporarilyUnreachable(LivingEntity target) {
         return unreachableUntil.getOrDefault(target.getUUID(), 0L) > level().getGameTime()
                 && distanceToSqr(target) > reachSquared(target);
@@ -383,7 +401,7 @@ public final class BlossomWarden extends PathfinderMob {
         transition(offenders.isEmpty()?IDLE:CHASE);
         if (offenders.isEmpty() && court != null && level.hasChunkAt(court)) {
             Vec3 home = Vec3.atBottomCenterOf(court);
-            if (distanceToSqr(home) > 50*50 && level.noCollision(this, getBoundingBox().move(home.subtract(position())))) {
+            if (distanceToSqr(home) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE && level.noCollision(this, getBoundingBox().move(home.subtract(position())))) {
                 teleportTo(home.x, home.y, home.z);
                 petals(level,position());
             }

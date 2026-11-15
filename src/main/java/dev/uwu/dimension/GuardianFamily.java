@@ -234,6 +234,7 @@ final class GuardianFamily {
     void read(BlossomWarden guardian,CompoundTag root) {
         var tag=root.getCompound("OwlFamily");
         growth=Math.max(0,tag.getInt("GrowthTicks"));offspring=tag.getBoolean("Offspring")||growth>0;
+        if(offspring)guardian.setPersistenceRequired();
         fedBy=tag.hasUUID("FedBy")?tag.getUUID("FedBy"):null;
         feedToken=fedBy!=null && tag.hasUUID("FeedToken")?tag.getUUID("FeedToken"):null;
         readyUntil=fedBy==null?0:tag.getLong("ReadyUntil");restUntil=tag.getLong("RestUntil");

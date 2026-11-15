@@ -47,6 +47,11 @@ for visit in first restart; do
     grep -F 'MIRROR COURT PASS' first.log
     grep -F 'SAKURA RENEWAL SERVER PASS' first.log
     test -s mirror-checkpoint.properties
+    mkdir -p guardian-family-evidence
+    cp world/dimensions/uwudimension/sakura_reach/entities/r.15.10.mca guardian-family-evidence/
+    cp guardian-family-checkpoint.properties guardian-family-evidence/initial.properties
+    python ../../ci/guardian-family-disk.py guardian-family-evidence/r.15.10.mca guardian-family-checkpoint.properties | tee guardian-family-evidence/raw-entities.log
+    cp guardian-family-checkpoint.properties guardian-family-evidence/checked.properties
   else
     grep -F 'MIRROR COURT DISK RESTART PASS' restart.log
     grep -F 'SAKURA DISK RESTART PASS' restart.log

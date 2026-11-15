@@ -164,8 +164,18 @@ final class GuardianFamilyProof {
         var target=EntityType.COW.create(level);target.moveTo(guardian.position().add(0,0,2));
         target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);target.setHealth(100);target.setNoAi(true);
         check(level.addFreshEntity(target),"damage sample entity");
-        try{check(guardian.doHurtTarget(target),"guardian melee rejected");return 100-target.getHealth();}
-        finally{target.discard();}
+        var critKey=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ATTRIBUTE,
+                ResourceLocation.fromNamespaceAndPath("apothic_attributes","crit_chance"));
+        var crit=BuiltInRegistries.ATTRIBUTE.getHolder(critKey).map(guardian::getAttribute).orElse(null);
+        double previous=crit==null?0:crit.getBaseValue();
+        try{
+            // Compare two ordinary hits by fixing the optional pack's independent per-hit crit roll.
+            if(crit!=null){crit.setBaseValue(0);close(crit.getValue(),0,"damage fixture critical chance");}
+            check(guardian.doHurtTarget(target),"guardian melee rejected");return 100-target.getHealth();
+        }finally{
+            if(crit!=null)crit.setBaseValue(previous);
+            target.discard();
+        }
     }
     private static void compare(BlossomWarden child,BlossomWarden parent){
         close(child.getBbWidth(),parent.getBbWidth()*.5,"width");
