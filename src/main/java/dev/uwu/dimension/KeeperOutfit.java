@@ -44,7 +44,11 @@ enum KeeperOutfit {
     }
 
     static KeeperOutfit forKeeper(Keeper keeper) {
-        return keeper.isBaby() ? EVERYDAY : BY_PROFESSION.getOrDefault(keeper.getVillagerData().getProfession(), EVERYDAY);
+        return forProfession(keeper.isBaby(), keeper.getVillagerData().getProfession());
+    }
+
+    static KeeperOutfit forProfession(boolean baby, VillagerProfession job) {
+        return baby ? EVERYDAY : BY_PROFESSION.getOrDefault(job, EVERYDAY);
     }
 
     ResourceLocation texture(boolean isDusk) { return isDusk ? dusk : petal; }

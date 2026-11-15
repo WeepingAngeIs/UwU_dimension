@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 final class CupidEffects {
     private static final Set<Player> FULL_DRAW = Collections.newSetFromMap(new WeakHashMap<>());
     static boolean inRange(net.minecraft.server.level.ServerPlayer viewer, double squaredDistance) {
-        int radius = Mth.clamp(ReachLife.preference(viewer,"sakura_distance",12),2,24);
+        int radius = Mth.clamp(ReachLife.preference(viewer,"sakura_distance",24),2,24);
         return squaredDistance <= radius*radius;
     }
 
@@ -31,7 +31,7 @@ final class CupidEffects {
         Vec3 at = player.getEyePosition().add(player.getLookAngle().scale(.9)).add(hand).add(0,-.15,0);
         for (var viewer : level.players()) {
             if (inRange(viewer,viewer.getEyePosition().distanceToSqr(at)))
-                level.sendParticles(viewer, CupidParticles.DRAW_HEART.get(), false, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+                level.sendParticles(viewer, CupidParticles.DRAW_HEART.get(), true, at.x, at.y, at.z, 1, 0, 0, 0, 0);
         }
     }
 
@@ -43,19 +43,22 @@ final class CupidEffects {
             int mode = ReachLife.preference(viewer, "sakura_effects", 2);
             int interval = mode == 0 || distance > 20*20 ? 4 : mode == 1 ? 2 : 1;
             if (arrow.tickCount % interval == 0)
-                level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+                level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), true, at.x, at.y, at.z, 1, 0, 0, 0, 0);
         }
     }
 
     static void impact(ServerLevel level, Entity struck) {
-        Vec3 at = struck.position().add(0, struck.getBbHeight()+.82, 0);
+        impact(level,struck.position().add(0, struck.getBbHeight()+.82, 0));
+    }
+
+    static void impact(ServerLevel level, Vec3 at) {
         for (var viewer : level.players()) {
             double distance = viewer.getEyePosition().distanceToSqr(at);
             if (!inRange(viewer,distance)) continue;
             int mode = Mth.clamp(ReachLife.preference(viewer,"sakura_effects",2), 0, 2);
             if (distance > 20*20) mode = 0;
             // With count zero, vanilla passes the X speed to the provider exactly once.
-            level.sendParticles(viewer, CupidParticles.IMPACT_OUTLINE.get(), false, at.x, at.y, at.z, 0, mode, 0, 0, 1);
+            level.sendParticles(viewer, CupidParticles.IMPACT_OUTLINE.get(), true, at.x, at.y, at.z, 0, mode, 0, 0, 1);
         }
     }
 }

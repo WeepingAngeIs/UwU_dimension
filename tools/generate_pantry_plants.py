@@ -10,38 +10,38 @@ DATA = ROOT / "src/main/resources/data/uwudimension"
 PLANTS = {
     "heartberry_crop": {
         "seed": "heartberry_seeds", "harvest": "heartberry", "count": [2, 4],
-        "leaf": "#4E9B60", "leaf_light": "#79C77A", "stem": "#456D45", "fruit_dark": "#C94B77",
-        "fruit": "#F58EB0", "fruit_light": "#FFD1DF",
+        "leaf": "#58775F", "leaf_light": "#83A081", "stem": "#445948", "fruit_dark": "#954E69",
+        "fruit": "#C17A90", "fruit_light": "#D6A1A4",
     },
     "sakura_rice_crop": {
         "seed": "sakura_rice_seeds", "harvest": "sakura_rice", "count": [2, 4],
-        "leaf": "#579565", "leaf_light": "#8CC878", "stem": "#54754A", "fruit_dark": "#D1B878",
-        "fruit": "#F3E5B6", "fruit_light": "#FFF6D8",
+        "leaf": "#647A67", "leaf_light": "#91A383", "stem": "#495E58", "fruit_dark": "#A39069",
+        "fruit": "#C1B08D", "fruit_light": "#D7C6A3",
     },
     "starfruit_crop": {
         "seed": "starfruit_seeds", "harvest": "starfruit", "count": [2, 3],
-        "leaf": "#39865B", "leaf_light": "#7BBE69", "stem": "#426C45", "fruit_dark": "#D58B35",
-        "fruit": "#F7C84E", "fruit_light": "#FFF2A1",
+        "leaf": "#547564", "leaf_light": "#81997C", "stem": "#415D50", "fruit_dark": "#B2874C",
+        "fruit": "#D0AC74", "fruit_light": "#DFC598",
     },
     "frostpetal_crop": {
         "seed": "frostpetal_seeds", "harvest": "frostpetal", "count": [2, 4],
-        "leaf": "#579D99", "leaf_light": "#9ED9CF", "stem": "#4D7773", "fruit_dark": "#8AB9D2",
-        "fruit": "#D5F4F3", "fruit_light": "#FFFFFF",
+        "leaf": "#5B807E", "leaf_light": "#88A8A4", "stem": "#475F69", "fruit_dark": "#9399AD",
+        "fruit": "#B5B9CA", "fruit_light": "#CFD1D8",
     },
     "sweetbean_crop": {
         "seed": "sweetbean_seeds", "harvest": "sweetbean_pods", "count": [2, 3],
-        "leaf": "#438553", "leaf_light": "#83BD6C", "stem": "#456B43", "fruit_dark": "#A97A54",
-        "fruit": "#D9AA7A", "fruit_light": "#F2D2A3",
+        "leaf": "#5B785B", "leaf_light": "#8B9C78", "stem": "#4C5E4A", "fruit_dark": "#85664E",
+        "fruit": "#B18B67", "fruit_light": "#CFAB86",
     },
     "glowginger_crop": {
         "seed": "glowginger_seeds", "harvest": "glowginger", "count": [2, 3],
-        "leaf": "#39775C", "leaf_light": "#79B872", "stem": "#496246", "fruit_dark": "#C57952",
-        "fruit": "#F0B66A", "fruit_light": "#FFE1A0",
+        "leaf": "#507466", "leaf_light": "#879A75", "stem": "#465C50", "fruit_dark": "#A37357",
+        "fruit": "#C49266", "fruit_light": "#D9B180",
     },
     "vanilla_bean_crop": {
         "seed": "vanilla_bean_seeds", "harvest": "vanilla_bean", "count": [2, 3],
-        "leaf": "#3A7950", "leaf_light": "#83B969", "stem": "#456745", "fruit_dark": "#8F6652",
-        "fruit": "#D0A274", "fruit_light": "#F4D7A7",
+        "leaf": "#50735F", "leaf_light": "#81967A", "stem": "#465945", "fruit_dark": "#7E6257",
+        "fruit": "#AD8E75", "fruit_light": "#C7B097",
     },
 }
 
@@ -88,13 +88,15 @@ def crop_texture(kind, stage, spec):
     def heart(x, y):
         draw.polygon([(x, y + 2), (x - 2, y), (x - 1, y - 2), (x, y - 1),
                       (x + 1, y - 2), (x + 2, y), (x + 1, y + 2)], fill=fruit_dark)
-        draw.point((x, y - 1), fill=fruit_light)
+        draw.line((x-1,y-1,x+1,y), fill=fruit)
+        draw.point((x-1, y-1), fill=fruit_light)
 
     def star(x, y):
         draw.polygon([(x, y - 3), (x + 1, y - 1), (x + 3, y - 1), (x + 1, y + 1),
                       (x + 2, y + 3), (x, y + 2), (x - 2, y + 3), (x - 1, y + 1),
                       (x - 3, y - 1), (x - 1, y - 1)], fill=fruit_dark)
-        draw.point((x, y), fill=fruit_light)
+        draw.polygon([(x-1,y),(x,y-2),(x+1,y),(x,y+1)], fill=fruit)
+        draw.point((x, y-1), fill=fruit_light)
 
     # Each crop has its own silhouette and harvest details instead of a shared stalk shape.
     if kind == "heartberry_crop":
@@ -172,12 +174,16 @@ def crop_texture(kind, stage, spec):
         if stage >= 4:
             draw.line((8, 10, 8, 6), fill=stem)
             draw.rectangle((6, 5, 10, 7), fill=fruit)
-            draw.rectangle((7, 4, 9, 8), fill=fruit_light)
+            draw.line((8,4,8,8), fill=fruit)
+            draw.point((7,5),fill=fruit_light)
+            draw.point((8,4),fill=fruit_light)
             draw.point((8, 6), fill=fruit_dark)
         if stage >= 7:
             draw.line((12, 12, 12, 9), fill=stem)
             draw.rectangle((10, 8, 14, 10), fill=fruit)
-            draw.rectangle((11, 7, 13, 11), fill=fruit_light)
+            draw.line((12,7,12,11), fill=fruit)
+            draw.point((11,8),fill=fruit_light)
+            draw.point((12,7),fill=fruit_light)
             draw.point((12, 9), fill=fruit_dark)
     elif kind == "sweetbean_crop":
         draw.line((8, 15, 8, 14 - int(growth * 5)), fill=stem)
@@ -365,46 +371,6 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
-def crop_block_model(texture):
-    faces_x = {
-        "west": {"uv": [0, 0, 16, 16], "texture": "#crop"},
-        "east": {"uv": [16, 0, 0, 16], "texture": "#crop"},
-    }
-    faces_z = {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#crop"},
-        "south": {"uv": [16, 0, 0, 16], "texture": "#crop"},
-    }
-    elements = [
-        {"from": [4, -1, 0], "to": [4, 15, 16], "shade": False, "faces": faces_x},
-        {"from": [12, -1, 0], "to": [12, 15, 16], "shade": False,
-         "faces": {"west": {"uv": [16, 0, 0, 16], "texture": "#crop"},
-                   "east": {"uv": [0, 0, 16, 16], "texture": "#crop"}}},
-        {"from": [0, -1, 4], "to": [16, 15, 4], "shade": False, "faces": faces_z},
-        {"from": [0, -1, 12], "to": [16, 15, 12], "shade": False,
-         "faces": {"north": {"uv": [16, 0, 0, 16], "texture": "#crop"},
-                   "south": {"uv": [0, 0, 16, 16], "texture": "#crop"}}},
-    ]
-    # Add two diagonal leaf planes to the vanilla crossed-crop planes. This
-    # keeps the plant readable between viewing angles and gives flower heads
-    # more depth without using a shader or non-vanilla geometry.
-    for angle in (45, -45):
-        elements.append({
-            "from": [0.8, -1, 8], "to": [15.2, 15, 8],
-            "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": angle, "rescale": True},
-            "shade": False,
-            "faces": {
-                "north": {"uv": [0, 0, 16, 16], "texture": "#crop"},
-                "south": {"uv": [0, 0, 16, 16], "texture": "#crop"},
-            },
-        })
-    return {
-        "ambientocclusion": False,
-        "render_type": "minecraft:cutout",
-        "textures": {"crop": texture, "particle": texture},
-        "elements": elements,
-    }
-
-
 def drift_blossom_assets():
     block_textures = ASSETS / "textures/block"
     block_textures.mkdir(parents=True, exist_ok=True)
@@ -510,7 +476,7 @@ def main():
             block_models[f"age={stage}"] = {"model": f"uwudimension:block/{tex}"}
             (ASSETS / "textures/block").mkdir(parents=True, exist_ok=True)
             crop_texture(crop_id, stage, spec).save(ASSETS / f"textures/block/{tex}.png")
-            write_json(ASSETS / f"models/block/{tex}.json", crop_block_model(f"uwudimension:block/{tex}"))
+            write_json(ASSETS / f"models/block/{tex}.json", {"parent": "uwudimension:block/"+crop_id.removesuffix("_crop")+"_plant", "textures": {"crop": "uwudimension:block/"+tex, "particle": "uwudimension:block/"+tex}})
         write_json(ASSETS / f"blockstates/{crop_id}.json", {"variants": block_models})
 
         count = {"type": "minecraft:uniform", "min": spec["count"][0], "max": spec["count"][1]}

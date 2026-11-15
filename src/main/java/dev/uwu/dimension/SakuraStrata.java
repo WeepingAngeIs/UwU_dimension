@@ -16,6 +16,8 @@ final class SakuraStrata {
         int x = corner.getX() & ~15;
         int z = corner.getZ() & ~15;
         boolean placed = false;
+        // Lowland waterways outside the reef carry small patches of aquatic plants and colored pebble beds.
+        if(random.nextInt(4)==0)placed=waterway(level,random,x,z);
         for (int i = 0; i < 3; i++) {
             BlockPos center = new BlockPos(x + 4 + random.nextInt(8), 12 + random.nextInt(41), z + 4 + random.nextInt(8));
             placed |= lens(level, random, center, SakuraCraft.TUFF.get(), SakuraCraft.ROSE_ORE.get());
@@ -25,6 +27,40 @@ final class SakuraStrata {
             placed |= lens(level, random, center, SakuraCraft.SHALE.get(), SakuraCraft.OPAL_ORE.get());
         }
         if (random.nextInt(5) == 0) placed |= cavern(level, random, x, z);
+        // Sample ordinary rock above and below the deepslate transition. This is separate from the ward minerals.
+        for (int i=0;i<3;i++) {
+            var center=new BlockPos(x+3+random.nextInt(10),-43+random.nextInt(104),z+3+random.nextInt(10));
+            for(int step=0;step<5;step++) {
+                if((center.getX()>>4)!=(x>>4) || (center.getZ()>>4)!=(z>>4))break;
+                var host=level.getBlockState(center);
+                if(host.is(BlockTags.BASE_STONE_OVERWORLD)){
+                    var ore=host.is(Blocks.DEEPSLATE)?SakuraMaterials.DEEP_SILVER_ORE:SakuraMaterials.SILVER_ORE;
+                    placed|=level.setBlock(center,ore.get().defaultBlockState(),2);
+                }
+                center=center.relative(Direction.getRandom(random));
+            }
+        }
+        return placed;
+    }
+
+    private static boolean waterway(WorldGenLevel level, RandomSource random, int chunkX, int chunkZ) {
+        int cx=chunkX+3+random.nextInt(10), cz=chunkZ+3+random.nextInt(10);
+        boolean placed=false;
+        for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){
+            if(dx*dx+dz*dz>5 || random.nextInt(4)==0)continue;
+            int x=cx+dx, z=cz+dz;
+            int y=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG,x,z);
+            if(y<level.getSeaLevel()-12 || y>level.getSeaLevel()+10)continue;
+            var at=new BlockPos(x,y,z);var floor=at.below();
+            if(!level.getBlockState(at).is(Blocks.WATER) || !level.getFluidState(at).isSource()
+                    || !level.getBlockState(at.above()).is(Blocks.WATER))continue;
+            var bed=level.getBlockState(floor);
+            if(!(bed.is(BlockTags.DIRT)||bed.is(BlockTags.SAND)||bed.is(Blocks.GRAVEL)||bed.is(Blocks.CLAY)))continue;
+            if(!level.getBlockState(floor.below()).isFaceSturdy(level,floor.below(),Direction.UP))continue;
+            placed|=level.setBlock(floor,SakuraMaterials.GRAVEL.get().defaultBlockState(),2);
+            if(random.nextInt(4)==0 && SakuraCraft.PLUME.get().defaultBlockState().canSurvive(level,at))
+                placed|=level.setBlock(at,SakuraCraft.PLUME.get().defaultBlockState(),2);
+        }
         return placed;
     }
 

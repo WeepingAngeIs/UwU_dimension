@@ -21,7 +21,7 @@ final class HeartCombatGlow {
             if (mode == 0 && level.getGameTime() % 4 != 0) continue;
             level.sendParticles(viewer, sigil, false, at.x, at.y, at.z, 1, .035, .035, .035, .005);
             if (pastelHeart)
-                level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false,
+                level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), true,
                         at.x, at.y, at.z, 1, .045, .045, .045, .008);
             if (mode == 2) level.sendParticles(viewer, ParticleTypes.END_ROD, false,
                     at.x, at.y, at.z, 1, .035, .035, .035, .01);
@@ -34,7 +34,7 @@ final class HeartCombatGlow {
             if (!CupidEffects.inRange(viewer, viewer.getEyePosition().distanceToSqr(x, y, z))) continue;
             int mode = ReachLife.preference(viewer, "sakura_effects", 2);
             int count = mode == 0 ? 1 : mode == 1 ? (fullCount + 1) / 2 : fullCount;
-            level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false, x, y, z,
+            level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), true, x, y, z,
                     count, spreadX, spreadY, spreadZ, speed);
         }
     }

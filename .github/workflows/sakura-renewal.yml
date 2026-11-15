@@ -25,7 +25,7 @@ jobs:
       - run: python3 ci/renewal-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.5.0-beta.1
+          name: UwU-Dimension-1.5.0-beta.2
           path: build/libs/*.jar
           if-no-files-found: error
 
@@ -34,10 +34,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        seed: [152045,4372191]
+        include:
+          - {seed: 152045, world: fresh}
+          - {seed: 4372191, world: upgrade-1.4.9}
+          - {seed: 4372191, world: upgrade-beta.1}
     timeout-minutes: 45
     env:
       UWU_FIELD_SEED: ${{ matrix.seed }}
+      UWU_SOURCE_WORLD: ${{ matrix.world }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,7 +55,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: server-evidence-${{ matrix.seed }}
+          name: server-evidence-${{ matrix.world }}
           path: |
             build/renewal-server/*.log
             build/renewal-server/first-site.txt

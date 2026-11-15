@@ -29,9 +29,12 @@ public final class UwUDimension {
         HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
         HeartLanterns.register(bus);
+        CupidWishes.register();
         ReefLife.register(bus);
         ReachLife.register(bus);
         SakuraCraft.register(bus);
+        SakuraMaterials.register(bus);
+        ReachArchitecture.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);

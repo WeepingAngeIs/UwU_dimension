@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "uwudimension:sakura_diamond_ore"
+  },
+  "result": {
+    "id": "minecraft:diamond"
+  },
+  "experience": 1,
+  "cookingtime": 100
+}

@@ -49,14 +49,27 @@ final class VillageHouse {
     }
     private static BlockState parse(String encoded,boolean dark){
         String[] parts=encoded.split("\\[",2);
-        var original=BuiltInRegistries.BLOCK.get(ResourceLocation.parse(parts[0]));
-        var block=original;
-        if(original==Blocks.WHITE_CONCRETE_POWDER)block=Blocks.WHITE_CONCRETE;
-        if(original==Blocks.SPRUCE_LOG)block=dark?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_CHERRY_LOG;
-        if(original==Blocks.SPRUCE_STAIRS)block=PinkRoofTiles.stairs(dark);
-        if(original==Blocks.SPRUCE_SLAB)block=PinkRoofTiles.slab(dark);
-        if(original==Blocks.RED_TERRACOTTA)block=PinkRoofTiles.tile(dark);
-        if(original==Blocks.LANTERN||original==Blocks.SOUL_LANTERN)block=HeartLanterns.HEART.get();
+        var original=BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(parts[0])).orElseThrow();
+        var wood=ReachArchitecture.wood(dark);
+        // Every material in the four source schematics has an explicit destination.
+        // Fence connections, stair corners, shutter hinges and beam axes are then restored below.
+        var block=switch(parts[0]){
+            case "minecraft:spruce_planks" -> wood.boards().get();
+            case "minecraft:spruce_log" -> wood.beam().get();
+            case "minecraft:spruce_trapdoor","minecraft:oak_trapdoor" -> wood.shutter().get();
+            case "minecraft:oak_fence" -> wood.fence().get();
+            case "minecraft:oak_stairs" -> wood.stairs().get();
+            case "minecraft:oak_slab" -> wood.slab().get();
+            case "minecraft:spruce_stairs" -> PinkRoofTiles.stairs(dark);
+            case "minecraft:spruce_slab" -> PinkRoofTiles.slab(dark);
+            case "minecraft:red_terracotta" -> PinkRoofTiles.tile(dark);
+            case "minecraft:pink_concrete" -> ReachArchitecture.GLAZE.get();
+            case "minecraft:white_concrete_powder" -> ReachArchitecture.PLASTER.get();
+            case "minecraft:smooth_stone","minecraft:stone_bricks" -> ReachArchitecture.paving(dark);
+            case "minecraft:chain" -> SakuraMaterials.CHAIN.get();
+            case "minecraft:lantern","minecraft:soul_lantern","uwudimension:heart_neon_lantern" -> HeartLanterns.HEART.get();
+            default -> throw new IllegalArgumentException("Unmapped village schematic material "+original);
+        };
         var state=block.defaultBlockState();
         if(parts.length==2)for(String pair:parts[1].substring(0,parts[1].length()-1).split(",")){
             String[] value=pair.split("=");
@@ -81,17 +94,17 @@ final class VillageHouse {
             // The source's side posts sometimes project beyond its interior floor.
             // Give each such post a stone footing down to this lot's actual ground.
             if(b.y()==1&&(Math.abs(b.x())>width||Math.abs(b.z())>depth)
-                    && (state.is(net.minecraft.tags.BlockTags.LOGS)||state.is(Blocks.STONE_BRICKS)))
-                BlossomVillage.floor(v,x,h.floor(),z,Blocks.STONE_BRICKS);
+                    && (state.is(ReachArchitecture.wood(dusk).beam().get())||state.is(ReachArchitecture.paving(dusk))))
+                BlossomVillage.floor(v,x,h.floor(),z,ReachArchitecture.paving(dusk));
             // Small lantern-lit windows framed by the original posts and plaster.
-            if (state.is(Blocks.WHITE_CONCRETE) && (b.y()==2 || b.y()==3)
+            if (state.is(ReachArchitecture.PLASTER.get()) && (b.y()==2 || b.y()==3)
                     && (Math.abs(b.x())==width && Math.abs(b.z())<=1
                             || Math.abs(b.z())==depth && Math.abs(b.x())==2)) {
-                state=(dusk ? Blocks.PURPLE_STAINED_GLASS : Blocks.PINK_STAINED_GLASS).defaultBlockState();
+                state=ReachArchitecture.window(dusk,-1).defaultBlockState();
             }
-            if(state.is(Blocks.PINK_CONCRETE)){
+            if(state.is(ReachArchitecture.GLAZE.get())){
                 if(b.x()==0||b.z()==0)state=PinkRoofTiles.tile(dusk).defaultBlockState();
-                else if((b.y()+(dusk?1:0))%4==0)state=Blocks.PINK_TERRACOTTA.defaultBlockState();
+                else if((b.y()+(dusk?1:0))%4==0)state=ReachArchitecture.SCALE.get().defaultBlockState();
             }
             v.put(x,h.floor()+b.y(),z,state.rotate(rotation));
         }

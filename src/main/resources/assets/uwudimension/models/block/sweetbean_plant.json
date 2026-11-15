@@ -1,5 +1,5 @@
 {
-  "ambientocclusion": false,
+  "ambientocclusion": true,
   "render_type": "minecraft:cutout",
   "elements": [
     {
@@ -23,7 +23,7 @@
         "angle": -45,
         "rescale": false
       },
-      "shade": false,
+      "shade": true,
       "faces": {
         "north": {
           "uv": [
@@ -66,7 +66,7 @@
         "angle": 45,
         "rescale": false
       },
-      "shade": false,
+      "shade": true,
       "faces": {
         "north": {
           "uv": [
@@ -109,7 +109,7 @@
         "angle": -45,
         "rescale": false
       },
-      "shade": false,
+      "shade": true,
       "faces": {
         "north": {
           "uv": [
@@ -152,7 +152,7 @@
         "angle": 45,
         "rescale": false
       },
-      "shade": false,
+      "shade": true,
       "faces": {
         "north": {
           "uv": [

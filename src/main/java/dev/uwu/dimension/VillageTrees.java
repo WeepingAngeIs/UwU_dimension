@@ -77,9 +77,9 @@ final class VillageTrees {
         // roof-height twig all the way through a house or turn it into a lone pole.
         if(component.size()<=2){removeFragment(level,chunk,component);return;}
         if(!chunk.getPos().equals(new ChunkPos(lowest)))return;
-        if(!growTrunk(chunk,lowest))removeFragment(level,chunk,component);
+        if(!growTrunk(level,chunk,lowest))removeFragment(level,chunk,component);
     }
-    private static boolean growTrunk(ChunkAccess chunk,BlockPos lowest){
+    private static boolean growTrunk(ServerLevel level,ChunkAccess chunk,BlockPos lowest){
         BlockPos base=lowest.below();
         while(base.getY()>=lowest.getY()-24 && base.getY()>chunk.getMinBuildHeight()){
             var state=chunk.getBlockState(base);
@@ -89,6 +89,10 @@ final class VillageTrees {
             base=base.below();
         }
         if(!chunk.getBlockState(base).is(BlockTags.DIRT))return false;
+        // A neighbor may still be advancing. Defer this repair if its footprint cannot be read safely.
+        for(int dx : new int[]{-1,1}) for(int dz : new int[]{-1,1})
+            if(read(level,chunk,base.offset(dx,0,dz))==null)return true;
+        if(!SakuraTreeRoots.dry(chunk,base.above(),1,p->read(level,chunk,p)))return false;
         var trunk=Blocks.CHERRY_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS,Direction.Axis.Y);
         for(int y=base.getY()+1;y<lowest.getY();y++)chunk.setBlockState(new BlockPos(base.getX(),y,base.getZ()),trunk,false);
         return true;

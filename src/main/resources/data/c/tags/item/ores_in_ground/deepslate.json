@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:deepslate_sakura_coal_ore",
+    "uwudimension:deepslate_sakura_copper_ore",
+    "uwudimension:deepslate_sakura_iron_ore",
+    "uwudimension:deepslate_sakura_gold_ore",
+    "uwudimension:deepslate_sakura_redstone_ore",
+    "uwudimension:deepslate_sakura_lapis_ore",
+    "uwudimension:deepslate_sakura_diamond_ore",
+    "uwudimension:deepslate_sakura_emerald_ore",
+    "uwudimension:deepslate_silver_ore"
+  ]
+}

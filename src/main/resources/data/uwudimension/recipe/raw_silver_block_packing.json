@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "uwudimension:raw_silver"
+    }
+  },
+  "result": {
+    "id": "uwudimension:raw_silver_block",
+    "count": 1
+  }
+}

@@ -156,11 +156,11 @@ public final class RouteProof {
         for(int dx=-7;dx<=7;dx++)for(int dz=-7;dz<=7;dz++)for(int dy=1;dy<=18;dy++){
             var p=v.site().pos(h.x()+dx,h.floor()+dy,h.z()+dz);
             var state=level.getBlockState(p);
-            if(state.is(Blocks.PINK_CONCRETE)||state.is(Blocks.PINK_TERRACOTTA))pink++;
-            if(state.is(Blocks.WHITE_CONCRETE))plaster++;
-            if(state.is(v.dusk()?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_CHERRY_LOG))posts++;
             var id=BuiltInRegistries.BLOCK.getKey(state.getBlock());
             if(id.getNamespace().equals("uwudimension")){
+                if(id.getPath().equals("camellia_glaze")||id.getPath().equals("lotus_scale_tile"))pink++;
+                if(id.getPath().equals("petalsilk_plaster"))plaster++;
+                if(id.getPath().equals(v.dusk()?"velvetwood_beam":"silkwood_beam"))posts++;
                 if(id.getPath().equals(glaze+"_stairs"))stairs++;
                 if(id.getPath().equals(glaze+"_slab"))slabs++;
             }

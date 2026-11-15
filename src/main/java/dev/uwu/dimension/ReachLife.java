@@ -52,6 +52,12 @@ final class ReachLife {
         cmd.then(Commands.literal("journal").executes(ctx -> {
             ReachJournal.give(ctx.getSource().getPlayerOrException()); return 1;
         }));
+        var witness = Commands.literal("witness");
+        for (String option : new String[]{"on","off"}) {
+            witness.then(Commands.literal(option).executes(ctx -> preference(ctx.getSource().getPlayerOrException(),
+                "cupid_witness", option.equals("on") ? 1 : 0, "Cupid wish invitations " + option + ".")));
+        }
+        cmd.then(Commands.literal("cupid").then(witness));
         var effects = Commands.literal("effects");
         String[] modes = {"quiet","gentle","full"};
         for (int i=0; i<modes.length; i++) {

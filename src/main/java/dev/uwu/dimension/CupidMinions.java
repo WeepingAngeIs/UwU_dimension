@@ -156,6 +156,10 @@ final class CupidMinions {
 
     private static void designate(ServerPlayer owner) {
         if (owner.isSpectator() || !owner.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get())) return;
+        if (owner.isShiftKeyDown()) {
+            CupidWishes.aim(owner);
+            return;
+        }
         LivingEntity target = rayTarget(owner);
         if (target == null || !validTarget(owner, target)) {
             owner.displayClientMessage(net.minecraft.network.chat.Component.literal("No eligible target in your sights."), true);

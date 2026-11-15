@@ -34,7 +34,7 @@ final class FurnishingProof {
                     for (int dy=2; dy<=3; dy++) {
                         var window=inside(village,house,lane,dy,house.depth());
                         String id=BuiltInRegistries.BLOCK.getKey(level.getBlockState(window).getBlock()).toString();
-                        String expected="minecraft:"+colors[lane+1]+"_stained_glass";
+                        String expected="uwudimension:"+colors[lane+1]+"_leaded_glass";
                         if (!id.equals(expected) && !id.equals(expected+"_pane"))
                             throw new AssertionError("Expected "+expected+" window at "+window+"; found "+id);
                     }
@@ -61,7 +61,7 @@ final class FurnishingProof {
     }
 
     static String[] palette(boolean dusk) {
-        return dusk ? new String[]{"magenta","white","purple"} : new String[]{"pink","white","light_blue"};
+        return dusk ? new String[]{"orchid","opal","iris"} : new String[]{"blush","opal","dew"};
     }
 
     static BlockPos skylight(ServerLevel level, BlossomVillage.Plan v, BlossomVillage.House h, int lane) {
@@ -69,7 +69,7 @@ final class FurnishingProof {
             var pos=inside(v,h,-2,dy,lane);
             var state=level.getBlockState(pos);
             if (dy>=5 && BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equals(
-                    "minecraft:"+palette(v.dusk())[lane+1]+"_stained_glass")) return pos;
+                    "uwudimension:"+palette(v.dusk())[lane+1]+"_leaded_glass")) return pos;
             if (!state.isAir()) throw new AssertionError("Obstructed skylight over "+v.doorway(h)+" at "+pos+" "+state);
         }
         throw new AssertionError("Missing glass in roof at "+v.doorway(h));

@@ -20,6 +20,10 @@ public final class HeartLanterns {
     public static final DeferredBlock<LanternBlock> HEART = BLOCKS.register("heart_neon_lantern", () ->
             new LanternBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PINK).strength(1.0F)
                     .sound(SoundType.LANTERN).noOcclusion().lightLevel(state -> 15)));
+    public static final DeferredBlock<LanternBlock> DUSK = BLOCKS.register("dusk_heart_lantern", () ->
+            new LanternBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).strength(1.0F)
+                    .sound(SoundType.LANTERN).noOcclusion().lightLevel(state -> 13)));
+    private static final DeferredItem<BlockItem> DUSK_ITEM = ITEMS.registerSimpleBlockItem("dusk_heart_lantern", DUSK);
     static final DeferredBlock<HeartFlashLightBlock> FLASH = BLOCKS.register("heart_flash_light",
             HeartFlashLightBlock::new);
     private static final DeferredItem<BlockItem> HEART_ITEM = ITEMS.registerSimpleBlockItem("heart_neon_lantern", HEART);
@@ -33,6 +37,9 @@ public final class HeartLanterns {
     }
 
     private static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) event.accept(HEART_ITEM.get());
+        if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.accept(HEART_ITEM.get());
+            event.accept(DUSK_ITEM.get());
+        }
     }
 }

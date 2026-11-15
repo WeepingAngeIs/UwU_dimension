@@ -52,7 +52,7 @@ final class RenewalProof {
                 world.getChunkAt(marker);
                 check(world.getBlockState(marker).is(Blocks.LODESTONE),"existing save marker changed in "+world.dimension());
             }
-            System.out.println("SAKURA COPIED 1.4.9 SAVE PASS");
+            System.out.println("SAKURA COPIED SAVE PASS " + System.getenv("UWU_SOURCE_WORLD"));
         }
         var home=server.overworld();
         BlockPos a=new BlockPos(12,260,12), b=new BlockPos(42,260,12);

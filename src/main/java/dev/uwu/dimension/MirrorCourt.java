@@ -141,9 +141,9 @@ public final class MirrorCourt {
         v.passage(-11,-19,134,-3,-12,137);
         for (int x=-5;x<=15;x+=5) v.block(x,-19,132,HeartwaterFeature.GLASS.get());
         for (int x:new int[]{-11,-3}) v.block(x,-18,136,HeartwaterFeature.GLASS.get());
-        v.shell(-17,-20,139,3,-6,163,Blocks.POLISHED_BLACKSTONE_BRICKS);
-        v.doorway(-7,-19,139,Blocks.CHISELED_QUARTZ_BLOCK);
-        v.box(-15,-19,141,1,-19,161,Blocks.SMOOTH_QUARTZ);
+        v.shell(-17,-20,139,3,-6,163,ReachChambers.Room.COURT);
+        v.doorway(-7,-19,139,ReachArchitecture.TRACERY.get());
+        v.box(-15,-19,141,1,-19,161,ReachArchitecture.PEARL.get());
         // A magenta-and-gold mosaic circles the dais. The entire walkable floor stays flush.
         for (int x=-15;x<=1;x++) for (int z=141;z<=161;z++) {
             int dx=Math.abs(x+7), dz=Math.abs(z-152);
@@ -151,23 +151,23 @@ public final class MirrorCourt {
             else if ((dx==5 || dz==5) && dx<=5 && dz<=5) v.block(x,-19,z,HeartwaterFeature.LACE.get());
         }
         for (int side : new int[]{-15,1}) for (int z : new int[]{143,150,158}) {
-            v.box(side,-18,z,side,-9,z,Blocks.QUARTZ_PILLAR);
+            v.box(side,-18,z,side,-9,z,ReachArchitecture.RIB.get());
             v.box(side,-11,z-1,side,-10,z+1,HeartwaterFeature.QUILT.get());
-            v.block(side,-10,z,Blocks.PEARLESCENT_FROGLIGHT);
+            v.block(side,-10,z,ReachArchitecture.PILOT.get());
         }
         // Tall back-wall stained-glass butterfly, with a luminous backing inside the obsidian shell.
         for (int x=-13;x<=-1;x++) for (int y=-17;y<=-9;y++) {
             int dx=Math.abs(x+7), dy=y+14;
             if ((dy>=0 && dx>=1 && dx<=6 && Math.abs(dy-dx/2)<=2)
                     || (dy<0 && dx>0 && dx<=4 && Math.abs(dy+dx/2)<=1)) {
-                v.block(x,y,162,Blocks.PEARLESCENT_FROGLIGHT);
-                v.block(x,y,161,dy<0?Blocks.PURPLE_STAINED_GLASS:dx%3==0?Blocks.CYAN_STAINED_GLASS:Blocks.PINK_STAINED_GLASS);
+                v.block(x,y,162,ReachArchitecture.PILOT.get());
+                v.block(x,y,161,dy<0?ReachArchitecture.window(true,1):dx%3==0?ReachArchitecture.window(false,1):ReachArchitecture.window(false,-1));
             }
         }
-        v.box(-7,-16,161,-7,-9,161,Blocks.CHISELED_COPPER);
-        v.block(-7,-18,146,Blocks.CHISELED_QUARTZ_BLOCK);
+        v.box(-7,-16,161,-7,-9,161,SakuraMaterials.SILVER_BLOCK.get());
+        v.block(-7,-18,146,ReachArchitecture.TRACERY.get());
         v.put(-7,-17,146,BELL.get().defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING,v.face(Direction.SOUTH)));
-        v.block(-7,-19,152,Blocks.PEARLESCENT_FROGLIGHT);
+        v.block(-7,-19,152,ReachArchitecture.PILOT.get());
         v.chest(-7,-18,159,"mirror_court");
     }
 

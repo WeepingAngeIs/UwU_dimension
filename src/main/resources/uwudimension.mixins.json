@@ -4,6 +4,8 @@
   "package": "dev.uwu.dimension.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "SakuraPaletteMixin",
+    "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",
     "RevivalSealMixin",
     "RealmVillagerFactoryMixin",
@@ -20,6 +22,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "SakuraGrassTintMixin",
     "ReactiveMusicRealmMixin"
   ]
 }

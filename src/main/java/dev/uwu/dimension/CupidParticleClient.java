@@ -20,9 +20,9 @@ import org.joml.Vector3f;
 public final class CupidParticleClient {
     @SubscribeEvent public static void register(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(CupidParticles.PASTEL_HEART.get(), sprites ->
-                (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.15F,14));
+                (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.15F,18));
         event.registerSpriteSet(CupidParticles.DRAW_HEART.get(), sprites ->
-                (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.13F,12));
+                (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.16F,18));
         event.registerSpriteSet(CupidParticles.IMPACT_OUTLINE.get(), sprites ->
                 (type, level, x,y,z, quality,dy,dz) -> new Outline(level,x,y,z,sprites,(int)Math.round(quality)));
     }
@@ -35,14 +35,14 @@ public final class CupidParticleClient {
             friction = .92F;
             lifetime = duration;
             quadSize = size;
-            alpha = .82F;
+            alpha = .94F;
             hasPhysics = false;
         }
         @Override public ParticleRenderType getRenderType() { return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
         @Override public int getLightColor(float partial) { return 0xf000f0; }
         @Override public void tick() {
             super.tick();
-            alpha = .82F * Mth.clamp((lifetime-age)/7F, 0F, 1F);
+            alpha = .94F * Mth.clamp((lifetime-age)/7F, 0F, 1F);
         }
         @Override public void render(VertexConsumer out, Camera camera, float partial) {
             if (camera.getPosition().distanceToSqr(x,y,z) > .12)
@@ -59,7 +59,7 @@ public final class CupidParticleClient {
         private final int stride;
 
         Outline(ClientLevel level,double x,double y,double z,SpriteSet sprites,int quality) {
-            super(level,x,y,z,sprites,quality<=0 ? .065F : .072F,quality<=0 ? 10 : 14);
+            super(level,x,y,z,sprites,quality<=0 ? .085F : .10F,quality<=0 ? 17 : 22);
             stride = quality<=0 ? 2 : 1;
             midpoint = quality >= 2;
         }

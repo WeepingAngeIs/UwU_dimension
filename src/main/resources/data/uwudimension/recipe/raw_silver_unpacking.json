@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:raw_silver_block"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:raw_silver",
+    "count": 9
+  }
+}

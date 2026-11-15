@@ -18,6 +18,9 @@ public final class GuardianCommands {
     private static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("uwuguardian")
                 .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("summon")
+                        .then(Commands.literal("girl").executes(context -> summon(context.getSource(),true)))
+                        .then(Commands.literal("male").executes(context -> summon(context.getSource(),false))))
                 .then(Commands.literal("status").executes(ctx -> {
                     var source = ctx.getSource();
                     var pos = source.getPosition();
@@ -44,4 +47,15 @@ public final class GuardianCommands {
                                     return on ? 1 : 0;
                                 }))));
     }
+
+    private static int summon(net.minecraft.commands.CommandSourceStack source, boolean girl) {
+        var level = source.getLevel();
+        var at = net.minecraft.core.BlockPos.containing(source.getPosition());
+        var guard = People.BLOSSOM_WARDEN.get().spawn(level,entity -> entity.setFemale(girl),at,
+                net.minecraft.world.entity.MobSpawnType.COMMAND,false,false);
+        if (guard == null || guard.isRemoved()) return 0;
+        source.sendSuccess(() -> Component.translatable("commands.summon.success",guard.getDisplayName()),true);
+        return 1;
+    }
+
 }

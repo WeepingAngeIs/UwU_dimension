@@ -114,7 +114,7 @@ public final class BlossomVillage {
         v.block(p.x(),p.y(),p.z(),dark?HeartwaterFeature.LACE.get():HeartwaterFeature.QUILT.get());
         // A real meeting POI supports gossip and the vanilla midday gathering schedule.
         int bellX=p.x()+2,bellZ=p.z()-2;
-        v.block(bellX,p.y(),bellZ,dark?Blocks.POLISHED_BLACKSTONE:Blocks.CALCITE);
+        v.block(bellX,p.y(),bellZ,ReachArchitecture.paving(dark));
         v.put(bellX,p.y()+1,bellZ,Blocks.BELL.defaultBlockState().setValue(BellBlock.FACING,v.face(Direction.NORTH)));
         if(v.inside(p.x(),p.z())){
             var warden=People.BLOSSOM_WARDEN.get().create(v.level.getLevel());
@@ -125,12 +125,12 @@ public final class BlossomVillage {
         }
     }
     private static void gate(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
-        Block post=dark?Blocks.STRIPPED_DARK_OAK_LOG:Blocks.STRIPPED_MANGROVE_LOG;
+        Block post=ReachArchitecture.wood(dark).beam().get();
         Block cap=PinkRoofTiles.slab(dark);
         for(int dz:new int[]{-3,3}){
-            floor(v,x,y,z+dz,Blocks.STONE_BRICKS);
+            floor(v,x,y,z+dz,ReachArchitecture.paving(dark));
             v.box(x,y+1,z+dz,x,y+4,z+dz,post);
-            v.block(x,y+1,z+dz,Blocks.POLISHED_BLACKSTONE);
+            v.block(x,y+1,z+dz,ReachArchitecture.RIB.get());
         }
         v.box(x,y+3,z-3,x,y+3,z+3,post);
         v.box(x,y+5,z-4,x,y+5,z+4,post);
@@ -144,7 +144,7 @@ public final class BlossomVillage {
         for(int b=y-1;b>v.level.getMinBuildHeight();b--){
             var at=new BlockPos(v.wx(x,z),b,v.wz(x,z));var state=v.chunk.getBlockState(at);
             if(state.isSolidRender(v.level,at)&&!state.is(net.minecraft.tags.BlockTags.LEAVES)&&!state.is(net.minecraft.tags.BlockTags.LOGS))break;
-            v.block(x,b,z,Blocks.COBBLESTONE);
+            v.block(x,b,z,ReachArchitecture.SLATE.get());
         }
         v.block(x,y,z,finish);
     }
@@ -156,12 +156,11 @@ public final class BlossomVillage {
     private static void road(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
         if(!v.inside(x,z))return;
         int patch=Math.floorMod(HeartwaterFeature.Valley.mix(x,z,v.seed),13);
-        Block surface=patch<2?Blocks.COBBLESTONE:patch<4?Blocks.ANDESITE:patch==4?Blocks.MOSSY_STONE_BRICKS:
-                dark?Blocks.TUFF_BRICKS:Blocks.DIRT_PATH;
+        Block surface=patch==0?ReachArchitecture.SCALE.get():ReachArchitecture.paving(dark);
         clear(v,x,y+1,z);floor(v,x,y,z,surface);
     }
     private static void step(HeartwaterFeature.Valley v, int x, int y, int z, Direction uphill, boolean dusk) {
-        v.put(x,y,z,v.stair(dusk ? Blocks.TUFF_BRICK_STAIRS : Blocks.MOSSY_STONE_BRICK_STAIRS, uphill));
+        v.put(x,y,z,v.stair(ReachArchitecture.steps(dusk), uphill));
     }
     private static void home(HeartwaterFeature.Valley v,Plan p,House h){
         int x=h.x(),z=h.z(),y=h.floor(),w=h.width(),d=h.depth(),side=h.side(),front=z-side*d;
@@ -169,7 +168,7 @@ public final class BlossomVillage {
         if(!v.overlaps(x-house.radiusX,z-house.radiusZ,x+house.radiusX,z+house.radiusZ))return;
         boolean dark=p.dusk();
         Direction inward=side>0?Direction.SOUTH:Direction.NORTH;
-        Block boards=dark?Blocks.DARK_OAK_PLANKS:Blocks.OAK_PLANKS;
+        Block boards=ReachArchitecture.wood(dark).boards().get();
         for(int dx=-house.radiusX;dx<=house.radiusX;dx++)for(int dz=-house.radiusZ;dz<=house.radiusZ;dz++){
             clear(v,x+dx,y+1,z+dz);
             boolean interior=Math.abs(dx)<=w&&Math.abs(dz)<=d;
@@ -179,7 +178,7 @@ public final class BlossomVillage {
         house.place(v,h,dark);
         // Frame the original entrance and put the settlement's crest on its lintel.
         v.block(x,y+3,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.ROSETTE.get());
-        DoorBlock door=(DoorBlock)(dark?Blocks.DARK_OAK_DOOR:Blocks.CHERRY_DOOR);
+        DoorBlock door=ReachArchitecture.wood(dark).door().get();
         var ds=door.defaultBlockState().setValue(DoorBlock.FACING,v.face(inward));
         // Keep both the street landing and the central interior aisle walkable.
         for(int dz=0;dz<=d+2;dz++)if(dz!=d)v.box(x,y+1,z-side*dz,x,y+2,z-side*dz,v.air);

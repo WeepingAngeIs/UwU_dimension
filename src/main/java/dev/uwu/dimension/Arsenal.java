@@ -27,9 +27,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class Arsenal {
     public enum Relic {
-        CUPID_BOW("Cupid Bow", 14, 1.4, 0, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights."),
+        CUPID_BOW("Cupid Bow", 14, 1.4, 0, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights. Crouch and left-click two charmed targets to make a wish."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
-        RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Throw a ribbon scepter onto solid ground to call a pink hare. Its thumps draw monsters."),
+        RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Send a glowing pink orb to solid ground to call a pink hare. Its thumps draw monsters."),
         BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Throw the blossom blade for a ranged strike. Fully charged melee hits still scatter petals."),
         BELLHEART_AXE("Bellheart Axe", 22, 0.95, 105, "Throw the bell axe. Its impact draws the struck foe toward you."),
         LOCKKEEPER_AXE("Lockkeeper's Axe", 21, 1.05, 85, "Throw the turquoise axe to drive the struck foe backward."),

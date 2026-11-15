@@ -12,9 +12,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 /** Seating, storage, reading lights and glazed openings for settlements and public rooms. */
 final class InteriorFurnishings {
-    private static final Block[] PETAL_GLASS = {Blocks.PINK_STAINED_GLASS, Blocks.WHITE_STAINED_GLASS, Blocks.LIGHT_BLUE_STAINED_GLASS};
-    private static final Block[] DUSK_GLASS = {Blocks.MAGENTA_STAINED_GLASS, Blocks.WHITE_STAINED_GLASS, Blocks.PURPLE_STAINED_GLASS};
-
     static void house(HeartwaterFeature.Valley v, BlossomVillage.House h, boolean dusk, VillageHouse shell) {
         int x=h.x(), y=h.floor(), z=h.z(), side=h.side();
         int tea=x-h.width()+1, cabinet=x+h.width()-1, back=z+side*(h.depth()-1);
@@ -27,7 +24,6 @@ final class InteriorFurnishings {
 
         furnishAlcove(v,h,dusk,wood);
 
-        Block[] glass=dusk?DUSK_GLASS:PETAL_GLASS;
         for(int offset=-1;offset<=1;offset++) {
             int pane=x+offset;
             int wall=z+side*h.depth();
@@ -35,11 +31,11 @@ final class InteriorFurnishings {
             for (int d=h.depth()-1;d<=shell.radiusZ;d++) {
                 if(d!=h.depth()) v.box(pane,y+2,z+side*d,pane,y+3,z+side*d,v.air);
             }
-            v.box(pane,y+2,wall,pane,y+3,wall,glass[offset+1]);
+            v.box(pane,y+2,wall,pane,y+3,wall,ReachArchitecture.window(dusk,offset));
             int roofZ=z+side*offset;
             int roofY=y+shell.roofHeight(-2*side,offset);
             v.box(x-2,y+3,roofZ,x-2,roofY-1,roofZ,v.air);
-            v.block(x-2,roofY,roofZ,glass[offset+1]);
+            v.block(x-2,roofY,roofZ,ReachArchitecture.window(dusk,offset));
         }
     }
 
@@ -64,13 +60,13 @@ final class InteriorFurnishings {
                 place(v,x,y,z,"bamboo_table",Direction.WEST);
                 place(v,x,y,front,"bamboo_chair",side>0?Direction.SOUTH:Direction.NORTH);
                 place(v,x,y,rear,"bamboo_chair",side>0?Direction.NORTH:Direction.SOUTH);
-                v.block(x,y,z-2*side,Blocks.SMOOTH_QUARTZ);
+                v.block(x,y,z-2*side,ReachArchitecture.PEARL.get());
                 v.block(x,y+1,z-2*side,Blocks.CAKE);
             }
             case 3 -> {
                 place(v,x,y,z,wood+"_bench",Direction.WEST);
                 for(int potZ:new int[]{front,rear}) {
-                    v.block(x,y,potZ,dusk?Blocks.PURPLE_TERRACOTTA:Blocks.PINK_TERRACOTTA);
+                    v.block(x,y,potZ,ReachArchitecture.GLAZE.get());
                     v.block(x,y+1,potZ,potZ==front?Blocks.POTTED_AZALEA:Blocks.POTTED_FLOWERING_AZALEA);
                 }
                 place(v,x,y,z-2*side,wood+"_flower_box",Direction.WEST);

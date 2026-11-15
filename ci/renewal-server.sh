@@ -16,7 +16,9 @@ java -jar installer.jar --installServer
 printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nonline-mode=false\nlevel-seed=%s\nview-distance=3\nsimulation-distance=3\nmax-tick-time=240000\n' "$UWU_FIELD_SEED" > server.properties
 if [[ "$UWU_FIELD_SEED" = 4372191 ]]; then
-  git worktree add --detach "$RUNNER_TEMP/uwu-baseline" 59b2281e29a1c634c7f3b508d2b46cc804b0a565
+  baseline=59b2281e29a1c634c7f3b508d2b46cc804b0a565
+  if [[ "${UWU_SOURCE_WORLD:-}" = upgrade-beta.1 ]]; then baseline=fa896723ce4824c184c86b94b294375def3720b1; fi
+  git worktree add --detach "$RUNNER_TEMP/uwu-baseline" "$baseline"
   (cd "$RUNNER_TEMP/uwu-baseline" && ./gradlew jar)
   mkdir candidate
   mv mods/{UwU-Dimension-*,heartwater-hosted-probe-*}.jar candidate/

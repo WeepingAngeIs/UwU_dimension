@@ -145,10 +145,10 @@ def bow_transforms(parent):
     # Effective original transforms including vanilla item/bow and item/generated defaults.
     assert "parent" not in parent and not parent.get("elements") and parent["gui_light"]=="front"
     expected = {
-        "firstperson_righthand": ([0,-32,29],[-1.25,4,-.85],[.54,.54,.28]),
-        "firstperson_lefthand": ([0,32,-29],[-1.25,4,-.85],[.54,.54,.28]),
-        "thirdperson_righthand": ([-80,260,-40],[-1,-2,2.5],[.9,.9,.9]),
-        "thirdperson_lefthand": ([-80,-280,40],[-1,-2,2.5],[.9,.9,.9]),
+        "firstperson_righthand": ([0,-46,29],[-1.25,4,-.85],[.54,.54,.28]),
+        "firstperson_lefthand": ([0,46,-29],[-1.25,4,-.85],[.54,.54,.28]),
+        "thirdperson_righthand": ([-80,252,-40],[-1,-2,2.5],[.9,.9,.9]),
+        "thirdperson_lefthand": ([-80,-272,40],[-1,-2,2.5],[.9,.9,.9]),
         "ground": ([0,0,0],[0,2,0],[.5,.5,.5]),
         "head": ([0,180,0],[0,13,7],[1,1,1]),
         "fixed": ([0,180,0],[0,0,0],[1,1,1])
@@ -182,7 +182,7 @@ def check_jar(jar):
     assert not any(p.startswith("dev/uwu/test/") for p in paths)
     assert not any(p.startswith("data/minecraft/worldgen/biome/") for p in paths)
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
-    assert meta["mods"][0]["version"] == "1.5.0-beta.1"
+    assert meta["mods"][0]["version"] == "1.5.0-beta.2"
     locale = read(art + "lang/en_us.json")
     bow = read(art + "models/item/cupid_bow.json")
     assert [o["model"].split("/")[-1] for o in bow["overrides"]] == [f"cupid_bow_draw{i}" for i in range(3)]

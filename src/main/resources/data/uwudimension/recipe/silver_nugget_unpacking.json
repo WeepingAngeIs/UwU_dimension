@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:silver_ingot"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:silver_nugget",
+    "count": 9
+  }
+}

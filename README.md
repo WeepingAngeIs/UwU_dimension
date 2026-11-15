@@ -1,4 +1,4 @@
-# UwU Dimension 1.5.0-beta.1
+# UwU Dimension 1.5.0-beta.2
 
 Petalweave is pastel pink and helps its wearer and nearby teammates recover. Nightbriar is purple and gives a wounded wearer a short opportunity to escape. Make either set with minerals found in new Sakura terrain. Village commons, illustrated field notes and Mirror Court seals give travelers things to build and discover together. See the [keeper and court guide](docs/KEEPERS-AND-MIRROR-COURT.txt), [Cupid Bow source handoff](docs/CUPID-BOW-HANDOFF.txt) and [arsenal guide](ARSENAL-GUIDE.md).
 
@@ -6,7 +6,7 @@ A standalone adventure mod for Minecraft Java 1.21.1. Flowering cliffs surround 
 
 ## Install and travel
 
-Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.5.0-beta.1.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
+Use Java 21 and NeoForge 21.1.249. Place **UwU-Dimension-1.21.1-1.5.0-beta.2.jar** in the profile's `mods` folder on the client and server. Lootr, Another Furniture 4.0.2 and Simply Swords 1.70.2-1.21.1 are required on both the client and server. Keep Simply Swords' Architectury/Fzzy Config dependencies and its client Simply Tooltips dependency from the existing pack. Cobblemon enables the Pokémon habitats. The target is Cobblemon Unyielding 1.0.10 with Lootr 1.11.38.125, Cobblemon 1.8.4+1.21.1 and Kotlin for Forge 5.12.0. The existing profile supplies these dependencies. For a fresh standalone installation, use the same versions and add the furniture mod as its own JAR. [Another Furniture 4.0.2 for NeoForge 1.21.1](https://modrinth.com/mod/another-furniture/version/Q29JlZfU)
 
 Pick up a small flower to unlock the Heartwater Locket recipe. Craft **one compass, one amethyst shard and one small flower** anywhere in the crafting grid. Right-click the locket to travel. Your first visit brings you to the Petal plaza when the survey finds a suitable village. Later visits bring you to the falls. The locket checks support, hazards and headroom on both shores. Any locket can take you to your own departure point, including a traded one. A missing anchor leads to a search around Overworld spawn. If all candidates are unsafe you stay where you are.
 

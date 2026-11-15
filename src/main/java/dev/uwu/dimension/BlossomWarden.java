@@ -55,6 +55,33 @@ public final class BlossomWarden extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> FEMALE =
             SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BOOLEAN);
     public boolean female() { return entityData.get(FEMALE); }
+    void setFemale(boolean girl) { entityData.set(FEMALE,girl); }
+
+    @Override protected net.minecraft.network.chat.Component getTypeName() {
+        return net.minecraft.network.chat.Component.translatable(female()
+                ? "entity.uwudimension.blossom_warden.girl" : "entity.uwudimension.blossom_warden.male");
+    }
+
+    @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
+        if (female()) return net.minecraft.world.entity.EntityDimensions.scalable(.78F,1.98F).withEyeHeight(1.64F);
+        return super.getDefaultDimensions(pose);
+    }
+
+    @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (FEMALE.equals(key)) refreshDimensions();
+    }
+
+    private boolean summoned;
+    @Override public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(
+            net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty,
+            net.minecraft.world.entity.MobSpawnType reason, @Nullable net.minecraft.world.entity.SpawnGroupData group) {
+        summoned = reason == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG
+                || reason == net.minecraft.world.entity.MobSpawnType.DISPENSER
+                || reason == net.minecraft.world.entity.MobSpawnType.COMMAND;
+        return super.finalizeSpawn(level,difficulty,reason,group);
+    }
+
     private final ArrayDeque<UUID> offenders = new ArrayDeque<>();
     private final Map<UUID, Long> unreachableUntil = new HashMap<>();
     private BlockPos court;
@@ -137,7 +164,7 @@ public final class BlossomWarden extends PathfinderMob {
         BlossomWarden known = directory.active(level, center);
         if (known != null) return known;
         for (BlossomWarden guard : level.getEntitiesOfClass(BlossomWarden.class, new AABB(center).inflate(42),
-                g -> g.isAlive() && center.equals(g.court))) {
+                g -> g.isAlive() && !g.summoned && center.equals(g.court))) {
             directory.remember(center, guard);
             return guard;
         }
@@ -196,7 +223,7 @@ public final class BlossomWarden extends PathfinderMob {
         }
         if (!(level() instanceof ServerLevel level)) return;
         if (court == null) bindVillage(blockPosition());
-        if (tickCount == 1 || tickCount % 120 == 0) {
+        if (!summoned && (tickCount == 1 || tickCount % 120 == 0)) {
             Registry registry = directory(level);
             BlossomWarden other = registry.active(level, court);
             if (other != null && other != this) { discard(); return; }
@@ -352,6 +379,7 @@ public final class BlossomWarden extends PathfinderMob {
         super.addAdditionalSaveData(tag);
         tag.putInt("GuardianVitalityVersion",1);
         tag.putBoolean("FemaleGuardian", female());
+        tag.putBoolean("KeeperSummonedGuardian", summoned);
         if (court != null) tag.putLong("VillageCourt",court.asLong());
         ListTag list = new ListTag();
         for (UUID id:offenders) { var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry); }
@@ -361,7 +389,8 @@ public final class BlossomWarden extends PathfinderMob {
     }
     @Override public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        entityData.set(FEMALE, tag.getBoolean("FemaleGuardian"));
+        setFemale(tag.getBoolean("FemaleGuardian"));
+        summoned = tag.getBoolean("KeeperSummonedGuardian");
         double oldMaximum=320;
         var attributes=tag.getList("attributes",Tag.TAG_COMPOUND);
         for(int i=0;i<attributes.size();i++) if(attributes.getCompound(i).getString("id").equals("minecraft:generic.max_health"))oldMaximum=attributes.getCompound(i).getDouble("base");

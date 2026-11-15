@@ -28,8 +28,30 @@ public final class People {
     public static final DeferredHolder<EntityType<?>,EntityType<BlossomWarden>> BLOSSOM_WARDEN =
             TYPES.register("blossom_warden", () -> EntityType.Builder.<BlossomWarden>of(BlossomWarden::new, MobCategory.CREATURE)
                     .sized(1.45F, 2.7F).clientTrackingRange(12).build(MOD + ":blossom_warden"));
-    public static final java.util.function.Supplier<DeferredSpawnEggItem> WARDEN_EGG=UwUDimension.ITEMS.register("uwu_guardian_spawn_egg",
-            ()->new DeferredSpawnEggItem(BLOSSOM_WARDEN::get,0xffb6d992,0xffffa9d2,new net.minecraft.world.item.Item.Properties()));
+    // Each entity type has one canonical spawn egg for NeoForge's type -> item lookup.
+    public static final java.util.function.Supplier<DeferredSpawnEggItem> WARDEN_EGG = egg("uwu_guardian_spawn_egg", BLOSSOM_WARDEN);
+    public static final java.util.function.Supplier<DeferredSpawnEggItem> PETAL_EGG = egg("petal_keeper_spawn_egg", PETAL_KEEPER);
+    public static final java.util.function.Supplier<DeferredSpawnEggItem> DUSK_EGG = egg("dusk_keeper_spawn_egg", DUSK_KEEPER);
+    public static final java.util.function.Supplier<DeferredSpawnEggItem> PETAL_ZOMBIE_EGG = egg("petal_zombie_villager_spawn_egg", PETAL_ZOMBIE);
+    public static final java.util.function.Supplier<DeferredSpawnEggItem> DUSK_ZOMBIE_EGG = egg("dusk_zombie_villager_spawn_egg", DUSK_ZOMBIE);
+
+    private static java.util.function.Supplier<DeferredSpawnEggItem> egg(String name,
+            java.util.function.Supplier<? extends EntityType<? extends net.minecraft.world.entity.Mob>> type) {
+        return UwUDimension.ITEMS.register(name, () ->
+                new DeferredSpawnEggItem(type, 0xffffff, 0xffffff, new net.minecraft.world.item.Item.Properties()));
+    }
+
+    public static net.minecraft.world.item.ItemStack guardianEgg(boolean girl) {
+        var stack = new net.minecraft.world.item.ItemStack(WARDEN_EGG.get());
+        var tag = new net.minecraft.nbt.CompoundTag();
+        tag.putString("id", "uwudimension:blossom_warden");
+        tag.putBoolean("FemaleGuardian", girl);
+        stack.set(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, new net.minecraft.world.item.component.CustomModelData(girl ? 2 : 1));
+        stack.set(net.minecraft.core.component.DataComponents.ITEM_NAME, net.minecraft.network.chat.Component.translatable(
+                girl ? "item.uwudimension.owl_guardian_girl_egg" : "item.uwudimension.owl_guardian_male_egg"));
+        return stack;
+    }
 
     private static DeferredHolder<EntityType<?>, EntityType<Keeper>> keeper(String name) {
         return TYPES.register(name, () -> EntityType.Builder.<Keeper>of(Keeper::new, MobCategory.CREATURE)
@@ -51,7 +73,10 @@ public final class People {
         SOUNDS.register(bus);
         bus.addListener(People::attributes);
         bus.addListener((net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent e)->{
-            if(e.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS))e.accept(WARDEN_EGG.get());
+            if (!e.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) return;
+            e.accept(guardianEgg(false));
+            e.accept(guardianEgg(true));
+            for (var resident : java.util.List.of(PETAL_EGG,DUSK_EGG,PETAL_ZOMBIE_EGG,DUSK_ZOMBIE_EGG)) e.accept(resident.get());
         });
     }
 

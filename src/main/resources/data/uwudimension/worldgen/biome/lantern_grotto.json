@@ -23,7 +23,8 @@
     },
     "sky_color": 8103167,
     "water_color": 5819066,
-    "water_fog_color": 2186849
+    "water_fog_color": 2186849,
+    "grass_color": 12046315
   },
   "features": [
     [],

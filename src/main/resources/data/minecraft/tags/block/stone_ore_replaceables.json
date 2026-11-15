@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:sakura_stone",
+    "uwudimension:sakura_andesite",
+    "uwudimension:sakura_diorite",
+    "uwudimension:sakura_granite"
+  ]
+}

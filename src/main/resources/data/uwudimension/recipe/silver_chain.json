@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "N",
+    "I",
+    "N"
+  ],
+  "key": {
+    "N": {
+      "tag": "c:nuggets/silver"
+    },
+    "I": {
+      "tag": "c:ingots/silver"
+    }
+  },
+  "result": {
+    "id": "uwudimension:silver_chain",
+    "count": 1
+  }
+}

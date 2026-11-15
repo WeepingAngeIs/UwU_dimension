@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:sakura_copper_ore",
+    "uwudimension:deepslate_sakura_copper_ore",
+    "uwudimension:sakura_iron_ore",
+    "uwudimension:deepslate_sakura_iron_ore",
+    "uwudimension:sakura_lapis_ore",
+    "uwudimension:deepslate_sakura_lapis_ore",
+    "uwudimension:silver_ore",
+    "uwudimension:deepslate_silver_ore",
+    "uwudimension:silver_block",
+    "uwudimension:raw_silver_block"
+  ]
+}

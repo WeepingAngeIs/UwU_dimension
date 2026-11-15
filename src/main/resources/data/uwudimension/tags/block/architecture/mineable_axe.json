@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:silkwood_planks",
+    "uwudimension:silkwood_beam",
+    "uwudimension:silkwood_stairs",
+    "uwudimension:silkwood_slab",
+    "uwudimension:silkwood_fence",
+    "uwudimension:silkwood_shutter",
+    "uwudimension:silkwood_door",
+    "uwudimension:velvetwood_planks",
+    "uwudimension:velvetwood_beam",
+    "uwudimension:velvetwood_stairs",
+    "uwudimension:velvetwood_slab",
+    "uwudimension:velvetwood_fence",
+    "uwudimension:velvetwood_shutter",
+    "uwudimension:velvetwood_door"
+  ]
+}

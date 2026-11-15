@@ -186,17 +186,17 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 int target=(int)Math.round(ground+(springHeight-ground)*(1-Math.pow(radius,1.5)));
                 boolean lane=Math.abs(x)<=2&&z>=lip-10&&z<=lip;
                 if(lane)target=z<lip?floor:floor+7;
-                for(int y=Math.min(ground-2,target-2);y<=target;y++)block(x,y,z,y==target?Blocks.GRASS_BLOCK:y>target-3?Blocks.DIRT:Blocks.STONE);
+                for(int y=Math.min(ground-2,target-2);y<=target;y++)block(x,y,z,y==target?SakuraMaterials.GRASS.get():y>target-3?Blocks.DIRT:SakuraMaterials.STONE.get());
                 if(top>target)box(x,target+1,z,x,top+1,z,air);
                 if(!lane && (mix(x,z,seed)&7)==0)block(x,target+1,z,Blocks.PINK_PETALS);
                 if(z==lip&&Math.abs(x)<=2){
-                    box(x,floor+1,z,x,floor+7,z,Blocks.MOSSY_COBBLESTONE);
+                    box(x,floor+1,z,x,floor+7,z,ReachArchitecture.PEARL.get());
                     block(x,floor+8,z,Blocks.WATER);
                 }
                 if(z==lip-1&&Math.abs(x)<=1)box(x,floor+1,z,x,floor+7,z,falling);
             }
             for(int z=lip-10;z<lip-1;z++)for(int x=-2;x<=2;x++){
-                block(x,floor,z,Math.abs(x)==2?Blocks.MOSS_BLOCK:Blocks.SMOOTH_BASALT);
+                block(x,floor,z,Math.abs(x)==2?ReachArchitecture.SCALE.get():ReachArchitecture.PEARL.get());
                 box(x,floor+1,z,x,floor+4,z,air);
             }
             // Shallow cups curve along either side of the causeway. Only a few rooted
@@ -215,19 +215,19 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             for(int z=lip-1;z<=56;z++) {
                 int floor=site.entryY()-Math.clamp(z-first,0,site.entryY()-52);
                 passage(-2,floor,z,2,floor+4,z);
-                if(z>=first&&z<53)box(-2,floor,z,2,floor,z,stair(Blocks.MOSSY_STONE_BRICK_STAIRS,Direction.NORTH));
-                if(z>lip+1 && z%7==0){block(-3,floor+2,z,GLASS.get());block(3,floor+2,z,GLASS.get());}
+                if(z>=first&&z<53)box(-2,floor,z,2,floor,z,stair(ReachArchitecture.steps(false),Direction.NORTH));
+                if(z>=lip && z<=52) ReachChambers.entrance(this,z,floor,lip);
             }
             for(int x=-1;x<=1;x++)box(x,site.entryY()+1,lip-1,x,site.entryY()+6,lip-1,falling);
         }
         void pools(){
             cavern(0,67,19,15,52,14,false);
             // A solid boardwalk crosses the first lake. Both mouths meet the central axis.
-            box(-1,52,53,1,52,82,Blocks.CHERRY_PLANKS);
+            box(-1,52,53,1,52,82,ReachArchitecture.PETAL.boards().get());
             for(int z=55;z<81;z+=5)for(int x:new int[]{-2,2})block(x,52,z,GLASS.get());
             box(-3,53,78,3,57,82,air);
             box(-3,52,78,3,52,82,ROSE.get());
-            box(0,52,65,19,52,67,Blocks.CHERRY_PLANKS);
+            box(0,52,65,19,52,67,ReachArchitecture.PETAL.boards().get());
         }
         void cavern(int cx,int cz,int rx,int rz,int shore,int height,boolean dark){
             if(!overlaps(cx-rx,cz-rz,cx+rx,cz+rz))return;
@@ -240,11 +240,11 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 int depth=r<.7?(int)(1+3*(.7-r)):0;
                 int floor=shore-depth;
                 int h=mix(x,z,seed);
-                Block bed=(h&31)==0?GLASS.get():(dark?Blocks.DEEPSLATE:Blocks.CLAY);
-                block(x,floor,z,bed);block(x,roof,z,(h&15)==0?GLASS.get():Blocks.SMOOTH_BASALT);
+                Block bed=(h&31)==0?GLASS.get():(dark?SakuraMaterials.SLATE.get():SakuraMaterials.STONE.get());
+                block(x,floor,z,bed);block(x,roof,z,(h&15)==0?GLASS.get():SakuraMaterials.SLATE.get());
                 box(x,floor+1,z,x,shore,z,water);
                 box(x,shore+1,z,x,roof-1,z,air);
-                if((h&63)==15)block(x,roof-1,z,Blocks.SHROOMLIGHT);
+                if((h&63)==15)block(x,roof-1,z,ReachArchitecture.PILOT.get());
                 if(depth==0 &&(h&15)==0)block(x,shore+1,z,Blocks.SMALL_AMETHYST_BUD);
             }
         }
@@ -258,14 +258,14 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             for(int x=-23;x<=16;x++){
                 int floor=-19-Math.clamp(14-x,0,29);
                 passage(x,floor,126,x,floor+5,128);
-                if(x<=14&&x>-15)box(x,floor,126,x,floor,128,stair(Blocks.MOSSY_STONE_BRICK_STAIRS,Direction.EAST));
+                if(x<=14&&x>-15)box(x,floor,126,x,floor,128,stair(ReachArchitecture.steps(false),Direction.EAST));
             }
             for(int dz=-1;dz<=1;dz++)box(-34,-47,129+dz,-34,-35,129+dz,falling);
             for(int x=-37;x<-20;x+=4)block(x,-48,123,GLASS.get());
             for(int x=16;x<=41;x++){
                 int floor=52-Math.clamp(x-17,0,23);
                 passage(x,floor,65,x,floor+5,67);
-                if(x>=17&&x<40)box(x,floor,65,x,floor,67,stair(Blocks.POLISHED_ANDESITE_STAIRS,Direction.WEST));
+                if(x>=17&&x<40)box(x,floor,65,x,floor,67,stair(ReachArchitecture.steps(false),Direction.WEST));
             }
             buriedStairs();
             for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
@@ -276,24 +276,29 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             for(int z=68;z<=109;z++){
                 int floor=29-Math.clamp(z-80,0,29);
                 passage(39,floor,z,41,floor+5,z);
-                if(z>=80&&z<109)box(39,floor,z,41,floor,z,stair(Blocks.DEEPSLATE_BRICK_STAIRS,Direction.NORTH));
+                if(z>=80&&z<109)box(39,floor,z,41,floor,z,stair(ReachArchitecture.steps(true),Direction.NORTH));
             }
             for(int x=16;x<=40;x++){
                 int floor=Math.max(-19,Math.min(0,x-39));
                 passage(x,floor,109,x,floor+5,111);
-                if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(Blocks.DEEPSLATE_TILE_STAIRS,Direction.EAST));
+                if(x<=39&&x>20)box(x,floor,109,x,floor,111,stair(ReachArchitecture.steps(true),Direction.EAST));
             }
             // Carry the landing through the lower flight's south turn to the archive
             // doorway. Its trim starts at z137 and already supplies that final floor.
             passage(15,-19,110,17,-14,136);
+            for(int z=113;z<=124;z++) ReachChambers.terrace(this,15,z,17,z,-19,false);
         }
         void passage(int x,int floor,int z,int x2,int ceiling,int z2){
-            box(x,floor-1,z,x2,floor,z2,Blocks.POLISHED_ANDESITE);
+            box(x,floor-1,z,x2,floor,z2,ReachArchitecture.paving(floor<0));
             box(x,floor+1,z,x2,ceiling,z2,air);
+            // Finish the edges of the straight lower flights, outside their three-block walking lanes.
+            if((x==39 && x2==41 && z>81 && z<108)||(z==109 && z2==111 && x>21 && x<38)
+                    ||(z==65 && z2==67 && x>18 && x<39)||(z==126 && z2==128 && x>-14 && x<14)) ReachChambers.terrace(this,x,z,x2,z2,floor,floor>=30);
         }
-        void shell(int x1,int y1,int z1,int x2,int y2,int z2,Block finish){
-            if(finish != Blocks.CRIMSON_PLANKS){
-                Block rock = y1 < 0 ? Blocks.DEEPSLATE : Blocks.TUFF;
+        void shell(int x1,int y1,int z1,int x2,int y2,int z2,ReachChambers.Room room){
+            Block finish=ReachChambers.face(room);
+            if(room != ReachChambers.Room.SHRINE){
+                Block rock = y1 < 0 ? SakuraMaterials.SLATE.get() : SakuraMaterials.STONE.get();
                 box(x1-1,y1-1,z1-1,x2+1,y2+1,z1-1,rock);box(x1-1,y1-1,z2+1,x2+1,y2+1,z2+1,rock);
                 box(x1-1,y1-1,z1,x1-1,y2+1,z2,rock);box(x2+1,y1-1,z1,x2+1,y2+1,z2,rock);
                 box(x1,y1-1,z1,x2,y1-1,z2,rock);box(x1,y2+1,z1,x2,y2+1,z2,rock);
@@ -304,6 +309,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             box(x1,y1,z1,x2,y1,z2,Blocks.OBSIDIAN);box(x1,y2,z1,x2,y2,z2,Blocks.OBSIDIAN);
             box(x1+1,y1+1,z1+1,x2-1,y2-1,z2-1,finish);
             box(x1+2,y1+2,z1+2,x2-2,y2-2,z2-2,air);
+            ReachChambers.room(this,room,x1,y1,z1,x2,y2,z2);
         }
         void doorway(int x,int y,int z,Block trim){
             box(x-2,y,z-2,x+2,y+4,z-1,trim);
@@ -312,31 +318,31 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         }
         void bathhouse(){
             if(!overlaps(-14,79,14,106))return;
-            shell(-14,51,82,14,62,106,ROSE.get());
-            doorway(0,52,82,Blocks.QUARTZ_BRICKS);
+            shell(-14,51,82,14,62,106,ReachChambers.Room.BATH);
+            doorway(0,52,82,ReachArchitecture.PEARL.get());
             box(-5,52,88,5,52,99,water);
             for(int z=86;z<=102;z+=4)for(int x:new int[]{-11,11}){
                 block(x,60,z,ROSETTE.get());
-                box(x,53,z,x,54,z,Blocks.CHERRY_PLANKS);
-                put(x,55,z,Blocks.WHITE_CARPET.defaultBlockState());
+                box(x,53,z,x,54,z,ReachArchitecture.PETAL.boards().get());
+                put(x,55,z,HeartFloor.carpet(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState());
             }
             for(int x:new int[]{-4,0,4}){
-                block(x,53,101,Blocks.SMOOTH_QUARTZ);
-                block(x,54,101,Blocks.PINK_CARPET);
+                block(x,53,101,ReachArchitecture.RIB.get());
+                block(x,54,101,HeartFloor.carpet(net.minecraft.world.item.DyeColor.PINK));
             }
             for(int z:new int[]{89,96}){
-                box(8,53,z,11,57,z,Blocks.CHERRY_PLANKS);
+                box(8,53,z,11,57,z,ReachArchitecture.PETAL.boards().get());
                 box(8,57,z,8,57,z+3,HEART.get());
-                block(10,53,z+2,Blocks.LIGHT_GRAY_CARPET);
+                block(10,53,z+2,HeartFloor.carpet(net.minecraft.world.item.DyeColor.LIGHT_GRAY));
             }
-            for(int z=97;z<102;z++)block(7+z%2,53,z,Blocks.GRAY_CARPET);
+            for(int z=97;z<102;z++)block(7+z%2,53,z,HeartFloor.carpet(net.minecraft.world.item.DyeColor.GRAY));
             InteriorFurnishings.bathhouse(this);
             chest(0,53,103,"rose_bathhouse");
         }
         void archive(){
             if(!overlaps(5,137,27,151))return;
-            shell(5,-20,139,27,-10,150,Blocks.DEEPSLATE_TILES);
-            doorway(16,-19,139,Blocks.CHISELED_TUFF_BRICKS);
+            shell(5,-20,139,27,-10,150,ReachChambers.Room.ARCHIVE);
+            doorway(16,-19,139,ReachArchitecture.TRACERY.get());
             for(int x=8;x<=24;x+=4)for(int z=143;z<=147;z++){
                 if(x==16 || x==24)continue;
                 box(x,-18,z,x,-16,z,Blocks.BOOKSHELF);
@@ -351,30 +357,31 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             // Whole roof is inverted: broad eaves at its top narrow to the downward finial.
             // Human-accessible gallery and ascent stay upright below the ceiling anchors.
             for(int i=0;i<5;i++)box(50-i,3+i,118-i,52+i,3+i,120+i,
-                    i%2==0?Blocks.DARK_PRISMARINE:Blocks.POLISHED_BLACKSTONE);
-            box(44,8,112,58,8,126,Blocks.WARPED_PLANKS);
+                    i%2==0?ReachArchitecture.SCALE.get():ReachArchitecture.SLATE.get());
+            box(44,8,112,58,8,126,ReachArchitecture.PETAL.boards().get());
             for(int x:new int[]{45,57})for(int z:new int[]{113,125}){
-                box(x,9,z,x,26,z,Blocks.STRIPPED_CRIMSON_STEM);
-                block(x,7,z,Blocks.SHROOMLIGHT);
+                box(x,9,z,x,26,z,ReachArchitecture.DUSK.beam().get());
+                block(x,7,z,ReachArchitecture.PILOT.get());
             }
-            for(int z:new int[]{112,126})box(44,12,z,58,12,z,Blocks.RED_NETHER_BRICKS);
-            box(57,9,113,57,11,125,Blocks.CRIMSON_PLANKS);
+            for(int z:new int[]{112,126})box(44,12,z,58,12,z,ReachArchitecture.GLAZE.get());
+            box(57,9,113,57,11,125,ReachArchitecture.DUSK.boards().get());
             for(int z:new int[]{115,123}) {
-                block(56,11,z,Blocks.OCHRE_FROGLIGHT);block(47,7,z,Blocks.OCHRE_FROGLIGHT);
+                block(56,11,z,ReachArchitecture.PILOT.get());block(47,7,z,ReachArchitecture.PILOT.get());
             }
             // Upside-down torii: twin hanging uprights with lower crossbars.
-            for(int z:new int[]{115,122})box(44,2,z,44,8,z,Blocks.STRIPPED_CRIMSON_STEM);
-            box(44,2,114,44,2,123,Blocks.NETHER_BRICKS);box(44,4,115,44,4,122,Blocks.RED_NETHER_BRICKS);
+            for(int z:new int[]{115,122})box(44,2,z,44,8,z,ReachArchitecture.DUSK.beam().get());
+            box(44,2,114,44,2,123,ReachArchitecture.SLATE.get());box(44,4,115,44,4,122,ReachArchitecture.GLAZE.get());
             passage(40,0,109,42,5,118);
             for(int z=118;z<=125;z++){
                 int floor=z-118;
                 passage(40,floor,z,42,floor+5,z);
-                box(40,floor+1,z,42,floor+1,z,stair(Blocks.CRIMSON_STAIRS,Direction.SOUTH));
+                box(40,floor+1,z,42,floor+1,z,stair(ReachArchitecture.DUSK.stairs().get(),Direction.SOUTH));
             }
             passage(40,8,126,48,13,127);
-            shell(50,7,115,57,15,123,Blocks.CRIMSON_PLANKS);
+            shell(50,7,115,57,15,123,ReachChambers.Room.SHRINE);
+            ReachChambers.shrineExterior(this);
             // Keep the gallery level around the reliquary's one gilded north door.
-            doorway(53,8,115,Blocks.CRIMSON_PLANKS);
+            doorway(53,8,115,ReachArchitecture.DUSK.boards().get());
             chest(55,9,120,"inverted_shrine");
         }
         void chest(int x,int y,int z,String table){
