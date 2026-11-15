@@ -94,29 +94,56 @@ public final class BetterCombatDaggerProof {
                 var ticker = LivingEntity.class.getDeclaredField("attackStrengthTicker");
                 ticker.setAccessible(true);
 
-                float front = strike(level, player, target, dispatch, packet, ticker, false);
-                float rear = strike(level, player, target, dispatch, packet, ticker, true);
+                float front = strike(level, player, target, dispatch, packet, ticker, 180, 100, false);
+                float rear = strike(level, player, target, dispatch, packet, ticker, 0, 100, false);
                 if (front <= 0 || Math.abs(rear - front * 2) > .1F)
                     throw new AssertionError("Better Combat offhand front/rear damage " + front + "/" + rear);
+                for (double side : new double[]{-1, 1}) {
+                    float exactSide = strike(level, player, target, dispatch, packet, ticker, side * 90, 100, false);
+                    float rearSide = strike(level, player, target, dispatch, packet, ticker, side * 89.9, 100, false);
+                    float frontSide = strike(level, player, target, dispatch, packet, ticker, side * 90.1, 100, false);
+                    if (Math.abs(exactSide - front) > .1F || Math.abs(frontSide - front) > .1F
+                            || Math.abs(rearSide - rear) > .1F)
+                        throw new AssertionError("Better Combat angle boundary " + side + ": front=" + front
+                                + ", side=" + exactSide + ", rearSide=" + rearSide + ", frontSide=" + frontSide);
+                }
+                float partialFront = strike(level, player, target, dispatch, packet, ticker, 180, 2, false);
+                float partialRear = strike(level, player, target, dispatch, packet, ticker, 0, 2, false);
+                if (partialFront >= front || Math.abs(partialRear - partialFront * 2) > .1F)
+                    throw new AssertionError("Better Combat cooldown damage front=" + partialFront + ", rear=" + partialRear);
+                float airborneRear = strike(level, player, target, dispatch, packet, ticker, 0, 100, true);
+                if (Math.abs(airborneRear - rear) > .1F)
+                    throw new AssertionError("Better Combat airborne critical stacked: ground=" + rear + ", air=" + airborneRear);
+                target.getAttribute(Attributes.ARMOR).setBaseValue(15);
+                float armoredRear = strike(level, player, target, dispatch, packet, ticker, 0, 100, false);
+                if (armoredRear <= 0 || armoredRear >= rear)
+                    throw new AssertionError("Better Combat armor was bypassed: plain=" + rear + ", armored=" + armoredRear);
+                target.getAttribute(Attributes.ARMOR).setBaseValue(0);
                 if (!player.getOffhandItem().is(dagger.getItem()) || !player.getMainHandItem().is(Items.IRON_SWORD))
                     throw new AssertionError("Better Combat did not restore both hands");
             }
             target.discard();
             player.discard();
             System.out.println("UWU BETTER COMBAT OFFHAND PASS actual packet handler front/rear and hand restoration");
+            System.out.println("UWU BETTER COMBAT ANGLE PASS boundaries, cooldown, airborne critical and armor");
         }
     }
 
     private static float strike(ServerLevel level, ServerPlayer player, LivingEntity target,
-            Method dispatch, Object packet, java.lang.reflect.Field ticker, boolean behind) throws Exception {
+            Method dispatch, Object packet, java.lang.reflect.Field ticker,
+            double angleFromRear, int strength, boolean airborne) throws Exception {
         target.setHealth(200);
         target.invulnerableTime = 0;
         target.setYRot(0);
         target.setYHeadRot(0);
-        player.moveTo(target.getX(), target.getY(), target.getZ() + (behind ? -1.5 : 1.5), behind ? 0 : 180, 0);
-        player.setOnGround(true);
+        double angle = Math.toRadians(angleFromRear);
+        player.moveTo(target.getX() + Math.sin(angle) * 1.5, target.getY(),
+                target.getZ() - Math.cos(angle) * 1.5, 0, 0);
+        player.setSprinting(false);
+        player.setOnGround(!airborne);
+        player.fallDistance = airborne ? 1F : 0F;
         player.setDeltaMovement(0, 0, 0);
-        ticker.setInt(player, 100);
+        ticker.setInt(player, strength);
         dispatch.invoke(null, packet, level.getServer(), player, player.connection);
         return 200 - target.getHealth();
     }

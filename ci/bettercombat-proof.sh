@@ -10,4 +10,5 @@ echo '65e722e0d98431a07c45f8bdd8d529a217cc8c175fde1740248bd5c1b4f3c0d4  build/re
 export UWU_TEST_BETTERCOMBAT=1 UWU_FIELD_SEED=152045
 bash ci/renewal-server.sh
 grep -F 'UWU BETTER COMBAT OFFHAND PASS actual packet handler front/rear and hand restoration' build/renewal-server/first.log
+grep -F 'UWU BETTER COMBAT ANGLE PASS boundaries, cooldown, airborne critical and armor' build/renewal-server/first.log
 

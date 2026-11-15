@@ -17,13 +17,33 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 
 /** Server-side proof uses real attacks and physical throw hit handling. */
-final class DaggerProof {
+public final class DaggerProof {
     private static final double DISTANCE = 2;
     private static Field cooldown;
+    private static LivingEntity observedTarget;
+    private static ServerPlayer observedAttacker;
+    private static float incoming;
+    private static float criticalMultiplier;
+
+    public static final class DamageObserver {
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public void incoming(LivingIncomingDamageEvent event) {
+            if (event.getEntity() == observedTarget && event.getSource().getEntity() == observedAttacker)
+                incoming = event.getAmount();
+        }
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public void critical(CriticalHitEvent event) {
+            if (event.getEntity() == observedAttacker && event.getTarget() == observedTarget)
+                criticalMultiplier = event.isCriticalHit() ? event.getDamageMultiplier() : 0;
+        }
+    }
 
     private DaggerProof() {}
 
@@ -93,30 +113,50 @@ final class DaggerProof {
         player.setOnGround(!airborne);
         player.fallDistance = airborne ? 1F : 0F;
         cooldown.setInt(player, strength);
+        observedTarget = target;
+        observedAttacker = player;
+        incoming = Float.NaN;
+        criticalMultiplier = Float.NaN;
         player.attack(target);
         float damage = 200 - target.getHealth();
         require(damage > 0, "Actual attack caused no damage");
+        require(Float.isFinite(incoming) && incoming > 0, "No pre-armor damage event observed");
+        System.out.println("UWU DAGGER HIT raw=" + incoming + " crit=" + criticalMultiplier
+                + " armor=" + target.getArmorValue() + " healthDamage=" + damage + " charge=" + strength);
         return damage;
     }
 
     private static void melee(ServerPlayer player, LivingEntity target, Item dagger, String label) throws Exception {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(dagger));
+        // Equipment modifiers are refreshed during ordinary player ticks, not
+        // immediately by setItemInHand. Exercise the actual weapon damage here.
+        player.setNoGravity(true);
+        player.doTick();
         Vec3 front = target.position().add(0, 0, DISTANCE);
         Vec3 rear = target.position().add(0, 0, -DISTANCE);
         Vec3 side = target.position().add(DISTANCE, 0, 0);
         float frontDamage = attack(player, target, front, 100, false);
+        float frontIncoming = incoming;
         float sideDamage = attack(player, target, side, 100, false);
+        float sideIncoming = incoming;
         float rearDamage = attack(player, target, rear, 100, false);
+        float rearIncoming = incoming;
         float partialFront = attack(player, target, front, 2, false);
+        float partialFrontIncoming = incoming;
         float partialRear = attack(player, target, rear, 2, false);
+        float partialRearIncoming = incoming;
         System.out.println("UWU DAGGER DAMAGE " + label + " front=" + frontDamage + " side=" + sideDamage
                 + " rear=" + rearDamage + " partialFront=" + partialFront + " partialRear=" + partialRear);
         require(near(sideDamage, frontDamage), label + ": exact-side melee differs: front="
                 + frontDamage + " side=" + sideDamage);
+        require(near(sideIncoming, frontIncoming), label + ": side incoming damage differs");
         require(near(rearDamage, frontDamage * 2), label + ": rear melee not 2x: front="
                 + frontDamage + " rear=" + rearDamage);
+        require(near(rearIncoming, frontIncoming * 2), label + ": rear pre-armor damage not 2x: front="
+                + frontIncoming + " rear=" + rearIncoming);
         require(partialFront < frontDamage && near(partialRear, partialFront * 2),
                 label + ": partial cooldown bypassed or rear damage incorrect");
+        require(near(partialRearIncoming, partialFrontIncoming * 2), label + ": partial pre-armor damage not 2x");
 
         // The event supplies crit feedback with a neutral multiplier. The primary
         // attack's final pre-armor amount gets the single 2x backstab adjustment.
@@ -152,16 +192,23 @@ final class DaggerProof {
                 .getHolderOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS), 3);
         player.setItemInHand(InteractionHand.MAIN_HAND, dagger);
         float sharpFront = attack(player, target, front, 100, false);
+        float sharpFrontIncoming = incoming;
         float sharpRear = attack(player, target, rear, 100, false);
+        float sharpRearIncoming = incoming;
         require(sharpFront > unenchanted, "Sharpness did not contribute to front damage");
         require(near(sharpRear, sharpFront * 2), "Backstab failed to double total Sharpness damage");
+        require(near(sharpRearIncoming, sharpFrontIncoming * 2), "Sharpness pre-armor damage was not doubled");
         float sharpRearAir = attack(player, target, rear, 100, true);
         require(near(sharpRearAir, sharpRear), "Airborne Sharpness backstab stacked critical multipliers");
         target.getAttribute(Attributes.ARMOR).setBaseValue(10);
         float armoredFront = attack(player, target, front, 100, false);
+        float armoredFrontIncoming = incoming;
         float armoredRear = attack(player, target, rear, 100, false);
+        float armoredRearIncoming = incoming;
         require(armoredFront < sharpFront && armoredRear < sharpRear && armoredRear > armoredFront,
                 "Armor did not apply normally to front and rear dagger damage");
+        require(near(armoredFrontIncoming, sharpFrontIncoming) && near(armoredRearIncoming, sharpRearIncoming),
+                "Armor changed the observed pre-armor incoming amount");
         target.getAttribute(Attributes.ARMOR).setBaseValue(0);
     }
 
@@ -208,6 +255,7 @@ final class DaggerProof {
         mob.moveTo(base.getX()+.5, base.getY(), base.getZ()+.5, 0, 0);
         mob.setNoAi(true);
         mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        mob.getAttribute(Attributes.ARMOR).setBaseValue(0);
         mob.setHealth(200);
         level.addFreshEntity(mob);
         other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
@@ -219,6 +267,8 @@ final class DaggerProof {
         for (int tick = 0; tick < 70; tick++) other.tick();
         other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
         other.setHealth(200);
+        DamageObserver observer = new DamageObserver();
+        NeoForge.EVENT_BUS.register(observer);
         try {
             geometry(mob, "mob");
             geometry(other, "player");
@@ -241,9 +291,13 @@ final class DaggerProof {
             require(near(rearPlayer, frontPlayer * 2),
                     "Thrown player rear not 2x: " + frontPlayer + "/" + rearPlayer);
         } finally {
+            NeoForge.EVENT_BUS.unregister(observer);
+            observedTarget = null;
+            observedAttacker = null;
             mob.discard();
             player.fallDistance = 0;
             player.setOnGround(true);
+            player.setNoGravity(false);
             player.getInventory().clearContent();
             other.getInventory().clearContent();
             other.setNoGravity(false);

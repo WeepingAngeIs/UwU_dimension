@@ -294,16 +294,29 @@ public final class CombatRenewalProof {
     private static void landing(ServerLevel level, ServerPlayer player) {
         var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
         var held = new ItemStack(sword);
-        player.setItemInHand(InteractionHand.OFF_HAND, held);
+        // Better Combat deliberately hides a two-handed weapon in the offhand.
+        // The vanilla fixture still verifies the existing offhand behavior.
+        var hand = net.neoforged.fml.ModList.get().isLoaded("bettercombat")
+                ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        player.setItemInHand(hand, held);
         player.setYRot(0);
         player.setXRot(0);
         BlockPos wall = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ()+4);
         var original = level.getBlockState(wall);
         level.setBlockAndUpdate(wall, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState());
         try {
-            held.use(level, player, InteractionHand.OFF_HAND);
-            RelicFlight flight = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(4),
-                    f -> f.getOwner()==player).getFirst();
+            var mainBefore = player.getMainHandItem().copy();
+            var offBefore = player.getOffhandItem().copy();
+            boolean cooling = player.getCooldowns().isOnCooldown(sword);
+            var use = held.use(level, player, hand);
+            var flights = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(4),
+                    f -> f.getOwner()==player);
+            require(!flights.isEmpty(), "No " + hand + " flight after use: result=" + use.getResult()
+                    + ", mainBefore=" + mainBefore + ", offBefore=" + offBefore
+                    + ", mainAfter=" + player.getMainHandItem() + ", offAfter=" + player.getOffhandItem()
+                    + ", wasCooling=" + cooling + ", alive=" + player.isAlive()
+                    + ", sneaking=" + player.isShiftKeyDown());
+            RelicFlight flight = flights.getFirst();
             for (int i=0; i<6 && !flight.landed(); i++) flight.tick();
             require(flight.landed(), "Sword did not embed on block impact");
             var stuckAt = flight.position();
@@ -312,7 +325,7 @@ public final class CombatRenewalProof {
                 require(flight.landed() && flight.position().distanceToSqr(stuckAt)<1e-5, "Sword moved during landing pause");
             }
             for (int t=0; t<15 && flight.isAlive(); t++) flight.tick();
-            require(!flight.isAlive() && player.getOffhandItem().is(sword), "Embedded sword did not return");
+            require(!flight.isAlive() && player.getItemInHand(hand).is(sword), "Embedded sword did not return");
             player.getCooldowns().removeCooldown(sword);
         } finally {
             level.setBlockAndUpdate(wall, original);
@@ -323,9 +336,11 @@ public final class CombatRenewalProof {
         var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
         var held = new ItemStack(sword);
         held.set(DataComponents.CUSTOM_NAME, Component.literal("Proof of ownership"));
-        player.setItemInHand(InteractionHand.OFF_HAND, held);
-        held.use(level, player, InteractionHand.OFF_HAND);
-        require(player.getOffhandItem().isEmpty(), "Throw never left the hand");
+        var hand = net.neoforged.fml.ModList.get().isLoaded("bettercombat")
+                ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        player.setItemInHand(hand, held);
+        held.use(level, player, hand);
+        require(player.getItemInHand(hand).isEmpty(), "Throw never left the hand");
         var flights = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(5),
                 flight -> flight.getOwner() == player);
         require(flights.size() == 1, "Throw must create one projectile");
