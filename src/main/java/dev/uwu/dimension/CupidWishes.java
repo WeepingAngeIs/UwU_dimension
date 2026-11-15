@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +33,9 @@ final class CupidWishes {
     private static final Map<UUID,Wish> wishes = new HashMap<>();
     private static final String REST = "uwudimension.wish_rest_until";
     private static final TagKey<EntityType<?>> EXCLUDED = TagKey.create(Registries.ENTITY_TYPE, UwUDimension.id("wish_excluded"));
+
+    private static final TagKey<EntityType<?>> WATER_BREATHERS = TagKey.create(Registries.ENTITY_TYPE,
+        ResourceLocation.withDefaultNamespace("can_breathe_under_water"));
 
     static void register() {
         NeoForge.EVENT_BUS.addListener(CupidWishes::tick);
@@ -172,8 +176,22 @@ final class CupidWishes {
             Vec3 at=parent.position().add(d[0],0,d[1]); BlockPos pos=BlockPos.containing(at);
             if(!level.hasChunkAt(pos) || !protectedAccess(p,pos) || !level.getWorldBorder().isWithinBounds(pos))continue;
             child.moveTo(at.x,at.y,at.z,parent.getYRot(),0);
-            if(!level.getBlockCollisions(child,child.getBoundingBox()).iterator().hasNext() &&
-                !level.getBlockState(pos).is(net.minecraft.tags.BlockTags.FIRE) && !level.getFluidState(pos).is(net.minecraft.tags.FluidTags.LAVA))return true;
+            AABB box=child.getBoundingBox();
+            if(!level.getWorldBorder().isWithinBounds(box) || level.getBlockCollisions(child,box).iterator().hasNext())continue;
+            // A parent might be mid-jump or standing on a ledge. Check the actual baby's feet and volume.
+            boolean water=level.getFluidState(pos).is(FluidTags.WATER);
+            if(!water && !level.getBlockCollisions(child,box.move(0,-.125,0)).iterator().hasNext())continue;
+            if(water && !child.getType().is(WATER_BREATHERS) && child.getType().getCategory()!=MobCategory.WATER_CREATURE)continue;
+            boolean clear=true;
+            for(BlockPos part:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY-.125,box.minZ),
+                        BlockPos.containing(box.maxX,box.maxY,box.maxZ))) {
+                if(!level.hasChunkAt(part) || !protectedAccess(p,part) ||
+                   LocketLanding.harmfulBlock(level.getBlockState(part)) || level.getFluidState(part).is(FluidTags.LAVA)) {
+                    clear=false;
+                    break;
+                }
+            }
+            if(clear)return true;
         }
         return false;
     }

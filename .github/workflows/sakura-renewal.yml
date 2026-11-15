@@ -59,6 +59,7 @@ jobs:
           path: |
             build/renewal-server/*.log
             build/renewal-server/first-site.txt
+            build/renewal-server/old-native-dusk.txt
             build/renewal-server/crash-reports/
 
   client:
@@ -89,7 +90,9 @@ jobs:
           grep -F 'SAKURA NIGHT MUSIC PASS' client-visit.log
           grep -F 'CUPID HELD MODEL PASS' client-visit.log
           for frame in arrival armor-gallery village female-guardian cupid-{right,left}-{rest,early,middle,full} cupid-arrow-flight cupid-impact-outline blush-reef roseglass-cavern moonwake-trench sakura-night mirror-court; do test -s "run/screenshots/$frame.png"; done
-          for frame in mistgrass-shore rainbow-riverbed crop-growth crop-detail lantern-front lantern-side relic-rack architecture-{petal-joinery,dusk-joinery,entrance,bathhouse,archive,court,shrine}; do test -s "run/screenshots/$frame.png"; done
+          grep -F 'SAKURA PANTRY REAL ITEMS PASS' client-visit.log
+          for frame in pantry-inventory-{1,2,3} pantry-tooltip-{starfruit,cake} pantry-held-{starfruit,ice-cream}; do test -s "run/screenshots/$frame.png"; done
+          for frame in owl-guardians owl-keepers owl-expression owl-eye-{open,half,closed} mistgrass-shore rainbow-riverbed crop-growth crop-detail lantern-front lantern-side relic-rack architecture-{petal-joinery,dusk-joinery,entrance,bathhouse,archive,court,shrine}; do test -s "run/screenshots/$frame.png"; done
           for frame in cupid-shoulder-{left,right}-{rest,early,middle,full} cupid-first-{rest,full}-{front,edge} cupid-third-{rest,full}-{front,side,edge}; do test -s "run/screenshots/$frame.png"; done
       - uses: actions/upload-artifact@v4
         if: always()

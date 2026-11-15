@@ -30,23 +30,24 @@ BOW_FRAMES = {
 }
 
 
-def bow_rgba(png):
+def rgba_pixels(png, size):
     """Decode the noninterlaced 8-bit RGBA textures used here without an image-library dependency."""
     assert png[:8] == bytes.fromhex("89504e470d0a1a0a")
-    assert struct.unpack(">IIBBBBB", png[16:29]) == (64, 64, 8, 6, 0, 0, 0), "Unexpected bow texture encoding"
+    width,height=(size,size) if isinstance(size,int) else size
+    assert struct.unpack(">IIBBBBB", png[16:29]) == (width,height,8,6,0,0,0), "Unexpected texture encoding"
     pos = 8
     compressed = bytearray()
     while pos < len(png):
-        size, kind = struct.unpack(">I4s", png[pos:pos+8])
+        chunk_size, kind = struct.unpack(">I4s", png[pos:pos+8])
         if kind == b"IDAT":
-            compressed.extend(png[pos+8:pos+8+size])
-        pos += size+12
+            compressed.extend(png[pos+8:pos+8+chunk_size])
+        pos += chunk_size+12
     raw = zlib.decompress(compressed)
-    stride = 64*4
-    assert len(raw) == 64*(stride+1)
+    stride = width*4
+    assert len(raw) == height*(stride+1)
     previous = bytes(stride)
     pixels = bytearray()
-    for row in range(64):
+    for row in range(height):
         offset = row*(stride+1)
         mode = raw[offset]
         line = bytearray(raw[offset+1:offset+1+stride])
@@ -71,12 +72,12 @@ def bow_masks(jar, art, name):
     png = jar.read(base+".png")
     png_hash, art_hash, string_hash = BOW_FRAMES[name]
     assert hashlib.sha256(png).hexdigest() == png_hash, name+" approved PNG changed"
-    original = bow_rgba(png)
+    original = rgba_pixels(png, 64)
     assert hashlib.sha256(original).hexdigest() == art_hash, name+" approved pixels changed"
     masks = {}
     combined = bytearray(len(original))
     for part in ("body", "string"):
-        rgba = bow_rgba(jar.read(base+"_"+part+".png"))
+        rgba = rgba_pixels(jar.read(base+"_"+part+".png"), 64)
         mask = bytes(int(alpha > 0) for alpha in rgba[3::4])
         if part == "string":
             assert hashlib.sha256(mask).hexdigest() == string_hash, name+" exposed bowstring changed"
@@ -159,6 +160,85 @@ def bow_transforms(parent):
         assert (pose.get("rotation",[0,0,0]),pose.get("translation",[0,0,0]),pose.get("scale",[1,1,1])) == values, view
 
 
+def workshop_resources(jar, art, read):
+    crops = ("heartberry", "sakura_rice", "starfruit", "frostpetal", "sweetbean", "glowginger", "vanilla_bean")
+    mature = set()
+    for crop in crops:
+        states = read(art+"blockstates/"+crop+"_crop.json")["variants"]
+        sprites = set()
+        for age in range(8):
+            model = states[f"age={age}"]["model"].split(":",1)[1]
+            plant = read(art+"models/"+model+".json")
+            parent = read(art+"models/"+plant["parent"].split(":",1)[1]+".json")
+            assert parent["ambientocclusion"] and all(e.get("shade", True) for e in parent["elements"]), crop
+            texture = plant["textures"]["crop"].split(":",1)[1]
+            pixels = bytes(rgba_pixels(jar.read(art+"textures/"+texture+".png"),16))
+            assert {0,255} == set(pixels[3::4]), (crop,age)
+            sprites.add(pixels)
+            if age==7: mature.add(pixels)
+        assert len(sprites)==8,crop
+    assert len(mature)==len(crops)
+    for theme in ("heart_neon", "dusk_heart"):
+        face = rgba_pixels(jar.read(art+"textures/block/"+theme+"_heart.png"),16)
+        for hanging in (False,True):
+            model = read(art+"models/block/"+theme+"_lantern"+("_hanging" if hanging else "")+".json")
+            exposed = set()
+            for el in model["elements"]:
+                if el["faces"].get("south",{}).get("texture")!="#heart": continue
+                x,y,x2,y2=el["faces"]["south"]["uv"]
+                assert y2==y+1
+                exposed.update((xx,y) for xx in range(x,x2))
+                assert el["faces"]["north"]["uv"]==[x2,y,x,y+1]
+            assert exposed=={(n%16,n//16) for n,a in enumerate(face[3::4]) if a}
+            # A through hole with twin lobes, a notch, and a tapering tip, even under the mounting hardware.
+            for x,y in [(4,4),(11,4),(5,6),(8,6),(10,7),(8,9)]:
+                xx,yy=x+.5,14.5-y-(0 if hanging else 1)
+                assert not any(e["from"][0]<=xx<e["to"][0] and e["from"][1]<=yy<e["to"][1] for e in model["elements"])
+            assert (8,4) in exposed and (8,10) in exposed
+    roster = read(art+"counter_roster.json")
+    assert len(roster)==133
+    names=[e["id"] for e in roster]
+    names += "blossom_greatsword ribbonhare_scepter bellheart_axe lockkeeper_axe vesper_scythe axolotl_whip frost_whip rift_whip satin_whip rose_dagger lantern_spear tidelace_trident blue_hour_wand ripple_bow glitch_bow".split()
+    images={bytes(rgba_pixels(jar.read(art+"textures/item/"+name+".png"),32)) for name in names}
+    assert len(images)==len(names), "Repeated weapon artwork"
+    print("SAKURA WORKSHOP ART PASS 56 stages, two open lanterns and",len(images),"original relic sprites")
+
+
+def owl_residents(jar, art, read, locale):
+    geom=read(art+"geometry/guardian_bones.json")
+    width,height=geom["width"],geom["height"]
+    bones={bone["name"]:bone["cubes"] for bone in geom["bones"]}
+    assert bones.keys()=={"basket","head","left","right","left_root","right_root"}
+    faces=[c for c in bones["head"] if c["name"]=="warm_face"]
+    assert len(faces)==1
+    unit=width//16
+    tile=faces[0]["tile"]
+    u,v=(tile%4)*4*unit+unit,(tile//4)*2*unit+unit
+    skins=[rgba_pixels(jar.read(art+"textures/entity/female_uwu_guardian"+f+".png"),(width,height)) for f in ("","_half","_blink")]
+    for i in range(3):
+        for j in range(i):
+            changed=[p for p in range(width*height) if skins[i][p*4:p*4+4]!=skins[j][p*4:p*4+4]]
+            assert len(changed)>12 and all(u<=p%width<u+unit and v<=p//width<v+unit for p in changed), "Owl blink spills off face or is invisible"
+    neutral=read(art+"models/item/uwu_guardian_spawn_egg.json")
+    assert [o["predicate"]["custom_model_data"] for o in neutral["overrides"]]==[1,2]
+    names=[o["model"].split("/")[-1] for o in neutral["overrides"]]
+    names += [family+suffix+"_spawn_egg" for family in ("petal","dusk") for suffix in ("_keeper","_zombie_villager")]
+    egg_art=set()
+    for name in names:
+        assert locale["item.uwudimension."+name]
+        assert read(art+"models/item/"+name+".json")["textures"]["layer0"]=="uwudimension:item/"+name
+        rgba=rgba_pixels(jar.read(art+"textures/item/"+name+".png"),16)
+        assert 0 in rgba[3::4] and 255 in rgba[3::4]
+        egg_art.add(bytes(rgba))
+    assert len(egg_art)==6, "Duplicate resident egg art"
+    jobs=("armorer","butcher","cartographer","cleric","farmer","fisherman","fletcher","leatherworker","librarian","mason","shepherd","toolsmith","weaponsmith")
+    for family in ("petal","dusk"):
+        for job in [""]+["/"+job for job in jobs]:
+            name=family+"_keeper"+job+".png"
+            assert jar.read(art+"textures/entity/"+name)!=jar.read(art+"textures/entity/undead/"+name), name
+    print("OWL RESOURCES PASS | three face frames, six distinct eggs, all 28 living and undead outfit pairs")
+
+
 def check_jar(jar):
     paths = set(jar.namelist())
     data = "data/uwudimension/"
@@ -184,6 +264,8 @@ def check_jar(jar):
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
     assert meta["mods"][0]["version"] == "1.5.0-beta.2"
     locale = read(art + "lang/en_us.json")
+    workshop_resources(jar, art, read)
+    owl_residents(jar, art, read, locale)
     bow = read(art + "models/item/cupid_bow.json")
     assert [o["model"].split("/")[-1] for o in bow["overrides"]] == [f"cupid_bow_draw{i}" for i in range(3)]
     bow_transforms(read(art+"models/item/cupid_bow_handheld.json"))

@@ -27,7 +27,7 @@ public final class SettlementLayout extends SavedData {
     private static final Map<ServerLevel,SettlementLayout> ACTIVE=java.util.Collections.synchronizedMap(new WeakHashMap<>());
     private static final Pattern REGION=Pattern.compile("r\\.(-?\\d+)\\.(-?\\d+)\\.mca");
     private final Map<Long,BitSet> previous=new HashMap<>();
-    private final Map<Long,Boolean> legacySites=new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<Long,Integer> legacySites=new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> oldCells=new HashSet<>();
     private int distance;
 
@@ -75,20 +75,28 @@ public final class SettlementLayout extends SavedData {
         var bits=previous.get(ChunkPos.asLong(x>>5,z>>5));
         return bits!=null && bits.get((x&31)+32*(z&31));
     }
-    private boolean visited(ServerLevel level,GroveSites.Site site) {
-        if(!oldCells.contains(ChunkPos.asLong(site.gx(),site.gz())))return false;
+    private int legacyMask(ServerLevel level,GroveSites.Site site) {
+        if(!oldCells.contains(ChunkPos.asLong(site.gx(),site.gz())))return 0;
         return legacySites.computeIfAbsent(ChunkPos.asLong(site.gx(),site.gz()), key->{
+            int mask=0;
             for(boolean dusk:new boolean[]{false,true}){
+                boolean eligible=site.equals(GroveSites.first(level)) ||
+                        (HeartwaterFeature.Valley.mix(site.x()+(dusk?727:953),site.z()+331,level.getSeed())&7)<(dusk?3:4);
+                if(!eligible)continue;
                 var plan=BlossomVillage.survey(level,site,dusk);
                 if(plan.isEmpty())continue;
                 var v=plan.get();
-                if(oldChunk(v.plaza().getX()>>4,v.plaza().getZ()>>4))return true;
+                boolean occupied=oldChunk(v.plaza().getX()>>4,v.plaza().getZ()>>4);
                 for(var house:v.houses()){
-                    var p=v.doorway(house);
-                    if(oldChunk(p.getX()>>4,p.getZ()>>4))return true;
+                    var a=site.pos(house.x()-house.width()-2,0,house.z()-house.depth()-2);
+                    var b=site.pos(house.x()+house.width()+2,0,house.z()+house.depth()+2);
+                    for(int x=Math.min(a.getX(),b.getX())>>4;x<=(Math.max(a.getX(),b.getX())>>4);x++)
+                        for(int z=Math.min(a.getZ(),b.getZ())>>4;z<=(Math.max(a.getZ(),b.getZ())>>4);z++)
+                            occupied|=oldChunk(x,z);
                 }
+                if(occupied)mask|=dusk?2:1;
             }
-            return false;
+            return mask;
         });
     }
     /** Reserving 300 blocks on either side covers the site's +/-144-block
@@ -97,8 +105,8 @@ public final class SettlementLayout extends SavedData {
     static boolean admits(ServerLevel level,GroveSites.Site site,boolean dusk) {
         var data=active(level);
         var origin=GroveSites.first(level);
-        if(data.visited(level,site)) return origin.equals(site) ||
-                (HeartwaterFeature.Valley.mix(site.x()+(dusk?727:953),site.z()+331,level.getSeed())&7)<(dusk?3:4);
+        int old=data.legacyMask(level,site);
+        if(old!=0)return (old&(dusk?2:1))!=0;
         if(!lattice(origin,site.gx(),site.gz(),dusk,data.distance))return false;
         if(site.equals(origin))return true;
         // Older settlements are immovable. Reserve the surrounding cells when a
@@ -108,8 +116,8 @@ public final class SettlementLayout extends SavedData {
             if(dx==0&&dz==0)continue;
             int gx=site.gx()+dx,gz=site.gz()+dz;
             if(!data.oldCells.contains(ChunkPos.asLong(gx,gz)))continue;
-            var old=GroveSites.site(level,gx,gz);
-            if(old.usable() && data.visited(level,old))return false;
+            var neighbor=GroveSites.site(level,gx,gz);
+            if(neighbor.usable() && data.legacyMask(level,neighbor)!=0)return false;
         }
         return true;
     }
@@ -123,7 +131,7 @@ public final class SettlementLayout extends SavedData {
         return ((((x/stride)+(z/stride))&1)!=0)==dusk;
     }
     static int stride(int distance) {return Math.ceilDiv(distance+600,GroveSites.SPACING);}
-    static boolean historical(ServerLevel level,GroveSites.Site site){return active(level).visited(level,site);}
+    static boolean historical(ServerLevel level,GroveSites.Site site){return active(level).legacyMask(level,site)!=0;}
     public static int minimum(ServerLevel level){return active(level).distance;}
     private static SettlementLayout active(ServerLevel level) {
         var layout=ACTIVE.get(level);

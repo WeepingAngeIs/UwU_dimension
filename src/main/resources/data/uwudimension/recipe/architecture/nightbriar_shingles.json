@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:sakura_deepslate"
+  },
+  "result": {
+    "id": "uwudimension:nightbriar_shingles",
+    "count": 1
+  }
+}

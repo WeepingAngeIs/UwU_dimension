@@ -25,13 +25,15 @@ final class FemaleGuardianModel {
         }
     }
 
+    private static final int UNIT = GEOMETRY.width / 16;
+
     static LayerDefinition layer() {
         var mesh = new MeshDefinition();
         for (Bone bone : GEOMETRY.bones) {
             var parent = mesh.getRoot().addOrReplaceChild(bone.name, CubeListBuilder.create(), offset(bone.pivot));
             for (Box box : bone.cubes) {
-                var cube = CubeListBuilder.create().texOffs((box.tile % 4) * 64, (box.tile / 4) * 32)
-                        .addBox(-8, -8, -8, 16, 16, 16);
+                var cube = CubeListBuilder.create().texOffs((box.tile % 4) * UNIT * 4, (box.tile / 4) * UNIT * 2)
+                        .addBox(-UNIT / 2F, -UNIT / 2F, -UNIT / 2F, UNIT, UNIT, UNIT);
                 var p = box.position;
                 var r = box.rotation;
                 parent.addOrReplaceChild(box.name, cube, PartPose.offsetAndRotation(p[0],p[1],p[2],r[0],r[1],r[2]));
@@ -45,9 +47,9 @@ final class FemaleGuardianModel {
             var parent = root.getChild(bone.name);
             for (Box box : bone.cubes) {
                 var part = parent.getChild(box.name);
-                part.xScale = box.size[0] / 16;
-                part.yScale = box.size[1] / 16;
-                part.zScale = box.size[2] / 16;
+                part.xScale = box.size[0] / UNIT;
+                part.yScale = box.size[1] / UNIT;
+                part.zScale = box.size[2] / UNIT;
             }
         }
         return root;

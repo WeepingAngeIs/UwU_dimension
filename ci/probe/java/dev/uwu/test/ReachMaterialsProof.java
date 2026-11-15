@@ -48,8 +48,21 @@ public final class ReachMaterialsProof {
             }
         }
         materials(level,sky.north(14));
+        overworld(level.getServer().overworld(),sky.north(96));
         System.out.println("SAKURA NATIVE MATERIALS AND DRY ROOTS PASS seed="+level.getSeed()
                 +" trees=4 wet-controls=16 dry-controls=4 functional-gravel=true ore-drops=true silver-chain=true");
+    }
+    private static void overworld(ServerLevel level,BlockPos sky){
+        var chunk=level.getChunkAt(sky);
+        for(var section:chunk.getSections())if(!section.hasOnlyAir())section.getStates().count((state,count)->{
+            if(count>0)check(!state.is(SakuraMaterials.STONE.get())&&!state.is(SakuraMaterials.GRASS.get())
+                    &&!state.is(SakuraMaterials.GRAVEL.get()),"Overworld generated native Sakura terrain");
+        });
+        for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)level.setBlock(sky.offset(dx,-1,dz),Blocks.GRASS_BLOCK.defaultBlockState(),2);
+        level.setBlock(sky.offset(1,-1,0),Blocks.WATER.defaultBlockState(),2);
+        var feature=level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).get(ResourceLocation.withDefaultNamespace("cherry"));
+        check(feature!=null && feature.place(level,level.getChunkSource().getGenerator(),RandomSource.create(8471L),sky)
+                && level.getBlockState(sky).is(Blocks.CHERRY_LOG),"Native Sakura water restriction leaked into Overworld");
     }
     private static void scan(ServerLevel level){
         var required=new LinkedHashSet<>(List.of("sakura_stone","sakura_deepslate","rainbow_gravel","silver","iron","diamond"));

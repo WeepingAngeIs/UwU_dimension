@@ -53,6 +53,8 @@ public final class ChestProof {
             channel = new EmbeddedChannel(wire);
             new ServerGamePacketListenerImpl(level.getServer(), wire, player, CommonListenerCookie.createInitial(profile, false)) {
                 @Override public void send(Packet<?> packet) {
+                    if ((name.equals("Clover") || name.equals("Briar")) && packet instanceof net.minecraft.network.protocol.game.ClientboundSystemChatPacket chat)
+                        System.out.println("CUPID WISH OUTPUT "+name+" "+chat.content().getString());
                     if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles
                             && particles.getParticle().getType() == net.minecraft.core.particles.ParticleTypes.CHERRY_LEAVES)
                         receivedPetalPackets++;

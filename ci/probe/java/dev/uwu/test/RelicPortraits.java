@@ -145,6 +145,11 @@ public final class RelicPortraits {
         return false;
     }
 
+    static void releaseGuardian(ServerPlayer player) {
+        if (sitter != null && player.serverLevel().getEntity(sitter) instanceof BlossomWarden guard) guard.discard();
+        sitter=null;
+    }
+
     private static InteractionHand hand(){return side==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;}
 
     static boolean gallery(Minecraft mc) {

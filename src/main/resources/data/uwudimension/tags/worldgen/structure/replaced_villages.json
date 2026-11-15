@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:village",
+    {
+      "id": "skyvillages:skyvillage",
+      "required": false
+    },
+    {
+      "id": "joshie:village_ocean",
+      "required": false
+    },
+    {
+      "id": "underground_villages:underground_village",
+      "required": false
+    },
+    {
+      "id": "villagesandpillages:village_witch",
+      "required": false
+    }
+  ]
+}

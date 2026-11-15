@@ -47,6 +47,7 @@ public final class PantryGallery {
 
     static boolean tick(Minecraft mc){
         if(!active)return true;
+        mc.options.hideGui=false;
         if(++ticks>1100)throw new AssertionError("Pantry photograph stalled at "+stage+" / "+sent);
         int n=stage;
         if(sent!=n){

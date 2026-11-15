@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:nightbriar_shingles"
+  },
+  "result": {
+    "id": "uwudimension:nightbriar_shingle_stairs",
+    "count": 1
+  }
+}

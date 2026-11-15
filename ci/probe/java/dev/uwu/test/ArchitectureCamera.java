@@ -37,7 +37,7 @@ final class ArchitectureCamera {
             case "architecture-bathhouse" -> new int[]{-6,55,87, 10,57,99};
             case "architecture-archive" -> new int[]{16,-16,142, 8,-14,147};
             case "architecture-court" -> new int[]{-9,-15,143, -4,-13,160};
-            case "architecture-shrine" -> new int[]{46,12,112, 53,12,117};
+            case "architecture-shrine" -> new int[]{47,13,108, 53,12,116};
             default -> throw new IllegalArgumentException(name);
         };
         var eye=s.pos(scene[0],scene[1],scene[2]);

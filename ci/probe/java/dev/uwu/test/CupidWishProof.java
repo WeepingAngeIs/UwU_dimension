@@ -31,7 +31,8 @@ final class CupidWishProof {
         select.setAccessible(true);advance.setAccessible(true);
     }
     static void run(ServerLevel l) throws Exception {
-        BlockPos o=new BlockPos(85,l.getMaxBuildHeight()-9,85);
+        // Expedition holds chunk (0,0) entity-ticking for the entire fixture.
+        BlockPos o=new BlockPos(5,l.getMaxBuildHeight()-9,5);
         for(int x=-2;x<=5;x++)for(int z=-2;z<=5;z++)
             l.setBlockAndUpdate(o.offset(x,-1,z),Blocks.STONE.defaultBlockState());
         try(var one=new ChestProof.Visitor(l,o,"Clover",UUID.randomUUID());var two=new ChestProof.Visitor(l,o,"Briar",UUID.randomUUID())){
@@ -45,7 +46,10 @@ final class CupidWishProof {
         var m=kind.create(level);
         if(m==null)throw new AssertionError(kind);
         m.moveTo(origin.getX()+.5+x,origin.getY(),origin.getZ()+.5,0,0);
-        m.setNoAi(true); m.setNoGravity(true);m.setPersistenceRequired();level.addFreshEntity(m);charm(m);return m;
+        m.setNoAi(true); m.setNoGravity(true);m.setPersistenceRequired();
+        if(m instanceof net.minecraft.world.entity.animal.IronGolem golem)golem.setPlayerCreated(true);
+        check(level.addFreshEntity(m) && level.getEntity(m.getUUID())==m,"loaded fixture participant "+kind);
+        charm(m);return m;
     }
     private void charm(LivingEntity e) {
         var d=e.getPersistentData();d.putBoolean("uwu.pastel_cupid",true);
@@ -62,7 +66,7 @@ final class CupidWishProof {
         var cow=mob(EntityType.COW,1);var pig=mob(EntityType.PIG,2);
         pair(cow,pig);click(visitor,pig);advance.invoke(null,archer,level.getGameTime()+2);
         check(babies()==0,"appeared before hearts");
-        settle();check(babies()==1 && cow.getAge()==6000 && pig.getAge()==6000,"mixed species / parental rest");
+        settle();check(babies()==1 && cow.getAge()==6000 && pig.getAge()==6000,"mixed species / parental rest, babies="+babies()+", ages="+cow.getAge()+","+pig.getAge());
         pair(cow,pig);settle();check(babies()==1,"duplicate while resting");fresh();
         var cow2=mob(EntityType.COW,2);var cow3=mob(EntityType.COW,3);
         pair(cow2,cow3);settle();check(babies()==2,"same species");fresh();
@@ -75,7 +79,7 @@ final class CupidWishProof {
         check(babies()==4 && mature.getAge()==0,"juvenile selected");
         var wolf=mob(EntityType.WOLF,1);wolf.tame(visitor);pair(wolf,mature);settle();click(archer,null);
         check(babies()==4 && wolf.isOwnedBy(visitor),"unowned pet");
-        Consumer<CupidPairEvent> deny=e->e.setCanceled(true);NeoForge.EVENT_BUS.addListener(deny);
+        Consumer<CupidPairEvent> deny=e->e.setCanceled(true);NeoForge.EVENT_BUS.addListener(CupidPairEvent.class,deny);
         try {pair(iron,mature);settle();click(archer,null);check(babies()==4,"claim veto");}
         finally {NeoForge.EVENT_BUS.unregister(deny);}
         if(net.neoforged.fml.ModList.get().isLoaded("openpartiesandclaims")) {

@@ -215,6 +215,41 @@ def resources(vanilla):
     dump(lang,names)
 
 
+def recipes():
+    def make(name, data):
+        dump(DATA/'recipe'/'architecture'/(name+'.json'),data)
+    def cut(output, rock, count=1):
+        make(output,{'type':'minecraft:stonecutting','ingredient':{'item':NS+rock},
+                     'result':{'id':NS+output,'count':count}})
+    for wood,tree in [('silkwood','heartbloom_log'),('velvetwood','moonberry_log')]:
+        for name,base,count in [(wood+'_beam',tree,1),(wood+'_planks',wood+'_beam',4)]:
+            make(name,{'type':'minecraft:crafting_shapeless','category':'building','ingredients':[{'item':NS+base}],
+                       'result':{'id':NS+name,'count':count}})
+        shapes={'stairs':(['#  ','## ','###'],4),'slab':(['###'],6),'fence':(['#S#','#S#'],3),
+                'shutter':(['###','###'],2),'door':(['##','##','##'],3)}
+        for kind,(pattern,count) in shapes.items():
+            name=wood+'_'+kind
+            keys={'#':{'item':NS+wood+'_planks'}}
+            if kind=='fence':keys['S']={'item':'minecraft:stick'}
+            make(name,{'type':'minecraft:crafting_shaped','category':'building','pattern':pattern,
+                       'key':keys,'result':{'id':NS+name,'count':count}})
+    for name in ['shellstone_ashlar','petalsilk_plaster','camellia_glaze','lotus_scale_tile','fluted_nacre']:
+        cut(name,'sakura_stone')
+    for name in ['vesper_ashlar','nightbriar_shingles']:cut(name,'sakura_deepslate')
+    for output,base,count in [('shellstone_steps','shellstone_ashlar',1),('vesper_steps','vesper_ashlar',1),
+                              ('nightbriar_shingle_slab','nightbriar_shingles',2),('nightbriar_shingle_stairs','nightbriar_shingles',1)]:
+        cut(output,base,count)
+    for name,base,additive in [('moonpearl_lamp','shellstone_ashlar','minecraft:glowstone_dust'),
+                               ('starvein_frieze','vesper_ashlar','minecraft:glow_ink_sac')]:
+        make(name,{'type':'minecraft:crafting_shapeless','category':'building','ingredients':[{'item':NS+base},{'item':additive}],
+                   'result':{'id':NS+name,'count':1}})
+    for name,dye in zip(GLASS,['pink','white','light_blue','magenta','purple']):
+        output=name+'_leaded_glass'
+        make(output,{'type':'minecraft:crafting_shaped','category':'building','pattern':['GGG','GSG','GGG'],
+                     'key':{'G':{'item':'minecraft:'+dye+'_stained_glass'},'S':{'item':NS+'silver_nugget'}},
+                     'result':{'id':NS+output,'count':8}})
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('client',type=Path)
@@ -222,5 +257,6 @@ if __name__=='__main__':
     wood_art('silkwood',('#956279','#cc99a7','#e0b8bc','#f7d4cf','#87788f'))
     wood_art('velvetwood',('#492f49','#78546c','#99728b','#c49bb2','#c7bbc9'))
     masonry()
+    recipes()
     with zipfile.ZipFile(args.client) as archive: resources(archive)
 

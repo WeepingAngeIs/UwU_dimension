@@ -49,7 +49,7 @@ def render(angle, tilt, zoom, focus, width, height, frame=''):
                 region=depth[y1:y2,x1:x2]
                 hit=(tx>=0)&(tx<=1)&(ty>=0)&(ty<=1)&(z>region)
                 index=part['tile']
-                tex=atlas[(index//4)*32+16*v+np.clip((ty*16).astype(int),0,15),(index%4)*64+16*u+np.clip((tx*16).astype(int),0,15)].copy()
+                tex=atlas[(index//4)*64+32*v+np.clip((ty*32).astype(int),0,31),(index%4)*128+32*u+np.clip((tx*32).astype(int),0,31)].copy()
                 hit &= tex[:,:,3]>0
                 factor=.79+.21*max(0,normal@np.array([-.28,.59,-.75]))
                 tex[:,:,:3]=(tex[:,:,:3]*factor).astype(np.uint8)

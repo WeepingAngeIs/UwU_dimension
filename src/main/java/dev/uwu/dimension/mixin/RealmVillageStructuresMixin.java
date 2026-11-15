@@ -3,6 +3,8 @@ package dev.uwu.dimension.mixin;
 import dev.uwu.dimension.RealmResidents;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.tags.TagKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -18,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Blocks vanilla village starts only inside UwU realms; other dimensions keep vanilla structures. */
+/** Intercepts new vanilla and pack-defined villager settlements inside Sakura Reach. */
 @Mixin(StructureManager.class)
 public abstract class RealmVillageStructuresMixin {
     @Shadow @Final private LevelAccessor level;
@@ -30,8 +32,8 @@ public abstract class RealmVillageStructuresMixin {
         var dimension = level instanceof ServerLevel server ? server.dimension()
                 : level instanceof WorldGenRegion region ? region.getLevel().dimension() : null;
         if (dimension == null || !RealmResidents.appliesDimension(dimension)) return;
-        var id = registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(structure);
-        if (id != null && id.getNamespace().equals("minecraft") && id.getPath().startsWith("village_"))
-            callback.cancel();
+        var registry=registryAccess().registryOrThrow(Registries.STRUCTURE);
+        var tag=TagKey.create(Registries.STRUCTURE,ResourceLocation.fromNamespaceAndPath("uwudimension","replaced_villages"));
+        if(registry.wrapAsHolder(structure).is(tag))callback.cancel();
     }
 }

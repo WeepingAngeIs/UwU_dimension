@@ -108,6 +108,11 @@ def crop_texture(kind, stage, spec):
         if stage >= 1:
             blade([(8, 14), (5, 13), (3, 10), (6, 10), (9, 12)], leaf, [(5, 11, 8, 13)])
             blade([(8, 13), (10, 10), (13, 9), (12, 12), (9, 14)], light, [(10, 12, 12, 10)])
+        if stage == 2:
+            blade([(8,13),(7,9),(8,8),(9,11)],leaf,[(8,9,8,12)])
+        if stage == 4:
+            draw.line((6,9,4,10,3,9),fill=fruit_dark)
+            draw.point((4,9),fill=fruit_light)
         if stage >= 3:
             blade([(8, 11), (5, 9), (4, 6), (7, 7), (9, 10)], light, [(5, 7, 8, 10)])
             blade([(8, 10), (10, 7), (13, 6), (12, 9), (9, 11)], leaf, [(10, 8, 12, 7)])
@@ -157,6 +162,10 @@ def crop_texture(kind, stage, spec):
             blade([(8, 9), (10, 6), (13, 4), (12, 8), (9, 10)], leaf, [(10, 7, 12, 5)])
         if stage >= 5:
             star(4, 8)
+        if stage == 6:
+            draw.line((8,8,11,6,13,6),fill=stem)
+            draw.line((11,7,12,8),fill=fruit)
+            draw.point((12,6),fill=fruit_light)
         if stage >= 7:
             star(12, 5)
         draw.point((8, 15), fill=stem)
@@ -168,6 +177,17 @@ def crop_texture(kind, stage, spec):
         else:
             blade([(8, 14), (5, 13), (2, 10), (6, 10), (8, 12)], leaf, [(4, 11, 7, 13)])
             blade([(8, 13), (10, 10), (14, 9), (12, 12), (9, 14)], light, [(10, 12, 13, 10)])
+        if stage == 1:
+            draw.line((8,14,7,12,7,10),fill=leaf)
+            draw.point((6,10),fill=light)
+        if stage == 3:
+            draw.line((8,11,8,8),fill=stem)
+            draw.line((7,8,9,7),fill=fruit_dark)
+        if stage in (5,6):
+            draw.line((12,12,12,9),fill=stem)
+            draw.line((11,9,13,8),fill=fruit_dark)
+            if stage == 6:
+                draw.line((11,8,12,7,13,8),fill=fruit_light)
         if stage >= 2:
             blade([(7, 12), (5, 9), (5, 6), (8, 8), (9, 12)], light, [(6, 8, 8, 11)])
             blade([(8, 12), (10, 8), (12, 6), (12, 10), (9, 13)], leaf, [(10, 9, 11, 11)])
@@ -193,6 +213,12 @@ def crop_texture(kind, stage, spec):
         if stage >= 1:
             blade([(8, 14), (4, 12), (3, 9), (6, 9), (9, 12)], leaf, [(4, 10, 8, 13)])
             blade([(8, 13), (10, 10), (14, 9), (12, 12), (9, 14)], light, [(10, 11, 13, 10)])
+        if stage == 2:
+            draw.line((8,12,7,10,5,8),fill=leaf)
+            draw.point((6,8),fill=light)
+        if stage == 5:
+            draw.line((10,8,12,5,13,5),fill=stem)
+            draw.point((12,6),fill=fruit_light)
         if stage >= 3:
             blade([(8, 10), (5, 8), (4, 5), (7, 6), (9, 10)], light, [(5, 6, 8, 9)])
             blade([(8, 10), (10, 7), (13, 5), (12, 8), (9, 11)], leaf, [(10, 8, 12, 6)])
@@ -214,6 +240,12 @@ def crop_texture(kind, stage, spec):
             blade([(8, 15), (8, 8), (8, 2), (10, 6), (9, 14)], light, [(8, 5, 9, 11)])
         if stage >= 2:
             blade([(8, 15), (11, 10), (13, 4), (13, 9), (10, 15)], leaf, [(11, 9, 12, 12)])
+        if stage == 3:
+            draw.line((8,13,6,10,4,8),fill=light)
+            draw.line((4,9,5,10),fill=leaf)
+        if stage == 5:
+            draw.line((8,4,8,2),fill=stem)
+            draw.line((7,2,9,2),fill=fruit)
         if stage >= 4:
             blade([(8, 13), (3, 9), (2, 6), (6, 8), (9, 12)], light, [(4, 8, 8, 12)])
         if stage >= 6:

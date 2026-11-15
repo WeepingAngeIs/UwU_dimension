@@ -167,7 +167,7 @@ public final class NetworkCupid {
         ticks=drawPackets=trailPackets=impactPackets=0;
         drawPhoto=trailPhoto=impactPhoto=false;
         phase=Phase.DRAW;
-        mc.options.hideGui=true;
+        mc.options.hideGui=false;
         mc.player.setYRot(shot==0?0:-18);
         mc.player.setXRot(3);
         mc.options.keyUse.setDown(true);

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "GGG",
+    "GSG",
+    "GGG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:pink_stained_glass"
+    },
+    "S": {
+      "item": "uwudimension:silver_nugget"
+    }
+  },
+  "result": {
+    "id": "uwudimension:blush_leaded_glass",
+    "count": 8
+  }
+}

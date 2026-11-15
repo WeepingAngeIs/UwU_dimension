@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:sakura_stone"
+  },
+  "result": {
+    "id": "uwudimension:lotus_scale_tile",
+    "count": 1
+  }
+}

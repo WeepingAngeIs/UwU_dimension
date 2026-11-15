@@ -250,6 +250,7 @@ public final class FieldCamera {
             if(view.file().equals("sakura-night")) MusicProof.night(mc);
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+            if(view.file().equals("female-guardian"))server.execute(()->RelicPortraits.releaseGuardian(server.getPlayerList().getPlayer(id)));
             if(view.file().startsWith("owl-"))server.execute(()->OwlPortraits.release(server.getPlayerList().getPlayer(id)));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);
             if(view.file().equals("ribbon-dolphin"))server.execute(SeaWatch::releaseDolphin);

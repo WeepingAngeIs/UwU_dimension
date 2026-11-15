@@ -13,7 +13,11 @@ import net.minecraft.world.phys.AABB;
 
 final class LocketLanding {
     private static boolean hazardous(BlockState state) {
-        return !state.getFluidState().isEmpty() || state.is(BlockTags.FIRE)
+        return !state.getFluidState().isEmpty() || harmfulBlock(state);
+    }
+
+    static boolean harmfulBlock(BlockState state) {
+        return state.is(BlockTags.FIRE)
                 || state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)
                 || state.is(Blocks.MAGMA_BLOCK) || state.is(Blocks.CACTUS)
                 || state.is(Blocks.POWDER_SNOW) || state.is(Blocks.SWEET_BERRY_BUSH)

@@ -42,6 +42,7 @@ final class RenewalProof {
             check(Files.isRegularFile(savedArrival), "arrival has no saved-data file");
             check(Files.readString(checkpoint).equals(site.toString()),"arrival moved after restart");
             check(reach.getBlockState(arrival.above(5)).is(Blocks.AMETHYST_BLOCK),"saved player block replaced");
+            ArchitectureProof.legacy(reach);
             CombatRenewalProof.resume(reach);
             System.out.println("SAKURA DISK RESTART PASS "+site);
             return;

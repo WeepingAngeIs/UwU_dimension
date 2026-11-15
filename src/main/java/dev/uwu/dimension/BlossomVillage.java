@@ -172,7 +172,11 @@ public final class BlossomVillage {
     private static void road(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
         if(!v.inside(x,z))return;
         int patch=Math.floorMod(HeartwaterFeature.Valley.mix(x,z,v.seed),13);
-        Block surface=patch==0?ReachArchitecture.SCALE.get():ReachArchitecture.paving(dark);
+        Block surface;
+        if(dark){
+            int stitch=Math.floorMod(x+z,12);
+            surface=stitch==0?ReachArchitecture.TRACERY.get():stitch==1?ReachArchitecture.SHINGLES.get():ReachArchitecture.SLATE.get();
+        } else surface=patch==0?ReachArchitecture.SCALE.get():ReachArchitecture.PEARL.get();
         clear(v,x,y+1,z);floor(v,x,y,z,surface);
     }
     private static void step(HeartwaterFeature.Valley v, int x, int y, int z, Direction uphill, boolean dusk) {
@@ -222,13 +226,17 @@ public final class BlossomVillage {
         }
     }
     private static Block inlay(int x,int z,int width,int depth,boolean dusk){
-        // The central stripe and alternating field repeat the pink heart from the first
-        // Heartsill block. Frame the room one tile inside its timber wall posts.
+        if(dusk){
+            // An inkstone nave with two violet borders, picked out in silver-veined stone at the crossing.
+            if(x==0)return HeartFloor.full(DyeColor.BLACK);
+            if(Math.abs(x)==width-1 || Math.abs(z)==depth-1)return HeartFloor.full(DyeColor.PURPLE);
+            if(Math.abs(x)+Math.abs(z)==3)return ReachArchitecture.TRACERY.get();
+            return ReachArchitecture.SLATE.get();
+        }
         if(x==0)return HeartwaterFeature.HEART.get();
-        if(Math.abs(x)==width-1||Math.abs(z)==depth-1)
-            return HeartFloor.full(dusk?DyeColor.BLACK:DyeColor.MAGENTA);
+        if(Math.abs(x)==width-1||Math.abs(z)==depth-1)return HeartFloor.full(DyeColor.MAGENTA);
         if((x+z)%2==0)return HeartwaterFeature.HEART.get();
-        return HeartFloor.full(dusk?DyeColor.PURPLE:DyeColor.WHITE);
+        return HeartFloor.full(DyeColor.WHITE);
     }
     private static void resident(HeartwaterFeature.Valley v,Plan p,int x,int y,int z,boolean baby){
         if(!v.inside(x,z))return;

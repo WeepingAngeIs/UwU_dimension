@@ -62,6 +62,12 @@ final class ArchitectureProof {
     }
 
     static void run(ServerLevel level) {
+        for(String timber:new String[]{"silkwood","velvetwood"}) for(String cut:new String[]{"planks","beam","door","shutter","slab","stairs","fence"}){
+            String item=timber+"_"+cut;
+            var holder=level.getRecipeManager().byKey(net.minecraft.resources.ResourceLocation.parse(NS+"architecture/"+item)).orElseThrow();
+            var output=holder.value().getResultItem(level.registryAccess()).getItem();
+            require(BuiltInRegistries.ITEM.getKey(output).toString().equals(NS+item),"Wrong result for "+item);
+        }
         for(boolean dusk:new boolean[]{false,true}){
             var village=BlossomVillage.first(level,dusk);
             String prefix=dusk?"velvetwood":"silkwood";
@@ -76,6 +82,7 @@ final class ArchitectureProof {
                                 throw new AssertionError("Original schematic material "+material+" in new house "+house.style()+" at "+p);
                             counts.merge(material,1,Integer::sum);
                         }
+                exact(level,village.site().pos(house.x(),house.floor(),house.z()),NS+(dusk?"black_heartsill":"heartsill"));
                 BlockPos door=village.doorway(house);
                 exact(level,door,NS+prefix+"_door");
                 require(level.getBlockState(door).is(BlockTags.WOODEN_DOORS) && level.getBlockState(door.above()).getBlock()==level.getBlockState(door).getBlock()
