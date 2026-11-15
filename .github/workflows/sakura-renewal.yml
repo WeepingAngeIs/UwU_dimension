@@ -82,7 +82,8 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 27m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' client-visit.log
-          for frame in arrival armor-gallery village blush-reef roseglass-cavern moonwake-trench mirror-court; do test -s "run/screenshots/$frame.png"; done
+          grep -F 'SAKURA NIGHT MUSIC PASS' client-visit.log
+          for frame in arrival armor-gallery village blush-reef roseglass-cavern moonwake-trench sakura-night mirror-court; do test -s "run/screenshots/$frame.png"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:

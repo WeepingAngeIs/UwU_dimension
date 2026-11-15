@@ -25,5 +25,15 @@ final class MusicProof {
         if(!matches("distant_shores","UNDERWATER || BIOME=ocean"))throw new AssertionError("Reactive Music did not detect underwater listener");
         System.out.println("REACTIVE MUSIC PASS | underwater condition eligible");
     }
+    static void night(net.minecraft.client.Minecraft mc) {
+        var real = mc.level.getBiome(mc.player.blockPosition());
+        if (!real.is(StrataCamera.SURFACE) || !mc.level.dimension().equals(dev.uwu.dimension.ReefLife.REACH))
+            throw new AssertionError("Camera missed its natural Sakura night biome: "+real);
+        if (!matches("river_night","NIGHT","DIM=OVERWORLD",
+                "BIOME=biomeswevegone:sakura_grove || BIOME=minecraft:cherry_grove || BIOME=natures_spirit:aspen_forest"))
+            throw new AssertionError("Nighttime song rejected: "+SongPicker.currentDimName+" / "+SongPicker.currentBiomeName);
+        System.out.println("SAKURA NIGHT MUSIC PASS actual="+real.unwrapKey().orElseThrow().location()
+                +" context="+SongPicker.currentDimName+" musicBiome="+SongPicker.currentBiomeName+" eligible=river_night");
+    }
 }
 

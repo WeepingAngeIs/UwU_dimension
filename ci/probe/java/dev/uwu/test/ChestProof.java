@@ -44,6 +44,7 @@ public final class ChestProof {
         final ServerPlayer player;
         final EmbeddedChannel channel;
         int receivedPetalPackets;
+        int receivedCupidHearts;
         Visitor(ServerLevel level, BlockPos near, String name, UUID id) {
             var profile = new GameProfile(id, name);
             player = new ServerPlayer(level.getServer(), level, profile, ClientInformation.createDefault());
@@ -54,6 +55,9 @@ public final class ChestProof {
                     if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles
                             && particles.getParticle().getType() == net.minecraft.core.particles.ParticleTypes.CHERRY_LEAVES)
                         receivedPetalPackets++;
+                    if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles
+                            && particles.getParticle().getType() == dev.uwu.dimension.CupidParticles.PASTEL_HEART.get())
+                        receivedCupidHearts += particles.getCount();
                 }
                 @Override public void send(Packet<?> packet, PacketSendListener callback) { send(packet); }
             };

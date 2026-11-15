@@ -42,8 +42,22 @@ final class HeartwaterAmbience {
         double radius=Math.min(range*.65,6);
         double x=player.getX()+Math.cos(angle)*radius, z=player.getZ()+Math.sin(angle)*radius;
         if (player.isUnderWater() && player.getY()<34) {
-            double reach=Math.min(range*.7, 1+(70-tick%70)*.09);
+            // Watch the direction the light draws toward. An occasional ink shadow marks a real pursuer.
+            if (tick%30 == 0) {
+                var foes = level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+                        player.getBoundingBox().inflate(Math.min(12,range)), mob -> mob.isAlive()
+                                && mob.getTarget() == player && mob.isInWater() && mob.hasLineOfSight(player));
+                var pursuer = foes.stream().min(java.util.Comparator.comparingDouble(mob -> mob.distanceToSqr(player)));
+                if (pursuer.isPresent()) {
+                    var ray = pursuer.get().getEyePosition().subtract(player.getEyePosition());
+                    var shadow = player.getEyePosition().add(ray.scale(.65));
+                    emit(player,ParticleTypes.SQUID_INK,shadow.x,shadow.y,shadow.z,range,2,.35,.10,.12,.01);
+                    emit(player,ParticleTypes.GLOW,shadow.x,shadow.y+.16,shadow.z,range,2,.12,.04,.08,.005);
+                    return;
+                }
+            }
             double heading=Math.floorDiv(tick,70)*2.39996;
+            double reach=Math.min(range*.7, 1+(70-tick%70)*.09);
             emit(player,ParticleTypes.GLOW,player.getX()+Math.cos(heading)*reach,player.getEyeY(),
                     player.getZ()+Math.sin(heading)*reach,range,2,.12,.05,.12,.012);
         } else if (player.isInWater() || level.getFluidState(at.below()).is(FluidTags.WATER)) {

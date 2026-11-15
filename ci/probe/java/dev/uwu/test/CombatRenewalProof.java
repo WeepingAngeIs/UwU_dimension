@@ -125,7 +125,14 @@ public final class CombatRenewalProof {
                         "Wrong player charm duration");
                 NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(target));
                 require(!target.getPersistentData().hasUUID(key), "Player charm persisted after logout");
+                int fullHearts = visitor.receivedCupidHearts;
+                var preferences = target.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+                preferences.putInt("sakura_effects", 0);
+                target.getPersistentData().put(Player.PERSISTED_NBT_TAG, preferences);
                 shootAt(level, owner, bow);
+                int quietHearts = visitor.receivedCupidHearts - fullHearts;
+                require(quietHearts > 0 && quietHearts < fullHearts, "Cupid heart settings lost their cue or effect");
+                System.out.println("SAKURA CUPID HEARTS PASS full="+fullHearts+" quiet="+quietHearts);
                 NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent(
                         target, level.dimension(), net.minecraft.world.level.Level.OVERWORLD));
                 require(!target.getPersistentData().hasUUID(key), "Player charm persisted after dimension change");
@@ -290,6 +297,14 @@ public final class CombatRenewalProof {
     }
 
     private static void guardian(ServerLevel level, BlockPos at) {
+        // Keep combatants at the same elevation when advancing only the guardian's AI.
+        // In midair its real gravity advances while the stationary probe targets do not.
+        var floor = new java.util.HashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
+        for (int x=-5; x<=7; x++) for (int z=-5; z<=7; z++) {
+            BlockPos pos = at.offset(x, -1, z);
+            floor.put(pos, level.getBlockState(pos));
+            level.setBlock(pos, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+        }
         BlossomWarden guardian = People.BLOSSOM_WARDEN.get().create(level);
         var threat = EntityType.HUSK.create(level);
         guardian.moveTo(at.getX(), at.getY(), at.getZ());
@@ -316,7 +331,8 @@ public final class CombatRenewalProof {
             guardian.aiStep(); // Immediately discard the queued dead mob.
             require(threat.getUUID().equals(guardian.offender()), "Vanished mob still blocks the queue");
             guardian.aiStep();
-            require(guardian.gripping(), "Guardian did not resume combat");
+            require(guardian.gripping(), "Guardian did not resume combat: guardian="+guardian.position()
+                    +" threat="+threat.position()+" queue="+guardian.offender()+" pose="+(guardian.throwing()?"throw":"chase"));
             require(guardian.getMaxHealth() == 6666 && guardian.getEffect(MobEffects.REGENERATION).getAmplifier()==3
                     && guardian.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier()==3, "Guardian buff regression");
             require(threat.getUUID().equals(guardian.offender()), "Crowded queue lost active threat");
@@ -358,6 +374,7 @@ public final class CombatRenewalProof {
             dead.discard();
             threat.discard();
             guardian.discard();
+            floor.forEach((pos, original)->level.setBlock(pos, original, 2));
         }
     }
 }

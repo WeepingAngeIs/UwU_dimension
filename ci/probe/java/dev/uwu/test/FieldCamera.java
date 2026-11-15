@@ -32,7 +32,7 @@ public final class FieldCamera {
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","roseglass-cavern","moonwake-trench","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -58,6 +58,7 @@ public final class FieldCamera {
         if(FURNISHINGS)return FurnishingCamera.view(p,name);
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
+        if (name.equals("sakura-night")) return StrataCamera.night(p,arrival);
         if (name.equals("roseglass-cavern") || name.equals("moonwake-trench")) return StrataCamera.frame(p,arrival,name);
         if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
         if(name.endsWith("reef")){
@@ -134,7 +135,7 @@ public final class FieldCamera {
     private static void place(ServerPlayer p,SeaWatch.View v){
         Vec3 d=v.subject().subtract(v.eye());
         float yaw=(float)Math.toDegrees(Math.atan2(-d.x,d.z)),pitch=(float)-Math.toDegrees(Math.atan2(d.y,Math.hypot(d.x,d.z)));
-        p.server.overworld().setDayTime(2100);p.server.overworld().setWeatherParameters(9000,0,false,false);
+        p.server.overworld().setDayTime(v.file().equals("sakura-night")?16500:2100);p.server.overworld().setWeatherParameters(9000,0,false,false);
         p.getAbilities().invulnerable=true;p.getAbilities().mayfly=true;p.getAbilities().flying=true;p.onUpdateAbilities();
         p.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,20000,0,false,false));
         if(v.file().equals("roseglass-cavern") || v.file().equals("moonwake-trench"))
@@ -216,6 +217,7 @@ public final class FieldCamera {
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
             if(index==0&&!SEA){MusicProof.surface();if(!RENEWAL){WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}}
+            if(view.file().equals("sakura-night")) MusicProof.night(mc);
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);
