@@ -226,11 +226,19 @@ def workshop_resources(jar, art, read):
             assert (8,4) in exposed and (8,10) in exposed
     roster = read(art+"counter_roster.json")
     assert len(roster)==133
-    names=[e["id"] for e in roster]
+    # Retuned legacy variants deliberately share material/shape art. All still need
+    # valid textures; the independently obtainable counters and named relics must
+    # each have a distinct sprite.
+    for entry in roster:
+        rgba_pixels(jar.read(art+"textures/item/"+entry["id"]+".png"),32)
+    chest=read("data/uwudimension/loot_table/chests/mirror_court.json")
+    names=[entry["name"].split(":",1)[1] for pool in chest["pools"] for entry in pool["entries"]
+           if entry.get("name","").startswith("uwudimension:counter_")]
+    assert len(names)==32 and len(set(names))==32, "Expected 32 direct counter sprites"
     names += "blossom_greatsword ribbonhare_scepter bellheart_axe lockkeeper_axe vesper_scythe axolotl_whip frost_whip rift_whip satin_whip rose_dagger lantern_spear tidelace_trident blue_hour_wand ripple_bow glitch_bow".split()
     images={bytes(rgba_pixels(jar.read(art+"textures/item/"+name+".png"),32)) for name in names}
-    assert len(images)==len(names), "Repeated weapon artwork"
-    print("SAKURA WORKSHOP ART PASS 56 stages, two open lanterns and",len(images),"original relic sprites")
+    assert len(images)==len(names), "Repeated directly obtainable weapon artwork"
+    print("SAKURA WORKSHOP ART PASS 56 stages, two open lanterns, 133 valid counters and",len(images),"distinct direct weapon sprites")
 
 
 def owl_residents(jar, art, read, locale):
