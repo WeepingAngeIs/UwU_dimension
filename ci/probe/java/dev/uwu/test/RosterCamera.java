@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -51,6 +52,8 @@ public final class RosterCamera {
         add("glitch_bow",true);
         add("heart_launcher",true);
         add("bell_hammer",true);
+        for(String material:List.of("silver","roseglass","vesper_opal"))
+            for(String kind:List.of("pickaxe","axe","shovel","hoe"))add(material+"_"+kind,true);
         for(var entry:CounterArsenal.ROSTER)add(entry.id(),CounterArsenal.active(entry));
         if(ITEMS.size()<20)throw new AssertionError("Unexpectedly small gallery: "+ITEMS.size());
     }
@@ -84,19 +87,19 @@ public final class RosterCamera {
         g.drawString(mc.font,"SAKURA REACH | ACTUAL IN-GAME ITEM MODELS",12,10,0xffffd2e7,false);
         int pages=(ITEMS.size()+PER_PAGE-1)/PER_PAGE;
         g.drawString(mc.font,"Direct + retunable forms; gold mark = direct  |  page "+(page+1)+" / "+pages,12,23,0xfff1dcba,false);
-        int cellW=(width-24)/4,cellH=(height-48)/4;
+        // Leave room beneath the grid for overlays that other installed mods draw after this event.
+        int cellW=(width-24)/4,cellH=(height-72)/4;
         for(int i=0;i<PER_PAGE&&page*PER_PAGE+i<ITEMS.size();i++) {
             ItemStack stack=ITEMS.get(page*PER_PAGE+i);
             int x=12+(i%4)*cellW,y=43+(i/4)*cellH;
             g.fill(x,y,x+cellW-6,y+cellH-5,0xff392a40);
             if(DIRECT.contains(BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath()))g.fill(x,y,x+cellW-6,y+2,0xffffd481);
             g.pose().pushPose();g.pose().translate(x+5,y+5,0);g.pose().scale(1.8f,1.8f,1);g.renderItem(stack,0,0);g.pose().popPose();
-            String name=stack.getHoverName().getString();
             int textX=x+39,space=cellW-46;
-            String first=mc.font.plainSubstrByWidth(name,space);
-            String second=mc.font.plainSubstrByWidth(name.substring(first.length()).stripLeading(),space);
-            g.drawString(mc.font,first,textX,y+8,0xffffffff,false);
-            if(!second.isEmpty())g.drawString(mc.font,second,textX,y+19,0xffedc6da,false);
+            var lines=mc.font.split(Component.literal(stack.getHoverName().getString()),Math.max(1,(int)(space/.8f)));
+            g.pose().pushPose();g.pose().translate(textX,y+5,0);g.pose().scale(.8f,.8f,1);
+            for(int line=0;line<Math.min(lines.size(),4);line++)g.drawString(mc.font,lines.get(line),0,line*10,0xffffffff,false);
+            g.pose().popPose();
         }
         if(!captured&&ticks>=4){
             g.flush();captured=true;

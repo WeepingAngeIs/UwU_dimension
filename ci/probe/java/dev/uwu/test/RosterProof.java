@@ -77,7 +77,7 @@ final class RosterProof {
         require(direct.size()==32,"Wrong direct counter count: "+direct.size());
         require(directMechanics.equals(allMechanics),"A unique school/shape/theme/runic combination is absent from direct acquisition");
         for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")) {
-            var stream=RosterProof.class.getResourceAsStream("/data/uwudimension/loot_table/chests/"+name+".json");
+            var stream=CounterArsenal.class.getResourceAsStream("/data/uwudimension/loot_table/chests/"+name+".json");
             require(stream!=null,"Missing loot table "+name);
             var found=new HashSet<String>();int weight=0;
             try(var reader=new InputStreamReader(stream,StandardCharsets.UTF_8)) {

@@ -42,6 +42,8 @@ with zipfile.ZipFile(sys.argv[1]) as jar:
         for override in model.get("overrides", []):
             inspect_model(override["model"])
 
-    for weapon in ids + ["glitch_bow", "heart_launcher", "bell_hammer"]:
+    tools = [material + "_" + kind for material in ("silver", "roseglass", "vesper_opal")
+             for kind in ("pickaxe", "axe", "shovel", "hoe")]
+    for weapon in ids + ["glitch_bow", "heart_launcher", "bell_hammer"] + tools:
         inspect_model("uwudimension:item/" + weapon)
-    print(f"ROSTER ASSET PASS {len(ids) + 3} item models; {len(visited)} model dependencies and {len(ids)} stable Glitch overrides")
+    print(f"ROSTER ASSET PASS {len(ids) + 3 + len(tools)} item models; {len(visited)} model dependencies and {len(ids)} stable Glitch overrides")
