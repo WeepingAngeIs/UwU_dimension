@@ -67,7 +67,7 @@ public final class ArsenalCamera {
             state="shooting";ticks=0;return;
         }
         if(state.equals("shooting")){
-            if(index==4&&ticks==22){mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);}
+            if((index==3&&ticks==18)||(index==4&&ticks==22)){mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);}
             boolean visible=false;
             for(Entity e:mc.level.entitiesForRendering())if((index<2&&e instanceof RibbonLash&&e.tickCount>=3&&e.tickCount<=7)||((index==2||index==3)&&e instanceof RelicFlight f&&f.tickCount>=2&&f.tickCount<=9&&f.wave()==(index==2)))visible=true;
             if(index==4&&ticks>=24&&ticks<=29)visible=mc.player.getMainHandItem().has(net.minecraft.core.component.DataComponents.CUSTOM_DATA);

@@ -24,7 +24,9 @@ final class EnvironmentCamera {
             BlockPos aim=site.pos(3,52,96);
             level.getChunkAt(eye); level.getChunkAt(aim);
             System.out.println("ENVIRONMENT SPRING BED PASS "+bed+" eye="+eye);
-            return new SeaWatch.View(Vec3.atCenterOf(eye),Vec3.atCenterOf(aim),name,false);
+            Vec3 camera=Vec3.atCenterOf(eye);
+            if(name.equals("spring-overlay")) camera=camera.add(0,-.3,0);
+            return new SeaWatch.View(camera,Vec3.atCenterOf(aim),name,false);
         }
         if(name.equals("giant-sakura")) return giant(player);
         return snow(player,name);

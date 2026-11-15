@@ -33,9 +33,18 @@ final class ToolAreaProof {
 
     @SuppressWarnings("unchecked")
     private static Map<UUID, ServerPlayer> playerMap(ServerLevel level) throws Exception {
-        var field = level.getServer().getPlayerList().getClass().getDeclaredField("playersByUUID");
-        field.setAccessible(true);
-        return (Map<UUID, ServerPlayer>)field.get(level.getServer().getPlayerList());
+        // The dedicated player list is a subclass and runtime field names can be mapped.
+        // Find the unique UUID-to-ServerPlayer map by its declared generic types instead.
+        for (var field : net.minecraft.server.players.PlayerList.class.getDeclaredFields()) {
+            if (!(field.getGenericType() instanceof java.lang.reflect.ParameterizedType type)
+                    || type.getRawType() != Map.class) continue;
+            var args = type.getActualTypeArguments();
+            if (args.length == 2 && args[0] == UUID.class && args[1] == ServerPlayer.class) {
+                field.setAccessible(true);
+                return (Map<UUID, ServerPlayer>)field.get(level.getServer().getPlayerList());
+            }
+        }
+        throw new NoSuchFieldException("PlayerList UUID-to-player map");
     }
 
     private static Item item(String name) {
@@ -107,6 +116,20 @@ final class ToolAreaProof {
                         new net.minecraft.world.phys.AABB(center).inflate(32)).stream()
                         .filter(e -> e.getItem().is(Items.COBBLESTONE)).mapToInt(e -> e.getItem().getCount()).sum();
                 require(drops >= 81, "Hammer failed to drop cobblestone for all 81 blocks: "+drops);
+                var entry = dev.uwu.dimension.CounterArsenal.ROSTER.stream()
+                        .filter(e -> e.shape().equals("hammer")).findFirst().orElseThrow();
+                Item counterHammer = dev.uwu.dimension.CounterArsenal.ITEMS.get(entry.id()).get();
+                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(counterHammer));
+                fill(level);
+                require(player.gameMode.destroyBlock(center), "Counter greathammer center break failed");
+                stage = 5;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 5 && ticks >= 18) {
+                require(remaining(level) == 0, "Counter greathammer failed to mine the 9 x 9 plane");
+                require(player.getMainHandItem().getDamageValue() == 81,
+                        "Counter greathammer durability did not match 81 breaks");
                 player.setShiftKeyDown(false);
                 Item launcher = item("heart_launcher");
                 require(launcher != Items.AIR, "Heart Launcher item missing");

@@ -1,0 +1,47 @@
+name: Sakura launcher visual proof
+on:
+  push:
+    branches: [feature/sakura-art-implementation]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  launcher:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      UWU_VISIT: launcher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Photograph launcher recoil from two camera views
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
+          printf 'particles:0\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee launcher-client.log
+          grep -F 'LAUNCHER CLIENT VIEWS PASS' launcher-client.log
+          grep -F 'LAUNCHER RECOIL PASS launcher-first-recoil' launcher-client.log
+          grep -F 'LAUNCHER RECOIL PASS launcher-third-recoil' launcher-client.log
+          test -s run/screenshots/launcher-first-recoil.png
+          test -s run/screenshots/launcher-third-recoil.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sakura-launcher-client
+          path: |
+            run/screenshots
+            run/logs/latest.log
+            run/crash-reports
+            launcher-client.log
+
