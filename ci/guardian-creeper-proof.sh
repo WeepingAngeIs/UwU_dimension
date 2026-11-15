@@ -11,7 +11,9 @@ printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-seed=152045\ndifficulty=hard\nview-distance=3\nsimulation-distance=3\nmax-tick-time=600000\n' > server.properties
 for run in first second third; do
   UWU_GUARDIAN_CREEPER=1 timeout 14m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "creeper-${run}.log"
+  case "$run" in
+    first) grep -F 'GUARDIAN CREEPER AI PASS' "creeper-${run}.log" ;;
+    second) grep -F 'GUARDIAN CREEPER RESTART PASS' "creeper-${run}.log" ;;
+    third) grep -F 'GUARDIAN CREEPER PERSISTENCE PASS' "creeper-${run}.log" ;;
+  esac
 done
-grep -F 'GUARDIAN CREEPER AI PASS' creeper-first.log
-grep -F 'GUARDIAN CREEPER RESTART PASS' creeper-second.log
-grep -F 'GUARDIAN CREEPER PERSISTENCE PASS' creeper-third.log

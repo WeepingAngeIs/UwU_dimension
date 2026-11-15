@@ -39,7 +39,24 @@ final class GuardianCreeperProof {
         var server=level.getServer();
         var source=server.createCommandSourceStack().withLevel(level).withPermission(4);
         int result=server.getCommands().getDispatcher().execute("uwuguardian creeperaggro "+enabled,source);
-        check(result==1&&GuardianTargeting.creeperAggroOn(level)==enabled,"admin toggle command failed");
+        check(result==(enabled?1:0)&&GuardianTargeting.creeperAggroOn(level)==enabled,"admin toggle command failed");
+    }
+
+    private static String diagnostic(ServerLevel level){
+        var out=new StringBuilder();
+        for(int i=0;i<creepers.size();i++){
+            var c=creepers.get(i);var g=guardians.get(i);
+            out.append("\\n case=").append(i).append(" creepAlive=").append(c.isAlive())
+                .append(" removed=").append(c.isRemoved()).append(" ticks=").append(c.tickCount)
+                .append(" creepPos=").append(c.position()).append(" target=").append(c.getTarget())
+                .append(" guardAlive=").append(g.isAlive()).append(" guardRemoved=").append(g.isRemoved())
+                .append(" guardPos=").append(g.position()).append(" distance=").append(c.distanceTo(g))
+                .append(" lineOfSight=").append(c.getSensing().hasLineOfSight(g))
+                .append(" canAttack=").append(c.canAttack(g)).append(" aggro=").append(GuardianTargeting.creeperAggroOn(level))
+                .append(" targetGoals=").append(c.targetSelector.getAvailableGoals().stream()
+                    .map(goal->goal.getGoal().getClass().getName()+":running="+goal.isRunning()).toList());
+        }
+        return out.toString();
     }
 
     static boolean tick(ServerLevel level)throws Exception {
@@ -102,7 +119,10 @@ final class GuardianCreeperProof {
         if(stage==2){
             boolean all=true;
             for(int i=0;i<4;i++)if(creepers.get(i).getTarget()!=guardians.get(i))all=false;
-            if(!all){check(level.getGameTime()<deadline,"enabled natural AI did not acquire each guardian variant");return false;}
+            if(!all){
+                if(level.getGameTime()>=deadline)throw new AssertionError("Guardian creeper: enabled natural AI did not acquire each guardian variant"+diagnostic(level));
+                return false;
+            }
             // Wait for the actual swelling goal to start, then turn protection back on.
             if(creepers.stream().anyMatch(c->c.getSwellDir()<=0)){
                 check(level.getGameTime()<deadline,"guardian-targeted creepers never began swelling");return false;
