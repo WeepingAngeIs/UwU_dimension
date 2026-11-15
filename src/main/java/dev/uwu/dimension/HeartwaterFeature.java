@@ -71,6 +71,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         var level=context.level().getLevel();
         if (!ReefLife.isSettlementRealm(level)) return false;
         boolean strata = !surface && SakuraStrata.decorate(context.level(), context.origin(), context.random());
+        if(!surface)strata |= Understory.decorate(context.level(),context.origin());
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
         if(!site.usable())return strata;
@@ -159,8 +160,11 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             // Place doors, foundations and the spring bank before vanilla grows its cherry trees.
             // Later tree placements therefore see final ground, and never get amputated by grading.
 
-            if(overlaps(-166,-125,166,-6)) {
-                for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->BlossomVillage.place(this,p));
+            if(overlaps(-211,-205,211,35)) {
+                for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->{
+                    BlossomVillage.place(this,p);
+                    MoonveilTreehouse.plan(level.getLevel(),p).ifPresent(tree->MoonveilTreehouse.place(this,tree));
+                });
             }
             if(GroveSites.adventure(level.getLevel(),site))falls();
         }

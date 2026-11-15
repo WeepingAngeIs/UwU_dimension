@@ -10,6 +10,22 @@
     "uwudimension:heartbloom_sapling",
     "uwudimension:starpetal_sapling",
     "uwudimension:moonberry_sapling",
-    "#uwudimension:architecture/mineable_axe"
+    "#uwudimension:architecture/mineable_axe",
+    "uwudimension:moonveil_log",
+    "uwudimension:moonveil_wood",
+    "uwudimension:stripped_moonveil_log",
+    "uwudimension:stripped_moonveil_wood",
+    "uwudimension:moonveil_planks",
+    "uwudimension:moonveil_stairs",
+    "uwudimension:moonveil_slab",
+    "uwudimension:moonveil_fence",
+    "uwudimension:moonveil_fence_gate",
+    "uwudimension:moonveil_door",
+    "uwudimension:moonveil_trapdoor",
+    "uwudimension:moonveil_button",
+    "uwudimension:moonveil_pressure_plate",
+    "uwudimension:moonveil_table",
+    "uwudimension:moonveil_stool",
+    "uwudimension:moonveil_bookshelf"
   ]
 }

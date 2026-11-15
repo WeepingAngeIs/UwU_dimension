@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "result": {
+    "id": "uwudimension:moonveil_stool",
+    "count": 1
+  },
+  "pattern": [
+    " V ",
+    "S S"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "V": {
+      "item": "uwudimension:moonveil_slab"
+    }
+  }
+}

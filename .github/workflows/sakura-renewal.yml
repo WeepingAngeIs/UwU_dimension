@@ -23,6 +23,7 @@ jobs:
           cache-read-only: false
       - run: ./gradlew build --stacktrace
       - run: python3 ci/renewal-assets.py build/libs/UwU-Dimension-*.jar
+      - run: python3 ci/moonveil-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
           name: UwU-Dimension-1.5.0-beta.2
@@ -94,7 +95,7 @@ jobs:
           for frame in arrival armor-gallery village female-guardian cupid-{right,left}-{rest,early,middle,full} cupid-arrow-flight cupid-impact-outline blush-reef roseglass-cavern moonwake-trench sakura-night mirror-court; do test -s "run/screenshots/$frame.png"; done
           grep -F 'SAKURA PANTRY REAL ITEMS PASS' client-visit.log
           for frame in pantry-inventory-{1,2,3} pantry-tooltip-{starfruit,cake} pantry-held-{starfruit,ice-cream}; do test -s "run/screenshots/$frame.png"; done
-          for frame in owl-guardians owl-guardian-family owl-keepers owl-expression owl-eye-{open,half,closed} mistgrass-shore rainbow-riverbed crop-growth crop-detail lantern-front lantern-side relic-rack architecture-{petal-joinery,dusk-joinery,entrance,bathhouse,archive,court,shrine}; do test -s "run/screenshots/$frame.png"; done
+          for frame in petal-understory dusk-understory treehouse-{petal,dusk}-{exterior,interior} owl-guardians owl-guardian-family owl-keepers owl-expression owl-eye-{open,half,closed} mistgrass-shore rainbow-riverbed crop-growth crop-detail lantern-front lantern-side relic-rack architecture-{petal-joinery,dusk-joinery,entrance,bathhouse,archive,court,shrine}; do test -s "run/screenshots/$frame.png"; done
           for frame in cupid-shoulder-{left,right}-{rest,early,middle,full} cupid-first-{rest,full}-{front,edge} cupid-third-{rest,full}-{front,side,edge}; do test -s "run/screenshots/$frame.png"; done
       - uses: actions/upload-artifact@v4
         if: always()

@@ -30,14 +30,30 @@ import org.joml.Vector3f;
 public final class NetworkCupid {
     public static final boolean ACTIVE="network-cupid".equals(System.getenv("UWU_VISIT"));
     private static final String HEART="dev.uwu.dimension.CupidParticleClient$Heart";
-    private static final String OUTLINE="dev.uwu.dimension.CupidParticleClient$Outline";
+    private static final String OUTLINE="dev.uwu.dimension.CupidParticleClient$Ripple";
     private enum Phase { MENU, LOAD, DRAW, FLY, CLEAR, FAMILY, FINISH }
     private static Phase phase=Phase.MENU;
-    private static int ticks,shot,drawPackets,trailPackets,impactPackets;
+    private static int ticks,shot,drawPackets,trailPackets,impactPackets,chargePings,impactPings;
+    private static final class Progress{
+        float min=Float.MAX_VALUE,max=0,bright=0,faint=1;
+        boolean observe(float size,float alpha){
+            min=Math.min(min,size);max=Math.max(max,size);bright=Math.max(bright,alpha);faint=Math.min(faint,alpha);
+            return max-min>.18F && bright-faint>.025F;
+        }
+    }
+    private static Progress chargeGrowth=new Progress(),impactGrowth=new Progress();
+    public static void sound(net.minecraft.network.protocol.game.ClientboundSoundPacket packet){
+        if(!ACTIVE || (phase!=Phase.DRAW && phase!=Phase.FLY)
+                || !net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.getKey(packet.getSound().value()).toString().equals("uwudimension:cupid.ripple"))return;
+        if(packet.getSource()!=net.minecraft.sounds.SoundSource.PLAYERS)throw new AssertionError("Wrong Cupid ping channel");
+        if(Math.abs(packet.getVolume()-.30F)<.002F)chargePings++;
+        else if(Math.abs(packet.getVolume()-.19F)<.002F)impactPings++;
+        else throw new AssertionError("Unexpected original spatial ping volume "+packet.getVolume());
+    }
     private static final float[][] familyMeasurements=new float[4][];
     private static boolean drawPhoto,trailPhoto,impactPhoto;
     private static long started;
-    private record Quad(float x,float y,float z,float size,boolean outline) {}
+    private record Quad(float x,float y,float z,float size,float alpha,boolean outline) {}
     private static final List<Quad> quads=new ArrayList<>();
 
     public static void received(ClientboundLevelParticlesPacket packet) {
@@ -54,7 +70,7 @@ public final class NetworkCupid {
         if(phase!=Phase.DRAW && phase!=Phase.FLY) return;
         String type=particle.getClass().getName();
         if(type.equals(HEART) || type.equals(OUTLINE))
-            quads.add(new Quad(x,y,z,particle.getQuadSize(partial),type.equals(OUTLINE)));
+            quads.add(new Quad(x,y,z,particle.getQuadSize(partial),((dev.uwu.test.mixin.CupidOpacity)particle).uwuProbeOpacity(),type.equals(OUTLINE)));
     }
 
     @SubscribeEvent public static void beginFrame(RenderFrameEvent.Pre event) {
@@ -102,10 +118,20 @@ public final class NetworkCupid {
                 int x=(int)Math.round(pixels.getWidth()*.5-offset.dot(camera.getLeftVector())*scale/depth);
                 int y=(int)Math.round(pixels.getHeight()*.5-offset.dot(camera.getUpVector())*scale/depth);
                 int r=(int)Math.ceil(q.size*scale/depth)+3;
-                if(!pink(pixels,x,y,r)) continue;
-                if(q.outline) outlineSeen++;
-                else if(depth<=1.5) drawSeen++;
-                else if(depth>=4) trailSeen++;
+                if(q.outline){
+                    int hits=0;
+                    double radius=q.size*scale/depth;
+                    // Probe the actual lobes, sides and point. The shader need only supply one real hollow quad.
+                    for(int sample=0;sample<24;sample++){
+                        double a=Math.PI*sample/12;
+                        double px=16*Math.pow(Math.sin(a),3)*1.74/32.0;
+                        double py=(26.8-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*1.64-31.5)/32.0;
+                        if(pink(pixels,(int)Math.round(x+px*radius),(int)Math.round(y+py*radius),Math.max(2,(int)Math.ceil(radius*.052))))hits++;
+                    }
+                    if(hits<7)continue;
+                    if(depth<3.2 && phase==Phase.DRAW && chargeGrowth.observe(q.size,q.alpha))drawSeen=hits;
+                    if(depth>=4 && phase==Phase.FLY && impactGrowth.observe(q.size,q.alpha))outlineSeen=hits;
+                }else if(depth>=4&&pink(pixels,x,y,r))trailSeen++;
             }
             if(takeDraw && drawSeen>0) {
                 save(mc,pixels,"draw");drawPhoto=true;
@@ -114,7 +140,7 @@ public final class NetworkCupid {
                 save(mc,pixels,"trail");trailPhoto=true;
             }
             // Require a group of distinct locations on the actually drawn perimeter.
-            if(takeImpact && outlineSeen>=8) {
+            if(takeImpact && outlineSeen>=7) {
                 save(mc,pixels,shot==0?"entity-impact":"block-impact");impactPhoto=true;
                 System.out.println("NETWORK CUPID VISIBLE OUTLINE | pink pixel regions="+outlineSeen);
             }
@@ -172,9 +198,12 @@ public final class NetworkCupid {
                 mc.gameMode.releaseUsingItem(mc.player);
             }
         } else if(phase==Phase.FLY && impactPhoto && trailPhoto && ticks>=12) {
-            if(drawPackets!=1 || impactPackets!=1 || trailPackets<1)
+            if(drawPackets!=1 || impactPackets!=1 || trailPackets<1 || chargePings!=1 || impactPings!=1)
                 throw new AssertionError("Missing or repeated remote cues");
             System.out.println("NETWORK CUPID SHOT PASS "+(shot+1)+" draw="+drawPackets+" trail="+trailPackets+" outline="+impactPackets);
+            System.out.println("NETWORK CUPID RIPPLE PASS shot="+(shot+1)+" chargeSize="+chargeGrowth.min+".."+chargeGrowth.max
+                    +" impactSize="+impactGrowth.min+".."+impactGrowth.max+" impactAlpha="+impactGrowth.bright+".."+impactGrowth.faint
+                    +" spatialPings="+chargePings+"/"+impactPings);
             phase=Phase.CLEAR;ticks=0;
         } else if(phase==Phase.CLEAR && ticks>60) {
             if(shot==0) {shot=1;beginShot(mc);}
@@ -197,7 +226,8 @@ public final class NetworkCupid {
     }
 
     private static void beginShot(Minecraft mc) {
-        ticks=drawPackets=trailPackets=impactPackets=0;
+        ticks=drawPackets=trailPackets=impactPackets=chargePings=impactPings=0;
+        chargeGrowth=new Progress();impactGrowth=new Progress();
         drawPhoto=trailPhoto=impactPhoto=false;
         phase=Phase.DRAW;
         mc.options.hideGui=false;

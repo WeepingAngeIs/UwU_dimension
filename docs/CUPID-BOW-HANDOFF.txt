@@ -22,7 +22,7 @@ src/main/java/dev/uwu/dimension/CupidRarity.java
   apply resolves the optional apotheosis:rarity component and sets its default to apotheosis:mythic through the component's own codec. hasMythicPresentation checks the actual stack's component before displaying the Mythic line. The hook is registered in src/main/java/dev/uwu/dimension/UwUDimension.java. Apotheosis 8.9.0's AffixItemEffectRenderer calls AffixHelper.getRarity on the dropped stack and checks whether its holder is bound. The mod can load without Apotheosis.
 
 src/main/java/dev/uwu/dimension/HeartArrow.java
-  fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. On an entity hit CupidEffects.impact draws a heart outline above the target. onHitBlock draws the same outline just outside the struck face. Rippleglass shares this entity and has its own behavior.
+  fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. On an entity hit CupidEffects.impact draws one expanding heart around the target. onHitBlock draws the same outline just outside the struck face. Rippleglass shares this entity and has its own behavior.
 
 src/main/java/dev/uwu/dimension/HeartMagic.java
   charm handles eligible mobs, saves their previous target if present, and sets an 800-tick (40-second) expiry. The LivingEntity overload dispatches player hits to CupidMinions. friendly, filterTarget, protectKeeper and tick govern ownership, combat protection and charmed mob behavior. Look up the uwudimension:charm_immune entity-type tag for data-driven exceptions.
@@ -34,7 +34,7 @@ src/main/java/dev/uwu/dimension/CupidMinionClient.java
   Sends left-click designation requests and applies the server's steering instructions to the charmed player's client.
 
 src/main/java/dev/uwu/dimension/CupidEffects.java
-  Tracks a full draw once per player and positions one hollow heart beside the used hand. A canceled partial draw gives no charge cue. The arrow trail is one small hollow heart per eligible interval. An entity impact sends a single cue per viewer within their Sakura effects distance (2 to 24 blocks, default 24). Each client draws the perimeter using 8, 16, or 32 small hearts according to effects preference and distance. The shape faces that viewer and sits above the target's head. Shared world lighting still marks the impact.
+  Sends one spatial ripple to each nearby viewer when the archer first reaches full draw. A short canceled draw gives no ripple. The same heart expands at the impact on a creature or a block. The transparent center leaves the target visible. A viewer standing inside the ripple sees its perimeter projected ahead of their eyes. Each animation uses one particle; brightness, extent, lifetime and sound volume adapt to the viewer's settings. The normal sound volumes are 0.30 on charge and 0.19 on impact. The traveling arrow still leaves small hollow hearts behind it. Each viewer's distance limit is 2 to 24 blocks. Shared world lighting still marks the impact.
 
 src/main/java/dev/uwu/dimension/CupidParticles.java
 src/main/java/dev/uwu/dimension/CupidParticleClient.java
@@ -42,7 +42,8 @@ src/main/resources/assets/uwudimension/particles/pastel_heart.json
 src/main/resources/assets/uwudimension/particles/cupid_draw_heart.json
 src/main/resources/assets/uwudimension/particles/cupid_impact_outline.json
 src/main/resources/assets/uwudimension/textures/particle/pastel_heart.png
-  Define the three cues, the transparent-center pastel heart sprite, gentle rise and fade. The renewal branch sets the base quad size to 0.15 instead of 0.43. Arrow trails, impacts and charm pulses honor the viewer's Sakura effects setting; Quiet retains the full-draw cue and the impact silhouette. The dropped bow has its own gold effect.
+src/main/resources/assets/uwudimension/textures/particle/cupid_ripple.png
+  Define the three cues, a 64-pixel hollow expanding ripple and the gently rising trail. The renewal branch sets the base quad size to 0.15 instead of 0.43. Arrow trails, impacts and charm pulses honor the viewer's Sakura effects setting; Quiet retains the full-draw cue and the impact silhouette. The dropped bow has its own gold effect.
 
 src/main/java/dev/uwu/dimension/HeartCombatGlow.java
 src/main/java/dev/uwu/dimension/HeartFlashLightBlock.java

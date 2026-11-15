@@ -76,7 +76,7 @@ public final class HeartArrow extends Arrow {
             else {
                 HeartCombatGlow.illuminate(server,hit.getLocation(),.9);
                 Vec3 at=hit.getLocation();
-                CupidEffects.impact(server,at.add(Vec3.atLowerCornerOf(hit.getDirection().getNormal()).scale(.35)).add(0,.65,0));
+                CupidEffects.impact(server,at.add(Vec3.atLowerCornerOf(hit.getDirection().getNormal()).scale(.19)));
             }
             if (getOwner() instanceof Player player) burst(server, hit.getLocation(), player);
             discard();

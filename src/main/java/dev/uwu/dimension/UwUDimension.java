@@ -17,6 +17,9 @@ public final class UwUDimension {
     static final java.util.function.Supplier<Item> LOCKET = ITEMS.register("heartwater_locket", () -> new HeartwaterLocket());
     static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, "uwudimension");
 
+    static final java.util.function.Supplier<SoundEvent> CUPID_RIPPLE = SOUNDS.register("cupid.ripple",
+            () -> SoundEvent.createVariableRangeEvent(id("cupid.ripple")));
+
     public UwUDimension(IEventBus bus, net.neoforged.fml.ModContainer container) {
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,AcquisitionPolicy.SPEC,"uwudimension-server.toml");
         bus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Loading event) -> {
@@ -34,6 +37,8 @@ public final class UwUDimension {
         ReachLife.register(bus);
         SakuraCraft.register(bus);
         SakuraMaterials.register(bus);
+        MoonveilWood.register(bus);
+        Understory.register(bus);
         ReachArchitecture.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));

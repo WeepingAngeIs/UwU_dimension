@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#uwudimension:architecture/wooden_slabs"
+    "#uwudimension:architecture/wooden_slabs",
+    "uwudimension:moonveil_slab"
   ]
 }

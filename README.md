@@ -91,3 +91,11 @@ Values are health points before armor or outside modifiers. Two points equal one
 The source project includes the Gradle wrapper. With a Java 21 JDK, run `./gradlew build` or `gradlew.bat build`. The playable JAR appears in `build/libs`. To run the dependency-matched development client, run `bash ci/get-mods.sh` from the project root, then `./gradlew runClient`. The download script verifies these JARs against checksums from the CurseForge profile.
 
 The [hosted renewal workflow](.github/workflows/sakura-renewal.yml) builds the distributable, launches a separate packaged NeoForge server with dependency checksums matched to the CurseForge profile, and launches a graphical Minecraft client on a GitHub-hosted Linux runner. Test code lives in `ci/probe` and ships separately from the playable JAR.
+
+## Moonveil treehouses and woodland plants
+
+Look just outside a newly generated Petal or Dusk settlement for a broad blue-leafed crown and a lit doorway in the roots. Two keepers of the local faction share the trunk. The ground floor holds the workshop. An interior staircase climbs to the bedroom floor and balcony. Moonveil logs can be stripped with an axe and crafted into boards, doors, stairs, and other fittings. The matching stool provides a seat, and the bookshelf powers a nearby enchanting table.
+
+The Petal woods have fine blue-teal turf and Dusk highlands have dusty violet turf. At foot level, short blades grow in tufts, tall grass has drooping seed heads, and the lace fern has feathered fronds. Look between them for star clover, rain bells, wood asters, and frost sorrel. Use shears to gather the grasses and ferns. Pick a flower by hand and craft it into dye.
+
+Spring, summer, and first-frost flower mixes vary by region. A region keeps its flowers as time passes. Data packs can change the mixtures through the `petal_*_blooms` and `dusk_*_blooms` block tags and the two `*_understory_land` biome tags. The decoration runs during new Sakura Reach chunk generation.

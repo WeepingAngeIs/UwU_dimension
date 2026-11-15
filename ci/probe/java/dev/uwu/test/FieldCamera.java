@@ -32,7 +32,7 @@ public final class FieldCamera {
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine","treehouse-petal-exterior","treehouse-petal-interior","treehouse-dusk-exterior","treehouse-dusk-interior","petal-understory","dusk-understory"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -63,6 +63,7 @@ public final class FieldCamera {
         if(name.startsWith("lantern-")||name.startsWith("crop-")||name.equals("relic-rack"))return WorkshopCamera.view(p,name);
         if(name.equals("pantry-gallery"))return new SeaWatch.View(view.eye(),view.subject(),name,false);
         if(name.equals("cupid-angles"))return new SeaWatch.View(view.eye(),view.subject(),name,false);
+        if(name.startsWith("treehouse-") || name.endsWith("-understory"))return TreehouseCamera.frame(p,name);
         if(name.equals("owl-guardian-family")) return GuardianFamilyCamera.frame(p,name);
         if(name.startsWith("owl-")) return OwlPortraits.frame(p,name);
         if(name.startsWith("cupid-") || name.equals("female-guardian")) return RelicPortraits.frame(p,name);

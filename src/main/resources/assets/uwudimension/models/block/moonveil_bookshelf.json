@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "uwudimension:block/moonveil_planks",
+    "side": "uwudimension:block/moonveil_bookshelf"
+  }
+}

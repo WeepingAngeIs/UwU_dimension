@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "result": {
+    "id": "uwudimension:moonveil_button",
+    "count": 1
+  },
+  "ingredients": [
+    {
+      "item": "uwudimension:moonveil_planks"
+    }
+  ]
+}

@@ -31,14 +31,21 @@ public final class SakuraMaterials {
     private static final List<Supplier<? extends Item>> BUILDING=new java.util.ArrayList<>();
     private static volatile Map<BlockState,BlockState> states;
 
-    public static final DeferredBlock<GrassBlock> GRASS=variant("sakura_grass_block",Blocks.GRASS_BLOCK,()->new GrassBlock(
-            BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK).mapColor(MapColor.COLOR_LIGHT_BLUE)) {
+    private static GrassBlock turf(MapColor mapColor){
+        return new GrassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK).mapColor(mapColor)) {
         @Override public BlockState getToolModifiedState(BlockState state,UseOnContext context,ItemAbility action,boolean simulate) {
             if(action==ItemAbilities.HOE_TILL || action==ItemAbilities.SHOVEL_FLATTEN)
                 return Blocks.GRASS_BLOCK.getToolModifiedState(Blocks.GRASS_BLOCK.defaultBlockState(),context,action,simulate);
             return super.getToolModifiedState(state,context,action,simulate);
         }
-    });
+        };
+    }
+    public static final DeferredBlock<GrassBlock> GRASS=variant("sakura_grass_block",Blocks.GRASS_BLOCK,()->turf(MapColor.COLOR_CYAN));
+    public static final DeferredBlock<GrassBlock> DUSK_GRASS=building("dusk_grass_block",()->turf(MapColor.COLOR_PURPLE));
+    public static final net.minecraft.tags.TagKey<Block> TURF=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,
+            ResourceLocation.fromNamespaceAndPath(MOD,"grove_turf"));
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.level.biome.Biome> DUSK_BIOMES=
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BIOME,ResourceLocation.fromNamespaceAndPath(MOD,"dusk_turf"));
     public static final DeferredBlock<ColoredFallingBlock> GRAVEL=variant("rainbow_gravel",Blocks.GRAVEL,()->
             new ColoredFallingBlock(new net.minecraft.util.ColorRGBA(0xFFC8B7CF), BlockBehaviour.Properties.ofFullCopy(Blocks.GRAVEL).mapColor(MapColor.COLOR_PINK)));
     public static final DeferredBlock<Block> STONE=stone("sakura_stone",Blocks.STONE);
@@ -111,6 +118,8 @@ public final class SakuraMaterials {
             try {
                 for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++){
                     var next=swaps.get(section.getBlockState(x,y,z));
+                    if(next!=null && next.is(GRASS.get()) && section.getNoiseBiome(x>>2,y>>2,z>>2).is(DUSK_BIOMES))
+                        next=DUSK_GRASS.get().withPropertiesOf(next);
                     if(next!=null)section.setBlockState(x,y,z,next,false);
                 }
             }finally{section.release();}

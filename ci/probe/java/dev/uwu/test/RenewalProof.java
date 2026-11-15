@@ -45,6 +45,7 @@ final class RenewalProof {
             ArchitectureProof.legacy(reach);
             CombatRenewalProof.resume(reach);
             GuardianFamilyDisk.restart(reach);
+            TreehouseProof.run(reach,true);
             System.out.println("SAKURA DISK RESTART PASS "+site);
             return;
         }
@@ -99,6 +100,8 @@ final class RenewalProof {
         exercise(issues, "guardian, projectiles and players", () -> CombatRenewalProof.run(reach));
         exercise(issues, "villages, projects and plants", () -> VillageRenewalProof.run(reach));
         exercise(issues, "new terrain and materials", () -> ReachMaterialsProof.run(reach));
+        exercise(issues, "Sakura native understory", () -> UnderstoryProof.run(reach));
+        exercise(issues, "Moonveil treehouses", () -> TreehouseProof.run(reach,false));
         exercise(issues, "original native architecture", () -> ArchitectureProof.run(reach));
         exercise(issues, "residents and eggs", () -> OwlResidentsProof.run(reach));
         exercise(issues, "crop-fed guardian family", () -> GuardianFamilyProof.run(reach));

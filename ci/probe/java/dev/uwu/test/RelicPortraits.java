@@ -203,10 +203,10 @@ public final class RelicPortraits {
             Entity subject=null;
             for(var entity:mc.level.entitiesForRendering()) if(entity.getUUID().equals(targetId)){subject=entity;break;}
             if(subject==null)return null;
-            focus=subject.position().add(0,subject.getBbHeight()+.38,0);
+            focus=subject.position().add(0,subject.getBbHeight()*.55,0);
             eye=focus.add(1,.1,2.9);
             if(impactCue!=null) {
-                if(impactCue.distanceToSqr(subject.position().add(0,subject.getBbHeight()+.82,0))>1)
+                if(impactCue.distanceToSqr(subject.position().add(0,subject.getBbHeight()*.55,0))>1)
                     throw new AssertionError("Cupid outline did not arrive at the photographed target");
                 impactFrames++;
             }

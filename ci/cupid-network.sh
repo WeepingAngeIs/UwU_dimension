@@ -32,6 +32,7 @@ cd "$root"
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx3000m
 timeout 18m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee "$world/client.log"
 grep -F 'NETWORK CUPID BOTH SERVER HITS PASS' "$world/server.log"
+test "$(grep -c 'NETWORK CUPID RIPPLE PASS' "$world/client.log")" = 2
 grep -F 'NETWORK CUPID VISUAL PASS' "$world/client.log"
 for frame in 1-draw 1-trail 1-entity-impact 2-draw 2-trail 2-block-impact; do
     test -s "run/screenshots/network-cupid-$frame.png"

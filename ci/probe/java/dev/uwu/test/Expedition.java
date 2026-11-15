@@ -55,6 +55,7 @@ public class Expedition {
                         return;
                     }
                     if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
+                    if (!TreehouseProof.ready(level,restart)) return;
                     try {
                         RenewalProof.run(level);
                     } catch (Throwable error) {

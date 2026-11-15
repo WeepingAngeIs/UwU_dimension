@@ -276,6 +276,15 @@ def check_jar(jar):
     image("entity/cupid_heart_arrow.png", (64, 64))
     for particle in ("pastel_heart", "cupid_impact_outline"):
         assert read(art + "particles/" + particle + ".json")["textures"]
+    for key in ("cupid_draw_heart","cupid_impact_outline"):
+        assert read(art + "particles/" + key + ".json")["textures"] == ["uwudimension:cupid_ripple"]
+    ripple=rgba_pixels(jar.read(art+"textures/particle/cupid_ripple.png"),64)
+    alpha=ripple[3::4]
+    assert 150 < sum(a>0 for a in alpha) < 650, "Ripple needs one thin perimeter"
+    assert not any(alpha[y*64+x] for y in range(24,40) for x in range(24,40)), "Ripple center must be fully transparent"
+    assert any(alpha[y*64+x] for y in range(6,18) for x in range(10,25)), "Left lobe"
+    assert any(alpha[y*64+x] for y in range(6,18) for x in range(40,55)), "Right lobe"
+    assert any(alpha[y*64+x] for y in range(52,59) for x in range(29,35)), "Heart point"
     for family in ("petalweave", "nightbriar"):
         for part in ("helmet", "chestplate", "leggings", "boots"):
             name = family + "_" + part

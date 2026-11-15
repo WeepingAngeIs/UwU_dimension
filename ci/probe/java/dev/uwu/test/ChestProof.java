@@ -44,7 +44,8 @@ public final class ChestProof {
         final ServerPlayer player;
         final EmbeddedChannel channel;
         int receivedPetalPackets;
-        int receivedCupidHearts, drawCues, impactCues, impactQuality;
+        int receivedCupidHearts, drawCues, impactCues, impactQuality, rippleSounds;
+        float lastRippleVolume;
         double impactY;
         Visitor(ServerLevel level, BlockPos near, String name, UUID id) {
             var profile = new GameProfile(id, name);
@@ -53,6 +54,11 @@ public final class ChestProof {
             channel = new EmbeddedChannel(wire);
             new ServerGamePacketListenerImpl(level.getServer(), wire, player, CommonListenerCookie.createInitial(profile, false)) {
                 @Override public void send(Packet<?> packet) {
+                    if(packet instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound
+                            && net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.getKey(sound.getSound().value()).toString().equals("uwudimension:cupid.ripple")){
+                        require(sound.getSource()==net.minecraft.sounds.SoundSource.PLAYERS,"Wrong spatial sound category");
+                        lastRippleVolume=sound.getVolume();rippleSounds++;
+                    }
                     if ((name.equals("Clover") || name.equals("Briar")) && packet instanceof net.minecraft.network.protocol.game.ClientboundSystemChatPacket chat)
                         System.out.println("CUPID WISH OUTPUT "+name+" "+chat.content().getString());
                     if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles

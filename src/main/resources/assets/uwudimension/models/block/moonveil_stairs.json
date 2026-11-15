@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "uwudimension:block/moonveil_planks",
+    "side": "uwudimension:block/moonveil_planks",
+    "top": "uwudimension:block/moonveil_planks"
+  }
+}

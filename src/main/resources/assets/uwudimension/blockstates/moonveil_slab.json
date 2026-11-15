@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "uwudimension:block/moonveil_slab"
+    },
+    "type=double": {
+      "model": "uwudimension:block/moonveil_planks"
+    },
+    "type=top": {
+      "model": "uwudimension:block/moonveil_slab_top"
+    }
+  }
+}

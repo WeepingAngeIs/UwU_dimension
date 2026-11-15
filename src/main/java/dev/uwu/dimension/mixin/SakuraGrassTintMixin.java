@@ -16,7 +16,12 @@ public abstract class SakuraGrassTintMixin {
     private static void uwu$turfColor(BlockAndTintGetter level,BlockPos pos,CallbackInfoReturnable<Integer> ci) {
         var clientLevel=net.minecraft.client.Minecraft.getInstance().level;
         if(clientLevel==null || !clientLevel.dimension().equals(dev.uwu.dimension.ReefLife.REACH))return;
-        if(level.getBlockState(pos.below()).is(SakuraMaterials.GRASS.get()))ci.setReturnValue(SakuraGrassColors.color(level,pos));
-        else if(level.getBlockState(pos.below(2)).is(SakuraMaterials.GRASS.get()))ci.setReturnValue(SakuraGrassColors.color(level,pos));
+        for(int offset=1;offset<=2;offset++){
+            var soil=level.getBlockState(pos.below(offset));
+            if(soil.is(SakuraMaterials.TURF)){
+                ci.setReturnValue(SakuraGrassColors.color(level,pos,soil.is(SakuraMaterials.DUSK_GRASS.get())));
+                return;
+            }
+        }
     }
 }

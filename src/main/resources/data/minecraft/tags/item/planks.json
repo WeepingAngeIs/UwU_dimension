@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#uwudimension:architecture/planks"
+    "#uwudimension:architecture/planks",
+    "uwudimension:moonveil_planks"
   ]
 }

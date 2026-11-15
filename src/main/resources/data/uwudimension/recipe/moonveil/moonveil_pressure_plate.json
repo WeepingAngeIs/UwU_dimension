@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "result": {
+    "id": "uwudimension:moonveil_pressure_plate",
+    "count": 1
+  },
+  "pattern": [
+    "PP"
+  ],
+  "key": {
+    "P": {
+      "item": "uwudimension:moonveil_planks"
+    }
+  }
+}

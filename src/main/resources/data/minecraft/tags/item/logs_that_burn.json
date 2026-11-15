@@ -3,6 +3,10 @@
   "values": [
     "uwudimension:heartbloom_log",
     "uwudimension:starpetal_log",
-    "uwudimension:moonberry_log"
+    "uwudimension:moonberry_log",
+    "uwudimension:moonveil_log",
+    "uwudimension:moonveil_wood",
+    "uwudimension:stripped_moonveil_log",
+    "uwudimension:stripped_moonveil_wood"
   ]
 }

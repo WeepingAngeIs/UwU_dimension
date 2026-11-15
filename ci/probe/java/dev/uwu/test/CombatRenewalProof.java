@@ -167,7 +167,8 @@ public final class CombatRenewalProof {
                     bow.getItem().onUseTick(level,owner,bow,duration-20);
                     bow.getItem().onUseTick(level,owner,bow,duration-20);
                     bow.getItem().onUseTick(level,owner,bow,duration-43);
-                    require(visitor.drawCues==draw+1 && observer.drawCues==draw+1, "Held full draw repeated its cue");
+                    require(visitor.drawCues==draw+1 && observer.drawCues==draw+1 && visitor.rippleSounds==draw+1 && observer.rippleSounds==draw+1
+                            && Math.abs(visitor.lastRippleVolume-.30F)<.001F, "Held full draw repeated its cue");
                     owner.stopUsingItem(); // Cancel each held draw without an arrow.
                 }
                 bow.use(level,owner,InteractionHand.MAIN_HAND);
@@ -176,7 +177,8 @@ public final class CombatRenewalProof {
                 require(visitor.drawCues==2 && observer.drawCues==2 && visitor.impactCues==0, "Canceled short draw flashed");
                 shootAt(level, owner, bow);
                 require(visitor.drawCues==3 && observer.drawCues==3 && visitor.impactCues==1 && observer.impactCues==1
-                        && visitor.impactQuality==2 && observer.impactQuality==2 && visitor.impactY>target.getEyeY()+.65,
+                        && visitor.impactQuality==2 && observer.impactQuality==2 && Math.abs(visitor.impactY-(target.getY()+target.getBbHeight()*.55))<.02
+                        && visitor.rippleSounds==4 && observer.rippleSounds==4 && Math.abs(visitor.lastRippleVolume-.19F)<.001F,
                         "Rapid release/draw, shared heart outline, or first-person clearance failed");
                 var watcherPrefs = watcher.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
                 watcherPrefs.putInt("sakura_distance",2);
@@ -195,7 +197,8 @@ public final class CombatRenewalProof {
                 shootAt(level, owner, bow);
                 int quietHearts = visitor.receivedCupidHearts - fullHearts;
                 require(fullHearts>0 && quietHearts<=fullHearts && visitor.impactCues==2 && visitor.impactQuality==0
-                        && observer.impactCues==1 && observer.drawCues==3 && visitor.drawCues==4,
+                        && observer.impactCues==1 && observer.drawCues==3 && visitor.drawCues==4 && observer.rippleSounds==4 && visitor.rippleSounds==6
+                        && visitor.lastRippleVolume<.19F,
                         "Quiet impact outline, rapid redraw, or distant viewer filter failed");
                 System.out.println("SAKURA CUPID HEARTS PASS fullTrail="+fullHearts+" quietTrail="+quietHearts
                         +" impacts="+visitor.impactCues+" fullDrawCues="+visitor.drawCues+" distant="+(observer.impactCues-1));

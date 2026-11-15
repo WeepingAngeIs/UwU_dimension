@@ -172,6 +172,7 @@ public final class Keeper extends Villager {
     @Override
     public void aiStep() {
         if (level() instanceof ServerLevel server) {
+            MoonveilTreehouse.settle(this,server);
             long now = server.getGameTime();
             if (village != null && !checkedVillageSites) {
                 checkedVillageSites = true;

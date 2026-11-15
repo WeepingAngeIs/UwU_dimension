@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#uwudimension:architecture/wooden_trapdoors"
+    "#uwudimension:architecture/wooden_trapdoors",
+    "uwudimension:moonveil_trapdoor"
   ]
 }

@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#uwudimension:architecture/wooden_fences"
+    "#uwudimension:architecture/wooden_fences",
+    "uwudimension:moonveil_fence"
   ]
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "uwudimension:block/moonveil_leaves"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:petal_short_grass",
+    "uwudimension:petal_tall_grass",
+    "uwudimension:petal_lace_fern",
+    "uwudimension:petal_star_clover",
+    "uwudimension:petal_rain_bell",
+    "uwudimension:petal_wood_aster",
+    "uwudimension:petal_frost_sorrel"
+  ]
+}

@@ -27,6 +27,8 @@ public final class SettlementLayout extends SavedData {
     private static final Map<ServerLevel,SettlementLayout> ACTIVE=java.util.Collections.synchronizedMap(new WeakHashMap<>());
     private static final Pattern REGION=Pattern.compile("r\\.(-?\\d+)\\.(-?\\d+)\\.mca");
     private final Map<Long,BitSet> previous=new HashMap<>();
+    private final Map<Long,BitSet> beforeTreehouses=new HashMap<>();
+    private boolean treehouseSnapshot;
     private final Map<Long,Integer> legacySites=new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> oldCells=new HashSet<>();
     private int distance;
@@ -34,11 +36,17 @@ public final class SettlementLayout extends SavedData {
     static void load(LevelEvent.Load event) {
         if(!(event.getLevel() instanceof ServerLevel level)||!ReefLife.isSettlementRealm(level))return;
         var data=level.getDataStorage().computeIfAbsent(FACTORY,"uwudimension_native_settlements");
+        var root=level.getServer().getWorldPath(LevelResource.ROOT);
+        var dim=level.dimension().location();
+        var regions=root.resolve("dimensions").resolve(dim.getNamespace()).resolve(dim.getPath()).resolve("region");
         if(data.distance==0){
             data.distance=AcquisitionPolicy.SETTLEMENT_DISTANCE.get();
-            var root=level.getServer().getWorldPath(LevelResource.ROOT);
-            var dim=level.dimension().location();
-            data.indexPrevious(root.resolve("dimensions").resolve(dim.getNamespace()).resolve(dim.getPath()).resolve("region"));
+            indexPrevious(regions,data.previous);
+            data.setDirty();
+        }
+        if(!data.treehouseSnapshot){
+            indexPrevious(regions,data.beforeTreehouses);
+            data.treehouseSnapshot=true;
             data.setDirty();
         }
         data.previous.forEach((key,bits)->{
@@ -52,7 +60,7 @@ public final class SettlementLayout extends SavedData {
         ACTIVE.put(level,data);
     }
 
-    private void indexPrevious(Path region) {
+    private static void indexPrevious(Path region,Map<Long,BitSet> snapshot) {
         if(!Files.isDirectory(region))return;
         // Read only the location headers (4 KiB per old region) exactly once. No saved
         // chunk or entity is loaded, rewritten, or marked dirty by this migration.
@@ -66,7 +74,7 @@ public final class SettlementLayout extends SavedData {
                     bytes.flip();
                     var bits=new BitSet(1024);
                     for(int i=0;bytes.remaining()>=4;i++) if(bytes.getInt()!=0)bits.set(i);
-                    if(!bits.isEmpty())previous.put(ChunkPos.asLong(Integer.parseInt(name.group(1)),Integer.parseInt(name.group(2))),bits);
+                    if(!bits.isEmpty())snapshot.put(ChunkPos.asLong(Integer.parseInt(name.group(1)),Integer.parseInt(name.group(2))),bits);
                 }
             }
         }catch(IOException error){throw new IllegalStateException("Could not index saved Sakura village lots in "+region,error);}
@@ -74,6 +82,14 @@ public final class SettlementLayout extends SavedData {
     private boolean oldChunk(int x,int z){
         var bits=previous.get(ChunkPos.asLong(x>>5,z>>5));
         return bits!=null && bits.get((x&31)+32*(z&31));
+    }
+    static boolean untouchedForTreehouse(ServerLevel level,int x1,int z1,int x2,int z2) {
+        var snapshot=active(level).beforeTreehouses;
+        for(int x=x1>>4;x<=(x2>>4);x++)for(int z=z1>>4;z<=(z2>>4);z++){
+            var bits=snapshot.get(ChunkPos.asLong(x>>5,z>>5));
+            if(bits!=null && bits.get((x&31)+32*(z&31)))return false;
+        }
+        return true;
     }
     private int legacyMask(ServerLevel level,GroveSites.Site site) {
         if(!oldCells.contains(ChunkPos.asLong(site.gx(),site.gz())))return 0;
@@ -143,6 +159,9 @@ public final class SettlementLayout extends SavedData {
         data.distance=tag.getInt("Spacing");
         var index=tag.getCompound("Existing");
         for(String key:index.getAllKeys())data.previous.put(Long.parseLong(key),BitSet.valueOf(index.getLongArray(key)));
+        data.treehouseSnapshot=tag.getBoolean("TreehouseSnapshot");
+        var trees=tag.getCompound("BeforeTreehouses");
+        for(String key:trees.getAllKeys())data.beforeTreehouses.put(Long.parseLong(key),BitSet.valueOf(trees.getLongArray(key)));
         return data;
     }
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries){
@@ -150,6 +169,10 @@ public final class SettlementLayout extends SavedData {
         var index=new CompoundTag();
         previous.forEach((key,bits)->index.putLongArray(Long.toString(key),bits.toLongArray()));
         tag.put("Existing",index);
+        tag.putBoolean("TreehouseSnapshot",treehouseSnapshot);
+        var trees=new CompoundTag();
+        beforeTreehouses.forEach((key,bits)->trees.putLongArray(Long.toString(key),bits.toLongArray()));
+        tag.put("BeforeTreehouses",trees);
         return tag;
     }
 }

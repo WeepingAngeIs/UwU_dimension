@@ -13,8 +13,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 @EventBusSubscriber(modid="uwudimension", bus=EventBusSubscriber.Bus.MOD, value=Dist.CLIENT)
 public final class CupidParticleClient {
@@ -22,9 +20,9 @@ public final class CupidParticleClient {
         event.registerSpriteSet(CupidParticles.PASTEL_HEART.get(), sprites ->
                 (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.15F,18));
         event.registerSpriteSet(CupidParticles.DRAW_HEART.get(), sprites ->
-                (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.16F,18));
+                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality)));
         event.registerSpriteSet(CupidParticles.IMPACT_OUTLINE.get(), sprites ->
-                (type, level, x,y,z, quality,dy,dz) -> new Outline(level,x,y,z,sprites,(int)Math.round(quality)));
+                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality)));
     }
 
     private static class Heart extends TextureSheetParticle {
@@ -50,41 +48,36 @@ public final class CupidParticleClient {
         }
     }
 
-    /** One particle engine entry draws a heart perimeter facing this viewer's camera. */
-    private static final class Outline extends Heart {
-        private static final float[][] SHAPE = {
-                {0,.23F},{-.17F,.43F},{-.37F,.52F},{-.55F,.47F},{-.67F,.30F},{-.67F,.12F},
-                {-.60F,-.04F},{-.40F,-.26F},{0,-.61F},{.40F,-.26F},{.60F,-.04F},{.67F,.12F},
-                {.67F,.30F},{.55F,.47F},{.37F,.52F},{.17F,.43F},{0,.23F}};
-        private final int stride;
-
-        Outline(ClientLevel level,double x,double y,double z,SpriteSet sprites,int quality) {
-            super(level,x,y,z,sprites,quality<=0 ? .085F : .10F,quality<=0 ? 17 : 22);
-            stride = quality<=0 ? 2 : 1;
-            midpoint = quality >= 2;
+    /** One textured quad with hollow lobes and two transparent sides of the heart contour. */
+    private static final class Ripple extends TextureSheetParticle {
+        private final float expansion,opacity;
+        Ripple(ClientLevel level,double x,double y,double z,SpriteSet sprites,int quality) {
+            super(level,x,y,z);
+            quality=Mth.clamp(quality,0,2);
+            pickSprite(sprites);
+            lifetime=quality==0?12:quality==1?16:20;
+            expansion=quality==0?.84F:quality==1?1.14F:1.44F;
+            opacity=quality==0?.57F:quality==1?.74F:.86F;
+            hasPhysics=false;
         }
-        private final boolean midpoint;
-        @Override public AABB getRenderBoundingBox(float partial) {
-            return super.getRenderBoundingBox(partial).inflate(.8);
+        @Override public ParticleRenderType getRenderType(){return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;}
+        @Override public int getLightColor(float partial){return 0xf000f0;}
+        @Override public AABB getRenderBoundingBox(float partial){return super.getRenderBoundingBox(partial).inflate(2.8);}
+        @Override public float getQuadSize(float partial){
+            float t=Mth.clamp((age+partial)/lifetime,0,1);
+            return .22F+expansion*t*(2-t);
         }
-        @Override public void render(VertexConsumer out, Camera camera, float partial) {
-            Vec3 eye = camera.getPosition();
-            if (eye.distanceToSqr(x,y,z) < .64) return;
-            Quaternionf face = camera.rotation();
-            float cx=(float)(Mth.lerp(partial,xo,x)-eye.x);
-            float cy=(float)(Mth.lerp(partial,yo,y)-eye.y);
-            float cz=(float)(Mth.lerp(partial,zo,z)-eye.z);
-            var point = new Vector3f();
-            for (int i=0; i<SHAPE.length-1; i+=stride) {
-                float[] anchor=SHAPE[i];
-                point.set(anchor[0],anchor[1],0).rotate(face);
-                renderRotatedQuad(out,face,cx+point.x,cy+point.y,cz+point.z,partial);
-                if (midpoint) {
-                    float[] next=SHAPE[i+1];
-                    point.set((anchor[0]+next[0])/2,(anchor[1]+next[1])/2,0).rotate(face);
-                    renderRotatedQuad(out,face,cx+point.x,cy+point.y,cz+point.z,partial);
-                }
+        @Override public void render(VertexConsumer out,Camera camera,float partial){
+            Vec3 eye=camera.getPosition();
+            Vec3 offset=new Vec3(x,y,z).subtract(eye);
+            if(offset.lengthSqr()<1.2*1.2){
+                // Someone inside the ripple would see its back or clip through the near plane.
+                // Render that viewer's copy ahead of their eyes with the crosshair completely open.
+                offset=new Vec3(camera.getLookVector()).scale(2.8);
             }
+            float t=Mth.clamp((age+partial)/lifetime,0,1);
+            alpha=opacity*(1-t*t);
+            renderRotatedQuad(out,camera.rotation(),(float)offset.x,(float)offset.y,(float)offset.z,partial);
         }
     }
 }

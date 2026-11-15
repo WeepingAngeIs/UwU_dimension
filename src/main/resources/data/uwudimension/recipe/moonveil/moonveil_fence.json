@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "result": {
+    "id": "uwudimension:moonveil_fence",
+    "count": 3
+  },
+  "pattern": [
+    "PSP",
+    "PSP"
+  ],
+  "key": {
+    "P": {
+      "item": "uwudimension:moonveil_planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  }
+}

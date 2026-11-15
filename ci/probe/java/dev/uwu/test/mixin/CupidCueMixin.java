@@ -16,4 +16,8 @@ public abstract class CupidCueMixin {
         RelicPortraits.received(packet);
         dev.uwu.test.NetworkCupid.received(packet);
     }
+    @Inject(method="handleSoundEvent",at=@At("TAIL"))
+    private void sound(net.minecraft.network.protocol.game.ClientboundSoundPacket packet,CallbackInfo ci){
+        dev.uwu.test.NetworkCupid.sound(packet);
+    }
 }
