@@ -112,6 +112,7 @@ final class GuardianFamilyProof {
                     var saved=g.saveWithoutId(new CompoundTag());var restored=People.BLOSSOM_WARDEN.get().create(l);restored.load(saved);
                     check(restored.familyRestUntil()==g.familyRestUntil()&&g.female()==restored.female(),"parent cooldown/sex lost on reload");
                 }
+                GuardianFamilyDisk.seed(l,group);
                 System.out.println("OWL GUARDIAN FAMILY PASS male/girl feed orders; both baby sexes; two-player tracking; reload, growth, claims, cap, cooldown and retained hostile grab/throw");
             }finally{
                 near(l,pos).forEach(Entity::discard);a.discard();b.discard();
@@ -218,11 +219,15 @@ final class GuardianFamilyProof {
         var savedChild=People.BLOSSOM_WARDEN.get().create(l);savedChild.load(saved);
         check(savedChild.isBaby()&&savedChild.female()==child.female()&&savedChild.familyGrowthTicks()==child.familyGrowthTicks(),"newborn state lost on reload");
         // Advance the saved countdown to its final two loaded ticks. Production age advancement performs the transition.
-        boolean sex=child.female();
-        var timing=saved.getCompound("OwlFamily");timing.putInt("GrowthTicks",2);saved.put("OwlFamily",timing);child.load(saved);
-        child.tick();check(child.isBaby(),"first loaded growth tick skipped");child.tick();
-        check(!child.isBaby()&&child.female()==sex&&child.familyGrowthTicks()==0,"wrong adult after normal growth");
-        close(child.getBbWidth(),adult.getBbWidth(),"grown width");close(child.getBbHeight(),adult.getBbHeight(),"grown height");
-        close(child.getMaxHealth(),adult.getMaxHealth(),"grown health");close(child.getAttributeValue(Attributes.ATTACK_DAMAGE),adult.getAttributeValue(Attributes.ATTACK_DAMAGE),"grown attack");
+        var timing=saved.getCompound("OwlFamily");timing.putInt("GrowthTicks",2);saved.put("OwlFamily",timing);
+        // Keep the original family intact for independent chunk-unload and process-restart verification.
+        saved.putUUID("UUID",UUID.randomUUID());savedChild.load(saved);savedChild.moveTo(child.position().add(0,0,3));
+        check(l.addFreshEntity(savedChild),"load short countdown into the server world");
+        try{
+            savedChild.tick();check(savedChild.isBaby(),"first loaded growth tick skipped");savedChild.tick();
+            check(!savedChild.isBaby()&&savedChild.female()==child.female()&&savedChild.familyGrowthTicks()==0,"wrong adult after normal growth");
+            close(savedChild.getBbWidth(),adult.getBbWidth(),"grown width");close(savedChild.getBbHeight(),adult.getBbHeight(),"grown height");
+            close(savedChild.getMaxHealth(),adult.getMaxHealth(),"grown health");close(savedChild.getAttributeValue(Attributes.ATTACK_DAMAGE),adult.getAttributeValue(Attributes.ATTACK_DAMAGE),"grown attack");
+        }finally{savedChild.discard();}
     }
 }

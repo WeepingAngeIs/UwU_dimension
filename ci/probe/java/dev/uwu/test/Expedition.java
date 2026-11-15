@@ -38,6 +38,8 @@ public class Expedition {
                 boolean restart = java.nio.file.Files.exists(java.nio.file.Path.of("first-site.txt"));
                 if (stage == 0) {
                     if (restart && !BossProof.verifyRestart(level)) return;
+                    var disk=GuardianFamilyDisk.CHUNK;
+                    if(level.setChunkForced(disk.x,disk.z,true))arenaTickets.add(disk);
                     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++) if(level.setChunkForced(x,z,true)) arenaTickets.add(new net.minecraft.world.level.ChunkPos(x,z));
                     arenaReadyAt = level.getGameTime() + 40;
                     stage = 1;
@@ -46,6 +48,10 @@ public class Expedition {
                 if (stage == 1) {
                     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++) if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(x,z))) {
                         if (level.getGameTime() - arenaReadyAt > 400) throw new AssertionError("Arena entity data unavailable");
+                        return;
+                    }
+                    if(!level.areEntitiesLoaded(GuardianFamilyDisk.CHUNK.toLong())){
+                        if(level.getGameTime()-arenaReadyAt>400)throw new AssertionError("Guardian disk-test region unavailable");
                         return;
                     }
                     if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
@@ -57,7 +63,10 @@ public class Expedition {
                         for (var chunk : arenaTickets) level.setChunkForced(chunk.x,chunk.z,false);
                         arenaTickets.clear();
                     }
-                    if (!restart) { stage = 2; return; }
+                    if (!restart) { stage = failed ? 2 : 16; return; }
+                } else if(stage==16){
+                    if(!GuardianFamilyDisk.roundTrip(level))return;
+                    stage=2;return;
                 } else if (stage == 2) {
                     try {
                         if ("152045".equals(System.getenv("UWU_FIELD_SEED"))

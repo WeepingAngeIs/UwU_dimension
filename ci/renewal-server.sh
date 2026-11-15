@@ -41,6 +41,7 @@ for visit in first restart; do
   UWU_RENEWAL=1 timeout 24m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$visit.log"
   grep -F 'SAKURA FULL SERVER VISIT PASS' "$visit.log"
   if [[ "$visit" = first ]]; then
+    grep -F 'OWL GUARDIAN CHUNK UNLOAD PASS' first.log
     grep -F 'VILLAGE RENEWAL PASS' first.log
     if [[ "$UWU_FIELD_SEED" = 152045 ]]; then grep -F 'VILLAGE LIFE PASS' first.log; fi
     grep -F 'MIRROR COURT PASS' first.log
@@ -49,5 +50,6 @@ for visit in first restart; do
   else
     grep -F 'MIRROR COURT DISK RESTART PASS' restart.log
     grep -F 'SAKURA DISK RESTART PASS' restart.log
+    grep -F 'OWL GUARDIAN FAMILY DISK RESTART PASS' restart.log
   fi
 done

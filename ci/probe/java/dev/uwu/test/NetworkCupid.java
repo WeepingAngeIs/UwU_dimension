@@ -58,7 +58,11 @@ public final class NetworkCupid {
     }
 
     @SubscribeEvent public static void beginFrame(RenderFrameEvent.Pre event) {
-        if(ACTIVE) quads.clear();
+        if(ACTIVE) {
+            quads.clear();
+            // Keep the actual first-person hand and hotbar; remove tutorial toasts covering the bow.
+            Minecraft.getInstance().getToasts().clear();
+        }
     }
 
     @SubscribeEvent public static void photograph(RenderFrameEvent.Post event) throws IOException {
@@ -83,7 +87,7 @@ public final class NetworkCupid {
         }
         if(quads.isEmpty()) return;
         boolean takeDraw=phase==Phase.DRAW && drawPackets==1 && !drawPhoto;
-        boolean takeTrail=phase==Phase.FLY && trailPackets>0 && !trailPhoto;
+        boolean takeTrail=phase==Phase.FLY && trailPackets>=2 && !trailPhoto;
         boolean takeImpact=phase==Phase.FLY && impactPackets==1 && !impactPhoto;
         if(!takeDraw && !takeTrail && !takeImpact) return;
         var mc=Minecraft.getInstance();
@@ -101,7 +105,7 @@ public final class NetworkCupid {
                 if(!pink(pixels,x,y,r)) continue;
                 if(q.outline) outlineSeen++;
                 else if(depth<=1.5) drawSeen++;
-                else trailSeen++;
+                else if(depth>=4) trailSeen++;
             }
             if(takeDraw && drawSeen>0) {
                 save(mc,pixels,"draw");drawPhoto=true;

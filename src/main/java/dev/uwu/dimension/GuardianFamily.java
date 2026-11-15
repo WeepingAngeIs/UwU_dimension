@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +38,7 @@ final class GuardianFamily {
     int growth;
     long restUntil,readyUntil;
     boolean offspring;
-    @Nullable UUID fedBy,mother,father;
+    @Nullable UUID fedBy,feedToken,mother,father;
     private boolean busy;
 
     InteractionResult feed(BlossomWarden self,ServerPlayer player,InteractionHand hand) {
@@ -48,16 +49,20 @@ final class GuardianFamily {
         if(self.isBaby())return notice(player,"young");
         if(busy || now<restUntil)return notice(player,"rest");
         if(readyUntil>now)return notice(player,"ready");
-        var partner=partner(self,level,now);
-        if(partner!=null){
-            var other=feeder(level,partner);
-            if(other==null)return notice(player,"unavailable");
-            if(!birth(self,player,partner,other,held))return notice(player,"blocked");
-            held.consume(1,player);
-            return notice(player,"born");
+        var candidates=partners(self,level,now);
+        if(!candidates.isEmpty()){
+            for(var mate:candidates){
+                var other=feeder(level,mate);
+                if(other==null||!canPair(self,player,mate,other,now,held))continue;
+                if(!birth(self,player,mate,other,held))return notice(player,"blocked");
+                held.consume(1,player);
+                return notice(player,"born");
+            }
+            return notice(player,"unavailable");
         }
         if(!capacity(level,self.position()))return notice(player,"space");
         fedBy=player.getUUID();
+        feedToken=UUID.randomUUID();
         readyUntil=now+AcquisitionPolicy.GUARDIAN_READY.get();
         held.consume(1,player);
         hearts(level,self,4);
@@ -82,14 +87,14 @@ final class GuardianFamily {
         var id=guard.family().fedBy;
         return id!=null && level.getPlayerByUUID(id) instanceof ServerPlayer p?p:null;
     }
-    @Nullable private static BlossomWarden partner(BlossomWarden self,ServerLevel level,long now) {
+    private static List<BlossomWarden> partners(BlossomWarden self,ServerLevel level,long now) {
         int r=AcquisitionPolicy.GUARDIAN_PAIR_RADIUS.get();
         return level.getEntitiesOfClass(BlossomWarden.class,self.getBoundingBox().inflate(r),
                 g->g!=self && g.isAlive() && !g.isBaby() && g.female()!=self.female()
                         && !g.family().busy && g.family().readyUntil>now && g.family().restUntil<=now
                         && self.distanceToSqr(g)<=r*r)
-                .stream().min(Comparator.comparingDouble((BlossomWarden g)->self.distanceToSqr(g))
-                        .thenComparing(BlossomWarden::getUUID)).orElse(null);
+                .stream().sorted(Comparator.comparingDouble((BlossomWarden g)->self.distanceToSqr(g))
+                        .thenComparing(BlossomWarden::getUUID)).toList();
     }
 
     private static boolean capacity(ServerLevel level,Vec3 center) {
@@ -97,10 +102,19 @@ final class GuardianFamily {
         AABB bounds=new AABB(center,center).inflate(r);
         int x1=net.minecraft.util.Mth.floor(bounds.minX)>>4,x2=net.minecraft.util.Mth.floor(bounds.maxX)>>4;
         int z1=net.minecraft.util.Mth.floor(bounds.minZ)>>4,z2=net.minecraft.util.Mth.floor(bounds.maxZ)>>4;
-        for(int x=x1;x<=x2;x++)for(int z=z1;z<=z2;z++)
-            if(!level.areEntitiesLoaded(ChunkPos.asLong(x,z)))return false;
+        for(int x=x1;x<=x2;x++)for(int z=z1;z<=z2;z++){
+            double dx=center.x-Math.clamp(center.x,x*16.0,(x+1)*16.0);
+            double dz=center.z-Math.clamp(center.z,z*16.0,(z+1)*16.0);
+            if(dx*dx+dz*dz<=r*r && !level.areEntitiesLoaded(ChunkPos.asLong(x,z)))return false;
+        }
         return level.getEntitiesOfClass(BlossomWarden.class,bounds,g->g.isAlive() && g.distanceToSqr(center)<=r*r).size()
                 <AcquisitionPolicy.GUARDIAN_POPULATION_CAP.get();
+    }
+
+    private String pairingKey(UUID parent,boolean receptive) {
+        // Older saved receptive guardians only recorded their readiness deadline.
+        String token=receptive?(feedToken==null?Long.toString(readyUntil):feedToken.toString()):"pending";
+        return parent+"/"+token;
     }
 
     /** Both the immediate second interaction and two separately fed adults approaching
@@ -116,7 +130,7 @@ final class GuardianFamily {
             if(child==null)return false;
             // A replay of the same two feedings addresses the same child. Neither a second
             // packet nor a partially repeated save cycle can materialize another UUID.
-            String ta=a.getUUID()+"/"+first.readyUntil, tb=b.getUUID()+"/"+second.readyUntil;
+            String ta=first.pairingKey(a.getUUID(),pending==null),tb=second.pairingKey(b.getUUID(),true);
             String pair=ta.compareTo(tb)<0?ta+"|"+tb:tb+"|"+ta;
             child.setUUID(UUID.nameUUIDFromBytes(("uwudimension/owl/"+pair).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             child.setFemale(a.getRandom().nextBoolean());
@@ -167,9 +181,9 @@ final class GuardianFamily {
         return level.getBlockState(child.blockPosition().below()).isFaceSturdy(level,child.blockPosition().below(),Direction.UP)
                 && level.noCollision(child,box) && level.getEntities(child,box,e->e.isAlive()&&!e.isSpectator()&&e.isPickable()).isEmpty();
     }
-    private void finish(long rest){readyUntil=0;fedBy=null;restUntil=rest;}
+    private void finish(long rest){readyUntil=0;fedBy=null;feedToken=null;restUntil=rest;}
     private static void hearts(ServerLevel level,BlossomWarden target,int count) {
-        level.sendParticles(CupidParticles.PASTEL_HEART.get(),target.getX(),target.getY()+target.getBbHeight()+.12,
+        HeartCombatGlow.charmHearts(level,target.getX(),target.getY()+target.getBbHeight()+.12,
                 target.getZ(),count,.25,.12,.25,.014);
     }
     void tick(BlossomWarden guardian,ServerLevel level) {
@@ -181,14 +195,17 @@ final class GuardianFamily {
         }
         if(readyUntil==0)return;
         long now=level.getGameTime();
-        if(now>=readyUntil){readyUntil=0;fedBy=null;return;}
+        if(now>=readyUntil){finish(restUntil);return;}
         if(!guardian.female() || guardian.tickCount%20!=0 || !AcquisitionPolicy.GUARDIAN_FAMILY.get())return;
         var p=feeder(level,guardian);
         if(p==null || !authorized(p,guardian))return;
-        var mate=partner(guardian,level,now);
-        if(mate==null)return;
-        var other=feeder(level,mate);
-        if(other!=null)birth(guardian,p,mate,other,null);
+        for(var mate:partners(guardian,level,now)){
+            var other=feeder(level,mate);
+            if(other!=null && canPair(guardian,p,mate,other,now,null)){
+                birth(guardian,p,mate,other,null);
+                return;
+            }
+        }
     }
 
     private void applyAge(BlossomWarden g) {
@@ -209,6 +226,7 @@ final class GuardianFamily {
         tag.putInt("GrowthTicks",growth);tag.putLong("ReadyUntil",readyUntil);tag.putLong("RestUntil",restUntil);
         tag.putBoolean("Offspring",offspring);
         if(fedBy!=null)tag.putUUID("FedBy",fedBy);
+        if(feedToken!=null)tag.putUUID("FeedToken",feedToken);
         if(mother!=null)tag.putUUID("Mother",mother);
         if(father!=null)tag.putUUID("Father",father);
         root.put("OwlFamily",tag);
@@ -217,12 +235,14 @@ final class GuardianFamily {
         var tag=root.getCompound("OwlFamily");
         growth=Math.max(0,tag.getInt("GrowthTicks"));offspring=tag.getBoolean("Offspring")||growth>0;
         fedBy=tag.hasUUID("FedBy")?tag.getUUID("FedBy"):null;
+        feedToken=fedBy!=null && tag.hasUUID("FeedToken")?tag.getUUID("FeedToken"):null;
         readyUntil=fedBy==null?0:tag.getLong("ReadyUntil");restUntil=tag.getLong("RestUntil");
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;
         father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         busy=false;
         applyAge(guardian);
-        if(growth>0)guardian.setHealth(Math.min(root.getFloat("Health"),guardian.getMaxHealth()));
+        if((growth>0 || root.contains("GuardianVitalityVersion")) && root.contains("Health",Tag.TAG_ANY_NUMERIC))
+            guardian.setHealth(root.getFloat("Health"));
     }
 }
 

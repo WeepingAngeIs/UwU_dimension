@@ -44,6 +44,7 @@ final class RenewalProof {
             check(reach.getBlockState(arrival.above(5)).is(Blocks.AMETHYST_BLOCK),"saved player block replaced");
             ArchitectureProof.legacy(reach);
             CombatRenewalProof.resume(reach);
+            GuardianFamilyDisk.restart(reach);
             System.out.println("SAKURA DISK RESTART PASS "+site);
             return;
         }
