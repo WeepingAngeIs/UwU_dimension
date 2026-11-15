@@ -23,6 +23,8 @@ final class HeartMagic {
     static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid) {
         if (mob.getType().is(IMMUNE) || (mob.getBbWidth() >= 6 && mob.getBbHeight() >= 5)) return false;
         CompoundTag data = mob.getPersistentData();
+        if (pastelCupid && data.hasUUID(OWNER) && level.getGameTime()<data.getLong(END)
+            && !keeper.getUUID().equals(data.getUUID(OWNER))) return false;
         if (!data.hasUUID(OWNER) && mob.getTarget() != null) data.putUUID(PREVIOUS, mob.getTarget().getUUID());
         mob.addTag(OWNER);
         data.putUUID(OWNER, keeper.getUUID());

@@ -52,6 +52,7 @@ final class RenewalProof {
                 world.getChunkAt(marker);
                 check(world.getBlockState(marker).is(Blocks.LODESTONE),"existing save marker changed in "+world.dimension());
             }
+            ArchitectureProof.legacy(reach);
             System.out.println("SAKURA COPIED SAVE PASS " + System.getenv("UWU_SOURCE_WORLD"));
         }
         var home=server.overworld();
@@ -95,6 +96,10 @@ final class RenewalProof {
         var issues = new java.util.ArrayList<Throwable>();
         exercise(issues, "guardian, projectiles and players", () -> CombatRenewalProof.run(reach));
         exercise(issues, "villages, projects and plants", () -> VillageRenewalProof.run(reach));
+        exercise(issues, "new terrain and materials", () -> ReachMaterialsProof.run(reach));
+        exercise(issues, "original native architecture", () -> ArchitectureProof.run(reach));
+        exercise(issues, "residents and eggs", () -> OwlResidentsProof.run(reach));
+        exercise(issues, "two-target Cupid wishes", () -> CupidWishProof.run(reach));
         exercise(issues, "armor and natural habitats", () -> RenewalArmorProof.run(reach));
         if (!issues.isEmpty()) {
             var failure = new AssertionError("Failed renewal checks: " + issues.size());

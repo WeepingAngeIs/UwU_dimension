@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "uwudimension:block/nightbriar_shingles",
+    "side": "uwudimension:block/nightbriar_shingles",
+    "top": "uwudimension:block/nightbriar_shingles"
+  }
+}

@@ -67,7 +67,7 @@ final class VillageHouse {
             case "minecraft:white_concrete_powder" -> ReachArchitecture.PLASTER.get();
             case "minecraft:smooth_stone","minecraft:stone_bricks" -> ReachArchitecture.paving(dark);
             case "minecraft:chain" -> SakuraMaterials.CHAIN.get();
-            case "minecraft:lantern","minecraft:soul_lantern","uwudimension:heart_neon_lantern" -> HeartLanterns.HEART.get();
+            case "minecraft:lantern","minecraft:soul_lantern","uwudimension:heart_neon_lantern" -> dark?HeartLanterns.DUSK.get():HeartLanterns.HEART.get();
             default -> throw new IllegalArgumentException("Unmapped village schematic material "+original);
         };
         var state=block.defaultBlockState();

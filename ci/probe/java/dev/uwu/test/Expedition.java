@@ -26,6 +26,10 @@ public class Expedition {
     public Expedition() { NeoForge.EVENT_BUS.addListener(this::tick); }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
+        if (server.isDedicatedServer() && NetworkCupidServer.SESSION.equals(System.getenv("UWU_VISIT"))) {
+            NetworkCupidServer.tick(server);
+            return;
+        }
         if(!server.isDedicatedServer() || stage<0 || server.getTickCount()<15)return;
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);

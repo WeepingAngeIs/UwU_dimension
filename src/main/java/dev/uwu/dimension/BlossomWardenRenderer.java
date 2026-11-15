@@ -27,7 +27,11 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
     private static final ResourceLocation TEXTURE=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/entity/blossom_warden.png");
     private static final ResourceLocation PAD=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/block/drift_blossom_pad.png");
     private static final ModelLayerLocation FEMALE_LAYER = new ModelLayerLocation(Arsenal.id("female_guardian"), "body");
-    private static final ResourceLocation FEMALE_TEXTURE = Arsenal.id("textures/entity/female_uwu_guardian.png");
+    private static final ResourceLocation[] FEMALE_TEXTURES = {
+            Arsenal.id("textures/entity/female_uwu_guardian.png"),
+            Arsenal.id("textures/entity/female_uwu_guardian_half.png"),
+            Arsenal.id("textures/entity/female_uwu_guardian_blink.png")
+    };
     private final Model maleModel;
     private final Model femaleModel;
 
@@ -38,7 +42,7 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
         addLayer(new LilyPadCrownLayer(this));
     }
     @Override public ResourceLocation getTextureLocation(BlossomWarden entity) {
-        return entity.female() ? FEMALE_TEXTURE : TEXTURE;
+        return entity.female() ? FEMALE_TEXTURES[OwlExpression.frame(entity.getUUID(),entity.tickCount)] : TEXTURE;
     }
     @Override public void render(BlossomWarden entity, float yaw, float partial, PoseStack poses,
             MultiBufferSource buffers, int light) {

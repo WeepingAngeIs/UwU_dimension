@@ -17,7 +17,10 @@ final class FurnishingProof {
                 furniture(level, inside(village,house,1-house.width(),1,-1), wood+"_table");
                 furniture(level, inside(village,house,1-house.width(),1,0), wood+"_chair");
                 furniture(level, inside(village,house,house.width()-1,1,house.depth()-1), wood+"_drawer");
-                furniture(level, inside(village,house,house.width()-1,2,house.depth()-1), dusk?"purple_lamp":"pink_lamp");
+                var lamp=inside(village,house,house.width()-1,2,house.depth()-1);
+                if(dusk) {
+                    if(!BuiltInRegistries.BLOCK.getKey(level.getBlockState(lamp).getBlock()).toString().equals("uwudimension:dusk_heart_lantern"))throw new AssertionError("Missing black heart lantern at "+lamp);
+                } else furniture(level,lamp,"pink_lamp");
                 var accent = inside(village,house,house.width()-1,1,0);
                 switch(house.style()) {
                     case 0 -> furniture(level,accent,dusk?"purple_sofa":"pink_sofa");

@@ -39,8 +39,9 @@ public final class BlossomVillage {
     }
     public static Plan first(ServerLevel level,boolean dusk){
         var s=GroveSites.first(level);
-        for(int ring=0;ring<15;ring++)for(int dx=-ring;dx<=ring;dx++)for(int dz=-ring;dz<=ring;dz++){
-            if(Math.max(Math.abs(dx),Math.abs(dz))!=ring)continue;
+        int searchRings=15*SettlementLayout.stride(SettlementLayout.minimum(level));
+        for(int ring=0;ring<searchRings;ring++)for(int dx=-ring;dx<=ring;dx++)for(int dz=-ring;dz<=ring;dz++){
+            if(Math.max(Math.abs(dx),Math.abs(dz))!=ring || !SettlementLayout.mightHost(level,s.gx()+dx,s.gz()+dz,dusk))continue;
             var site=GroveSites.site(level,s.gx()+dx,s.gz()+dz);if(!site.usable())continue;
             var found=plan(level,site,dusk);if(found.isPresent())return found.get();
         }
@@ -125,6 +126,21 @@ public final class BlossomVillage {
         }
     }
     private static void gate(HeartwaterFeature.Valley v,int x,int y,int z,boolean dark){
+        if(dark){
+            for(int dz:new int[]{-3,3}){
+                floor(v,x,y,z+dz,ReachArchitecture.SLATE.get());
+                v.box(x,y+1,z+dz,x,y+5,z+dz,ReachArchitecture.DUSK.beam().get());
+                v.block(x,y+6,z+dz,ReachArchitecture.SHINGLES.get());
+                v.block(x,y+7,z+dz,ReachArchitecture.DUSK.fence().get());
+                int in=dz<0?1:-1;
+                v.block(x,y+4,z+dz+in,ReachArchitecture.TRACERY.get());
+                v.block(x,y+5,z+dz+in*2,ReachArchitecture.SLATE.get());
+            }
+            v.block(x,y+6,z,ReachArchitecture.TRACERY.get());
+            v.block(x,y+5,z,SakuraMaterials.CHAIN.get());
+            v.put(x,y+4,z,HeartLanterns.DUSK.get().defaultBlockState().setValue(LanternBlock.HANGING,true));
+            return;
+        }
         Block post=ReachArchitecture.wood(dark).beam().get();
         Block cap=PinkRoofTiles.slab(dark);
         for(int dz:new int[]{-3,3}){
@@ -175,7 +191,8 @@ public final class BlossomVillage {
             boolean veranda=Math.abs(dx)<=w+1&&dz*side==-d-1;
             if(interior||veranda)floor(v,x+dx,y,z+dz,veranda?boards:inlay(dx,dz,w,d,dark));
         }
-        house.place(v,h,dark);
+        boolean gothic=dark && !SettlementLayout.historical(v.level.getLevel(),p.site());
+        if(gothic)DuskHouse.place(v,h); else house.place(v,h,dark);
         // Frame the original entrance and put the settlement's crest on its lintel.
         v.block(x,y+3,front,dark?HeartwaterFeature.LACE.get():HeartwaterFeature.ROSETTE.get());
         DoorBlock door=ReachArchitecture.wood(dark).door().get();
@@ -185,7 +202,7 @@ public final class BlossomVillage {
         v.put(x,y+1,front,ds);
         v.put(x,y+2,front,ds.setValue(DoorBlock.HALF,DoubleBlockHalf.UPPER));
         // Keep the center aisle open, with woven mats and a low tea shelf to its sides.
-        var rug=HeartFloor.carpet(dark?DyeColor.PURPLE:DyeColor.MAGENTA);
+        var rug=HeartFloor.carpet(dark?DyeColor.BLACK:DyeColor.MAGENTA);
         for(int dz=-1;dz<=1;dz++)v.block(x-w+2,y+1,z+dz,rug);
         v.block(x-w+1,y+1,z+side,HeartFloor.slab(dark?DyeColor.GRAY:DyeColor.WHITE));
         // Bed foot faces the head. The aisle is level from the door to the workbench.
@@ -193,9 +210,9 @@ public final class BlossomVillage {
         v.put(x-1,y+1,z,bed.setValue(BedBlock.PART,BedPart.FOOT));
         v.put(x-1,y+1,z+side,bed.setValue(BedBlock.PART,BedPart.HEAD));
         v.block(x+1,y+1,z+side,h.job());
-        v.block(x+1,y+1,z-side,HeartLanterns.HEART.get());
+        v.block(x+1,y+1,z-side,dark?HeartLanterns.DUSK.get():HeartLanterns.HEART.get());
         v.block(x-w+1,y+1,z+d-1,h.style()==0?Blocks.BOOKSHELF:dark?Blocks.POTTED_WITHER_ROSE:Blocks.POTTED_ALLIUM);
-        InteriorFurnishings.house(v,h,dark,house);
+        InteriorFurnishings.house(v,h,dark,house,gothic);
         resident(v,p,x,y+1,z,false);
         if(h==p.houses().getFirst()){
             // A family home has two real beds. The youngster grows up on vanilla time.

@@ -89,7 +89,10 @@ def painted_face(kind, undead=False, eyelid=0):
             line([(3,top+1),(3,9),(4,10)],low)
             line([(4,top+1),(4,9),(5,9)],iris)
             if not eyelid:
-                line([(3,7),(4,7)],'#fff6d8');line([(5,9),(5,10)],'#a7cda0' if kind!='dusk' else '#dcb2d9')
+                line([(5,7),(5,9)],iris)
+                line([(4,7),(4,8)],low)
+                line([(3,7),(3,7)],'#fff6d8')
+                line([(5,9),(5,10)],'#a7cda0' if kind!='dusk' else '#dcb2d9')
             line([(1,top-1),(2,top),(5,top),(6,top+1)],lash)
         line([(1,11),(3,11)],blush)
     d.point((8,10),fill=shadow)

@@ -128,6 +128,14 @@ def masonry():
             d.polygon([(4,8),(8,4),(12,8),(8,12)],fill='#fff3eb')
             d.point((8,8),'#fffef9')
         sprite(name,im)
+    im,d=canvas(plum,'nightbriar_shingles')
+    for y in range(0,16,4):
+        shift=(y//4%2)*4
+        for x in range(-8+shift,17,8):
+            d.line([(x,y),(x+3,y+2),(x+5,y+2),(x+8,y)],'#302637')
+            d.line([(x+1,y),(x+3,y+1),(x+4,y+1)],'#8b7596')
+            d.point((x+5,y+3),'#a995b1')
+    sprite('nightbriar_shingles',im)
     for name,color in GLASS.items():
         rgb=tuple(bytes.fromhex(color[1:]))
         im=Image.new('RGBA',(16,16),(*rgb,56)); d=ImageDraw.Draw(im)
@@ -187,17 +195,20 @@ def resources(vanilla):
                'cherry_slab':w+'_slab','cherry_fence':w+'_fence','cherry_trapdoor':w+'_shutter','cherry_door':w+'_door'}
         for src,name in kinds.items(): shaped(src,name,kinds,src.endswith(('trapdoor','door')))
         woods.extend(kinds.values())
-    for n in STONES:simple(n)
+    for n in (*STONES,'nightbriar_shingles'):simple(n)
+    roofing={'stone_brick_stairs':'nightbriar_shingle_stairs','stone_brick_slab':'nightbriar_shingle_slab','stone_bricks':'nightbriar_shingles'}
+    for ref in ('stone_brick_slab','stone_brick_stairs'):shaped(ref,roofing[ref],roofing)
     for n in GLASS:simple(n+'_leaded_glass',True)
     for name,base in (('shellstone_steps','shellstone_ashlar'),('vesper_steps','vesper_ashlar')):
         shaped('stone_brick_stairs',name,{'stone_brick_stairs':name,'stone_bricks':base})
     tags('mineable/axe',woods)
-    tags('mineable/pickaxe',list(STONES)+['shellstone_steps','vesper_steps'])
+    tags('mineable/pickaxe',list(STONES)+['shellstone_steps','vesper_steps','nightbriar_shingles','nightbriar_shingle_stairs','nightbriar_shingle_slab'])
     for registry in ('block','item'):
         for tag,suffix in [('planks','planks'),('wooden_stairs','stairs'),('wooden_slabs','slab'),('wooden_doors','door'),
                            ('wooden_trapdoors','shutter'),('wooden_fences','fence')]:
             tags(tag,[w+'_'+suffix for w in ('silkwood','velvetwood')],registry)
-        tags('stairs',['shellstone_steps','vesper_steps'],registry)
+        tags('stairs',['shellstone_steps','vesper_steps','nightbriar_shingle_stairs'],registry)
+        tags('slabs',['nightbriar_shingle_slab'],registry)
     lang=ART/'lang/en_us.json'
     names=json.loads(lang.read_text(encoding='utf-8-sig'))
     for name in NAMES:names['block.uwudimension.'+name]=name.replace('_',' ').title()

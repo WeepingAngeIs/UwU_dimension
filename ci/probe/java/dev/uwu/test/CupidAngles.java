@@ -34,7 +34,8 @@ public final class CupidAngles {
     private static boolean active, restoring, hiddenGui, readyFrame;
     private static int shot, settledFrames, ticks;
     private static CameraType previousCamera;
-    private static volatile ItemStack oldMain;
+    private static volatile ItemStack oldMain, oldOff;
+    private static int setupHand=-1, steady;
     private static volatile boolean restored;
 
     static void begin(Minecraft mc) {
@@ -54,6 +55,8 @@ public final class CupidAngles {
         server.execute(()->{
             var player=server.getPlayerList().getPlayer(id);
             oldMain=player.getMainHandItem().copy();
+            oldOff=player.getOffhandItem().copy();
+            player.server.tickRateManager().setTickRate(8F);
             player.stopUsingItem();
             player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()));
             player.containerMenu.broadcastChanges();
@@ -63,7 +66,27 @@ public final class CupidAngles {
     static boolean tick(Minecraft mc) {
         if (!active) return true;
         if (++ticks>750) throw new AssertionError("Timed out photographing Cupid angle "+shot);
-        if (shot==6) {
+        if (shot>=6 && shot<14) {
+            int side=(shot-6)/4, stage=(shot-6)%4;
+            var hand=side==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;
+            if(setupHand!=side) {
+                setupHand=side;steady=0;
+                mc.options.keyUse.setDown(false);
+                mc.gameMode.releaseUsingItem(mc.player);
+                var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
+                server.execute(()->{
+                    var p=server.getPlayerList().getPlayer(id);p.stopUsingItem();
+                    p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);p.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                    p.setItemInHand(hand,new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()));p.containerMenu.broadcastChanges();
+                });
+                return false;
+            }
+            if(!mc.player.getItemInHand(hand).is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()))return false;
+            steady++;
+            if(stage>0){mc.options.keyUse.setDown(true);if(!mc.player.isUsingItem())mc.gameMode.useItem(mc.player,hand);}
+            return false;
+        }
+        if (shot==14) {
             if (!restoring) {
                 restoring=true;
                 mc.player.stopUsingItem();
@@ -76,6 +99,7 @@ public final class CupidAngles {
                     var player=server.getPlayerList().getPlayer(id);
                     player.stopUsingItem();
                     player.setItemInHand(InteractionHand.MAIN_HAND,oldMain);
+                    player.setItemInHand(InteractionHand.OFF_HAND,oldOff);player.server.tickRateManager().setTickRate(20F);
                     player.containerMenu.broadcastChanges();
                     restored=true;
                 });
@@ -140,6 +164,18 @@ public final class CupidAngles {
     }
 
     @SubscribeEvent public static void photo(RenderFrameEvent.Post event) {
+        if(active && shot>=6 && shot<14 && setupHand==(shot-6)/4 && steady>=5) {
+            var mc=Minecraft.getInstance();int side=(shot-6)/4, stage=(shot-6)%4;
+            var hand=side==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;
+            var held=mc.player.getItemInHand(hand);
+            if(!held.is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()))return;
+            String pose=mc.getItemRenderer().getModel(held,mc.level,mc.player,0).getParticleIcon().contents().name().getPath();
+            String expected="item/cupid_bow"+(stage==0?"":"_draw"+(stage-1));
+            if(!pose.equals(expected) || (stage==0 && mc.player.isUsingItem()) || (stage==3 && mc.player.getTicksUsingItem()<20))return;
+            String file="cupid-shoulder-"+(side==0?"right":"left")+"-"+new String[]{"rest","early","middle","full"}[stage]+".png";
+            Screenshot.grab(mc.gameDirectory,file,mc.getMainRenderTarget(),msg->System.out.println(msg.getString()));
+            shot++;return;
+        }
         if (!active || shot>=6 || !readyFrame) return;
         if (++settledFrames<4) return;
         var mc=Minecraft.getInstance();

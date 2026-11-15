@@ -44,6 +44,15 @@ with Path("baseline.log").open("w") as log, subprocess.Popen(args, stdin=subproc
                     break
                 except queue.Empty: pass
             else: raise RuntimeError("Fixture placement failed: "+dim)
+            if dim=="uwudimension:sakura_reach":
+                # This player-built corner uses the legacy native village materials. Keep its
+                # exact states as evidence on both the upgrade boot and the following restart.
+                walls=["spruce_planks","oak_fence","oak_stairs[facing=west]","cobblestone"]
+                for x,state in enumerate(walls,321):
+                    command(f"execute in {dim} run setblock {x} 185 320 minecraft:{state}")
+                    marker=f"ARCH-OLD-{x}"
+                    command(f"execute in {dim} if block {x} 185 320 minecraft:{state} run say {marker}")
+                    wait_for(marker)
             command("execute in "+dim+" run forceload remove 320 320")
         command("save-all flush"); wait_for("Saved the game")
         command("stop")

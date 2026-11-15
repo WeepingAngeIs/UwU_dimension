@@ -44,3 +44,17 @@ tasks.register('expeditionJar', Jar) {
 if (providers.gradleProperty('fieldCamera').isPresent()) {
     neoForge.mods { heartwater_probe { sourceSet(sourceSets.expedition) } }
 }
+
+// This separate hosted fixture boots against the previous beta, before swapping the actual release JAR.
+sourceSets {
+    legacyArchitecture {
+        java.srcDirs = ['ci/legacy-architecture/java']
+        resources.srcDirs = ['ci/legacy-architecture/resources']
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+    }
+}
+tasks.register('legacyArchitectureJar', Jar) {
+    archiveBaseName = 'legacy-architecture-sampler'
+    destinationDirectory = layout.buildDirectory.dir('legacy-sampling')
+    from sourceSets.legacyArchitecture.output
+}

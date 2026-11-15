@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 /** Seating, storage, reading lights and glazed openings for settlements and public rooms. */
 final class InteriorFurnishings {
-    static void house(HeartwaterFeature.Valley v, BlossomVillage.House h, boolean dusk, VillageHouse shell) {
+    static void house(HeartwaterFeature.Valley v, BlossomVillage.House h, boolean dusk, VillageHouse shell,boolean gothic) {
         int x=h.x(), y=h.floor(), z=h.z(), side=h.side();
         int tea=x-h.width()+1, cabinet=x+h.width()-1, back=z+side*(h.depth()-1);
         Direction facingDoor=side>0?Direction.NORTH:Direction.SOUTH;
@@ -20,7 +20,8 @@ final class InteriorFurnishings {
         place(v,tea,y+1,z-side,wood+"_table",facingDoor);
         place(v,tea,y+1,z,wood+"_chair",facingDoor);
         place(v,cabinet,y+1,back,wood+"_drawer",Direction.WEST);
-        place(v,cabinet,y+2,back,dusk?"purple_lamp":"pink_lamp",Direction.UP);
+        if(dusk) v.block(cabinet,y+2,back,HeartLanterns.DUSK.get());
+        else place(v,cabinet,y+2,back,"pink_lamp",Direction.UP);
 
         furnishAlcove(v,h,dusk,wood);
 
@@ -32,8 +33,9 @@ final class InteriorFurnishings {
                 if(d!=h.depth()) v.box(pane,y+2,z+side*d,pane,y+3,z+side*d,v.air);
             }
             v.box(pane,y+2,wall,pane,y+3,wall,ReachArchitecture.window(dusk,offset));
+            if(gothic && offset==0)v.block(pane,y+4,wall,ReachArchitecture.window(true,1));
             int roofZ=z+side*offset;
-            int roofY=y+shell.roofHeight(-2*side,offset);
+            int roofY=y+(gothic?DuskHouse.roofHeight(h,-2):shell.roofHeight(-2*side,offset));
             v.box(x-2,y+3,roofZ,x-2,roofY-1,roofZ,v.air);
             v.block(x-2,roofY,roofZ,ReachArchitecture.window(dusk,offset));
         }

@@ -132,7 +132,10 @@ public final class RouteProof {
         System.out.println(label+" TREE ROOTS connected="+verified+" other solid supports="+otherSupport+" radius="+radius+" near "+center+" in "+level.dimension().location());
     }
     private static void village(ServerLevel level,BlossomVillage.Plan v){
-        if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE))throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());
+        var land=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BIOME,
+                net.minecraft.resources.ResourceLocation.parse("uwudimension:sakura_settlement_land"));
+        if(!level.getBiome(v.plaza()).is(Biomes.CHERRY_GROVE) && !level.getBiome(v.plaza()).is(land))
+            throw new AssertionError("Settlement biome at "+v.plaza()+": "+level.getBiome(v.plaza()).unwrapKey());
         if(v.houses().size()<6)throw new AssertionError("Sparse village");
         java.util.Set<Integer> styles=new java.util.HashSet<>();
         supportedTrees(level,v.plaza(),48,true,"SETTLEMENT");
@@ -177,6 +180,7 @@ public final class RouteProof {
             if(!level.getBlockState(aisle).getCollisionShape(level,aisle).isEmpty())
                 throw new AssertionError("Blocked walk between original doorway and interior at "+aisle);
         }
+        if(v.dusk()) return; // New Dusk gables and spires are checked by ArchitectureProof.
         if(pink<20||stairs<75||slabs<8||plaster<45||posts<95)
             throw new AssertionError("Incomplete Japanese house style "+h.style()+" at "+v.doorway(h)+
                     " pink masonry="+pink+" shaped eaves="+stairs+"/"+slabs+" plaster="+plaster+" timber="+posts);

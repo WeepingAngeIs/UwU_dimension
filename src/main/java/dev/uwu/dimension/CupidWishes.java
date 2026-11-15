@@ -113,17 +113,19 @@ final class CupidWishes {
             Wish w=entry.getValue();
             ServerPlayer p=server.getPlayerList().getPlayer(entry.getKey());
             if(p==null || !p.isAlive() || p.level().dimension()!=w.world || !enabled(p)) { wishes.remove(entry.getKey());continue; }
-            if(p.serverLevel().getGameTime()<w.due)continue;
-            if(wishes.remove(entry.getKey(),w)) {
-                if(w.second==null) tell(p,"Your Cupid wish selection expired.");
-                else finish(p,w);
-            }
+            advance(p,p.serverLevel().getGameTime());
         }
+    }
+    private static void advance(ServerPlayer p,long now) {
+        Wish w=wishes.get(p.getUUID());
+        if(w==null || now<w.due || !wishes.remove(p.getUUID(),w))return;
+        if(w.second==null) tell(p,"Your Cupid wish selection expired.");
+        else finish(p,w);
     }
     private static void finish(ServerPlayer p,Wish w) {
         ServerLevel level=p.serverLevel();
         Entity first=level.getEntity(w.first), second=level.getEntity(w.second);
-        if(!p.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()) ||
+        if(p.level().dimension()!=w.world || !p.isAlive() || !enabled(p) || !p.getMainHandItem().is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()) ||
            !(first instanceof LivingEntity a) || !(second instanceof LivingEntity b) || !pairAllowed(p,a,b) ||
            NeoForge.EVENT_BUS.post(new CupidPairEvent(p,a,b)).isCanceled()) {
             tell(p,"The wish faded before both hearts were ready."); return;

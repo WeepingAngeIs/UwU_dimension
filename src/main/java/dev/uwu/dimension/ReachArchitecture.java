@@ -33,6 +33,9 @@ final class ReachArchitecture {
     static final DeferredBlock<Block> RIB = stone("fluted_nacre", 0);
     static final DeferredBlock<Block> TRACERY = stone("starvein_frieze", 9);
     static final DeferredBlock<Block> PILOT = stone("moonpearl_lamp", 13);
+    static final DeferredBlock<Block> SHINGLES=stone("nightbriar_shingles",0);
+    static final DeferredBlock<StairBlock> ROOF_STEP=add("nightbriar_shingle_stairs",() -> new StairBlock(SHINGLES.get().defaultBlockState(),like(Blocks.BRICK_STAIRS)));
+    static final DeferredBlock<SlabBlock> ROOF_SLAB=add("nightbriar_shingle_slab",() -> new SlabBlock(like(Blocks.BRICK_SLAB)));
     static final DeferredBlock<StairBlock> PEARL_STEP = add("shellstone_steps", () -> new StairBlock(PEARL.get().defaultBlockState(), like(Blocks.BRICK_STAIRS)));
     static final DeferredBlock<StairBlock> SLATE_STEP = add("vesper_steps", () -> new StairBlock(SLATE.get().defaultBlockState(), like(Blocks.BRICK_STAIRS)));
 
@@ -74,6 +77,7 @@ final class ReachArchitecture {
         BLOCKS.register(bus);
         ITEMS.register(bus);
         bus.addListener(ReachArchitecture::display);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(SettlementLayout::load);
     }
     private static void display(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey()==CreativeModeTabs.BUILDING_BLOCKS) DISPLAY.forEach(block -> event.accept(block.get()));

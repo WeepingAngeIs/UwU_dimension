@@ -14,5 +14,6 @@ public abstract class CupidCueMixin {
     @Inject(method="handleParticleEvent",at=@At("TAIL"))
     private void received(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         RelicPortraits.received(packet);
+        dev.uwu.test.NetworkCupid.received(packet);
     }
 }

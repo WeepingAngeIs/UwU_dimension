@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import dev.uwu.dimension.BlossomVillage;
 import dev.uwu.dimension.GroveSites;
+import dev.uwu.dimension.SettlementLayout;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +42,22 @@ final class ArchitectureProof {
         require(step.is(Blocks.OAK_STAIRS) && step.getValue(StairBlock.FACING)==net.minecraft.core.Direction.WEST,
                 "The earlier release's stair lost its ID or facing on upgrade");
         exact(level,new BlockPos(324,185,320),"minecraft:cobblestone");
+        var baseline=Path.of("old-native-dusk.txt");
+        if(Files.exists(baseline)){
+            try{
+                var lines=Files.readAllLines(baseline);
+                var cell=lines.getFirst().split(" ");
+                var site=GroveSites.site(level,Integer.parseInt(cell[0]),Integer.parseInt(cell[1]));
+                var prior=BlossomVillage.plan(level,site,true).orElseThrow();
+                require(prior.plaza().asLong()==Long.parseLong(cell[2]),"A real old Dusk plaza moved");
+                for(String line:lines.subList(1,lines.size())){
+                    var sample=line.split(" ",2);
+                    var pos=BlockPos.of(Long.parseLong(sample[0]));
+                    require(level.getBlockState(pos).toString().equals(sample[1]),"Changed old generated block at "+pos+": "+sample[1]+" -> "+level.getBlockState(pos));
+                }
+                System.out.println("ARCHITECTURE NATIVE UPGRADE PASS | original Dusk district, oriented blocks, jobs and bell "+prior.plaza());
+            }catch(java.io.IOException error){throw new IllegalStateException(error);}
+        }
         System.out.println("ARCHITECTURE LEGACY PASS | previous-version spruce, oak rail, oriented steps and cobble retained in saved chunk");
     }
 
@@ -69,7 +86,7 @@ final class ArchitectureProof {
             }
             for(String member:new String[]{"_beam","_fence","_slab","_stairs","_planks","_shutter"})
                 require(counts.getOrDefault(NS+prefix+member,0)>0,"No "+prefix+member+" in surveyed "+village.plaza());
-            for(String accent:new String[]{"silver_chain","petalsilk_plaster","camellia_glaze","opal_leaded_glass"})
+            for(String accent:dusk?new String[]{"silver_chain","dusk_heart_lantern","nightbriar_shingle_stairs","nightbriar_shingle_slab","starvein_frieze","opal_leaded_glass"}:new String[]{"silver_chain","heart_neon_lantern","petalsilk_plaster","camellia_glaze","opal_leaded_glass"})
                 require(counts.getOrDefault(NS+accent,0)>0,"Missing "+accent+" at "+village.plaza());
             exact(level,village.site().pos(village.x()+2,village.y()+1,village.z()-2),"minecraft:bell");
             for(int i=4;i<village.road().length-4;i+=4){
@@ -79,6 +96,18 @@ final class ArchitectureProof {
                 require(id(level,p).startsWith(NS),"Vanilla road at "+p);
             }
         }
+        var petal=BlossomVillage.first(level,false);
+        var dusk=BlossomVillage.first(level,true);
+        require(!petal.site().equals(dusk.site()),"Opposite native factions share a site");
+        int min=SettlementLayout.minimum(level);
+        for(var a:petal.houses())for(var b:dusk.houses()){
+            var pa=petal.site().pos(a.x(),0,a.z());
+            var pb=dusk.site().pos(b.x(),0,b.z());
+            // Circumscribed radii put the complete house footprints inside the check.
+            require(Math.sqrt(pa.distSqr(pb))-22>=min,"Generated districts closer than "+min+" at "+pa+" / "+pb);
+        }
+        require(BlossomVillage.plan(level,petal.site(),true).isEmpty() && BlossomVillage.plan(level,dusk.site(),false).isEmpty(),
+                "Opposite native population assigned to an already-claimed district");
         var s=GroveSites.first(level);
         int lip=s.lip();
         for(int z=lip+1;z<52;z++){

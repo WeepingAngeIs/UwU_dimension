@@ -4,12 +4,14 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 /** Stable server-policy API for companion mods. Registered items and owned inventory never change. */
 public final class AcquisitionPolicy {
  public static final ModConfigSpec SPEC;
+ public static final ModConfigSpec.IntValue SETTLEMENT_DISTANCE;
  public static final ModConfigSpec.BooleanValue HEART_LOCKET_CRAFTING;
  public static final ModConfigSpec.BooleanValue WEAPON_ACQUISITION;
  public static final ModConfigSpec.BooleanValue CUPID_WISHES, CUPID_PLAYER_WITNESSES;
  public static final ModConfigSpec.IntValue CUPID_WISH_RADIUS, CUPID_WISH_PERMISSION;
  static {
   var b=new ModConfigSpec.Builder();
+  SETTLEMENT_DISTANCE=b.comment("Minimum separation between native new Petal/Dusk village footprints, in blocks. Chosen when the world first opens with this version and then saved per world; old villages keep their locations.").worldRestart().defineInRange("nativeVillageSpacingBlocks",384,192,2048);
   HEART_LOCKET_CRAFTING=b.comment("Allow crafting heartwater_locket. Restart the world/server after changing; clients receive the server policy.").worldRestart().define("heartLocketCraftingEnabled",true);
   WEAPON_ACQUISITION=b.comment("Allow new survival acquisition of all UwU weapons through crafting, trades and generated loot (including unopened Lootr rolls). Existing owned/opened inventories and operator/creative access remain. Restart after changing.").worldRestart().define("weaponAcquisitionEnabled",true);
   b.push("cupidWishes");

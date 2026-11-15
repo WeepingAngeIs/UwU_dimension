@@ -39,8 +39,8 @@ public final class SakuraMaterials {
             return super.getToolModifiedState(state,context,action,simulate);
         }
     });
-    public static final DeferredBlock<GravelBlock> GRAVEL=variant("rainbow_gravel",Blocks.GRAVEL,()->
-            new GravelBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GRAVEL).mapColor(MapColor.COLOR_PINK)) {});
+    public static final DeferredBlock<ColoredFallingBlock> GRAVEL=variant("rainbow_gravel",Blocks.GRAVEL,()->
+            new ColoredFallingBlock(new net.minecraft.util.ColorRGBA(0xFFC8B7CF), BlockBehaviour.Properties.ofFullCopy(Blocks.GRAVEL).mapColor(MapColor.COLOR_PINK)));
     public static final DeferredBlock<Block> STONE=stone("sakura_stone",Blocks.STONE);
     public static final DeferredBlock<RotatedPillarBlock> SLATE=variant("sakura_deepslate",Blocks.DEEPSLATE,()->
             new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)) {});

@@ -16,6 +16,7 @@
     "uwudimension:brown_heartsill_slab",
     "uwudimension:green_heartsill_slab",
     "uwudimension:red_heartsill_slab",
-    "uwudimension:black_heartsill_slab"
+    "uwudimension:black_heartsill_slab",
+    "#uwudimension:architecture/slabs"
   ]
 }
