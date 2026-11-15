@@ -231,10 +231,19 @@ public final class VillageProof {
         attacker.moveTo(guard.getX()+2,guard.getY()+45,guard.getZ(),0,0);
         witness.moveTo(guard.getX()+1,guard.getY(),guard.getZ()-1,0,0);
         ward.setNoAi(true);attacker.setNoAi(true);attacker.setNoGravity(true);attacker.setPersistenceRequired();witness.setNoAi(true);witness.setNoGravity(true);
-        level.addFreshEntity(guard);level.addFreshEntity(ward);level.addFreshEntity(attacker);level.addFreshEntity(witness);
+        boolean guardAdded=level.addFreshEntity(guard), wardAdded=level.addFreshEntity(ward),
+                attackerAdded=level.addFreshEntity(attacker), witnessAdded=level.addFreshEntity(witness);
         require(guard.offender()==null,"Unprovoked guardian targeted bystander");
         require(attacker.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)>=1,"Boss-like target must resist knockback");
-        ward.hurt(level.damageSources().mobAttack(attacker),3);
+        float healthBefore=ward.getHealth(), absorptionBefore=ward.getAbsorptionAmount();
+        boolean accepted=ward.hurt(level.damageSources().mobAttack(attacker),3);
+        System.out.println("GUARDIAN HARM DIAGNOSTIC added="+guardAdded+","+wardAdded+","+attackerAdded+","+witnessAdded
+                +" damageAccepted="+accepted+" health="+healthBefore+"->"+ward.getHealth()
+                +" absorption="+absorptionBefore+"->"+ward.getAbsorptionAmount()
+                +" court="+ward.villageCourt()+" guardAlive="+guard.isAlive()+" attackerAlive="+attacker.isAlive()
+                +" expected="+attacker.getUUID()+" actual="+guard.offender()+" position="+platform
+                +" chunkLoaded="+level.hasChunkAt(platform)+" nearbyGuards="
+                +level.getEntitiesOfClass(dev.uwu.dimension.BlossomWarden.class,ward.getBoundingBox().inflate(64)).size());
         require(attacker.getUUID().equals(guard.offender()),"Actual harm did not identify offender");
         takeoff=attacker.getY();startX=attacker.getX();startZ=attacker.getZ();accusationAt=level.getGameTime();
         System.out.println("GUARDIAN START: bystander ignored; actual unarmored villager hurt by knockback-immune Warden; elevation="+takeoff);
