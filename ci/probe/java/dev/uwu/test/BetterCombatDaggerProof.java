@@ -61,6 +61,16 @@ public final class BetterCombatDaggerProof {
             level.addFreshEntity(target);
             player.setNoGravity(true);
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
+            // The real fixture includes Apothic Attributes, whose independent
+            // random critical strikes otherwise make angle comparisons flaky.
+            var chanceKey = net.minecraft.resources.ResourceKey.create(
+                    net.minecraft.core.registries.Registries.ATTRIBUTE,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("apothic_attributes", "crit_chance"));
+            var chance = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getHolder(chanceKey)
+                    .map(player::getAttribute).orElse(null);
+            double previousChance = chance == null ? 0 : chance.getBaseValue();
+            if (chance != null) chance.setBaseValue(0);
+            try {
             for (var daggerItem : java.util.List.of(
                     Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get(),
                     CounterArsenal.ITEMS.get("counter_toxic_longsword").get())) {
@@ -127,6 +137,9 @@ public final class BetterCombatDaggerProof {
                         + " rear=" + rear + " partialFront=" + partialFront + " partialRear=" + partialRear
                         + " airborneRear=" + airborneRear + " armoredRear=" + armoredRear
                         + " boundaries=passed handsRestored=true");
+            }
+            } finally {
+                if (chance != null) chance.setBaseValue(previousChance);
             }
             target.discard();
             player.discard();
