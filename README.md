@@ -30,6 +30,12 @@ At the village, read the field journal. Sneak-use an empty hand on the plaza bel
 
 - Cobblemon has 27 added spawn entries through its native player spawner. Flower fields, settlement outskirts, upper caves, deep stone and submerged waterways have their own eligibility rules. Each entry limits spawning to the intended UwU realms. Server spawn caps, cooldowns and bucket weights still apply.
 
+## Raising Owl Guardians
+
+Offer one harvested Heartberry, Sakura Rice, Starfruit, Frostpetal, Sweetbean Pods, Glowginger or Vanilla Bean to each adult. An Owl Guardian Girl and an Owl Guardian Male within eight blocks can have one baby. Both players need permission to interact when two people feed the pair. A guardian remembers its food for 30 seconds. After a birth, the parents rest for five minutes. By default, six guardians within 32 blocks fill the local population allowance.
+
+A baby can be a girl or a boy. Each uses its own adult form at half size and grows up after 20 minutes of loaded game time. Babies protect villagers and can grasp and throw hostiles. They have 30 percent of adult combat strength and keep the same fraction of their health when they grow. Server owners can tune feeding, growth, cooldown, permissions and population under `guardianFamily` in the UwU Dimension server configuration. Data packs can extend the `uwudimension:owl_guardian_food` item tag.
+
 ## Villages, reefs and the Mirror Court
 
 On arrival the locket announces the coordinates of the Petal village bell. Follow branching stone and earth paths past lanterns and timber gates. Four Petal house exteriors adapt individual buildings from the supplied Japanese village schematic. Look for white plaster panels between exposed posts and verandas beneath deep, layered eaves. The projecting roof courses, lifted ends and contrasting capped ridges draw on Boulevardier's Japanese Chateau. Pink ceramic roofs cover the Petal homes. Dusk has four steep-gabled Gothic house designs with pointed windows, dark shingles and hanging violet heart lanterns. Fresh saves start the two factions at least 384 blocks apart by default. The server setting `nativeVillageSpacingBlocks` establishes the spacing when a new save first creates its layout. Each house sits on its own supported floor and connects to the street at its working door. Adult keepers use beds and workstations. To heal a wounded friendly keeper, hold food and interact. For a Dusk Keeper, showing an emerald in the other hand can keep the interaction friendly. A meal restores health based on its nutrition.

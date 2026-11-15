@@ -100,6 +100,7 @@ final class RenewalProof {
         exercise(issues, "new terrain and materials", () -> ReachMaterialsProof.run(reach));
         exercise(issues, "original native architecture", () -> ArchitectureProof.run(reach));
         exercise(issues, "residents and eggs", () -> OwlResidentsProof.run(reach));
+        exercise(issues, "crop-fed guardian family", () -> GuardianFamilyProof.run(reach));
         exercise(issues, "two-target Cupid wishes", () -> CupidWishProof.run(reach));
         exercise(issues, "armor and natural habitats", () -> RenewalArmorProof.run(reach));
         if (!issues.isEmpty()) {

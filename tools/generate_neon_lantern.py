@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ASSETS = Path(__file__).resolve().parents[1] / "src/main/resources/assets/uwudimension"
 # Two lobes and a notch are present in both outlines. A dot inside stays open all
@@ -108,7 +108,35 @@ def rgba(color):
 
 SILVER_RGB = tuple(map(rgba,SILVER))
 PINK_RGB = tuple(map(rgba,PINK))
+def front_preview():
+    """Paint an orthographic front view of each actual model, including its hook or base."""
+    board = Image.new("RGB", (600, 218), "#2c2832")
+    captions = ImageDraw.Draw(board)
+    for i, (base, hanging) in enumerate((("heart_neon", False), ("heart_neon", True),
+                                         ("dusk_heart", False), ("dusk_heart", True))):
+        name = base + "_lantern" + ("_hanging" if hanging else "")
+        model = json.loads((ASSETS / f"models/block/{name}.json").read_text())
+        textures = {key: Image.open(ASSETS / ("textures/" + value.split(":",1)[1] + ".png")).convert("RGBA")
+                    for key,value in model["textures"].items()}
+        for element in sorted(model["elements"], key=lambda e:e["to"][2]):
+            front = element["faces"].get("south")
+            if front is None:
+                continue
+            x0,y0,_ = element["from"]
+            x1,y1,_ = element["to"]
+            uv = front.get("uv", [x0,16-y1,x1,16-y0])
+            tex = textures[front["texture"][1:]]
+            box = (int(uv[0]),int(uv[1]),max(int(uv[2]),int(uv[0])+1),max(int(uv[3]),int(uv[1])+1))
+            x = i*150 + 11 + round(x0*8)
+            y = 24 + round((16-y1)*8)
+            tile = tex.crop(box).resize((max(1,round((x1-x0)*8)),max(1,round((y1-y0)*8))),Image.Resampling.NEAREST)
+            board.paste(tile,(x,y),tile)
+        label = ("Petal" if base=="heart_neon" else "Dusk") + (" / hanging" if hanging else " / standing")
+        captions.text((i*150+22,174),label,fill="#f2dde6")
+    board.save(ASSETS.parents[4] / "docs/art/heart-neon-lantern-preview.png")
+
+
 if __name__=="__main__":
     build()
     build(dusk=True)
-
+    front_preview()

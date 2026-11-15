@@ -38,13 +38,13 @@ public class Expedition {
                 boolean restart = java.nio.file.Files.exists(java.nio.file.Path.of("first-site.txt"));
                 if (stage == 0) {
                     if (restart && !BossProof.verifyRestart(level)) return;
-                    if (level.setChunkForced(0, 0, true)) arenaTickets.add(new net.minecraft.world.level.ChunkPos(0,0));
+                    for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++) if(level.setChunkForced(x,z,true)) arenaTickets.add(new net.minecraft.world.level.ChunkPos(x,z));
                     arenaReadyAt = level.getGameTime() + 40;
                     stage = 1;
                     return;
                 }
                 if (stage == 1) {
-                    if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(0,0))) {
+                    for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++) if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(x,z))) {
                         if (level.getGameTime() - arenaReadyAt > 400) throw new AssertionError("Arena entity data unavailable");
                         return;
                     }

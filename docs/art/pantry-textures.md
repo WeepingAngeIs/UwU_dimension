@@ -1,6 +1,6 @@
 # Heartwater pantry pixel art
 
-The pantry has three original 4-by-4 pixel-art atlases. The split scripts reduce each illustrated tile to a crisp 16-by-16 inventory icon with a small palette, hard-edged transparency and nearest-neighbor previews.
+The production item set includes 48 dishes, 17 ingredients and seven plantable seeds. Each item has original 32-by-32 pixel art. Run `python tools/generate_pantry_art.py` to check those sprites and the 15 fruiting leaf textures. Add `--sheet pantry.png` for the full illustrated catalog. The three earlier atlas groups below list the dishes by collection.
 
 ## First pantry atlas
 
@@ -37,7 +37,7 @@ Seven crops appear as small, varied patches in the UwU Dimension's Ribbon Bluffs
 
 The harvests process into sakura rice flour, heartberry jam, sweetbean paste, petal sugar, and vanilla extract. Vanilla staples complete the pantry: snowballs make shaved ice, pink dye colors it pink, and cocoa beans with sugar and milk make chocolate syrup. Other recipes use honey bottles for maple syrup. These ingredients feed into the food recipes above without requiring Farmer's Delight or another food mod.
 
-![Sprout, growing, and mature pixel-art stages for the UwU Dimension crops](uwu_dimension_crop_preview.png)
+![All eight planted growth stages for the UwU Dimension crops](uwu_dimension_crop_preview.png)
 
 ![Pixel-art previews of the UwU Dimension harvests and pantry ingredients](uwu_dimension_ingredients_preview.png)
 

@@ -1,7 +1,6 @@
 package dev.uwu.dimension;
 
 import com.mojang.logging.LogUtils;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +9,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -21,7 +19,6 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -103,7 +100,7 @@ final class CupidWishes {
         var data=e.getPersistentData();
         long now=e.level().getGameTime();
         return data.getBoolean("uwu.pastel_cupid") && data.hasUUID(HeartMagic.OWNER) && p.getUUID().equals(data.getUUID(HeartMagic.OWNER))
-            && data.getLong(HeartMagic.END)>now && data.getLong(REST)<=now && protectedAccess(p,e.blockPosition());
+            && data.getLong(HeartMagic.END)>now && data.getLong(REST)<=now && SakuraAccess.mayInteract(p,e.blockPosition());
     }
     private static boolean pairAllowed(ServerPlayer p,LivingEntity a,LivingEntity b) {
         int radius=AcquisitionPolicy.CUPID_WISH_RADIUS.get();
@@ -174,7 +171,7 @@ final class CupidWishes {
     private static boolean place(ServerLevel level,ServerPlayer p,AgeableMob child, LivingEntity parent) {
         for(var d:new int[][]{{0,0},{1,0},{-1,0},{0,1},{0,-1}}) {
             Vec3 at=parent.position().add(d[0],0,d[1]); BlockPos pos=BlockPos.containing(at);
-            if(!level.hasChunkAt(pos) || !protectedAccess(p,pos) || !level.getWorldBorder().isWithinBounds(pos))continue;
+            if(!level.hasChunkAt(pos) || !SakuraAccess.mayInteract(p,pos) || !level.getWorldBorder().isWithinBounds(pos))continue;
             child.moveTo(at.x,at.y,at.z,parent.getYRot(),0);
             AABB box=child.getBoundingBox();
             if(!level.getWorldBorder().isWithinBounds(box) || level.getBlockCollisions(child,box).iterator().hasNext())continue;
@@ -185,7 +182,7 @@ final class CupidWishes {
             boolean clear=true;
             for(BlockPos part:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY-.125,box.minZ),
                         BlockPos.containing(box.maxX,box.maxY,box.maxZ))) {
-                if(!level.hasChunkAt(part) || !protectedAccess(p,part) ||
+                if(!level.hasChunkAt(part) || !SakuraAccess.mayInteract(p,part) ||
                    LocketLanding.harmfulBlock(level.getBlockState(part)) || level.getFluidState(part).is(FluidTags.LAVA)) {
                     clear=false;
                     break;
@@ -195,28 +192,4 @@ final class CupidWishes {
         }
         return false;
     }
-    private static boolean protectedAccess(ServerPlayer p, BlockPos pos) {
-        var level=p.serverLevel();
-        if(!level.mayInteract(p,pos))return false;
-        if(!ModList.get().isLoaded("openpartiesandclaims"))return true;
-        return OpenPac.allowed(p,pos);
-    }
-    private static final class OpenPac {
-        private static Method api,protection,access;
-        private static boolean attempted;
-        static boolean allowed(ServerPlayer p,BlockPos pos) {
-            try {
-                if(!attempted){
-                    attempted=true;
-                    Class<?> server=Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
-                    api=server.getMethod("get",MinecraftServer.class); protection=server.getMethod("getChunkProtection");
-                    access=protection.getReturnType().getMethod("hasChunkAccess",UUID.class,ResourceLocation.class,int.class,int.class);
-                }
-                if(access==null)return false;
-                Object rights=protection.invoke(api.invoke(null,p.server));
-                return Boolean.TRUE.equals(access.invoke(rights,p.getUUID(),p.level().dimension().location(),pos.getX()>>4,pos.getZ()>>4));
-            } catch(ReflectiveOperationException | LinkageError ex) { return false; }
-        }
-    }
 }
-

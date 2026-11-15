@@ -85,7 +85,7 @@ public final class People {
                 .add(Attributes.MOVEMENT_SPEED, 0.31).add(Attributes.ATTACK_DAMAGE, 5)
                 .add(Attributes.FOLLOW_RANGE, 24).build();
         event.put(BLOSSOM_WARDEN.get(), BlossomWarden.createMobAttributes()
-                .add(Attributes.MAX_HEALTH,320).add(Attributes.ARMOR,24).add(Attributes.ARMOR_TOUGHNESS,12)
+                .add(Attributes.MAX_HEALTH,320).add(Attributes.ATTACK_DAMAGE,15).add(Attributes.ARMOR,24).add(Attributes.ARMOR_TOUGHNESS,12)
                 .add(Attributes.KNOCKBACK_RESISTANCE,1).add(Attributes.MOVEMENT_SPEED,.17)
                 .add(Attributes.FOLLOW_RANGE,64).add(Attributes.STEP_HEIGHT,1.2).build());
         event.put(PETAL_KEEPER.get(), stats);

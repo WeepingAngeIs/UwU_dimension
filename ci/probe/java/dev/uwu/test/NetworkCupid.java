@@ -31,9 +31,10 @@ public final class NetworkCupid {
     public static final boolean ACTIVE="network-cupid".equals(System.getenv("UWU_VISIT"));
     private static final String HEART="dev.uwu.dimension.CupidParticleClient$Heart";
     private static final String OUTLINE="dev.uwu.dimension.CupidParticleClient$Outline";
-    private enum Phase { MENU, LOAD, DRAW, FLY, CLEAR, FINISH }
+    private enum Phase { MENU, LOAD, DRAW, FLY, CLEAR, FAMILY, FINISH }
     private static Phase phase=Phase.MENU;
     private static int ticks,shot,drawPackets,trailPackets,impactPackets;
+    private static final float[][] familyMeasurements=new float[4][];
     private static boolean drawPhoto,trailPhoto,impactPhoto;
     private static long started;
     private record Quad(float x,float y,float z,float size,boolean outline) {}
@@ -61,7 +62,26 @@ public final class NetworkCupid {
     }
 
     @SubscribeEvent public static void photograph(RenderFrameEvent.Post event) throws IOException {
-        if(!ACTIVE || quads.isEmpty()) return;
+        if(!ACTIVE)return;
+        if(phase==Phase.FAMILY){
+            if(ticks>12 && java.util.Arrays.stream(familyMeasurements).allMatch(v->v!=null)) {
+                for(int i=0;i<2;i++){
+                    var adult=familyMeasurements[i];var baby=familyMeasurements[i+2];
+                    for(int n=0;n<3;n++)if(Math.abs(baby[n]/adult[n]-.5F)>.12F)
+                        throw new AssertionError("Remote guardian youth dimensions "+i+" "+n+" "+baby[n]+"/"+adult[n]);
+                    if(Math.abs(baby[3]/adult[3]-.3F)>.01F)throw new AssertionError("Remote guardian youth health "+baby[3]+"/"+adult[3]);
+                }
+                var mc=Minecraft.getInstance();
+                try(var im=Screenshot.takeScreenshot(mc.getMainRenderTarget())) {
+                    var path=mc.gameDirectory.toPath().resolve("screenshots/network-guardian-family.png");
+                    Files.createDirectories(path.getParent());im.writeToFile(path);
+                }
+                System.out.println("NETWORK GUARDIAN FAMILY PASS | four remote original model renders, two juvenile hitboxes, eye heights and health ratios");
+                phase=Phase.FINISH;mc.stop();
+            }
+            return;
+        }
+        if(quads.isEmpty()) return;
         boolean takeDraw=phase==Phase.DRAW && drawPackets==1 && !drawPhoto;
         boolean takeTrail=phase==Phase.FLY && trailPackets>0 && !trailPhoto;
         boolean takeImpact=phase==Phase.FLY && impactPackets==1 && !impactPhoto;
@@ -156,11 +176,20 @@ public final class NetworkCupid {
             if(shot==0) {shot=1;beginShot(mc);}
             else {
                 if(mc.options.particles().get()!=ParticleStatus.MINIMAL) throw new AssertionError("Minimal mode changed");
-                phase=Phase.FINISH;
+                phase=Phase.FAMILY;ticks=0;
+                mc.player.setYRot(90);mc.player.setXRot(4);
                 System.out.println("NETWORK CUPID VISUAL PASS | real TCP server, first-person shooter, Minimal + Smart Particles + Particle Core, six framebuffer captures");
-                mc.stop();
             }
         }
+    }
+
+    @SubscribeEvent public static void guardianRendered(net.neoforged.neoforge.client.event.RenderLivingEvent.Post<?,?> e){
+        if(!ACTIVE || phase!=Phase.FAMILY || !(e.getEntity() instanceof dev.uwu.dimension.BlossomWarden g))return;
+        if(!(e.getRenderer() instanceof dev.uwu.dimension.BlossomWardenRenderer renderer))
+            throw new AssertionError("Expected native guardian renderer");
+        boolean femaleTexture=renderer.getTextureLocation(g).getPath().contains("female_uwu_guardian");
+        if(g.female()!=femaleTexture)throw new AssertionError("Remote guardian sex and texture differ");
+        familyMeasurements[(g.isBaby()?2:0)+(g.female()?1:0)]=new float[]{g.getBbWidth(),g.getBbHeight(),g.getEyeHeight(),g.getMaxHealth()};
     }
 
     private static void beginShot(Minecraft mc) {

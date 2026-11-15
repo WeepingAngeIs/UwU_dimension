@@ -499,6 +499,27 @@ def drift_blossom_assets():
     })
 
 
+def crop_sheet():
+    sheet = Image.new("RGB", (592, 420), "#292432")
+    labels = ImageDraw.Draw(sheet)
+    for stage in range(8):
+        labels.text((100 + stage * 61, 8), str(stage), fill="#F4DFE8")
+    for row, (key, spec) in enumerate(PLANTS.items()):
+        y = 30 + row * 55
+        labels.text((8, y + 22), key.removesuffix("_crop").replace("_", " ").title(), fill="#F4DFE8")
+        for stage in range(8):
+            icon = crop_texture(key, stage, spec).resize((48, 48), Image.Resampling.NEAREST)
+            sheet.paste(icon, (82 + stage * 61, y), icon)
+    sheet.save(ROOT / "docs/art/uwu_dimension_crop_preview.png")
+
+
+def field_sprites():
+    for key, spec in PLANTS.items():
+        for stage in range(8):
+            crop_texture(key, stage, spec).save(ASSETS / f"textures/block/{key}_stage{stage}.png")
+    crop_sheet()
+
+
 def main():
     drift_blossom_assets()
     for crop_id, spec in PLANTS.items():
@@ -537,7 +558,7 @@ def main():
     item_ids.update(seed_ids)
     for item_id in sorted(item_ids):
         (ASSETS / "textures/item").mkdir(parents=True, exist_ok=True)
-        item_texture(item_id).save(ASSETS / f"textures/item/{item_id}.png")
+        # Pantry item sprites are maintained by generate_pantry_art.py.
         write_json(ASSETS / f"models/item/{item_id}.json", {
             "parent": "minecraft:item/generated",
             "textures": {"layer0": f"uwudimension:item/{item_id}"},
@@ -578,22 +599,15 @@ def main():
     preview_path.parent.mkdir(parents=True, exist_ok=True)
     preview.save(preview_path)
 
-    row_height = 62
-    crop_preview = Image.new("RGBA", (270, 24 + len(PLANTS) * row_height), hex_color("#2B2233"))
-    crop_draw = ImageDraw.Draw(crop_preview)
-    for x, heading in ((72, "Sprout"), (143, "Growing"), (213, "Ripe")):
-        crop_draw.text((x, 4), heading, fill=hex_color("#F6E8F4"))
-    for index, (crop_id, spec) in enumerate(PLANTS.items()):
-        y = 24 + index * row_height
-        label = crop_id.removesuffix("_crop").replace("_", " ")[:10]
-        crop_draw.text((3, y + 21), label, fill=hex_color("#F6E8F4"))
-        for column, stage in enumerate((0, 3, 7)):
-            icon = crop_texture(crop_id, stage, spec)
-            crop_preview.alpha_composite(icon.resize((48, 48), Image.Resampling.NEAREST), (68 + column * 67, y))
-    crop_preview_path = ROOT / "docs/art/uwu_dimension_crop_preview.png"
-    crop_preview.save(crop_preview_path)
+    crop_sheet()
     print(f"Generated {len(PLANTS)} dimension crops, {len(item_ids)} ingredient/seed textures, block models, loot tables, and translations.")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate field crop art at all eight ages.")
+    parser.add_argument("--legacy-data", action="store_true", help="Also regenerate the historical garden block and recipe data.")
+    if parser.parse_args().legacy_data:
+        main()
+    else:
+        field_sprites()

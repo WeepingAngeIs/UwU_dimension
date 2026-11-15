@@ -38,6 +38,8 @@ public final class OwlPortraits {
     private static volatile Set<UUID> ids=Set.of();
     private static final Set<UUID> seen=new java.util.HashSet<>();
     private static int eyelid=-1,photos;
+    private static long sceneStarted;
+    private static boolean diagnosticTaken;
     private static final String[] EYES={"open","half","closed"};
 
     static SeaWatch.View frame(ServerPlayer p,String name) {
@@ -45,6 +47,24 @@ public final class OwlPortraits {
         Vec3 origin=Vec3.atBottomCenterOf(GroveSites.arrival(l)).add(0,.06,0);
         List<Mob> models=new ArrayList<>();
         if(name.equals("owl-keepers")) {
+            // The settlement guardian can throw an undead portrait sitter despite NoAI and invulnerability.
+            // Frame the actual four factions on a temporary shaded deck beyond the village patrol.
+            var arrival=BlockPos.containing(origin);
+            BlockPos deck=null;
+            for(int dx : new int[]{144,-144,208,-208}) {
+                var column=arrival.offset(dx,0,0);
+                l.getChunkAt(column);
+                var top=l.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,column);
+                if(l.getEntitiesOfClass(BlossomWarden.class,new net.minecraft.world.phys.AABB(top).inflate(88)).isEmpty()) {
+                    deck=top.above(2);break;
+                }
+            }
+            if(deck==null)throw new AssertionError("No unpatrolled keeper portrait site");
+            for(int x=-4;x<=4;x++) for(int z=-2;z<=5;z++) {
+                var floor=deck.offset(x,0,z);roof.putIfAbsent(floor,l.getBlockState(floor));
+                l.setBlockAndUpdate(floor,Blocks.CHERRY_PLANKS.defaultBlockState());
+            }
+            origin=Vec3.atBottomCenterOf(deck.above());
             for(var type:List.of(People.PETAL_KEEPER.get(),People.PETAL_ZOMBIE.get(),People.DUSK_KEEPER.get(),People.DUSK_ZOMBIE.get())) {
                 models.add(type.create(l));
             }
@@ -68,13 +88,15 @@ public final class OwlPortraits {
                 }
             }
             mob.moveTo(at.x,at.y,at.z,0,0);
-            mob.yBodyRot=0;mob.yHeadRot=0;mob.setNoAi(true);mob.setNoGravity(true);mob.setInvulnerable(true);
+            mob.yBodyRot=0;mob.yHeadRot=0;mob.setNoAi(true);mob.setNoGravity(true);mob.setInvulnerable(true);mob.setPersistenceRequired();
             if(!l.addFreshEntity(mob)) throw new AssertionError("Missing Owl model "+i);
             sitters.add(mob);
         }
         Vec3 look=origin.add(0,name.equals("owl-expression")?1.47:name.equals("owl-keepers")?1.05:1.31,0);
         var shot=new SeaWatch.View(look.add(name.equals("owl-expression")?.09:.19,.05,name.equals("owl-expression")?1.26:name.equals("owl-keepers")?4.35:3.75),look,name,false);
         ids=sitters.stream().map(Entity::getUUID).collect(java.util.stream.Collectors.toUnmodifiableSet());
+        diagnosticTaken=false;
+        sceneStarted=System.nanoTime();
         view=shot;
         return shot;
     }
@@ -110,7 +132,19 @@ public final class OwlPortraits {
     }
 
     static boolean ready(String name) {
-        return seen.containsAll(ids) && (!name.equals("owl-expression") || photos==7);
+        boolean complete=seen.containsAll(ids) && (!name.equals("owl-expression") || photos==7);
+        var mc=Minecraft.getInstance();
+        if (!complete && !diagnosticTaken && mc.level!=null && (System.nanoTime()-sceneStarted)>15_000_000_000L) {
+            diagnosticTaken=true;
+            Screenshot.grab(mc.gameDirectory,name+"-diagnostic.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+        }
+        if (!complete && mc.level!=null && mc.level.getGameTime()%100==0 && mc.getSingleplayerServer()!=null) {
+            String visible=seen.toString();
+            var server=mc.getSingleplayerServer();
+            server.execute(()->System.out.println("OWL PORTRAIT WAIT "+name+" drawn="+visible+" sitters="+
+                sitters.stream().map(m->m.getType()+" "+m.getUUID()+" removed="+m.isRemoved()+" at "+m.blockPosition()).toList()));
+        }
+        return complete;
     }
 
     static void release(ServerPlayer p) {

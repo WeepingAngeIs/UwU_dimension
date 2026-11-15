@@ -41,6 +41,12 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
         femaleModel = new Model(FemaleGuardianModel.sizeCubes(context.bakeLayer(FEMALE_LAYER)));
         addLayer(new LilyPadCrownLayer(this));
     }
+    @Override protected void scale(BlossomWarden guardian,PoseStack poses,float partialTick) {
+        // The two hierarchical guardian meshes are adult-sized. Vanilla's generic entity
+        // scale already applies outside this hook, while its age scale controls the hitbox.
+        float age=guardian.getAgeScale();
+        poses.scale(age,age,age);
+    }
     @Override public ResourceLocation getTextureLocation(BlossomWarden entity) {
         return entity.female() ? FEMALE_TEXTURES[OwlExpression.frame(entity.getUUID(),entity.tickCount)] : TEXTURE;
     }

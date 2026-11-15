@@ -5,6 +5,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public final class AcquisitionPolicy {
  public static final ModConfigSpec SPEC;
  public static final ModConfigSpec.IntValue SETTLEMENT_DISTANCE;
+ public static final ModConfigSpec.BooleanValue GUARDIAN_FAMILY;
+ public static final ModConfigSpec.IntValue GUARDIAN_COOLDOWN,GUARDIAN_GROWTH,GUARDIAN_READY,GUARDIAN_PAIR_RADIUS,
+         GUARDIAN_POPULATION_RADIUS,GUARDIAN_POPULATION_CAP,GUARDIAN_PERMISSION;
  public static final ModConfigSpec.BooleanValue HEART_LOCKET_CRAFTING;
  public static final ModConfigSpec.BooleanValue WEAPON_ACQUISITION;
  public static final ModConfigSpec.BooleanValue CUPID_WISHES, CUPID_PLAYER_WITNESSES;
@@ -19,6 +22,16 @@ public final class AcquisitionPolicy {
   CUPID_PLAYER_WITNESSES=b.comment("Allow a player who opts in to witness a creature wish.").define("playerWitnesses",true);
   CUPID_WISH_RADIUS=b.comment("Maximum distance between the two targets in blocks.").defineInRange("pairRadius",8,2,24);
   CUPID_WISH_PERMISSION=b.comment("Required command permission level of the archer.").defineInRange("permissionLevel",0,0,4);
+  b.pop();
+  b.push("guardianFamily");
+  GUARDIAN_FAMILY=b.comment("Allow adult Owl Guardians to raise young when each is fed a native crop.").define("enabled",true);
+  GUARDIAN_COOLDOWN=b.comment("Ticks each parent rests after a successful birth.").defineInRange("cooldownTicks",6000,1,240000);
+  GUARDIAN_GROWTH=b.comment("Loaded ticks required for a newborn to grow into its adult sex variant.").defineInRange("growthTicks",24000,1,240000);
+  GUARDIAN_READY=b.comment("Server ticks an individually fed guardian remains receptive.").defineInRange("readyTicks",600,20,24000);
+  GUARDIAN_PAIR_RADIUS=b.comment("Maximum 3D distance between two receptive adults.").defineInRange("pairRadius",8,2,16);
+  GUARDIAN_POPULATION_RADIUS=b.comment("Radius around the proposed birth for counting living Owl Guardians.").defineInRange("populationRadius",32,8,48);
+  GUARDIAN_POPULATION_CAP=b.comment("Refuse a birth when this many guardians, including adults and young, are already in range.").defineInRange("populationCap",6,2,64);
+  GUARDIAN_PERMISSION=b.comment("Minimum command permission level for feeding guardian parents.").defineInRange("permissionLevel",0,0,4);
   b.pop();
   SPEC=b.build();
  }

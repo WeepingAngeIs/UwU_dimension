@@ -40,6 +40,25 @@ public final class NetworkCupidServer {
         cow.setCustomName(Component.literal("Cupid witness"));
         cow.moveTo(.5,FLOOR+1,10.5,180,0);
         if(!level.addFreshEntity(cow)) throw new AssertionError("Missing real arrow target");
+        // Four ordinary tracked entities on a separate sightline. Spawn-packet evidence complements the actual feed/birth tests in Sakura.
+        for(int i=0;i<4;i++) {
+            var resident=dev.uwu.dimension.People.BLOSSOM_WARDEN.get().create(level);
+            if(resident==null)throw new AssertionError("Missing Guardian type");
+            var data=new net.minecraft.nbt.CompoundTag();
+            resident.saveWithoutId(data);
+            data.putBoolean("FemaleGuardian",(i & 1)!=0);
+            if(i>=2){
+                var family=new net.minecraft.nbt.CompoundTag();
+                family.putBoolean("Offspring",true);
+                family.putInt("GrowthTicks",24000);
+                data.put("OwlFamily",family);
+            }
+            resident.load(data);
+            resident.setNoAi(true);
+            resident.setPersistenceRequired();
+            resident.moveTo(-7.5,FLOOR+1,-2.4+1.85*i,-90,0);
+            if(resident.isBaby()!=(i>=2) || !level.addFreshEntity(resident))throw new AssertionError("Guardian tracking setup "+i);
+        }
         p.teleportTo(level,.5,FLOOR+1,.5,0,3);
         p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()));
         p.containerMenu.broadcastChanges();

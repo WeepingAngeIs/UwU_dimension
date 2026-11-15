@@ -36,3 +36,6 @@ grep -F 'NETWORK CUPID VISUAL PASS' "$world/client.log"
 for frame in 1-draw 1-trail 1-entity-impact 2-draw 2-trail 2-block-impact; do
     test -s "run/screenshots/network-cupid-$frame.png"
 done
+
+grep -F "NETWORK GUARDIAN FAMILY PASS" "$world/client.log"
+test -s run/screenshots/network-guardian-family.png

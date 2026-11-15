@@ -54,6 +54,21 @@ public final class BlossomWarden extends PathfinderMob {
     private static final EntityDataAccessor<Byte> POSE = SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FEMALE =
             SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> JUVENILE=SynchedEntityData.defineId(BlossomWarden.class,EntityDataSerializers.BOOLEAN);
+    private final GuardianFamily family=new GuardianFamily();
+    public boolean isBaby() {return entityData.get(JUVENILE);}
+    public int familyGrowthTicks(){return family.growth;}
+    public long familyReadyUntil(){return family.readyUntil;}
+    public long familyRestUntil(){return family.restUntil;}
+    GuardianFamily family(){return family;}
+    void juvenile(boolean value){entityData.set(JUVENILE,value);}
+    @Override protected net.minecraft.world.InteractionResult mobInteract(Player p,net.minecraft.world.InteractionHand hand){
+        if(p.getItemInHand(hand).is(GuardianFamily.FOOD)){
+            if(level().isClientSide)return net.minecraft.world.InteractionResult.SUCCESS;
+            if(p instanceof ServerPlayer player)return family.feed(this,player,hand);
+        }
+        return super.mobInteract(p,hand);
+    }
     public boolean female() { return entityData.get(FEMALE); }
     void setFemale(boolean girl) { entityData.set(FEMALE,girl); }
 
@@ -63,13 +78,17 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
-        if (female()) return net.minecraft.world.entity.EntityDimensions.scalable(.78F,1.98F).withEyeHeight(1.64F);
+        if (female()) return net.minecraft.world.entity.EntityDimensions.scalable(.78F,1.98F).withEyeHeight(1.64F).scale(getAgeScale());
         return super.getDefaultDimensions(pose);
     }
 
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
-        if (FEMALE.equals(key)) refreshDimensions();
+        if(JUVENILE.equals(key)) {
+            var max=getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+            if(max!=null)((GuardianVitality)max).uwu$guardianHealth(isBaby());
+        }
+        if (FEMALE.equals(key)||JUVENILE.equals(key)) refreshDimensions();
     }
 
     private boolean summoned;
@@ -93,7 +112,7 @@ public final class BlossomWarden extends PathfinderMob {
 
     public BlossomWarden(EntityType<? extends BlossomWarden> type, Level level) {
         super(type, level);
-        ((GuardianVitality)getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)).uwu$guardianHealth();
+        ((GuardianVitality)getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)).uwu$guardianHealth(false);
         getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
         setHealth(6666);
         setPersistenceRequired();
@@ -105,6 +124,7 @@ public final class BlossomWarden extends PathfinderMob {
         super.defineSynchedData(builder);
         builder.define(POSE, IDLE);
         builder.define(FEMALE, false);
+        builder.define(JUVENILE,false);
     }
 
     @Override protected void registerGoals() {
@@ -164,7 +184,7 @@ public final class BlossomWarden extends PathfinderMob {
         BlossomWarden known = directory.active(level, center);
         if (known != null) return known;
         for (BlossomWarden guard : level.getEntitiesOfClass(BlossomWarden.class, new AABB(center).inflate(42),
-                g -> g.isAlive() && !g.summoned && center.equals(g.court))) {
+                g -> g.isAlive() && !g.summoned && !g.family.offspring && center.equals(g.court))) {
             directory.remember(center, guard);
             return guard;
         }
@@ -222,8 +242,9 @@ public final class BlossomWarden extends PathfinderMob {
             }
         }
         if (!(level() instanceof ServerLevel level)) return;
+        family.tick(this,level);
         if (court == null) bindVillage(blockPosition());
-        if (!summoned && (tickCount == 1 || tickCount % 120 == 0)) {
+        if (!summoned && !family.offspring && (tickCount == 1 || tickCount % 120 == 0)) {
             Registry registry = directory(level);
             BlossomWarden other = registry.active(level, court);
             if (other != null && other != this) { discard(); return; }
@@ -269,9 +290,10 @@ public final class BlossomWarden extends PathfinderMob {
                 takeoffY = culprit.getY();
                 Vec3 outward = culprit.position().subtract(Vec3.atBottomCenterOf(court)).multiply(1,0,1).normalize();
                 if (outward.lengthSqr() < .1) outward = new Vec3(1,0,0);
-                Vec3 away = culprit.position().add(outward.scale(96));
+                double power=isBaby()?GuardianFamily.COMBAT_FRACTION:1.0;
+                Vec3 away = culprit.position().add(outward.scale(96*power));
                 var border = level.getWorldBorder().clampToBounds(away);
-                destination = new Vec3(border.getX()+.5, takeoffY+LAUNCH_HEIGHT, border.getZ()+.5);
+                destination = new Vec3(border.getX()+.5, takeoffY+LAUNCH_HEIGHT*power, border.getZ()+.5);
                 transition(GRIP);
                 sound(level, SoundEvents.CHERRY_WOOD_BREAK, .65F);
             } else if (pursueTicks % 10 == 1) getNavigation().moveTo(culprit, 1.0);
@@ -281,8 +303,8 @@ public final class BlossomWarden extends PathfinderMob {
             getNavigation().stop();
             setDeltaMovement(Vec3.ZERO);
             fallDistance = 0;
-            Vec3 front = getLookAngle().multiply(1,0,1).normalize().scale(1.25);
-            Vec3 hands = position().add(front).add(0, 1.5 + .4 * Math.min(1, motionTicks/12.0), 0);
+            Vec3 front = getLookAngle().multiply(1,0,1).normalize().scale(1.25*getAgeScale());
+            Vec3 hands = position().add(front).add(0,(1.5+.4*Math.min(1,motionTicks/12.0))*getAgeScale(),0);
             if (culprit.distanceToSqr(hands) > .04) move(culprit,hands);
             culprit.setDeltaMovement(Vec3.ZERO);
             culprit.fallDistance=0;
@@ -377,6 +399,7 @@ public final class BlossomWarden extends PathfinderMob {
 
     @Override public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        family.save(tag);
         tag.putInt("GuardianVitalityVersion",1);
         tag.putBoolean("FemaleGuardian", female());
         tag.putBoolean("KeeperSummonedGuardian", summoned);
@@ -396,6 +419,7 @@ public final class BlossomWarden extends PathfinderMob {
         for(int i=0;i<attributes.size();i++) if(attributes.getCompound(i).getString("id").equals("minecraft:generic.max_health"))oldMaximum=attributes.getCompound(i).getDouble("base");
         getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
         if(!tag.contains("GuardianVitalityVersion"))setHealth((float)(6666*Math.clamp(tag.getFloat("Health")/Math.max(1,oldMaximum),0,1)));
+        family.read(this,tag);
         if(tag.contains("VillageCourt")) bindVillage(BlockPos.of(tag.getLong("VillageCourt")));
         offenders.clear();
         var list=tag.getList("Offenders",Tag.TAG_COMPOUND);

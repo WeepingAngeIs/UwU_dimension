@@ -293,5 +293,14 @@
   "block.uwudimension.deepslate_silver_ore": "Deepslate Silver Ore",
   "item.uwudimension.silver_ingot": "Silver Ingot",
   "item.uwudimension.raw_silver": "Raw Silver",
-  "item.uwudimension.silver_nugget": "Silver Nugget"
+  "item.uwudimension.silver_nugget": "Silver Nugget",
+  "guardian.uwudimension.family.denied": "You cannot feed this guardian here.",
+  "guardian.uwudimension.family.young": "This young guardian is still growing.",
+  "guardian.uwudimension.family.rest": "This guardian is resting after raising a young owl.",
+  "guardian.uwudimension.family.ready": "This guardian has eaten. Feed a nearby adult of the other variant.",
+  "guardian.uwudimension.family.unavailable": "The other guardian is waiting for its feeder.",
+  "guardian.uwudimension.family.blocked": "The pair needs safe, permitted ground and room for a young guardian.",
+  "guardian.uwudimension.family.space": "The surrounding area must be loaded and have space for another guardian.",
+  "guardian.uwudimension.family.fed": "A pink heart appears. Feed a nearby adult guardian of the other variant.",
+  "guardian.uwudimension.family.born": "The two guardians welcomed a young owl."
 }
