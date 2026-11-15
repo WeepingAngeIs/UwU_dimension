@@ -110,6 +110,16 @@ public final class GlitchBow extends Item {
     }
     @Override public InteractionResultHolder<ItemStack> use(Level world,Player p,InteractionHand hand){
         ItemStack s=p.getItemInHand(hand);var c=counter(s);var r=relic(s);
+        // Ribbonstep's marked target can be used for its second stage after the
+        // regular item cooldown, even while the first ability is still pending.
+        if(pending(s)&&r==Arsenal.Relic.RIFT_WHIP&&p.isShiftKeyDown()&&!p.getCooldowns().isOnCooldown(this)){
+            if(!(world instanceof ServerLevel level))return InteractionResultHolder.sidedSuccess(s,true);
+            if(!RangedRelics.activate(level,p,r,hand))return InteractionResultHolder.fail(s);
+            long ready=level.getServer().overworld().getGameTime()+r.cooldown;
+            CustomData.update(DataComponents.CUSTOM_DATA,s,n->n.putLong("uwu_glitch_ready",Math.max(n.getLong("uwu_glitch_ready"),ready)));
+            p.getCooldowns().addCooldown(this,r.cooldown);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+            return InteractionResultHolder.sidedSuccess(s,false);
+        }
         boolean fishingForm=c!=null&&c.shape().equals("spear") || r==Arsenal.Relic.LANTERN_SPEAR || r==Arsenal.Relic.TIDELACE_TRIDENT;
         if(fishingForm && p.isShiftKeyDown()){
             CompoundTag data=s.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -135,13 +145,27 @@ public final class GlitchBow extends Item {
         int formDuration=c!=null?Math.max(160,cooldown):cooldown;
         if(c!=null){
             CounterEffects.ward(level,p,c);
-            if(c.shape().equals("whip")){begin(s,level,Math.max(12,formDuration),null);RibbonLash.castCounter(level,p,c);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));}
-            else{begin(s,level,formDuration,null);if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
-        }else if(RangedRelics.isWhip(r)||r==Arsenal.Relic.BLUE_HOUR_WAND){
+            if(c.shape().equals("whip")){
+                UUID token=UUID.randomUUID(),id=identity(s);var lash=RibbonLash.castCounter(level,p,c);
+                if(lash==null)return InteractionResultHolder.fail(s);
+                lash.getPersistentData().putUUID("uwu.glitch_id",id);lash.getPersistentData().putUUID("uwu.glitch_token",token);
+                begin(s,level,Math.max(12,formDuration),token);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+            }
+            else{begin(s,level,formDuration,UUID.randomUUID());if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
+        }else if(RangedRelics.isWhip(r) && !(r==Arsenal.Relic.RIFT_WHIP && p.isShiftKeyDown())){
+            UUID token=UUID.randomUUID(),id=identity(s);var lash=RibbonLash.cast(level,p,r);
+            if(lash==null)return InteractionResultHolder.fail(s);
+            lash.getPersistentData().putUUID("uwu.glitch_id",id);lash.getPersistentData().putUUID("uwu.glitch_token",token);
+            begin(s,level,Math.max(12,cooldown),token);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+        }else if(r==Arsenal.Relic.BLUE_HOUR_WAND){
+            UUID token=UUID.randomUUID(),id=identity(s);begin(s,level,cooldown,token);
+            if(!RelicAbilities.activate(level,p,r,s)){cancel(s);return InteractionResultHolder.fail(s);}
+            GlitchCompletions.complete(level,id,token);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+        }else if(r==Arsenal.Relic.RIFT_WHIP){
             if(!RangedRelics.activate(level,p,r,hand))return InteractionResultHolder.fail(s);
-            begin(s,level,Math.max(RangedRelics.isWhip(r)?12:0,cooldown),null);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+            begin(s,level,cooldown,null);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
         }else{
-            begin(s,level,cooldown,null);if(!RelicFlight.castGlitchWeapon(level,p,hand,r,null)){cancel(s);return InteractionResultHolder.fail(s);}
+            begin(s,level,cooldown,UUID.randomUUID());if(!RelicFlight.castGlitchWeapon(level,p,hand,r,null)){cancel(s);return InteractionResultHolder.fail(s);}
         }
         if(cooldown>0)p.getCooldowns().addCooldown(this,cooldown);
         return InteractionResultHolder.sidedSuccess(p.getItemInHand(hand),false);
@@ -159,7 +183,7 @@ public final class GlitchBow extends Item {
             if(c!=null)CounterEffects.ward(level,p,c);
             // The real scythe item cooldown is 60 ticks; counter scythes also
             // retain their form through the matching 160-tick ward.
-            begin(stack,level,c!=null?160:60,null);
+            begin(stack,level,c!=null?160:60,UUID.randomUUID());
             if(RelicFlight.castGlitchWeapon(level,p,hand,r,c))p.getCooldowns().addCooldown(this,60);else cancel(stack);
             return;
         }

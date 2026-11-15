@@ -25,6 +25,10 @@ final class RelicAbilities {
     private static final String THROW = "uwudimension.thrown_relic";
 
     static boolean activate(ServerLevel level, Player player, Arsenal.Relic relic) {
+        return activate(level,player,relic,ItemStack.EMPTY);
+    }
+
+    static boolean activate(ServerLevel level, Player player, Arsenal.Relic relic, ItemStack glitchStack) {
         switch (relic) {
             case RIBBONHARE_SCEPTER -> {
                 if (!(player.pick(25, 1, false) instanceof BlockHitResult hit) || hit.getType() == HitResult.Type.MISS) {
@@ -72,6 +76,7 @@ final class RelicAbilities {
                     else {
                         foe.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2));
                         foe.addEffect(new MobEffectInstance(MobEffects.GLOWING, 140));
+                        if(glitchStack.getItem() instanceof GlitchBow){GlitchCompletions.track(level,glitchStack,foe,"slow");GlitchCompletions.track(level,glitchStack,foe,"glow");}
                     }
                 }
                 line(level, start, end, whip ? ParticleTypes.CHERRY_LEAVES : ParticleTypes.GLOW);

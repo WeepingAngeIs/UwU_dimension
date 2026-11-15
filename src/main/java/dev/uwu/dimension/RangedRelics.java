@@ -58,13 +58,16 @@ public final class RangedRelics {
         EntityHitResult hit=ProjectileUtil.getEntityHitResult(level,player,start,end,new AABB(start,end).inflate(1),e->e instanceof LivingEntity l && enemy(player,l));
         return hit!=null && hit.getEntity() instanceof LivingEntity l ? l:null;
     }
-    static void strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic) {
-        strike(level, player, target, relic, player.position());
+    static boolean strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic) {
+        return strike(level, player, target, relic, player.position(), null);
     }
-    static void strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic, Vec3 attackPosition) {
-        if (!enemy(player,target)) return;
+    static boolean strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic, Vec3 attackPosition) {
+        return strike(level,player,target,relic,attackPosition,null);
+    }
+    static boolean strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic, Vec3 attackPosition, Entity abilitySource) {
+        if (!enemy(player,target)) return false;
         boolean rear = relic == Arsenal.Relic.ROSE_DAGGER && DaggerBackstab.isBehind(target, attackPosition);
-        if (!target.hurt(player.damageSources().playerAttack(player), rear ? relic.damage * 2F : relic.damage)) return;
+        if (!target.hurt(player.damageSources().playerAttack(player), rear ? relic.damage * 2F : relic.damage)) return false;
         if (rear) player.crit(target);
         switch(relic) {
             case FROST_WHIP -> {
@@ -76,7 +79,7 @@ public final class RangedRelics {
                 n.putLong("uwu.rift_until",level.getGameTime()+160);
                 n.putString("uwu.rift_world",level.dimension().location().toString());
             }
-            case AXOLOTL_WHIP -> summonPair(level,player,target);
+            case AXOLOTL_WHIP -> summonPair(level,player,target,abilitySource);
             case SATIN_WHIP, BELLHEART_AXE, TIDELACE_TRIDENT -> {
                 Vec3 pull=player.position().subtract(target.position()).multiply(1,0,1).normalize().scale(.9);
                 target.push(pull.x,.18,pull.z);target.hurtMarked=true;
@@ -85,6 +88,7 @@ public final class RangedRelics {
             case VESPER_SCYTHE -> player.heal(2);
             default -> target.addEffect(new MobEffectInstance(MobEffects.GLOWING,100));
         }
+        return true;
     }
     private static boolean teleport(ServerLevel level,Player player) {
         CompoundTag n=player.getPersistentData();
@@ -103,7 +107,7 @@ public final class RangedRelics {
         player.displayClientMessage(net.minecraft.network.chat.Component.literal("The marked foe has no safe landing nearby."),true);
         return false;
     }
-    private static void summonPair(ServerLevel level,Player player,LivingEntity target) {
+    private static void summonPair(ServerLevel level,Player player,LivingEntity target,Entity abilitySource) {
         // Replace only this player's prior pair; repeated casts cannot accumulate an army.
         for(Axolotl old:level.getEntitiesOfClass(Axolotl.class,player.getBoundingBox().inflate(64),a->a.getPersistentData().hasUUID("uwu.twin_owner") && a.getPersistentData().getUUID("uwu.twin_owner").equals(player.getUUID())))old.discard();
         for(int side:new int[]{-1,1}) {
@@ -111,7 +115,8 @@ public final class RangedRelics {
             a.setVariant(side<0?Axolotl.Variant.LUCY:Axolotl.Variant.BLUE);
             a.moveTo(player.getX()+side*.6,player.getY(),player.getZ(),0,0);
             CompoundTag n=a.getPersistentData();n.putUUID("uwu.twin_owner",player.getUUID());n.putUUID("uwu.twin_target",target.getUUID());n.putLong("uwu.twin_end",level.getGameTime()+600);
-            a.addTag("uwu.twin");a.setPersistenceRequired();level.addFreshEntity(a);
+            a.addTag("uwu.twin");a.setPersistenceRequired();
+            if(level.addFreshEntity(a) && abilitySource!=null)GlitchCompletions.track(abilitySource,a,"exists");
         }
     }
     private static void companionTick(EntityTickEvent.Post e) {

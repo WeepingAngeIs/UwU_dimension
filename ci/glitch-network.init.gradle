@@ -1,0 +1,14 @@
+// Each hosted client gets a separate game directory and unique offline name.
+gradle.beforeProject { target ->
+    target.pluginManager.withPlugin('net.neoforged.moddev') {
+        target.extensions.getByName('neoForge').runs.configureEach {
+            if (name == 'client') {
+                def role = System.getenv('GLITCH_ROLE')
+                if (!(role in ['shooter','observer'])) throw new GradleException('Missing Glitch client role')
+                gameDirectory.set(target.layout.projectDirectory.dir('run-' + role))
+                programArguments.addAll('--username', role == 'shooter' ? 'GlitchShooter' : 'GlitchObserver',
+                        '--width', '960', '--height', '600')
+            }
+        }
+    }
+}

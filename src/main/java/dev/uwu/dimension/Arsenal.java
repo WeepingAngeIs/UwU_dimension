@@ -90,6 +90,7 @@ public final class Arsenal {
         NeoForge.EVENT_BUS.addListener(RelicAbilities::onThrowImpact);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::beforeAttack);
         NeoForge.EVENT_BUS.addListener(GlitchBow::attributes);
+        NeoForge.EVENT_BUS.addListener(GlitchCompletions::onEntityLeave);
         RangedRelics.register(bus);
     }
 

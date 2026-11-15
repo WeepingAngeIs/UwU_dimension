@@ -51,11 +51,11 @@ public final class CounterProof {
                 require(opponent!=Items.AIR,"Missing installed target "+entry.target());
                 foe.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(opponent));
                 require(player.isAlive(),"Previous target retaliation killed the duel actor before "+entry.id());
-                player.moveTo(.5,base.getY()+1,.5,0,0);player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);player.setHealth(1000);player.invulnerableTime=0;
+                player.moveTo(.5,base.getY()+1,.5,0,0);player.setYHeadRot(0);player.yHeadRotO=0;player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);player.setHealth(1000);player.invulnerableTime=0;
                 foe.moveTo(.5,base.getY()+1,8.5,180,0);foe.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);foe.setHealth(1000);foe.invulnerableTime=0;
                 var item=CounterArsenal.ITEMS.get(entry.id()).get();var stack=new ItemStack(item);
                 player.setItemInHand(InteractionHand.MAIN_HAND,stack);player.getCooldowns().removeCooldown(item);
-                if(entry.shape().equals("whip"))System.out.println("WHIP AIM "+entry.id()+" actorHp="+player.getHealth()+" origin="+player.getEyePosition()+" aim="+player.getLookAngle()+" foe="+foe.position()+" visible="+player.hasLineOfSight(foe));
+                if(entry.shape().equals("whip"))System.out.println("WHIP AIM "+entry.id()+" actorHp="+player.getHealth()+" origin="+player.getEyePosition()+" bodyAim="+player.getLookAngle()+" headYaw="+player.getYHeadRot()+" view="+player.getViewVector(1)+" picked="+player.pick(16,1,false).getLocation()+" foe="+foe.position()+" visible="+player.hasLineOfSight(foe));
                 item.use(level,player,InteractionHand.MAIN_HAND);
                 if(entry.shape().equals("scythe")){
                     player.getPersistentData().remove("uwu.scythe_flight");

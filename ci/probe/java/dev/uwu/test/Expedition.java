@@ -30,6 +30,10 @@ public class Expedition {
             NetworkCupidServer.tick(server);
             return;
         }
+        if (server.isDedicatedServer() && NetworkGlitchServer.SESSION.equals(System.getenv("UWU_VISIT"))) {
+            NetworkGlitchServer.tick(server);
+            return;
+        }
         if(!server.isDedicatedServer() || stage<0 || server.getTickCount()<15)return;
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);

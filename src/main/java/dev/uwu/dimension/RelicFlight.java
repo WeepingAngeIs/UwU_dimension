@@ -168,7 +168,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     @Override public void remove(Entity.RemovalReason reason) {
         if (reason.shouldDestroy() && level() instanceof ServerLevel server
                 && getPersistentData().hasUUID("uwu.glitch_id") && getPersistentData().hasUUID("uwu.glitch_token"))
-            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_id"), getPersistentData().getUUID("uwu.glitch_token"));
+            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_id"), getPersistentData().getUUID("uwu.glitch_token"),getPersistentData().getInt("uwu.glitch_effect_ticks"));
         super.remove(reason);
     }
 
@@ -190,6 +190,13 @@ public final class RelicFlight extends ThrowableItemProjectile {
         }
         flight.entityData.set(ELEMENT, element);
         flight.entityData.set(HARE_ORB, kind == Arsenal.Relic.RIBBONHARE_SCEPTER);
+        if (physical && display.getItem() instanceof GlitchBow) {
+            var data=display.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(data.hasUUID("uwu_glitch_id") && data.hasUUID("uwu_glitch_token")) {
+                flight.getPersistentData().putUUID("uwu.glitch_id",data.getUUID("uwu_glitch_id"));
+                flight.getPersistentData().putUUID("uwu.glitch_token",data.getUUID("uwu_glitch_token"));
+            }
+        }
         if (kind == Arsenal.Relic.VESPER_SCYTHE || !counter.isEmpty()) {
             final int selectedElement = element;
             net.minecraft.world.item.component.CustomData.update(
@@ -262,14 +269,16 @@ public final class RelicFlight extends ThrowableItemProjectile {
         HeartCombatGlow.charmHearts(server, impact.x, impact.y + .5, impact.z, 8, .5, .2, .5, .01);
         var area = new net.minecraft.world.phys.AABB(impact.x - 3, impact.y - 3, impact.z - 3,
                 impact.x + 3, impact.y + 3, impact.z + 3);
+        boolean charmed=false;
         for (LivingEntity target : server.getEntitiesOfClass(LivingEntity.class, area,
                 entity -> entity.position().distanceToSqr(impact) <= 9 && RangedRelics.enemy(owner, entity))) {
             if (!(target instanceof Mob) && !(target instanceof net.minecraft.server.level.ServerPlayer)) continue;
             if (!server.hasChunkAt(target.blockPosition()) || !SakuraAccess.mayInteract(owner, target.blockPosition())) continue;
             var data = target.getPersistentData();
             if (data.hasUUID(HeartMagic.OWNER) && server.getGameTime() < data.getLong(HeartMagic.END)) continue;
-            if (server.random.nextFloat() < .10F) HeartMagic.charm(server, owner, target, true, 200);
+            if (server.random.nextFloat() < .10F && HeartMagic.charm(server, owner, target, true, 200)) {charmed=true;GlitchCompletions.track(this,target,"charm");}
         }
+        if(charmed)RelicReturns.deferGlitch(owner,this,200);
     }
 
     private void returnTo(Player player) {
@@ -367,10 +376,24 @@ public final class RelicFlight extends ThrowableItemProjectile {
             // rather than the entry point. Reconstruct the entry from the swept path.
             Vec3 impact = target.getBoundingBox().inflate(0.3D)
                     .clip(position(), position().add(getDeltaMovement())).orElse(position());
-            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), impact);
-            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), impact);
-            if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER)
-                summonHare(server, player, target.blockPosition());
+            int effectTicks=0;
+            if (counter().isEmpty()) {
+                boolean applied=RangedRelics.strike(server, player, target, relic(), impact,this);
+                if(applied && (switch(relic()){case RIBBONHARE_SCEPTER,BLOSSOM_GREATSWORD,ROSE_DAGGER,LANTERN_SPEAR -> true;default -> false;})){
+                    effectTicks=100;GlitchCompletions.track(this,target,"glow");
+                }
+            } else {
+                var entry=CounterArsenal.entry(counter());
+                if(entry!=null && CounterEffects.holds(target,entry.target()))effectTicks=160;
+                else if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))effectTicks=14;
+                CounterEffects.hit(server, player, target, entry, impact);
+                if(entry!=null && CounterEffects.holds(target,entry.target())){
+                    GlitchCompletions.track(this,target,"counter_mark");
+                    if(entry.school().equals("STAGGER")||entry.school().equals("GUARD"))GlitchCompletions.track(this,target,"slow");
+                }
+            }
+            if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && summonHare(server, player, target.blockPosition()))
+                effectTicks=Math.max(effectTicks,160);
             if (relic() == Arsenal.Relic.VESPER_SCYTHE) {
                 switch (element()) {
                     case 1 -> target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
@@ -379,7 +402,12 @@ public final class RelicFlight extends ThrowableItemProjectile {
                     case 3 -> { target.setDeltaMovement(target.getDeltaMovement().add(0, .45, 0)); target.hurtMarked = true; }
                     default -> player.heal(1);
                 }
+                if(element()==1||element()==2)effectTicks=Math.max(effectTicks,60);
+                if(element()==1)GlitchCompletions.track(this,target,"slow");
+                if(element()==2)GlitchCompletions.track(this,target,"fire");
             }
+            if(getPersistentData().hasUUID("uwu.glitch_token"))getPersistentData().putInt("uwu.glitch_effect_ticks",effectTicks);
+            RelicReturns.deferGlitch(player,this,effectTicks);
             HeartCombatGlow.burst(server, target.position().add(0, target.getBbHeight() * .55, 0), 1.25, element());
         }
         finish();
@@ -390,8 +418,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         if (level() instanceof ServerLevel server)
             HeartCombatGlow.burst(server, hit.getLocation(), .9, element());
         if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && level() instanceof ServerLevel server
-                && getOwner() instanceof Player player)
-            summonHare(server, player, hit.getBlockPos().relative(hit.getDirection()));
+                && getOwner() instanceof Player player && summonHare(server, player, hit.getBlockPos().relative(hit.getDirection())))
+            RelicReturns.deferGlitch(player,this,160);
         if (physicalWeapon && level() instanceof ServerLevel server) {
             landOnBlock(server, hit);
             return;
@@ -399,12 +427,13 @@ public final class RelicFlight extends ThrowableItemProjectile {
         finish();
     }
 
-    private void summonHare(ServerLevel server, Player player, net.minecraft.core.BlockPos pos) {
+    private boolean summonHare(ServerLevel server, Player player, net.minecraft.core.BlockPos pos) {
         Rabbit hare = Arsenal.HARE.get().create(server);
-        if (hare == null) return;
+        if (hare == null) return false;
         hare.moveTo(pos.getX() + .5, pos.getY(), pos.getZ() + .5, 0, 0);
         if (server.noCollision(hare) && server.getBlockState(pos.below()).isFaceSturdy(server, pos.below(),
-                net.minecraft.core.Direction.UP)) HeartMagic.callHare(server, player, hare);
+                net.minecraft.core.Direction.UP)) { HeartMagic.callHare(server, player, hare);if(hare.isAddedToLevel())GlitchCompletions.track(this,hare,"exists");return true; }
+        return false;
     }
 
     private void finish() {

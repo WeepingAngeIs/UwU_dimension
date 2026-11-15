@@ -1,7 +1,5 @@
 name: Giant Sakura growth and landmark
 on:
-  push:
-    branches: [feature/sakura-glitch-guardian]
   workflow_dispatch:
 permissions:
   contents: read

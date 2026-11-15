@@ -25,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 /** Actual server-tick custody, form behavior and completion checks in a disposable world. */
 final class GlitchLifecycleProof {
     private static ServerPlayer player;
+    private static Husk frozenTarget;
     private static GlitchBow item;
     private static RelicFlight flight;
     private static HeartArrow arrow;
@@ -33,7 +34,8 @@ final class GlitchLifecycleProof {
     private static int stage, oldForm;
     private static int initialWear;
     private static Object enchantments;
-    private static boolean caught, offhandWardWaited;
+    private static boolean caught, offhandWardWaited, frozenObserved;
+    private static long whipStarted;
 
     private static void check(boolean ok,String text){if(!ok)throw new AssertionError("Glitch lifecycle: "+text);}
     private static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
@@ -87,6 +89,33 @@ final class GlitchLifecycleProof {
             check(stillForm(mimic)||GlitchBow.form(mimic).equals(entry.id()),"melee changed displayed form early");
             System.out.println("GLITCH TWIN CHAKRAM MELEE PASS direct="+actualDirect+" mimic="+actualMimic+" attackAttribute="+mirrored);
         }finally{if(chance!=null)chance.setBaseValue(oldChance);mob.discard();}
+    }
+    private static void recovery(ServerLevel level)throws Exception{
+        startForm("counter_runic_twinblade",InteractionHand.MAIN_HAND);
+        current.set(DataComponents.CUSTOM_NAME,Component.literal("Saved Glitch"));
+        int selected=oldForm;
+        item.use(level,player,InteractionHand.MAIN_HAND);
+        var launched=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(5),f->f.getOwner()==player&&!f.wave());
+        check(launched.size()==1&&player.getMainHandItem().isEmpty(),"recovery fixture did not throw");
+        var physical=launched.getFirst();
+        CompoundTag ownerData=player.saveWithoutId(new CompoundTag());
+        CompoundTag flightData=physical.saveWithoutId(new CompoundTag());
+        UUID id=player.getUUID();
+        physical.discard();player.discard();
+        ServerLevel elsewhere=level.getServer().overworld();
+        var recovered=CounterProof.player(elsewhere,new GameProfile(id,"GlitchLifecycle"));
+        recovered.load(ownerData);recovered.setPos(0,elsewhere.getMaxBuildHeight()-20,0);
+        recovered.setNoGravity(true);elsewhere.addNewPlayer(recovered);recovered.tickCount=20;
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(recovered));
+        check(recovered.getInventory().countItem(item)==1,"offline/dimension recovery failed or duplicated stack");
+        var result=recovered.getInventory().items.stream().filter(s->s.is(item)).findFirst().orElseThrow();
+        check(GlitchBow.currentIndex(result)==selected&&data(result).getBoolean("uwu_glitch_pending")
+                &&result.getHoverName().getString().equals("Saved Glitch"),"recovery lost pending form or custom data");
+        var stale=RangedRelics.FLIGHT.get().create(level);check(stale!=null,"no stale-flight factory");
+        stale.load(flightData);stale.setOwner(recovered);stale.tick();
+        check(stale.isRemoved()&&recovered.getInventory().countItem(item)==1,"late projectile duplicated a recovered stack");
+        recovered.discard();
+        System.out.println("GLITCH RECOVERY PASS saved owner and flight, dimension change, pending form and stale-flight deduplication");
     }
     static boolean tick(ServerLevel level)throws Exception {
         // Probe visitors are not in the server player list, whose network loop
@@ -163,17 +192,26 @@ final class GlitchLifecycleProof {
             if(arrow.isAlive()){check(stillForm(current),"Cupid form changed before impact");check(level.getGameTime()<deadline,"heart arrow did not reach wall");return false;}
             if(stillForm(current)){check(level.getGameTime()<deadline,"Cupid form never advanced after impact");return false;}
             System.out.println("GLITCH BOW PASS form held beyond zero cooldown until actual arrow impact");
+            frozenTarget=EntityType.HUSK.create(level);check(frozenTarget!=null,"missing Frost test target");
+            frozenTarget.moveTo(player.getX(),player.getY(),player.getZ()+4,180,0);
+            frozenTarget.setNoAi(true);frozenTarget.setNoGravity(true);
+            frozenTarget.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);frozenTarget.setHealth(200);
+            level.addFreshEntity(frozenTarget);player.setYRot(0);player.setYHeadRot(0);player.yHeadRotO=0;player.setXRot(0);
             startForm("frost_whip",InteractionHand.MAIN_HAND);
             item.use(level,player,InteractionHand.MAIN_HAND);
             var lashes=level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(4),l->l.owner()==player);
             check(lashes.size()==1&&lashes.getFirst().relic()==Arsenal.Relic.FROST_WHIP,"Frost form did not cast its own lash");
             check(stillForm(current)&&data(current).getBoolean("uwu_glitch_pending"),"whip advanced before ability/cooldown");
-            deadline=level.getGameTime()+180;stage=5;return false;
+            whipStarted=level.getGameTime();deadline=level.getGameTime()+350;stage=5;return false;
         }
         if(stage==5){
+            if(frozenTarget.getTicksFrozen()>0)frozenObserved=true;
             if(player.getCooldowns().isOnCooldown(item))check(stillForm(current),"whip advanced during cooldown");
+            if(frozenObserved&&level.getGameTime()-whipStarted<160)check(stillForm(current),"whip advanced before its freezing effect ended");
             if(stillForm(current)){check(level.getGameTime()<deadline,"whip did not advance after cooldown");return false;}
-            System.out.println("GLITCH WHIP PASS selected Snowkiss lash and full cooldown");
+            check(frozenObserved&&level.getGameTime()-whipStarted>=160,"Frost hit/effect lifetime was not observed");
+            frozenTarget.discard();
+            System.out.println("GLITCH WHIP PASS selected Snowkiss lash, actual hit and full freeze-effect lifetime");
             startForm("counter_iron_greataxe",InteractionHand.OFF_HAND);
             player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIRT));
             item.use(level,player,InteractionHand.OFF_HAND);
@@ -210,8 +248,8 @@ final class GlitchLifecycleProof {
         if(stage==8){
             if(stillForm(current)){check(level.getGameTime()<deadline,"fishing form did not advance after reel");return false;}
             System.out.println("GLITCH FISHING PASS retained form while cast, reel then advance");
-            player.discard();
-            System.out.println("UWU GLITCH LIFECYCLE PASS real melee, Twin Chakram, projectile custody, saved data, cooldown, bow, whip, offhand and fishing");
+            recovery(level);
+            System.out.println("UWU GLITCH LIFECYCLE PASS real melee, Twin Chakram, projectile custody, saved data, cooldown, bow, whip, offhand, fishing and offline recovery");
             return true;
         }
         throw new AssertionError("Unknown Glitch lifecycle stage "+stage);

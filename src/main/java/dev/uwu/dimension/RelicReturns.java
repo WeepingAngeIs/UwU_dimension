@@ -51,6 +51,22 @@ final class RelicReturns {
         return flights.contains(flight.getStringUUID()) && !flights.getCompound(flight.getStringUUID()).getBoolean("Ready");
     }
 
+    /** Keep a reserved Glitch form until a lasting effect caused by its impact has expired. */
+    static void deferGlitch(Player owner, RelicFlight flight, int effectTicks) {
+        if (!(owner.level() instanceof net.minecraft.server.level.ServerLevel level) || effectTicks <= 0) return;
+        CompoundTag flights = saved(owner).getCompound(FLIGHTS);
+        String key = flight.getStringUUID();
+        if (!flights.contains(key)) return;
+        CompoundTag entry = flights.getCompound(key);
+        ItemStack stack = ItemStack.parseOptional(owner.registryAccess(), entry.getCompound("Stack"));
+        if (!(stack.getItem() instanceof GlitchBow)) return;
+        long deadline = level.getServer().overworld().getGameTime() + effectTicks;
+        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, stack,
+                tag -> tag.putLong("uwu_glitch_ready", Math.max(tag.getLong("uwu_glitch_ready"), deadline)));
+        entry.put("Stack", stack.save(owner.registryAccess()));
+        flight.setItem(stack.copy());
+    }
+
     /** Charge the reserved weapon itself, even while the owner's hand is empty. */
     static void damageHarvest(ServerPlayer owner, RelicFlight flight) {
         if (owner.isCreative()) return;
@@ -91,6 +107,12 @@ final class RelicReturns {
                 if (sameLevel && player.serverLevel().getEntity(UUID.fromString(key)) instanceof RelicFlight
                         && player.level().getGameTime() - entry.getLong("Launched") < 400) continue;
                 entry.putBoolean("Ready", true);
+                // The original claim is invalidated before its stack is restored.
+                // If the old visual later loads, active() rejects it before any hit.
+                ItemStack reserved = ItemStack.parseOptional(player.registryAccess(),entry.getCompound("Stack"));
+                var data=reserved.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                if(reserved.getItem() instanceof GlitchBow && data.hasUUID("uwu_glitch_id") && data.hasUUID("uwu_glitch_token"))
+                    GlitchCompletions.complete(player.serverLevel(),data.getUUID("uwu_glitch_id"),data.getUUID("uwu_glitch_token"));
             }
             deliver(player, flights, key);
         }
