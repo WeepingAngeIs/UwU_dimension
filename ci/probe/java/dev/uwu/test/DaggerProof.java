@@ -109,8 +109,12 @@ final class DaggerProof {
         float rearDamage = attack(player, target, rear, 100, false);
         float partialFront = attack(player, target, front, 2, false);
         float partialRear = attack(player, target, rear, 2, false);
-        require(near(sideDamage, frontDamage), label + ": exact-side melee awarded bonus");
-        require(near(rearDamage, frontDamage * 2), label + ": rear melee not 2x");
+        System.out.println("UWU DAGGER DAMAGE " + label + " front=" + frontDamage + " side=" + sideDamage
+                + " rear=" + rearDamage + " partialFront=" + partialFront + " partialRear=" + partialRear);
+        require(near(sideDamage, frontDamage), label + ": exact-side melee differs: front="
+                + frontDamage + " side=" + sideDamage);
+        require(near(rearDamage, frontDamage * 2), label + ": rear melee not 2x: front="
+                + frontDamage + " rear=" + rearDamage);
         require(partialFront < frontDamage && near(partialRear, partialFront * 2),
                 label + ": partial cooldown bypassed or rear damage incorrect");
 
@@ -209,6 +213,12 @@ final class DaggerProof {
         other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
         other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
         other.setHealth(200);
+        // A new ServerPlayer has 60 ticks of spawn protection. Simulate ordinary
+        // player ticks so real PvP damage is tested after that protection expires.
+        other.setNoGravity(true);
+        for (int tick = 0; tick < 70; tick++) other.tick();
+        other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
+        other.setHealth(200);
         try {
             geometry(mob, "mob");
             geometry(other, "player");
@@ -236,6 +246,7 @@ final class DaggerProof {
             player.setOnGround(true);
             player.getInventory().clearContent();
             other.getInventory().clearContent();
+            other.setNoGravity(false);
             other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);
             other.setHealth(20);
         }

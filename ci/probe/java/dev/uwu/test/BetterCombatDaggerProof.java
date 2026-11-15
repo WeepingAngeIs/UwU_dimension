@@ -3,6 +3,7 @@ package dev.uwu.test;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import dev.uwu.dimension.Arsenal;
+import dev.uwu.dimension.CounterArsenal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -60,39 +61,46 @@ public final class BetterCombatDaggerProof {
             level.addFreshEntity(target);
             player.setNoGravity(true);
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
-            ItemStack dagger = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get());
-            player.setItemInHand(InteractionHand.OFF_HAND, dagger);
+            for (var daggerItem : java.util.List.of(
+                    Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get(),
+                    CounterArsenal.ITEMS.get("counter_toxic_longsword").get())) {
+                ItemStack dagger = new ItemStack(daggerItem);
+                player.setItemInHand(InteractionHand.OFF_HAND, dagger);
 
-            Class<?> helper = Class.forName("net.bettercombat.logic.PlayerAttackHelper");
-            Method current = helper.getMethod("getCurrentAttack", Player.class, int.class);
-            int offhandCombo = -1;
-            for (int combo = 0; combo < 32; combo++) {
-                Object attack = current.invoke(null, player, combo);
-                if (attack != null && (boolean)attack.getClass().getMethod("isOffHand").invoke(attack)
-                        && ((ItemStack)attack.getClass().getMethod("itemStack").invoke(attack)).is(dagger.getItem())) {
-                    offhandCombo = combo;
-                    break;
+                Class<?> helper = Class.forName("net.bettercombat.logic.PlayerAttackHelper");
+                Method current = helper.getMethod("getCurrentAttack", Player.class, int.class);
+                int offhandCombo = -1;
+                for (int combo = 0; combo < 32; combo++) {
+                    Object attack = current.invoke(null, player, combo);
+                    if (attack != null && (boolean)attack.getClass().getMethod("isOffHand").invoke(attack)
+                            && ((ItemStack)attack.getClass().getMethod("itemStack").invoke(attack)).is(dagger.getItem())) {
+                        Object attrs = attack.getClass().getMethod("attributes").invoke(attack);
+                        if (!"dagger".equals(attrs.getClass().getMethod("category").invoke(attrs)))
+                            throw new AssertionError("Better Combat used the wrong weapon category for " + dagger.getItem());
+                        offhandCombo = combo;
+                        break;
+                    }
                 }
+                if (offhandCombo < 0) throw new AssertionError("Better Combat did not select the offhand dagger");
+
+                Class<?> request = Class.forName("net.bettercombat.network.Packets$C2S_AttackRequest");
+                var constructor = request.getConstructor(int.class, boolean.class, int.class, int.class, int[].class);
+                Object packet = constructor.newInstance(offhandCombo, false, player.getInventory().selected,
+                        target.getId(), new int[]{target.getId()});
+                Class<?> network = Class.forName("net.bettercombat.network.ServerNetwork");
+                Method dispatch = network.getMethod("handleAttackRequest", request,
+                        net.minecraft.server.MinecraftServer.class, ServerPlayer.class,
+                        ServerGamePacketListenerImpl.class);
+                var ticker = LivingEntity.class.getDeclaredField("attackStrengthTicker");
+                ticker.setAccessible(true);
+
+                float front = strike(level, player, target, dispatch, packet, ticker, false);
+                float rear = strike(level, player, target, dispatch, packet, ticker, true);
+                if (front <= 0 || Math.abs(rear - front * 2) > .1F)
+                    throw new AssertionError("Better Combat offhand front/rear damage " + front + "/" + rear);
+                if (!player.getOffhandItem().is(dagger.getItem()) || !player.getMainHandItem().is(Items.IRON_SWORD))
+                    throw new AssertionError("Better Combat did not restore both hands");
             }
-            if (offhandCombo < 0) throw new AssertionError("Better Combat did not select the offhand dagger");
-
-            Class<?> request = Class.forName("net.bettercombat.network.Packets$C2S_AttackRequest");
-            var constructor = request.getConstructor(int.class, boolean.class, int.class, int.class, int[].class);
-            Object packet = constructor.newInstance(offhandCombo, false, player.getInventory().selected,
-                    target.getId(), new int[]{target.getId()});
-            Class<?> network = Class.forName("net.bettercombat.network.ServerNetwork");
-            Method dispatch = network.getMethod("handleAttackRequest", request,
-                    net.minecraft.server.MinecraftServer.class, ServerPlayer.class,
-                    ServerGamePacketListenerImpl.class);
-            var ticker = LivingEntity.class.getDeclaredField("attackStrengthTicker");
-            ticker.setAccessible(true);
-
-            float front = strike(level, player, target, dispatch, packet, ticker, false);
-            float rear = strike(level, player, target, dispatch, packet, ticker, true);
-            if (front <= 0 || Math.abs(rear - front * 2) > .1F)
-                throw new AssertionError("Better Combat offhand front/rear damage " + front + "/" + rear);
-            if (!player.getOffhandItem().is(dagger.getItem()) || !player.getMainHandItem().is(Items.IRON_SWORD))
-                throw new AssertionError("Better Combat did not restore both hands");
             target.discard();
             player.discard();
             System.out.println("UWU BETTER COMBAT OFFHAND PASS actual packet handler front/rear and hand restoration");
