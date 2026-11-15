@@ -131,6 +131,6 @@ final class SeaWatch {
     }
     private static boolean coral(ServerLevel l,BlockPos p) {
         var b=l.getBlockState(p);
-        return b.is(BlockTags.CORAL_BLOCKS)||b.is(BlockTags.CORALS)||BuiltInRegistries.BLOCK.getKey(b.getBlock()).getPath().equals("nacre_rose");
+        return b.is(BlockTags.CORAL_BLOCKS)||b.is(BlockTags.CORALS)||java.util.Set.of("uwudimension:nacre_rose", "uwudimension:blush_shellstone", "uwudimension:moonwake_shellstone").contains(BuiltInRegistries.BLOCK.getKey(b.getBlock()).toString());
     }
 }

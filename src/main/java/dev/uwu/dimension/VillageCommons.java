@@ -87,12 +87,24 @@ final class VillageCommons extends SavedData {
         String bell = Long.toString(pos.asLong());
         CompoundTag book = data.villages.getCompound(bell);
         if (match == null) {
+            if (GroveSites.adventure(level,site)) {
+                BlockPos falls = site.pos(0,site.entryY(),site.lip());
+                tell(player, "Waterfall trail · Follow the spring to X " + falls.getX() + ", Z " + falls.getZ() +
+                        ". The tideglass marks a passage behind the water.");
+            }
             for (var project : Project.values()) {
                 CompoundTag entry = book.getCompound(project.name());
                 int paid = entry.getInt("Total");
                 if (paid >= project.need && entry.getBoolean("Gave"+player.getUUID()) && !entry.getBoolean("Claim"+player.getUUID())) {
                     var gift = new ItemStack(BuiltInRegistries.ITEM.get(UwUDimension.id(project.prize)));
                     if (!player.addItem(gift)) player.drop(gift, false);
+                    var root = player.getPersistentData();
+                    var saved = root.getCompound(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG);
+                    if (!saved.getBoolean("sakura_festival_keepsake")) {
+                        saved.putInt("sakura_festival_keepsake",1);
+                        root.put(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG,saved);
+                        tell(player, "You earned a blossom trail. Use /sakura trail on to wear it.");
+                    }
                     entry.putBoolean("Claim"+player.getUUID(),true);
                     book.put(project.name(),entry);
                     tell(player, "Thank you for helping with the " + project.title + ". Your keepsake is ready.");

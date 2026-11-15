@@ -151,7 +151,12 @@ public final class SakuraCraft {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 0));
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 80, 0));
         }
-        level.sendParticles(bloom ? ParticleTypes.CHERRY_LEAVES : ParticleTypes.ENCHANT,
-                player.getX(), player.getY() + 1, player.getZ(), 8, .4, .4, .4, .02);
+        for (var viewer : level.players()) {
+            if (viewer.distanceToSqr(player) > 32 * 32) continue;
+            int quality = ReachLife.preference(viewer, "sakura_effects", 2);
+            int sparks = quality == 0 ? 1 : quality == 1 ? 4 : 8;
+            level.sendParticles(viewer, bloom ? ParticleTypes.CHERRY_LEAVES : ParticleTypes.ENCHANT, false,
+                    player.getX(), player.getY() + 1, player.getZ(), sparks, .4, .4, .4, .02);
+        }
     }
 }

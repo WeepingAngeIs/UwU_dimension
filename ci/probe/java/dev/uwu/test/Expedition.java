@@ -30,7 +30,27 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
-            if(System.getenv("UWU_RENEWAL")!=null){ RenewalProof.run(level);stage=-1;server.halt(false);return; }
+            if (System.getenv("UWU_RENEWAL") != null) {
+                if (stage == 0) {
+                    level.setChunkForced(0, 0, true);
+                    arenaReadyAt = level.getGameTime() + 40;
+                    stage = 1;
+                    return;
+                }
+                if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(0,0))) {
+                    if (level.getGameTime() - arenaReadyAt > 400) throw new AssertionError("Arena entity data unavailable");
+                    return;
+                }
+                if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
+                try {
+                    RenewalProof.run(level);
+                } finally {
+                    level.setChunkForced(0, 0, false);
+                }
+                stage = -1;
+                server.halt(false);
+                return;
+            }
             if(System.getenv("UWU_ADVANCEMENT")!=null){if(AdvancementProof.tick(level)){stage=-1;server.halt(false);}return;}
             if(System.getenv("UWU_CONTROLS")!=null){if(ControlsProof.tick(level)){stage=-1;server.halt(false);}return;}
             if(System.getenv("UWU_FLIGHT")!=null){if(FlightProof.tick(level)){stage=-1;server.halt(false);}return;}

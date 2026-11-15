@@ -613,6 +613,10 @@ public final class Keeper extends Villager {
         if (offers.isEmpty()) addFactionOffers();
         int level = getVillagerData().getLevel();
         if (getVillagerData().getProfession() != VillagerProfession.NONE && offeredJobLevel < level) {
+            if (offeredJobLevel == 0 && level == 1) {
+                var craft = KeeperCraft.of(this);
+                if (craft != KeeperCraft.RESIDENT) sell(2, craft.wares(dusk()), 1);
+            }
             offeredJobLevel = level;
             super.updateTrades();
         }
@@ -621,12 +625,12 @@ public final class Keeper extends Villager {
     private void addFactionOffers() {
         if (dusk()) {
             sell(1, Items.BLACK_CANDLE, 3);
-            sell(2, KeeperCraft.of(this).wares(true), 2);
+            sell(2, Items.SOUL_LANTERN, 2);
             sell(5, Items.ENDER_PEARL, 2);
             buy(Items.AMETHYST_SHARD, 6);
         } else {
             sell(1, Items.PUMPKIN_PIE, 3);
-            sell(2, KeeperCraft.of(this).wares(false), 3);
+            sell(2, Items.PINK_PETALS, 12);
             sell(3, Items.CHERRY_SAPLING, 2);
             buy(Items.HONEYCOMB, 4);
         }

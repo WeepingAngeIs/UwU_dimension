@@ -128,7 +128,7 @@ public final class PantryPlants {
                     BlockPos plant = ground.above();
                     BlockState soil = level.getBlockState(ground);
                     if (!(soil.is(BlockTags.DIRT) || soil.is(Blocks.FARMLAND))) continue;
-                    if (!level.getBlockState(plant).isAir() || level.getMaxLocalRawBrightness(plant) < 0) continue;
+                    if (!level.getBlockState(plant).isAir()) continue;
                     if (level.setBlock(plant, crop.defaultBlockState().setValue(CropBlock.AGE, random.nextInt(0, 5)), 2)) {
                         planted++;
                     }

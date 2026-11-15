@@ -32,9 +32,11 @@ final class SakuraStrata {
         int x = chunkX + 4 + random.nextInt(8), z = chunkZ + 4 + random.nextInt(8);
         for (int y = 48; y >= -46; y--) {
             BlockPos foot = new BlockPos(x, y, z);
-            if (!level.getBlockState(foot.below()).is(BlockTags.BASE_STONE_OVERWORLD)
-                    || !level.isEmptyBlock(foot) || !level.isEmptyBlock(foot.above(2))) continue;
+            if (!level.getBlockState(foot.below()).is(BlockTags.BASE_STONE_OVERWORLD)) continue;
             if (level.canSeeSky(foot)) continue;
+            if (level.getBlockState(foot).is(Blocks.WATER) && level.getBlockState(foot.above(2)).is(Blocks.WATER))
+                return waterGarden(level, foot, random);
+            if (!level.isEmptyBlock(foot) || !level.isEmptyBlock(foot.above(2))) continue;
             // Ruined lintels point miners to an exposed vein by their foundations.
             if (y < -8 && y > -45 && clearForLintel(level, foot)) {
                 for (int dx = -2; dx <= 2; dx++) {
@@ -67,6 +69,22 @@ final class SakuraStrata {
             }
         }
         return false;
+    }
+
+    private static boolean waterGarden(WorldGenLevel level, BlockPos foot, RandomSource random) {
+        boolean deep = foot.getY() < -8;
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                if (x*x + z*z > 5 || random.nextInt(5) == 0) continue;
+                BlockPos stem = foot.offset(x, 0, z);
+                if (!level.getBlockState(stem.below()).is(BlockTags.BASE_STONE_OVERWORLD)
+                        || !level.getBlockState(stem).is(Blocks.WATER)) continue;
+                level.setBlock(stem.below(), (deep ? SakuraCraft.ABYSS : SakuraCraft.SHELF).get().defaultBlockState(), 2);
+                var plant = random.nextInt(3) == 0 ? SakuraCraft.CLAM : deep ? SakuraCraft.KELP : SakuraCraft.PLUME;
+                level.setBlock(stem, plant.get().defaultBlockState(), 2);
+            }
+        }
+        return true;
     }
 
     private static boolean clearForLintel(WorldGenLevel level, BlockPos foot) {

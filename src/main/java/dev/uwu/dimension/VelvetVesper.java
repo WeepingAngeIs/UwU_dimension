@@ -77,6 +77,7 @@ public final class VelvetVesper extends PathfinderMob {
 
     boolean refusesAttack(LivingEntity source) {
         if (!(level() instanceof ServerLevel server)) return false;
+        if (source instanceof Player player && !participating(player)) return true;
         if (isCharmed(source)) return true;
         if (!guarding()) return false;
         charmEnd.put(source.getUUID(),server.getGameTime()+200);

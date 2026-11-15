@@ -40,7 +40,9 @@ import net.minecraft.world.phys.Vec3;
 public final class BossProof {
     private static final UUID REED=UUID.fromString("2e50db39-8718-4be1-aadd-807982ef81a3");
     private static final UUID VALE=UUID.fromString("341f0330-e1a3-4c17-b014-9a729a30642a");
-    private static Guest reed,vale;
+    private static final UUID WREN=UUID.fromString("742305ba-9b5e-4636-b0ab-dc8bb660932e");
+    private static final UUID IRIS=UUID.fromString("665e65d2-1cb6-4c0e-9293-ae61a134d23e");
+    private static Guest reed,vale,wren,iris;
     private static VelvetVesper moth;
     private static int ticks;
     private static boolean folding,peerDamage,blockedArrow,nearExpiry,expiry,secondGuard;
@@ -94,6 +96,8 @@ public final class BossProof {
             var floor=Vec3.atBottomCenterOf(center.below());
             reed=new Guest(level,"MirrorReed",REED,floor.add(0,0,-3.4));
             vale=new Guest(level,"MirrorVale",VALE,floor.add(3.5,0,0));
+            wren=new Guest(level,"MirrorWren",WREN,floor.add(-5,0,1));
+            iris=new Guest(level,"MirrorIris",IRIS,floor.add(5,0,-1));
             healthBeforeBeam=reed.player.getHealth()+vale.player.getHealth();
             if(System.getenv("UWU_ARSENAL")!=null){
                 reed.player.tickCount=20;
@@ -110,6 +114,9 @@ public final class BossProof {
             var boss=livingMoths(level,center);
             require(boss.size()==1,"Two bell uses must start exactly one encounter");
             moth=boss.getFirst();
+            ring(level,bell,wren.player);
+            require(livingMoths(level,center).size()==1,"Late helper spawned a duplicate");
+            require(!moth.hurt(level.damageSources().playerAttack(iris.player),4),"Unready bystander hurt the moth");
             require(moth.getMaxHealth()==500 && moth.getHealth()==500,"Unexpected starting boss health");
             return false;
         }
@@ -184,6 +191,8 @@ public final class BossProof {
             moth.invulnerableTime=0;
             moth.hurt(level.damageSources().playerAttack(reed.player),800);
             require(!moth.isAlive(),"Defeated moth was still alive");
+            require(MirrorCourt.hasSeal(level,bell,WREN) && !MirrorCourt.hasSeal(level,bell,IRIS),
+                    "Support participation or bystander reward exclusion failed");
             require(MirrorCourt.hasSeal(level,bell,REED) && MirrorCourt.hasSeal(level,bell,VALE),
                     "Two participating helpers should both earn seals");
             ring(level,bell,reed.player);
@@ -225,8 +234,10 @@ public final class BossProof {
     }
     private static void finish(ServerLevel level) {
         reed.close(level);vale.close(level);
+        if(wren!=null)wren.close(level);
+        if(iris!=null)iris.close(level);
         for(ChunkPos ch:forced)level.setChunkForced(ch.x,ch.z,false);
-        System.out.println("MIRROR COURT PASS | generated bell; distinct survival UUIDs; both boss bar packet streams; 500 HP, telegraphed beam and guard; actual melee and arrow collisions; personal devotion blocked tick 199, allowed tick 200; NBT restore and repeat after defeat");
+        System.out.println("MIRROR COURT PASS | generated bell; distinct survival UUIDs; both boss bar packet streams; 500 HP, telegraphed beam and guard; actual melee and arrow collisions; late support earned a seal, bystander excluded; personal devotion blocked tick 199, allowed tick 200; NBT restore and repeat after defeat");
     }
 
     /** After the first process has saved and stopped, locate its real entity on disk. */
@@ -251,6 +262,9 @@ public final class BossProof {
         var bosses=livingMoths(level,center);
         if(bosses.isEmpty())return false;
         require(bosses.size()==1,"Saved fight duplicated during startup");
+        require(MirrorCourt.hasSeal(level,bell,REED) && MirrorCourt.hasSeal(level,bell,VALE)
+                && MirrorCourt.hasSeal(level,bell,WREN) && !MirrorCourt.hasSeal(level,bell,IRIS),
+                "Participation seals lost after disk restart");
         var saved=bosses.getFirst();
         require(saved.getUUID().toString().equals(checkpoint.getProperty("uuid"))
             && saved.getHealth()==Float.parseFloat(checkpoint.getProperty("hp"))
@@ -268,7 +282,7 @@ public final class BossProof {
         saved.discard();
         reed.close(level);vale.close(level);
         for(ChunkPos ch:forced)level.setChunkForced(ch.x,ch.z,false);
-        System.out.println("MIRROR COURT DISK RESTART PASS | new Minecraft process loaded the same UUID at 473/500 HP in guard, exact per-player expiry and occupied bell");
+        System.out.println("MIRROR COURT DISK RESTART PASS | new Minecraft process loaded the same UUID at 473/500 HP in guard, exact per-player expiry, participation seals and occupied bell");
         return true;
     }
 

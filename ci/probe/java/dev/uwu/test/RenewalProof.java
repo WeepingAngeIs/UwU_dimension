@@ -26,6 +26,7 @@ final class RenewalProof {
         if (Files.exists(checkpoint)) {
             check(Files.readString(checkpoint).equals(site.toString()),"arrival moved after restart");
             check(reach.getBlockState(arrival.above(5)).is(Blocks.AMETHYST_BLOCK),"saved player block replaced");
+            CombatRenewalProof.resume(reach);
             System.out.println("SAKURA DISK RESTART PASS "+site);
             return;
         }
@@ -65,6 +66,7 @@ final class RenewalProof {
             reach.getChunkAt(chest);
             ChestProof.run(reach,chest);
         }
+        RenewalArmorProof.run(reach);
         VillageRenewalProof.run(reach);
         CombatRenewalProof.run(reach);
         reach.setBlockAndUpdate(arrival.above(5),Blocks.AMETHYST_BLOCK.defaultBlockState());

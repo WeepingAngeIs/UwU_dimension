@@ -102,6 +102,17 @@ public final class BlossomWarden extends PathfinderMob {
     public boolean throwing() { return entityData.get(POSE) == THROW; }
     @Nullable public UUID offender() { return offenders.peekFirst(); }
 
+    String combatStatus() {
+        String phase = switch (entityData.get(POSE)) {
+            case CHASE -> "pursuing";
+            case GRIP -> "holding";
+            case THROW -> "releasing";
+            default -> "patrolling";
+        };
+        return phase + ", " + offenders.size() + " queued, pursuit " + (pursueTicks / 20.0)
+                + "s, stalled " + (stallTicks / 20.0) + "s, target missing " + (missingTicks / 20.0) + "s.";
+    }
+
     static void alert(ServerLevel level, Keeper victim, LivingEntity culprit) {
         if (culprit == victim) return;
         BlockPos home = victim.villageCourt();
@@ -211,11 +222,8 @@ public final class BlossomWarden extends PathfinderMob {
             if (gap < bestGap - .5) { bestGap = gap; stallTicks = 0; }
             else if (!inReach) stallTicks++;
             if (!inReach && (stallTicks >= STALL_LIMIT || pursueTicks >= 600)) {
-                Vec3 side = culprit.getLookAngle().multiply(-1,0,-1).normalize().scale(1.4);
-                // Intercept works even on a cliff or in flight. The grip begins on this same tick.
-                Vec3 landing = culprit.position().add(side);
-                AABB at = getBoundingBox().move(landing.subtract(position()));
-                if (!level.getWorldBorder().isWithinBounds(at) || !level.noCollision(this, at)) {
+                Vec3 landing = interceptPosition(level, culprit);
+                if (landing == null) {
                     finish(level);
                     return;
                 }
@@ -281,6 +289,20 @@ public final class BlossomWarden extends PathfinderMob {
         return guardsNearby || keepers.stream().anyMatch(keeper -> mob.distanceToSqr(keeper) <= 24.0D * 24.0D);
     }
 
+    @Nullable private Vec3 interceptPosition(ServerLevel level, LivingEntity target) {
+        double rear = Math.atan2(-target.getLookAngle().z, -target.getLookAngle().x);
+        double clearance = (getBbWidth() + target.getBbWidth()) * .5 + .4;
+        for (int i = 0; i < 8; i++) {
+            double angle = rear + i * Math.PI / 4;
+            Vec3 landing = target.position().add(Math.cos(angle)*clearance, 0, Math.sin(angle)*clearance);
+            AABB bounds = getBoundingBox().move(landing.subtract(position()));
+            if (level.hasChunksAt(BlockPos.containing(bounds.minX,bounds.minY,bounds.minZ),
+                    BlockPos.containing(bounds.maxX,bounds.maxY,bounds.maxZ))
+                    && level.getWorldBorder().isWithinBounds(bounds) && level.noCollision(this, bounds)) return landing;
+        }
+        return null;
+    }
+
     private double reachSquared(LivingEntity foe) {
         double reach = 1.95 + getBbWidth()/2 + foe.getBbWidth()/2;
         return reach*reach;
@@ -301,9 +323,12 @@ public final class BlossomWarden extends PathfinderMob {
         getNavigation().stop();
         pursueTicks=0; missingTicks=0; stallTicks=0; bestGap=Double.MAX_VALUE;
         transition(offenders.isEmpty()?IDLE:CHASE);
-        if (offenders.isEmpty() && court != null && distanceToSqr(Vec3.atBottomCenterOf(court))>50*50) {
-            teleportTo(court.getX()+.5,court.getY(),court.getZ()+.5);
-            petals(level,position());
+        if (offenders.isEmpty() && court != null && level.hasChunkAt(court)) {
+            Vec3 home = Vec3.atBottomCenterOf(court);
+            if (distanceToSqr(home) > 50*50 && level.noCollision(this, getBoundingBox().move(home.subtract(position())))) {
+                teleportTo(home.x, home.y, home.z);
+                petals(level,position());
+            }
         }
     }
 

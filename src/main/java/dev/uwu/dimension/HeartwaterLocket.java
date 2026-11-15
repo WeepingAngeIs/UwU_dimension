@@ -47,6 +47,9 @@ final class HeartwaterLocket extends Item {
         GroveSites.Site site = entering ? ReachArrival.forTravel(destination) : null;
         BlockPos requested = entering ? (site.usable() ? site.pos(0,site.entryY()+1,site.lip()-9) : destination.getSharedSpawnPos())
                 : spawnFallback ? destination.getSharedSpawnPos() : BlockPos.of(anchor.getLong("feet"));
+        if (entering && site.usable() && ReachJournal.chapter(player) == 0) {
+            requested = BlossomVillage.survey(destination, site, false).map(BlossomVillage.Plan::plaza).orElse(requested);
+        }
         Optional<BlockPos> found = LocketLanding.nearby(destination, player, requested);
         boolean sheltered = spawnFallback || (entering && !site.usable());
         if (found.isEmpty()) {

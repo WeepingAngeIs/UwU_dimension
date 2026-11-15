@@ -63,12 +63,23 @@ final class ReachLife {
                 .executes(ctx -> preference(ctx.getSource().getPlayerOrException(),"sakura_distance",
                         IntegerArgumentType.getInteger(ctx,"blocks"),"Scenery viewing distance updated."))));
         cmd.then(effects);
+        cmd.then(Commands.literal("trail")
+                .then(Commands.literal("on").executes(ctx -> {
+                    var player = ctx.getSource().getPlayerOrException();
+                    if (preference(player,"sakura_festival_keepsake",0) == 0) {
+                        player.sendSystemMessage(Component.literal("Collect a keepsake at a restored village bell to earn the blossom trail."));
+                        return 0;
+                    }
+                    return preference(player,"sakura_trail",1,"Blossom trail enabled.");
+                }))
+                .then(Commands.literal("off").executes(ctx -> preference(ctx.getSource().getPlayerOrException(),
+                        "sakura_trail",0,"Blossom trail folded away."))));
         cmd.then(Commands.literal("status").requires(source -> source.hasPermission(2)).executes(ctx -> {
             var p=ctx.getSource().getPlayerOrException();
             var anchor=p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getCompound(HeartwaterLocket.ANCHOR);
             String home = anchor.contains("feet") ? anchor.getString("dimension")+" "+BlockPos.of(anchor.getLong("feet")).toShortString() : "world spawn";
             ctx.getSource().sendSuccess(() -> Component.literal("Return: "+home+" | Field notes: chapter "+ReachJournal.chapter(p)
-                    +" | Personal scenery packets sent this session (all players): "+HeartwaterAmbience.packets(p.serverLevel())),false);
+                    +" | Scenery packets sent in this dimension since startup: "+HeartwaterAmbience.packets(p.serverLevel())),false);
             return 1;
         }));
         event.getDispatcher().register(cmd);

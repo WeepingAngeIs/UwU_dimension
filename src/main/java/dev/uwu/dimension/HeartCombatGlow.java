@@ -15,22 +15,35 @@ final class HeartCombatGlow {
 
     static void trail(ServerLevel level, Vec3 at, int element, boolean pastelHeart) {
         var sigil = element == 2 ? MagicGlowParticles.FLOWER.get() : MagicGlowParticles.HEART.get();
-        level.sendParticles(sigil, at.x, at.y, at.z, 1, .035, .035, .035, .005);
-        if (pastelHeart)
-            level.sendParticles(CupidParticles.PASTEL_HEART.get(), at.x, at.y, at.z, 1, .045, .045, .045, .008);
-        level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z, 1, .035, .035, .035, .01);
+        for (var viewer : level.players()) {
+            if (viewer.distanceToSqr(at) > 32 * 32) continue;
+            int mode = ReachLife.preference(viewer, "sakura_effects", 2);
+            if (mode == 0 && level.getGameTime() % 4 != 0) continue;
+            level.sendParticles(viewer, sigil, false, at.x, at.y, at.z, 1, .035, .035, .035, .005);
+            if (pastelHeart && mode > 0)
+                level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false,
+                        at.x, at.y, at.z, 1, .045, .045, .045, .008);
+            if (mode == 2) level.sendParticles(viewer, ParticleTypes.END_ROD, false,
+                    at.x, at.y, at.z, 1, .035, .035, .035, .01);
+        }
     }
 
     static void burst(ServerLevel level, Vec3 center, double radius, int element) {
-        for (int i = 0; i < 18; i++) {
-            double angle = Math.PI * 2.0 * i / 18.0;
-            double distance = radius * (.62 + (i % 3) * .12);
-            double x = center.x + Math.cos(angle) * distance;
-            double z = center.z + Math.sin(angle) * distance;
-            level.sendParticles((i % 3 == 0 || element == 2) ? MagicGlowParticles.FLOWER.get()
-                    : MagicGlowParticles.HEART.get(), x, center.y + .25 + (i % 2) * .22, z,
-                    1, .015, .025, .015, .02);
-            if (i % 3 == 0) level.sendParticles(ParticleTypes.END_ROD, x, center.y + .25, z, 1, 0, .03, 0, .01);
+        for (var viewer : level.players()) {
+            if (viewer.distanceToSqr(center) > 32 * 32) continue;
+            int mode = ReachLife.preference(viewer, "sakura_effects", 2);
+            int points = mode == 0 ? 3 : mode == 1 ? 8 : 18;
+            for (int i = 0; i < points; i++) {
+                double angle = Math.PI * 2.0 * i / points;
+                double distance = radius * (.62 + (i % 3) * .12);
+                double x = center.x + Math.cos(angle) * distance;
+                double z = center.z + Math.sin(angle) * distance;
+                level.sendParticles(viewer, (i % 3 == 0 || element == 2) ? MagicGlowParticles.FLOWER.get()
+                        : MagicGlowParticles.HEART.get(), false, x, center.y + .25 + (i % 2) * .22, z,
+                        1, .015, .025, .015, .02);
+                if (mode == 2 && i % 3 == 0) level.sendParticles(viewer, ParticleTypes.END_ROD,
+                        false, x, center.y + .25, z, 1, 0, .03, 0, .01);
+            }
         }
 
         placeLight(level, BlockPos.containing(center));

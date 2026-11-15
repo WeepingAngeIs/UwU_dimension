@@ -120,8 +120,10 @@ public final class Arsenal {
         @Override public Component getName(ItemStack stack) { var name = Component.translatableWithFallback(getDescriptionId(), relic.title);
             return relic == Relic.CUPID_BOW ? name.withStyle(ChatFormatting.GOLD) : name; }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tips, TooltipFlag flag) {
+            if (relic == Relic.CUPID_BOW && CupidRarity.hasMythicPresentation(stack))
+                tips.add(Component.translatableWithFallback("rarity.apotheosis:mythic", "Mythic").withStyle(ChatFormatting.GOLD));
             tips.add(Component.literal(relic.hint).withStyle(ChatFormatting.LIGHT_PURPLE));
-            if (relic.throwable()) tips.add(Component.literal("Innate Swift Loyalty III â€¢ returns to your hand")
+            if (relic.throwable()) tips.add(Component.literal("Innate Swift Loyalty III Ã¢â‚¬Â¢ returns to your hand")
                     .withStyle(ChatFormatting.AQUA));
         }
         @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {

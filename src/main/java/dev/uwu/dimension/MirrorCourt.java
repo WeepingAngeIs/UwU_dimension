@@ -187,6 +187,10 @@ public final class MirrorCourt {
             if (world instanceof ServerLevel level && !player.isSpectator()) ring(level,pos,state,player);
             return InteractionResult.sidedSuccess(world.isClientSide);
         }
+        private boolean readyAt(Player player, long bell, long now) {
+            var data = player.getPersistentData();
+            return data.getLong("uwu.court_ready_until") > now && data.getLong("uwu.court_ready_at") == bell;
+        }
         private void ring(ServerLevel level, BlockPos pos, BlockState state, Player player) {
             if (!ReefLife.isReach(level)) return;
             Ledger ledger = ledger(level);
@@ -212,12 +216,15 @@ public final class MirrorCourt {
                 }
                 release(level, pos, ledger.active.get(key));
             }
-            var ready = ledger.ready.computeIfAbsent(key, ignored -> new HashMap<>());
-            ready.entrySet().removeIf(e -> e.getValue() <= level.getGameTime());
-            if (!player.isShiftKeyDown() || !ready.containsKey(player.getUUID())) {
-                ready.put(player.getUUID(), level.getGameTime() + 600);
+            if (!player.isShiftKeyDown() || !readyAt(player, key, level.getGameTime())) {
+                player.getPersistentData().putLong("uwu.court_ready_at", key);
+                player.getPersistentData().putLong("uwu.court_ready_until", level.getGameTime() + 600);
                 player.displayClientMessage(Component.literal("Ready for 30 seconds. Allies may touch the bell to join. "
                         + "Crouch and ring to begin with nearby ready players. Solo is welcome."), false);
+                return;
+            }
+            if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(center))) {
+                player.displayClientMessage(Component.literal("The chamber is still waking. Ring again in a moment."), false);
                 return;
             }
             VelvetVesper moth=VESPER.get().create(level);
@@ -225,15 +232,25 @@ public final class MirrorCourt {
             moth.bindBell(pos);
             for (var guest : level.players()) {
                 if (guest.isAlive() && !guest.isSpectator() && guest.blockPosition().closerThan(pos, 24)
-                        && ready.containsKey(guest.getUUID())) moth.join(guest);
+                        && readyAt(guest, key, level.getGameTime())) moth.join(guest);
             }
             moth.join(player);
             moth.moveTo(center.getX()+.5,center.getY()+.05,center.getZ()+.5,
                     state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite().toYRot(),0);
-            if (!level.noCollision(moth) || !level.addFreshEntity(moth)) return;
+            if (!level.noCollision(moth)) {
+                player.displayClientMessage(Component.literal("The guardian needs more space above its dais."), false);
+                return;
+            }
+            if (!level.addFreshEntity(moth)) {
+                player.displayClientMessage(Component.literal("The guardian could not enter the chamber. Ring again."), false);
+                return;
+            }
             ledger.active.put(key,moth.getUUID());
             ledger.lastSeen.put(key, center.asLong());
-            ledger.ready.remove(key);
+            for (var guest : level.players()) {
+                if (readyAt(guest, key, level.getGameTime())) guest.getPersistentData().remove("uwu.court_ready_until");
+            }
+            player.getPersistentData().remove("uwu.court_ready_until");
             ledger.setDirty();
             level.playSound(null,pos,SoundEvents.BELL_RESONATE,SoundSource.HOSTILE,1,.72F);
             level.sendParticles(ParticleTypes.CHERRY_LEAVES,moth.getX(),moth.getY()+1,moth.getZ(),38,1,1,1,.05);
@@ -312,7 +329,6 @@ public final class MirrorCourt {
         final Map<Long,UUID> active=new HashMap<>();
         final Map<Long,Long> lastSeen = new HashMap<>();
         final Map<Long,Long> missingSince = new HashMap<>();
-        final Map<Long,Map<UUID,Long>> ready = new HashMap<>();
         final Map<Long,java.util.Set<UUID>> seals = new HashMap<>();
         final java.util.Set<Long> defeated=new java.util.HashSet<>();
         static Ledger load(CompoundTag root, HolderLookup.Provider registry) {

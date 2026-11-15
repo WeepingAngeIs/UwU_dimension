@@ -29,15 +29,64 @@ public final class CombatRenewalProof {
         if (!valid) throw new AssertionError(message);
     }
 
-    public static void run(ServerLevel level) {
+    public static void run(ServerLevel level) throws Exception {
         BlockPos at = new BlockPos(8, level.getMaxBuildHeight()-16, 8);
         level.getChunkAt(at);
         try (var owner = new ChestProof.Visitor(level, at, "RelicKeeper", UUID.randomUUID())) {
             bows(level, owner.player);
+            charm(level, at, owner.player);
+            landing(level, owner.player);
             returns(level, owner.player);
             guardian(level, at);
+            saveAcrossRestart(level, owner.player);
         }
         System.out.println("UWU COMBAT RENEWAL PASS bow cooldowns, full-slot recovery and guardian stale target");
+    }
+
+    private static final java.nio.file.Path PLAYER_SAVE = java.nio.file.Path.of("mid-throw-player.dat");
+    private static final java.nio.file.Path PROJECTILE_SAVE = java.nio.file.Path.of("mid-throw-entity.dat");
+
+    private static void saveAcrossRestart(ServerLevel level, ServerPlayer player) throws Exception {
+        player.getInventory().clearContent();
+        var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
+        var item = new ItemStack(sword);
+        player.getCooldowns().removeCooldown(sword);
+        player.setItemInHand(InteractionHand.MAIN_HAND, item);
+        item.use(level, player, InteractionHand.MAIN_HAND);
+        RelicFlight flight = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(5),
+                f -> f.getOwner()==player).getFirst();
+        net.minecraft.nbt.NbtIo.writeCompressed(player.saveWithoutId(new CompoundTag()), PLAYER_SAVE);
+        net.minecraft.nbt.NbtIo.writeCompressed(flight.saveWithoutId(new CompoundTag()), PROJECTILE_SAVE);
+        flight.discard();
+        GuardianTargeting.setCreeperAggro(level, false, level.getServer());
+    }
+
+    /** Called on the second dedicated server process in the disposable save. */
+    public static void resume(ServerLevel level) throws Exception {
+        require(!GuardianTargeting.creeperAggroOn(level), "Creeper rule lost on disk restart");
+        CompoundTag ownerState = net.minecraft.nbt.NbtIo.readCompressed(PLAYER_SAVE,
+                net.minecraft.nbt.NbtAccounter.unlimitedHeap());
+        CompoundTag flightState = net.minecraft.nbt.NbtIo.readCompressed(PROJECTILE_SAVE,
+                net.minecraft.nbt.NbtAccounter.unlimitedHeap());
+        var other = level.getServer().overworld();
+        try (var visitor = new ChestProof.Visitor(other, BlockPos.ZERO, "RelicKeeper", ownerState.getUUID("UUID"))) {
+            var player = visitor.player;
+            player.load(ownerState);
+            player.setPos(0, other.getMaxBuildHeight()-18, 0);
+            player.tickCount = 20;
+            NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+            var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
+            require(player.getInventory().countItem(sword)==1, "Offline owner failed to recover after restart and dimension change");
+            // Simulate a late load of the original entity chunk. Even with a valid owner
+            // the persisted projectile is visual only once the claim has been redeemed.
+            var oldFlight = dev.uwu.dimension.RangedRelics.FLIGHT.get().create(level);
+            oldFlight.load(flightState);
+            oldFlight.setOwner(player);
+            oldFlight.tick();
+            require(oldFlight.isRemoved() && player.getInventory().countItem(sword)==1, "Stale chunk duplicated the delivery");
+        }
+        GuardianTargeting.setCreeperAggro(level, true, level.getServer());
+        System.out.println("UWU RELIC RESTART PASS persisted owner, changed dimension, stale projectile and creeper rule");
     }
 
     private static void bows(ServerLevel level, ServerPlayer player) {
@@ -54,6 +103,96 @@ public final class CombatRenewalProof {
         }
         for (var arrow : level.getEntitiesOfClass(HeartArrow.class, player.getBoundingBox().inflate(4),
                 arrow -> arrow.getOwner() == player)) arrow.discard();
+    }
+
+    private static void charm(ServerLevel level, BlockPos at, ServerPlayer owner) {
+        try (var visitor = new ChestProof.Visitor(level, at, "RoseRecipient", UUID.randomUUID())) {
+            ServerPlayer target = visitor.player;
+            target.moveTo(owner.getX(), owner.getY(), owner.getZ() + 4, 180, 0);
+            target.setNoGravity(true);
+            level.addNewPlayer(target);
+            try {
+                var bow = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get());
+                owner.setItemInHand(InteractionHand.MAIN_HAND, bow);
+                owner.setYRot(0);
+                owner.setXRot(0);
+                shootAt(level, owner, bow);
+                String key = "uwudimension.charm_owner";
+                require(target.getPersistentData().hasUUID(key)
+                        && target.getPersistentData().getUUID(key).equals(owner.getUUID()), "Real heart arrow failed to charm player");
+                require(target.getPersistentData().getLong("uwudimension.charm_end") == level.getGameTime()+800,
+                        "Wrong player charm duration");
+                NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(target));
+                require(!target.getPersistentData().hasUUID(key), "Player charm persisted after logout");
+                shootAt(level, owner, bow);
+                NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent(
+                        target, level.dimension(), net.minecraft.world.level.Level.OVERWORLD));
+                require(!target.getPersistentData().hasUUID(key), "Player charm persisted after dimension change");
+                shootAt(level, owner, bow);
+                NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.living.LivingDeathEvent(
+                        target, level.damageSources().generic()));
+                require(!target.getPersistentData().hasUUID(key), "Player charm persisted after death notification");
+                for (var mode : new net.minecraft.world.level.GameType[]{net.minecraft.world.level.GameType.CREATIVE,
+                        net.minecraft.world.level.GameType.SPECTATOR}) {
+                    target.setGameMode(mode);
+                    shootAt(level, owner, bow);
+                    require(!target.getPersistentData().hasUUID(key), "Cupid charmed " + mode);
+                }
+                target.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+                var board = level.getScoreboard();
+                var team = board.addPlayerTeam("renewalProof");
+                try {
+                    team.setAllowFriendlyFire(false);
+                    board.addPlayerToTeam(target.getScoreboardName(), team);
+                    board.addPlayerToTeam(owner.getScoreboardName(), team);
+                    shootAt(level, owner, bow);
+                    require(!target.getPersistentData().hasUUID(key), "Cupid bypassed friendly fire setting");
+                } finally {
+                    board.removePlayerTeam(team);
+                }
+            } finally {
+                target.discard();
+            }
+        }
+    }
+
+    private static void shootAt(ServerLevel level, ServerPlayer owner, ItemStack bow) {
+        bow.use(level, owner, InteractionHand.MAIN_HAND);
+        bow.releaseUsing(level, owner, bow.getUseDuration(owner)-20);
+        owner.stopUsingItem();
+        for (var arrow : level.getEntitiesOfClass(HeartArrow.class, owner.getBoundingBox().inflate(3),
+                a -> a.getOwner()==owner)) {
+            for (int t=0; t<5 && arrow.isAlive(); t++) arrow.tick();
+            arrow.discard();
+        }
+    }
+
+    private static void landing(ServerLevel level, ServerPlayer player) {
+        var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
+        var held = new ItemStack(sword);
+        player.setItemInHand(InteractionHand.OFF_HAND, held);
+        player.setYRot(0);
+        player.setXRot(0);
+        BlockPos wall = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ()+4);
+        var original = level.getBlockState(wall);
+        level.setBlockAndUpdate(wall, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState());
+        try {
+            held.use(level, player, InteractionHand.OFF_HAND);
+            RelicFlight flight = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(4),
+                    f -> f.getOwner()==player).getFirst();
+            for (int i=0; i<6 && !flight.landed(); i++) flight.tick();
+            require(flight.landed(), "Sword did not embed on block impact");
+            var stuckAt = flight.position();
+            for (int t=1; t<16; t++) {
+                flight.tick();
+                require(flight.landed() && flight.position().distanceToSqr(stuckAt)<1e-5, "Sword moved during landing pause");
+            }
+            for (int t=0; t<15 && flight.isAlive(); t++) flight.tick();
+            require(!flight.isAlive() && player.getOffhandItem().is(sword), "Embedded sword did not return");
+            player.getCooldowns().removeCooldown(sword);
+        } finally {
+            level.setBlockAndUpdate(wall, original);
+        }
     }
 
     private static void returns(ServerLevel level, ServerPlayer player) {
@@ -91,13 +230,17 @@ public final class CombatRenewalProof {
         var threat = EntityType.HUSK.create(level);
         guardian.moveTo(at.getX(), at.getY(), at.getZ());
         guardian.bindVillage(at);
+        var dead = EntityType.HUSK.create(level);
+        dead.moveTo(at.getX()+6, at.getY(), at.getZ());
+        level.addFreshEntity(dead);
+        dead.setHealth(0);
         threat.moveTo(at.getX()+2, at.getY(), at.getZ());
         level.addFreshEntity(threat);
         try {
             UUID missing = UUID.randomUUID();
             CompoundTag save = guardian.saveWithoutId(new CompoundTag());
             var queue = new net.minecraft.nbt.ListTag();
-            for (UUID id : new UUID[]{missing, threat.getUUID()}) {
+            for (UUID id : new UUID[]{missing, dead.getUUID(), threat.getUUID()}) {
                 var entry = new CompoundTag();
                 entry.putUUID("Offender", id);
                 queue.add(entry);
@@ -106,11 +249,38 @@ public final class CombatRenewalProof {
             save.putByte("GripPhase", (byte)1);
             guardian.load(save);
             for (int i = 0; i < 10; i++) guardian.aiStep();
+            guardian.aiStep(); // Immediately discard the queued dead mob.
             require(threat.getUUID().equals(guardian.offender()), "Vanished mob still blocks the queue");
             guardian.aiStep();
             require(guardian.gripping(), "Guardian did not resume combat");
             require(guardian.getMaxHealth() == 6666 && guardian.getEffect(MobEffects.REGENERATION).getAmplifier()==3
                     && guardian.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier()==3, "Guardian buff regression");
+            require(threat.getUUID().equals(guardian.offender()), "Crowded queue lost active threat");
+            // Directly advance the native AI against a stranded target. Reset only the
+            // impossible crossing on each tick so no pathfinder movement masks the timer.
+            save.putByte("GripPhase", (byte) 1);
+            var stranded = new net.minecraft.nbt.ListTag();
+            var head = new CompoundTag();
+            head.putUUID("Offender", threat.getUUID());
+            stranded.add(head);
+            save.put("Offenders", stranded);
+            guardian.load(save);
+            threat.moveTo(at.getX()+6, at.getY(), at.getZ());
+            for (int i=0; i<64 && !guardian.gripping(); i++) {
+                guardian.moveTo(at.getX()-2, at.getY(), at.getZ());
+                guardian.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+                guardian.setNoGravity(true);
+                guardian.aiStep();
+            }
+            require(guardian.gripping(), "Stalled pursuit failed to intercept");
+            var handmade = EntityType.IRON_GOLEM.create(level);
+            handmade.moveTo(at.getX(), at.getY()+4, at.getZ());
+            handmade.setPlayerCreated(true);
+            require(level.addFreshEntity(handmade), "Pumpkin-built golem replaced");
+            handmade.discard();
+            var natural = EntityType.IRON_GOLEM.create(level);
+            natural.moveTo(at.getX(), at.getY(), at.getZ());
+            require(!level.addFreshEntity(natural), "Natural golem escaped replacement");
             boolean female = guardian.female();
             var restored = People.BLOSSOM_WARDEN.get().create(level);
             restored.load(guardian.saveWithoutId(new CompoundTag()));
@@ -120,6 +290,7 @@ public final class CombatRenewalProof {
             require(GuardianTargeting.creeperAggroOn(level) != before, "Creeper setting did not change");
             GuardianTargeting.setCreeperAggro(level, before, level.getServer());
         } finally {
+            dead.discard();
             threat.discard();
             guardian.discard();
         }

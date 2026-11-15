@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:purple_banner"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "uwudimension:vesper_opal"
+    }
+  ],
+  "result": {
+    "id": "minecraft:purple_banner",
+    "components": {
+      "minecraft:banner_patterns": [
+        {
+          "pattern": "minecraft:gradient",
+          "color": "black"
+        },
+        {
+          "pattern": "minecraft:rhombus",
+          "color": "light_gray"
+        },
+        {
+          "pattern": "minecraft:circle",
+          "color": "purple"
+        }
+      ],
+      "minecraft:item_name": "{\"translate\": \"banner.uwudimension.dusk_house\"}"
+    }
+  }
+}

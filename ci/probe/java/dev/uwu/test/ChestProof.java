@@ -43,14 +43,19 @@ public final class ChestProof {
     static final class Visitor implements AutoCloseable {
         final ServerPlayer player;
         final EmbeddedChannel channel;
+        int receivedPetalPackets;
         Visitor(ServerLevel level, BlockPos near, String name, UUID id) {
             var profile = new GameProfile(id, name);
             player = new ServerPlayer(level.getServer(), level, profile, ClientInformation.createDefault());
             var wire = new Connection(PacketFlow.SERVERBOUND);
             channel = new EmbeddedChannel(wire);
             new ServerGamePacketListenerImpl(level.getServer(), wire, player, CommonListenerCookie.createInitial(profile, false)) {
-                @Override public void send(Packet<?> packet) {}
-                @Override public void send(Packet<?> packet, PacketSendListener callback) {}
+                @Override public void send(Packet<?> packet) {
+                    if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles
+                            && particles.getParticle().getType() == net.minecraft.core.particles.ParticleTypes.CHERRY_LEAVES)
+                        receivedPetalPackets++;
+                }
+                @Override public void send(Packet<?> packet, PacketSendListener callback) { send(packet); }
             };
             require(player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL, "Test profile must be in survival");
             player.setPos(near.getX() + 0.5, near.getY(), near.getZ() + 1.5);

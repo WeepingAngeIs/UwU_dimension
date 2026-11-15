@@ -62,7 +62,7 @@ public final class MusicCamera {
    server.execute(()->{
     var key=ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(REALMS[test]));var level=server.getLevel(key);var p=server.getPlayerList().getPlayer(uuid);
     var at=new BlockPos(0,180,0);for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)level.getChunk(x,z);
-    server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"execute in "+REALMS[test]+" run fillbiome -16 168 -16 16 196 16 minecraft:cherry_grove");
+    server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"execute in "+REALMS[test]+" run fillbiome -16 168 -16 16 196 16 "+(test==0?"uwudimension:velvet_highlands":"minecraft:cherry_grove"));
     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++){level.setBlockAndUpdate(new BlockPos(x,179,z),Blocks.WHITE_CONCRETE.defaultBlockState());for(int y=180;y<=184;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),(test==2?Blocks.WATER:Blocks.AIR).defaultBlockState());}
     server.overworld().setDayTime(test==1||test==2?6000:18000);level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,server);
     p.teleportTo(level,.5,180,.5,0,0);p.getAbilities().flying=true;p.onUpdateAbilities();

@@ -218,5 +218,7 @@
   "biome.uwudimension.vesper_hollows": "Vesper Hollows",
   "tip.uwudimension.petalweave": "Petal ward \u00b7 +\u00bd health per piece. Full set: a hostile blow mends one heart for you and nearby teammates (20s recovery).",
   "tip.uwudimension.nightbriar": "Thorn ward \u00b7 +2.5% speed per piece. Full set: a hostile blow grants Resistance I for 3s and Speed I for 4s (20s recovery).",
-  "block.uwudimension.keeper_figurine": "Lily Keeper Figurine"
+  "block.uwudimension.keeper_figurine": "Lily Keeper Figurine",
+  "banner.uwudimension.petal_house": "Petal House Standard",
+  "banner.uwudimension.dusk_house": "Dusk House Standard"
 }

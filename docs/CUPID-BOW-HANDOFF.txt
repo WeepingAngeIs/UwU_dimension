@@ -1,0 +1,56 @@
+Cupid Bow handoff for the UwU Dimension collaborator
+
+Repository: https://github.com/WeepingAngeIs/UwU_dimension
+Implementation branch: https://github.com/WeepingAngeIs/UwU_dimension/tree/feature/sakura-renewal
+Earlier source for comparison: https://github.com/WeepingAngeIs/UwU_dimension/tree/59b2281
+Minecraft Java 1.21.1 / NeoForge. The item ID is uwudimension:cupid_bow.
+
+What changed
+
+In the 1.4.9 source, Relic.CUPID_BOW specifies a 65-tick cooldown (3.25 seconds at normal tick rate). RelicItem.releaseUsing fires the arrow and starts that cooldown. RelicItem.properties assigns the same vanilla Rare tier to the bow as to the other relics.
+
+On feature/sakura-renewal the Cupid Bow specifies zero cooldown. A successful release starts no item cooldown, so the player can begin the next draw immediately. Each shot still requires a draw strength of at least 0.15 and uses one durability in Survival. The 14 attack damage, 1.4 attack speed and 1,024 maximum durability remain. Rippleglass Bow keeps its own cooldown. The attack speed attribute is a melee statistic.
+
+The Cupid Bow has vanilla Epic rarity and a gold display name. If Apotheosis supplies its rarity data component, the bow requests apotheosis:mythic. Mythic is the highest default tier found in the pack's Apotheosis 8.9.0 jar. The default Mythic beam color is orange (#ED7014). A separate client-side gold particle effect circles the dropped bow, including in installations without Apotheosis. This presentation does not grant extra affixes, damage, or a lower drop chance. Other client or server packs can customize the native beam, rarity label, and color. Actual rendering of the complete pack's beam has not been confirmed.
+
+Code map (paths relative to the folder containing gradlew)
+
+src/main/java/dev/uwu/dimension/Arsenal.java
+  Relic.CUPID_BOW and RelicItem.properties define stats, usage hint, durability and base rarity. RelicItem.use starts drawing. RelicItem.releaseUsing validates the draw, creates the arrow, applies any positive cooldown, and consumes durability. RelicItem.getName, appendHoverText and onEntityItemUpdate handle gold naming, the optional Mythic line, and dropped-item gold particles. Search by these symbols if line numbers drift.
+
+src/main/java/dev/uwu/dimension/CupidRarity.java
+  apply resolves the optional apotheosis:rarity component and sets its default to apotheosis:mythic through the component's own codec. hasMythicPresentation checks the actual stack's component before displaying the Mythic line. The hook is registered in src/main/java/dev/uwu/dimension/UwUDimension.java. The mod can load without Apotheosis.
+
+src/main/java/dev/uwu/dimension/HeartArrow.java
+  fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. onHitBlock and heartBurst produce the pink impact effect. Rippleglass shares this entity and has its own behavior.
+
+src/main/java/dev/uwu/dimension/HeartMagic.java
+  charm handles eligible mobs, saves their previous target if present, and sets an 800-tick (40-second) expiry. The LivingEntity overload dispatches player hits to CupidMinions. friendly, filterTarget, protectKeeper and tick govern ownership, combat protection and charmed mob behavior. Look up the uwudimension:charm_immune entity-type tag for data-driven exceptions.
+
+src/main/java/dev/uwu/dimension/CupidMinions.java
+  charm handles players and checks PvP, game mode and existing charm ownership. tick steers a temporary player ally and handles attacks. designate and rayTarget implement the bow user's left-click order using loaded entities in the same level and a sight line. release, loggedOut, changedDimension and death handle cleanup. Creative and spectator targets are excluded from a new charm.
+
+src/main/java/dev/uwu/dimension/CupidMinionClient.java
+  Sends left-click designation requests and applies the server's steering instructions to the charmed player's client.
+
+src/main/java/dev/uwu/dimension/CupidParticles.java
+src/main/java/dev/uwu/dimension/CupidParticleClient.java
+src/main/resources/assets/uwudimension/particles/pastel_heart.json
+src/main/resources/assets/uwudimension/textures/particle/pastel_heart.png
+  Define the pink heart particle, sprite, size, rise and fade. These are separate from the gold effect on a dropped bow.
+
+src/main/java/dev/uwu/dimension/HeartCombatGlow.java
+src/main/java/dev/uwu/dimension/HeartFlashLightBlock.java
+src/main/resources/assets/uwudimension/dynamiclights/entity/traveling_relics.json
+  Handle the combat particles, short-lived attack lighting, and compatible client dynamic lighting for moving projectiles.
+
+src/main/resources/assets/uwudimension/models/item/cupid_bow.json
+src/main/resources/assets/uwudimension/models/item/cupid_bow_draw1.json
+src/main/resources/assets/uwudimension/models/item/cupid_bow_draw2.json
+  These models reference the bow's resting and drawn item textures in assets/uwudimension/textures/item/.
+
+Code-level checks for a collaborator
+
+ci/probe/java/dev/uwu/test/CombatRenewalProof.java exercises firing, the Cupid/Rippleglass cooldown distinction, durability, base Epic rarity, and eligibility/cleanup for a player struck by a heart arrow. A clean compile alone cannot establish the appearance of a customized Apotheosis client. Consult the Actions result for the precise branch revision under review.
+
+The supplied source tree includes the Gradle wrapper and project configuration. Runtime libraries normally resolve through Gradle. The repository handoff can be reviewed independently of the author's CurseForge test profile.

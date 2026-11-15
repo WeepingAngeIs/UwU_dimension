@@ -30,6 +30,10 @@ final class HeartwaterAmbience {
         if (mode==0 || tick%(mode==1 ? 30 : 10)!=0) return;
         double range=ReachLife.preference(player,"sakura_distance",12);
         var at=player.blockPosition();
+        if (tick%30 == 0 && ReachLife.preference(player,"sakura_trail",0) == 1 && player.onGround()
+                && Math.abs(player.getX()-player.xOld)+Math.abs(player.getZ()-player.zOld) > .012) {
+            emit(player,ParticleTypes.CHERRY_LEAVES,player.getX(),player.getY()+.35,player.getZ(),range,2,.18,.06,.18,.012);
+        }
         if (tick%60==0 && VillageCommons.nearFestival(level,at)) {
             emit(player,ParticleTypes.CHERRY_LEAVES,player.getX(),player.getY()+2,player.getZ(),range,3,.9,.12,.9,.01);
         }
