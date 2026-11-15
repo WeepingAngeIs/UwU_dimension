@@ -1,0 +1,29 @@
+name: Better Combat dagger integration
+on:
+  push:
+    branches: [feature/sakura-art-implementation]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bettercombat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Exercise the real Better Combat offhand packet path
+        run: ./gradlew jar && bash ci/bettercombat-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bettercombat-dagger-evidence
+          path: |
+            build/renewal-server/first.log
+            build/renewal-server/restart.log
+            build/renewal-server/crash-reports/
+
