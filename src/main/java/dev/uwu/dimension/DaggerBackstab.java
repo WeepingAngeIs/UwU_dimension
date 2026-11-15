@@ -4,45 +4,43 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 
-/** Rear attacks are within 60 degrees of the target's horizontal backwards direction. */
+/** Approximate the target's view with the forward half-plane of its horizontal head yaw. */
 @EventBusSubscriber(modid = "uwudimension")
 public final class DaggerBackstab {
     private DaggerBackstab() {}
 
-    static boolean isBehind(LivingEntity target, Vec3 attackPosition) {
+    public static boolean isBehind(LivingEntity target, Vec3 attackPosition) {
         Vec3 displacement = attackPosition.subtract(target.position());
         double distanceSquared = displacement.x * displacement.x + displacement.z * displacement.z;
-        if (distanceSquared < 1.0e-8) return false;
-        Vec3 facing = target.getLookAngle();
-        double facingSquared = facing.x * facing.x + facing.z * facing.z;
-        // Looking vertically does not change the player's horizontal head yaw.
-        if (facingSquared < 1.0e-8) {
-            double yaw = Math.toRadians(target.getYHeadRot());
-            facing = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
-            facingSquared = 1;
-        }
-        double dot = displacement.x * facing.x + displacement.z * facing.z;
-        return dot <= -0.5 * Math.sqrt(distanceSquared * facingSquared);
+        if (!Double.isFinite(distanceSquared) || distanceSquared < 1.0e-8
+                || !Float.isFinite(target.getYHeadRot())) return false;
+        // Horizontal head yaw remains meaningful when a player looks straight up or down.
+        double yaw = Math.toRadians(target.getYHeadRot());
+        double dot = displacement.x * -Math.sin(yaw) + displacement.z * Math.cos(yaw);
+        // Exactly sideways is not behind. The small normalized tolerance keeps floating-point
+        // rounding at the 90-degree boundary from intermittently awarding a backstab.
+        return dot < -1.0e-6 * Math.sqrt(distanceSquared);
     }
 
-    static boolean isDagger(Player player) {
+    public static boolean isDagger(Player player) {
         var item = player.getMainHandItem().getItem();
         return item instanceof Arsenal.RelicItem relic && relic.relic == Arsenal.Relic.ROSE_DAGGER
                 || item instanceof CounterArsenal.CounterItem counter && counter.entry.shape().equals("dagger");
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void critical(CriticalHitEvent event) {
         Player player = event.getEntity();
         if (!(event.getTarget() instanceof LivingEntity target) || !isDagger(player)
                 || !isBehind(target, player.position())) return;
-        // NeoForge applies this once to the ordinary cooldown-scaled attack damage,
-        // replacing vanilla's 1.5x airborne critical rather than multiplying it.
+        // Preserve normal critical feedback while the attack hook doubles the entire
+        // cooldown-scaled damage, including enchantments, once before armor.
         event.setCriticalHit(true);
-        event.setDamageMultiplier(2.0F);
+        event.setDamageMultiplier(1.0F);
     }
 }
 

@@ -4,6 +4,7 @@
   "package": "dev.uwu.dimension.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "DaggerAttackMixin",
     "SakuraPaletteMixin",
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",

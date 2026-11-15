@@ -77,7 +77,8 @@ public final class CounterEffects {
     }
     private static void impact(ProjectileImpactEvent event){
         if(!(event.getProjectile() instanceof Snowball p)||!(p.level() instanceof ServerLevel level)||!(p.getOwner() instanceof Player owner)||!p.getPersistentData().contains("uwu.counter"))return;
-        if(event.getRayTraceResult() instanceof EntityHitResult hit&&hit.getEntity() instanceof LivingEntity target)hit(level,owner,target,CounterArsenal.entry(p.getPersistentData().getString("uwu.counter")));
+        if(event.getRayTraceResult() instanceof EntityHitResult hit&&hit.getEntity() instanceof LivingEntity target)
+            hit(level,owner,target,CounterArsenal.entry(p.getPersistentData().getString("uwu.counter")),hit.getLocation());
         p.discard();event.setCanceled(true);
     }
     static LivingEntity sourceOwner(Entity entity){

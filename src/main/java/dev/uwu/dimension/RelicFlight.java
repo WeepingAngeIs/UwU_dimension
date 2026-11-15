@@ -325,8 +325,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 finish();
                 return;
             }
-            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), position());
-            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), position());
+            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), hit.getLocation());
+            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), hit.getLocation());
             if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER)
                 summonHare(server, player, target.blockPosition());
             if (relic() == Arsenal.Relic.VESPER_SCYTHE) {
