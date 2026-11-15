@@ -135,6 +135,9 @@ public final class Understory {
                 int x=centerX+random.nextInt(4)-random.nextInt(4);
                 int z=centerZ+random.nextInt(4)-random.nextInt(4);
                 var pos=new BlockPos(x,level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z),z);
+                // Neighboring chunks can still decorate shallow banks after this chunk.
+                // Keep land flora above the waterline where gravel disks can replace the soil.
+                if(pos.getY()<=level.getSeaLevel()+1)continue;
                 var biome=level.getBiome(pos);
                 Flora flora=biome.is(DUSK_LAND)?DUSK:biome.is(PETAL_LAND)?PETAL:null;
                 if(flora==null)continue;

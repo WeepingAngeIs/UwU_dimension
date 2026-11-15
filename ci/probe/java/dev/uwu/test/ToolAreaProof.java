@@ -26,6 +26,9 @@ final class ToolAreaProof {
     private static net.neoforged.neoforge.common.ModConfigSpec.BooleanValue excavation;
     private static boolean oldExcavation;
     private static int stage, ticks;
+    private static Object claims;
+    private static java.lang.reflect.Method claimMethod, unclaimMethod;
+    private static boolean testClaim;
 
     private static void require(boolean condition, String message) {
         if (!condition) throw new AssertionError(message);
@@ -69,6 +72,15 @@ final class ToolAreaProof {
         player.moveTo(8.5, center.getY()+5, 8.5, 0, 90);
         player.setDeltaMovement(0,0,0);
         launcher.use(level, player, InteractionHand.MAIN_HAND);
+    }
+
+    private static void claim(ServerLevel level, UUID owner) throws Exception {
+        var dimension = level.dimension().location();
+        if (testClaim) unclaimMethod.invoke(claims, dimension, 0, 0);
+        testClaim = false;
+        Object result = claimMethod.invoke(claims, dimension, owner, 0, 0, 0, false);
+        require(result != null, "OPAC did not create the disposable claim");
+        testClaim = true;
     }
 
     static boolean tick(ServerLevel level) throws Exception {
@@ -179,6 +191,64 @@ final class ToolAreaProof {
             if (stage == 4 && ticks >= 18) {
                 int removed = 81 - remaining(level);
                 require(removed > 0 && removed <= 32, "Enabled launcher failed its bounded excavation: " + removed);
+                if (net.neoforged.fml.ModList.get().isLoaded("openpartiesandclaims")) {
+                    var apiType = Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
+                    var api = apiType.getMethod("get", net.minecraft.server.MinecraftServer.class)
+                            .invoke(null, level.getServer());
+                    claims = apiType.getMethod("getServerClaimsManager").invoke(api);
+                    var type = Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI");
+                    var get = type.getMethod("get", ResourceLocation.class, int.class, int.class);
+                    require(get.invoke(claims, level.dimension().location(), 0, 0) == null,
+                            "Disposable area proof chunk already had a claim");
+                    claimMethod = type.getMethod("claim", ResourceLocation.class, UUID.class,
+                            int.class, int.class, int.class, boolean.class);
+                    unclaimMethod = type.getMethod("unclaim", ResourceLocation.class, int.class, int.class);
+                    fill(level);
+                    claim(level, UUID.randomUUID());
+                    player.setShiftKeyDown(true);
+                    player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item("bell_hammer")));
+                    player.moveTo(8.5, center.getY()+3, 8.5, 0, 90);
+                    require(!player.gameMode.destroyBlock(center) && remaining(level) == 81,
+                            "A stranger could break a protected hammer center");
+                    stage = 6;
+                    ticks = 0;
+                    return false;
+                }
+                System.out.println("UWU AREA TOOLS SERVER PASS 81-block plane, policy, durability, drops, recoil, range and excavation toggle");
+                close(level);
+                return true;
+            }
+            if (stage == 6 && ticks >= 3) {
+                require(remaining(level) == 81, "Stranger's hammer queued protected breaks");
+                claim(level, player.getUUID());
+                require(player.gameMode.destroyBlock(center), "Claim owner could not use the hammer");
+                stage = 7;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 7 && ticks >= 18) {
+                require(remaining(level) == 0, "Claim owner's hammer did not finish its 9 x 9 plane");
+                fill(level);
+                claim(level, UUID.randomUUID());
+                player.setShiftKeyDown(false);
+                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item("heart_launcher")));
+                shootDown(level);
+                stage = 8;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 8 && ticks >= 18) {
+                require(remaining(level) == 81, "Stranger's launcher excavated protected rock");
+                claim(level, player.getUUID());
+                shootDown(level);
+                stage = 9;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 9 && ticks >= 18) {
+                int removed = 81 - remaining(level);
+                require(removed > 0 && removed <= 32, "Claim owner's launcher failed to excavate permitted rock");
+                System.out.println("UWU OPAC AREA PASS hammer and launcher denied stranger and allowed owner");
                 System.out.println("UWU AREA TOOLS SERVER PASS 81-block plane, policy, durability, drops, recoil, range and excavation toggle");
                 close(level);
                 return true;
@@ -192,6 +262,10 @@ final class ToolAreaProof {
     }
 
     private static void close(ServerLevel level) throws Exception {
+        if (testClaim) {
+            unclaimMethod.invoke(claims, level.dimension().location(), 0, 0);
+            testClaim = false;
+        }
         if (AcquisitionPolicy.SPEC.isLoaded()) AcquisitionPolicy.AREA_MINING.set(oldAreaSetting);
         if (excavation != null) excavation.set(oldExcavation);
         if (playersById != null && player != null) playersById.remove(player.getUUID());

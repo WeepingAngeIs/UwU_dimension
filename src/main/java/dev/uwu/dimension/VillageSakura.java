@@ -105,16 +105,18 @@ final class VillageSakura {
                 put(v,p,bx+x,by+y,bz+z,leaf);
             }
         }
-        // A connected spreading crown fills the gaps between the raised boughs.
-        // Its irregular outline keeps sky visible without leaving isolated round puffs.
+        // Spread overlapping, asymmetrical foliage lobes between the raised boughs.
+        // Raise the rim and vary the underside to avoid a flat umbrella silhouette.
         for (int x=-13;x<=13;x++) for (int z=-12;z<=12;z++) {
             double edge=x*x/169.0+z*z/144.0;
+            double swell=Math.sin(x*.31)+Math.cos(z*.27)+Math.sin((x+z)*.23);
             int noise=HeartwaterFeature.Valley.mix(p.x+x,p.z+z,v.seed);
-            if (edge>1 || edge>.75 && (noise&7)<2) continue;
-            int rise=Math.floorMod(noise,3);
-            for (int y=1;y<=3+rise;y++) {
-                if (edge>.65 && y>3) continue;
-                if ((noise&31)==0 && y==1) continue;
+            if (edge>1+.12*swell || edge>.70 && (noise&15)<3) continue;
+            if(edge<.66 && (noise&63)==0) continue;
+            int bottom=1+(edge>.68?1:0)+(swell>1.0?1:0);
+            int top=bottom+2+(swell>.2?1:0);
+            for (int y=bottom;y<=top;y++) {
+                if (edge>.65 && (noise&7)==0 && y==bottom) continue;
                 put(v,p,x,p.trunk+y,z,leaf);
             }
         }

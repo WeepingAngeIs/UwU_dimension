@@ -30,6 +30,7 @@ public final class LauncherCamera {
     private static String state="menu";
     private static int ticks, shot;
     private static boolean captured;
+    private static int cooldownFrames;
     private LauncherCamera() {}
     @SubscribeEvent public static void tick(ClientTickEvent.Post event) {
         if(!"launcher".equals(System.getenv("UWU_VISIT")))return;
@@ -59,8 +60,9 @@ public final class LauncherCamera {
             });return;
         }
         if(state.equals("wait") && ticks>100) {state="armed";ticks=0;return;}
-        if(state.equals("armed") && ticks==20) {
+        if(state.equals("armed") && ticks==1)
             mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
+        if(state.equals("armed") && ticks==20) {
             String frame=shot==0?"launcher-first-rest":"launcher-third-rest";
             Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
         }
@@ -68,12 +70,13 @@ public final class LauncherCamera {
             mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
             mc.options.hideGui=false;
             mc.player.setYRot(0);mc.player.setXRot(0);
-            captured=false;state="firing";ticks=0;
+            captured=false;cooldownFrames=0;state="firing";ticks=0;
             mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);return;
         }
         if(state.equals("firing")) {
             var stack=mc.player.getMainHandItem();
-            if(!captured && mc.player.getCooldowns().getCooldownPercent(stack.getItem(),0)>0) {
+            if(mc.player.getCooldowns().getCooldownPercent(stack.getItem(),0)>0) cooldownFrames++;
+            if(!captured && cooldownFrames>=2) {
                 captured=true;
                 String frame=shot==0?"launcher-first-recoil":"launcher-third-recoil";
                 Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
