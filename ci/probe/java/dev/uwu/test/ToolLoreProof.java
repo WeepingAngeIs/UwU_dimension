@@ -49,6 +49,7 @@ final class ToolLoreProof {
                 fishing(level, player);
                 chakram(level, base, player);
                 lore(level, base, player, other);
+                OpacToolProof.run(level, base, player, other);
             } finally {
                 player.discard();
                 other.discard();

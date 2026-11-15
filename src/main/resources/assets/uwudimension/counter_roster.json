@@ -57,7 +57,7 @@
   {
     "id": "counter_iron_spear",
     "target": "simplyswords:iron_spear",
-    "name": "Ribbonreach Iron Spear Spear",
+    "name": "Ribbonreach Iron Lance Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -134,7 +134,7 @@
   {
     "id": "counter_iron_chakram",
     "target": "simplyswords:iron_chakram",
-    "name": "Hushveil Iron Chakram Bow",
+    "name": "Hushveil Iron Ring Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "petal",
@@ -145,7 +145,7 @@
   {
     "id": "counter_iron_scythe",
     "target": "simplyswords:iron_scythe",
-    "name": "Ribbonreach Iron Scythe Spear",
+    "name": "Ribbonreach Iron Petal Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -222,7 +222,7 @@
   {
     "id": "counter_gold_spear",
     "target": "simplyswords:gold_spear",
-    "name": "Ribbonreach Gold Spear Spear",
+    "name": "Ribbonreach Gold Lance Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -299,7 +299,7 @@
   {
     "id": "counter_gold_chakram",
     "target": "simplyswords:gold_chakram",
-    "name": "Hushveil Gold Chakram Bow",
+    "name": "Hushveil Gold Ring Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "dusk",
@@ -310,7 +310,7 @@
   {
     "id": "counter_gold_scythe",
     "target": "simplyswords:gold_scythe",
-    "name": "Ribbonreach Gold Scythe Spear",
+    "name": "Ribbonreach Gold Petal Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -387,7 +387,7 @@
   {
     "id": "counter_diamond_spear",
     "target": "simplyswords:diamond_spear",
-    "name": "Ribbonreach Diamond Spear Spear",
+    "name": "Ribbonreach Diamond Lance Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -464,7 +464,7 @@
   {
     "id": "counter_diamond_chakram",
     "target": "simplyswords:diamond_chakram",
-    "name": "Hushveil Diamond Chakram Bow",
+    "name": "Hushveil Diamond Ring Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "petal",
@@ -475,7 +475,7 @@
   {
     "id": "counter_diamond_scythe",
     "target": "simplyswords:diamond_scythe",
-    "name": "Ribbonreach Diamond Scythe Spear",
+    "name": "Ribbonreach Diamond Petal Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -552,7 +552,7 @@
   {
     "id": "counter_netherite_spear",
     "target": "simplyswords:netherite_spear",
-    "name": "Ribbonreach Netherite Spear Spear",
+    "name": "Ribbonreach Netherite Lance Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -629,7 +629,7 @@
   {
     "id": "counter_netherite_chakram",
     "target": "simplyswords:netherite_chakram",
-    "name": "Hushveil Netherite Chakram Bow",
+    "name": "Hushveil Netherite Ring Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "dusk",
@@ -640,7 +640,7 @@
   {
     "id": "counter_netherite_scythe",
     "target": "simplyswords:netherite_scythe",
-    "name": "Ribbonreach Netherite Scythe Spear",
+    "name": "Ribbonreach Netherite Petal Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -717,7 +717,7 @@
   {
     "id": "counter_runic_spear",
     "target": "simplyswords:runic_spear",
-    "name": "Ribbonreach Runic Spear Spear",
+    "name": "Ribbonreach Runic Lance Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -772,7 +772,7 @@
   {
     "id": "counter_runic_chakram",
     "target": "simplyswords:runic_chakram",
-    "name": "Hushveil Runic Chakram Bow",
+    "name": "Hushveil Runic Ring Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "petal",
@@ -805,7 +805,7 @@
   {
     "id": "counter_runic_scythe",
     "target": "simplyswords:runic_scythe",
-    "name": "Ribbonreach Runic Scythe Spear",
+    "name": "Ribbonreach Runic Petal Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",

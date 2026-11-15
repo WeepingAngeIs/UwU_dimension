@@ -19,7 +19,7 @@
       }
     ],
     "snowy=true": {
-      "model": "minecraft:block/grass_block_snow"
+      "model": "uwudimension:block/dusk_grass_block_snow"
     }
   }
 }

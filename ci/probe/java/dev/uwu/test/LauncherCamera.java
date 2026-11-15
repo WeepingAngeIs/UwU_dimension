@@ -59,8 +59,13 @@ public final class LauncherCamera {
             });return;
         }
         if(state.equals("wait") && ticks>100) {state="armed";ticks=0;return;}
+        if(state.equals("armed") && ticks==20) {
+            mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
+            String frame=shot==0?"launcher-first-rest":"launcher-third-rest";
+            Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+        }
         if(state.equals("armed") && ticks>30) {
-            mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_BACK);
+            mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
             mc.options.hideGui=false;
             mc.player.setYRot(0);mc.player.setXRot(0);
             captured=false;state="firing";ticks=0;

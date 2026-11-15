@@ -35,6 +35,8 @@ jobs:
           grep -F 'LAUNCHER RECOIL PASS launcher-third-recoil' launcher-client.log
           test -s run/screenshots/launcher-first-recoil.png
           test -s run/screenshots/launcher-third-recoil.png
+          test -s run/screenshots/launcher-first-rest.png
+          test -s run/screenshots/launcher-third-rest.png
       - uses: actions/upload-artifact@v4
         if: always()
         with:
