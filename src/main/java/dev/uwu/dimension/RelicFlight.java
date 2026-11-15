@@ -153,11 +153,13 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     static boolean castGlitchWave(ServerLevel level, Player owner, ItemStack stack, CounterArsenal.Entry counter) {
         java.util.UUID token = java.util.UUID.randomUUID();
+        java.util.UUID stackId = GlitchBow.identity(stack);
         var flight = launch(level, owner, Arsenal.Relic.VESPER_SCYTHE, true,
                 counter == null ? "" : counter.id(), stack.copy(),
                 counter != null && counter.theme().equals("dusk") ? 2 : 0,
                 false, InteractionHand.MAIN_HAND, false);
         if (flight == null) return false;
+        flight.getPersistentData().putUUID("uwu.glitch_id", stackId);
         flight.getPersistentData().putUUID("uwu.glitch_token", token);
         GlitchBow.begin(stack, level, 14, token);
         return true;
@@ -165,8 +167,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     @Override public void remove(Entity.RemovalReason reason) {
         if (reason.shouldDestroy() && level() instanceof ServerLevel server
-                && getPersistentData().hasUUID("uwu.glitch_token"))
-            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_token"));
+                && getPersistentData().hasUUID("uwu.glitch_id") && getPersistentData().hasUUID("uwu.glitch_token"))
+            GlitchCompletions.complete(server, getPersistentData().getUUID("uwu.glitch_id"), getPersistentData().getUUID("uwu.glitch_token"));
         super.remove(reason);
     }
 

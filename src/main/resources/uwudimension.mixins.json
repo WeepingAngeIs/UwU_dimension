@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "DaggerAttackMixin",
+    "GlitchBetterCombatMixin",
     "SakuraPaletteMixin",
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",
