@@ -36,6 +36,11 @@ public class Expedition {
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
             if (System.getenv("UWU_RENEWAL") != null) {
                 boolean restart = java.nio.file.Files.exists(java.nio.file.Path.of("first-site.txt"));
+                if (stage == 99) {
+                    if (!ToolAreaProof.tick(level)) return;
+                    stage = 16;
+                    return;
+                }
                 if (stage == 0) {
                     if (restart && !BossProof.verifyRestart(level)) return;
                     var disk=GuardianFamilyDisk.CHUNK;
@@ -64,7 +69,7 @@ public class Expedition {
                         for (var chunk : arenaTickets) level.setChunkForced(chunk.x,chunk.z,false);
                         arenaTickets.clear();
                     }
-                    if (!restart) { stage = failed ? 2 : 16; return; }
+                    if (!restart) { stage = failed ? 2 : 99; return; }
                 } else if(stage==16){
                     if(!GuardianFamilyDisk.roundTrip(level))return;
                     stage=2;return;

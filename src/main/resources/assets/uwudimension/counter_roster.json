@@ -2,7 +2,7 @@
   {
     "id": "counter_iron_longsword",
     "target": "simplyswords:iron_longsword",
-    "name": "Ribbonreach Iron Longsword Spear",
+    "name": "Ribbonreach Iron Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -13,7 +13,7 @@
   {
     "id": "counter_iron_twinblade",
     "target": "simplyswords:iron_twinblade",
-    "name": "Velvetguard Iron Twinblade Chakram",
+    "name": "Velvetguard Iron Twin Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -24,7 +24,7 @@
   {
     "id": "counter_iron_rapier",
     "target": "simplyswords:iron_rapier",
-    "name": "Velvetguard Iron Rapier Chakram",
+    "name": "Velvetguard Iron Needle Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -35,7 +35,7 @@
   {
     "id": "counter_iron_katana",
     "target": "simplyswords:iron_katana",
-    "name": "Velvetguard Iron Katana Chakram",
+    "name": "Velvetguard Iron Crescent Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -90,7 +90,7 @@
   {
     "id": "counter_iron_cutlass",
     "target": "simplyswords:iron_cutlass",
-    "name": "Ribbonreach Iron Cutlass Spear",
+    "name": "Ribbonreach Iron Sail Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -101,7 +101,7 @@
   {
     "id": "counter_iron_claymore",
     "target": "simplyswords:iron_claymore",
-    "name": "Bellfall Iron Claymore Axe",
+    "name": "Bellfall Iron Axe",
     "school": "STAGGER",
     "shape": "axe",
     "theme": "dusk",
@@ -167,7 +167,7 @@
   {
     "id": "counter_gold_longsword",
     "target": "simplyswords:gold_longsword",
-    "name": "Ribbonreach Gold Longsword Spear",
+    "name": "Ribbonreach Gold Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -178,7 +178,7 @@
   {
     "id": "counter_gold_twinblade",
     "target": "simplyswords:gold_twinblade",
-    "name": "Velvetguard Gold Twinblade Chakram",
+    "name": "Velvetguard Gold Twin Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -189,7 +189,7 @@
   {
     "id": "counter_gold_rapier",
     "target": "simplyswords:gold_rapier",
-    "name": "Velvetguard Gold Rapier Chakram",
+    "name": "Velvetguard Gold Needle Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -200,7 +200,7 @@
   {
     "id": "counter_gold_katana",
     "target": "simplyswords:gold_katana",
-    "name": "Velvetguard Gold Katana Chakram",
+    "name": "Velvetguard Gold Crescent Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -255,7 +255,7 @@
   {
     "id": "counter_gold_cutlass",
     "target": "simplyswords:gold_cutlass",
-    "name": "Ribbonreach Gold Cutlass Spear",
+    "name": "Ribbonreach Gold Sail Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -266,7 +266,7 @@
   {
     "id": "counter_gold_claymore",
     "target": "simplyswords:gold_claymore",
-    "name": "Bellfall Gold Claymore Axe",
+    "name": "Bellfall Gold Axe",
     "school": "STAGGER",
     "shape": "axe",
     "theme": "petal",
@@ -332,7 +332,7 @@
   {
     "id": "counter_diamond_longsword",
     "target": "simplyswords:diamond_longsword",
-    "name": "Ribbonreach Diamond Longsword Spear",
+    "name": "Ribbonreach Diamond Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -343,7 +343,7 @@
   {
     "id": "counter_diamond_twinblade",
     "target": "simplyswords:diamond_twinblade",
-    "name": "Velvetguard Diamond Twinblade Chakram",
+    "name": "Velvetguard Diamond Twin Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -354,7 +354,7 @@
   {
     "id": "counter_diamond_rapier",
     "target": "simplyswords:diamond_rapier",
-    "name": "Velvetguard Diamond Rapier Chakram",
+    "name": "Velvetguard Diamond Needle Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -365,7 +365,7 @@
   {
     "id": "counter_diamond_katana",
     "target": "simplyswords:diamond_katana",
-    "name": "Velvetguard Diamond Katana Chakram",
+    "name": "Velvetguard Diamond Crescent Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -420,7 +420,7 @@
   {
     "id": "counter_diamond_cutlass",
     "target": "simplyswords:diamond_cutlass",
-    "name": "Ribbonreach Diamond Cutlass Spear",
+    "name": "Ribbonreach Diamond Sail Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -431,7 +431,7 @@
   {
     "id": "counter_diamond_claymore",
     "target": "simplyswords:diamond_claymore",
-    "name": "Bellfall Diamond Claymore Axe",
+    "name": "Bellfall Diamond Axe",
     "school": "STAGGER",
     "shape": "axe",
     "theme": "dusk",
@@ -497,7 +497,7 @@
   {
     "id": "counter_netherite_longsword",
     "target": "simplyswords:netherite_longsword",
-    "name": "Ribbonreach Netherite Longsword Spear",
+    "name": "Ribbonreach Netherite Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -508,7 +508,7 @@
   {
     "id": "counter_netherite_twinblade",
     "target": "simplyswords:netherite_twinblade",
-    "name": "Velvetguard Netherite Twinblade Chakram",
+    "name": "Velvetguard Netherite Twin Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -519,7 +519,7 @@
   {
     "id": "counter_netherite_rapier",
     "target": "simplyswords:netherite_rapier",
-    "name": "Velvetguard Netherite Rapier Chakram",
+    "name": "Velvetguard Netherite Needle Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -530,7 +530,7 @@
   {
     "id": "counter_netherite_katana",
     "target": "simplyswords:netherite_katana",
-    "name": "Velvetguard Netherite Katana Chakram",
+    "name": "Velvetguard Netherite Crescent Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -585,7 +585,7 @@
   {
     "id": "counter_netherite_cutlass",
     "target": "simplyswords:netherite_cutlass",
-    "name": "Ribbonreach Netherite Cutlass Spear",
+    "name": "Ribbonreach Netherite Sail Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "dusk",
@@ -596,7 +596,7 @@
   {
     "id": "counter_netherite_claymore",
     "target": "simplyswords:netherite_claymore",
-    "name": "Bellfall Netherite Claymore Axe",
+    "name": "Bellfall Netherite Axe",
     "school": "STAGGER",
     "shape": "axe",
     "theme": "petal",
@@ -662,7 +662,7 @@
   {
     "id": "counter_runic_longsword",
     "target": "simplyswords:runic_longsword",
-    "name": "Ribbonreach Runic Longsword Spear",
+    "name": "Ribbonreach Runic Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -673,7 +673,7 @@
   {
     "id": "counter_runic_twinblade",
     "target": "simplyswords:runic_twinblade",
-    "name": "Velvetguard Runic Twinblade Chakram",
+    "name": "Velvetguard Runic Twin Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -684,7 +684,7 @@
   {
     "id": "counter_runic_rapier",
     "target": "simplyswords:runic_rapier",
-    "name": "Velvetguard Runic Rapier Chakram",
+    "name": "Velvetguard Runic Needle Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "petal",
@@ -695,7 +695,7 @@
   {
     "id": "counter_runic_katana",
     "target": "simplyswords:runic_katana",
-    "name": "Velvetguard Runic Katana Chakram",
+    "name": "Velvetguard Runic Crescent Chakram",
     "school": "GUARD",
     "shape": "chakram",
     "theme": "dusk",
@@ -750,7 +750,7 @@
   {
     "id": "counter_runic_cutlass",
     "target": "simplyswords:runic_cutlass",
-    "name": "Ribbonreach Runic Cutlass Spear",
+    "name": "Ribbonreach Runic Sail Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -761,7 +761,7 @@
   {
     "id": "counter_runic_claymore",
     "target": "simplyswords:runic_claymore",
-    "name": "Bellfall Runic Claymore Axe",
+    "name": "Bellfall Runic Axe",
     "school": "STAGGER",
     "shape": "axe",
     "theme": "dusk",
@@ -827,7 +827,7 @@
   {
     "id": "counter_brimstone_claymore",
     "target": "simplyswords:brimstone_claymore",
-    "name": "Dewglass Brimstone Claymore Spear",
+    "name": "Dewglass Emberfall Spear",
     "school": "QUENCH",
     "shape": "spear",
     "theme": "dusk",
@@ -904,7 +904,7 @@
   {
     "id": "counter_sword_on_a_stick",
     "target": "simplyswords:sword_on_a_stick",
-    "name": "Ribbonreach Sword on a Stick Spear",
+    "name": "Ribbonreach Heartwood Spear",
     "school": "SPACE",
     "shape": "spear",
     "theme": "petal",
@@ -937,9 +937,9 @@
   {
     "id": "counter_toxic_longsword",
     "target": "simplyswords:toxic_longsword",
-    "name": "Clearheart Longsword of the Plague Wand",
+    "name": "Clearheart Plague Ward Dagger",
     "school": "CLEANSE",
-    "shape": "wand",
+    "shape": "dagger",
     "theme": "dusk",
     "damage": 22,
     "sourceName": "Longsword of the Plague",
@@ -948,7 +948,7 @@
   {
     "id": "counter_emberblade",
     "target": "simplyswords:emberblade",
-    "name": "Dewglass Emberblade Spear",
+    "name": "Dewglass Ember Spear",
     "school": "QUENCH",
     "shape": "spear",
     "theme": "petal",
@@ -981,7 +981,7 @@
   {
     "id": "counter_twisted_blade",
     "target": "simplyswords:twisted_blade",
-    "name": "Afterglow Twisted Blade Dagger",
+    "name": "Afterglow Thorn Dagger",
     "school": "FEINT",
     "shape": "dagger",
     "theme": "dusk",
@@ -1113,7 +1113,7 @@
   {
     "id": "counter_slumbering_lichblade",
     "target": "simplyswords:slumbering_lichblade",
-    "name": "Hushveil Slumbering Lichblade Bow",
+    "name": "Hushveil Slumbering Lich Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "dusk",
@@ -1124,7 +1124,7 @@
   {
     "id": "counter_waking_lichblade",
     "target": "simplyswords:waking_lichblade",
-    "name": "Hushveil Waking Lichblade Bow",
+    "name": "Hushveil Waking Lich Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "petal",
@@ -1135,7 +1135,7 @@
   {
     "id": "counter_awakened_lichblade",
     "target": "simplyswords:awakened_lichblade",
-    "name": "Hushveil Awakened Lichblade Bow",
+    "name": "Hushveil Awakened Lich Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "dusk",
@@ -1377,7 +1377,7 @@
   {
     "id": "counter_magiblade",
     "target": "simplyswords:magiblade",
-    "name": "Hushveil Magiblade Bow",
+    "name": "Hushveil Magic Bow",
     "school": "SILENCE",
     "shape": "bow",
     "theme": "dusk",

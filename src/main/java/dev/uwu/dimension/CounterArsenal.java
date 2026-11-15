@@ -26,6 +26,11 @@ public final class CounterArsenal {
     public static final List<Entry> ROSTER=load();
     public static final Map<String,Supplier<CounterItem>> ITEMS=new LinkedHashMap<>();
     private static final DeferredRegister.Items REGISTRY=DeferredRegister.createItems("uwudimension");
+    private static final Set<String> LEGACY_COMMON_BLADES = Set.of(
+        "counter_iron_longsword", "counter_gold_longsword", "counter_diamond_longsword",
+        "counter_netherite_longsword", "counter_runic_longsword",
+        "counter_iron_claymore", "counter_gold_claymore", "counter_diamond_claymore",
+        "counter_netherite_claymore", "counter_runic_claymore");
     private static List<Entry> load(){
         try(var stream=CounterArsenal.class.getResourceAsStream("/assets/uwudimension/counter_roster.json")){
             if(stream==null)throw new IllegalStateException("Missing counter roster");
@@ -33,10 +38,17 @@ public final class CounterArsenal {
         }catch(IOException e){throw new IllegalStateException(e);}
     }
     public static Entry entry(String id){return ROSTER.stream().filter(e->e.id().equals(id)).findFirst().orElse(null);}
+    /** Legacy counters remain registered so saved stacks and their exact matching wards keep working. */
+    static boolean active(Entry entry) {
+        return !LEGACY_COMMON_BLADES.contains(entry.id());
+    }
     static void register(IEventBus bus){
         for(Entry e:ROSTER)ITEMS.put(e.id(),REGISTRY.register(e.id(),()->new CounterItem(e)));
         REGISTRY.register(bus);CounterEffects.register(bus);
-        bus.addListener((BuildCreativeModeTabContentsEvent e)->{if(e.getTabKey().equals(CreativeModeTabs.COMBAT))ITEMS.values().forEach(i->e.accept(i.get()));});
+        bus.addListener((BuildCreativeModeTabContentsEvent e)->{
+            if(e.getTabKey().equals(CreativeModeTabs.COMBAT))
+                ROSTER.stream().filter(CounterArsenal::active).forEach(entry -> e.accept(ITEMS.get(entry.id()).get()));
+        });
     }
     public static final class CounterItem extends Item {
         public final Entry entry;

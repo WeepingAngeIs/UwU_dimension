@@ -34,9 +34,12 @@ final class LoreDiscovery {
     private LoreDiscovery() {}
 
     static void chestInteraction(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity() instanceof ServerPlayer player && event.getHand() == InteractionHand.MAIN_HAND)
+            candidates.remove(player.getUUID());
         if (event.isCanceled() || event.getHand() != InteractionHand.MAIN_HAND
                 || !(event.getEntity() instanceof ServerPlayer player) || player.isSpectator()
                 || !RealmResidents.applies(player.serverLevel()) || !SakuraAccess.mayInteract(player, event.getPos())) return;
+        if (!(player.serverLevel().getBlockState(event.getPos()).getBlock() instanceof ChestBlock)) return;
         BlockEntity chest = player.serverLevel().getBlockEntity(event.getPos());
         if (!(chest instanceof RandomizableContainerBlockEntity)) return;
 
@@ -68,7 +71,8 @@ final class LoreDiscovery {
     static void containerOpened(PlayerContainerEvent.Open event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         Candidate candidate = candidates.remove(player.getUUID());
-        if (candidate == null || candidate.tick() != player.tickCount) return;
+        if (candidate == null || candidate.tick() != player.tickCount
+                || !(event.getContainer() instanceof net.minecraft.world.inventory.ChestMenu)) return;
         CompoundTag root = player.getPersistentData();
         CompoundTag saved = root.getCompound(Player.PERSISTED_NBT_TAG);
         if (saved.getBoolean(AWARDED) || saved.getBoolean(PENDING)) return;

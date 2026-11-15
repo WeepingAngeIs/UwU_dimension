@@ -158,9 +158,12 @@ final class HeartLauncher {
         if (PENDING.size() >= 64) return;
         var candidates = new ArrayList<BlockPos>();
         for (BlockPos position : BlockPos.betweenClosed(center.offset(-radius, -radius, -radius), center.offset(radius, radius, radius))) {
-            if (position.distSqr(center) <= radius * radius && level.hasChunkAt(position)
-                    && level.getBlockState(position).is(BlockTags.MINEABLE_WITH_PICKAXE))
-                candidates.add(position.immutable());
+            if (position.distSqr(center) <= radius * radius && level.hasChunkAt(position)) {
+                BlockState state = level.getBlockState(position);
+                if (state.is(BlockTags.MINEABLE_WITH_PICKAXE) && !state.hasBlockEntity()
+                        && owner.getMainHandItem().isCorrectToolForDrops(state))
+                    candidates.add(position.immutable());
+            }
         }
         candidates.sort(Comparator.comparingDouble(position -> position.distSqr(center)));
         PENDING.add(new BreakJob(level, owner.getUUID(), new ArrayDeque<>(candidates.subList(0, Math.min(32, candidates.size())))));
@@ -177,7 +180,8 @@ final class HeartLauncher {
             if (pos == null) { PENDING.remove(); continue; }
             budget--;
             BlockState state = job.level().hasChunkAt(pos) ? job.level().getBlockState(pos) : null;
-            if (state != null && state.is(BlockTags.MINEABLE_WITH_PICKAXE) && state.getDestroySpeed(job.level(), pos) >= 0
+            if (state != null && state.is(BlockTags.MINEABLE_WITH_PICKAXE) && !state.hasBlockEntity()
+                    && owner.getMainHandItem().isCorrectToolForDrops(state) && state.getDestroySpeed(job.level(), pos) >= 0
                     && SakuraAccess.mayInteract(owner, pos))
                 owner.gameMode.destroyBlock(pos);
         }

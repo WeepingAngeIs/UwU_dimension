@@ -108,7 +108,9 @@ public final class Understory {
     }
     private static boolean validSpace(WorldGenLevel level,BlockPos pos){
         var state=level.getBlockState(pos);
-        return state.getFluidState().isEmpty() && (state.isAir() || state.is(Blocks.SHORT_GRASS) || state.is(Blocks.FERN));
+        return state.getFluidState().isEmpty() && (state.isAir() || state.is(Blocks.SHORT_GRASS)
+                || state.is(Blocks.FERN) || state.is(Blocks.SNOW)
+                && state.getValue(net.minecraft.world.level.block.SnowLayerBlock.LAYERS)==1);
     }
     private static boolean place(WorldGenLevel level,BlockPos pos,Block block){
         if(!validSpace(level,pos) || !rooted(level.getBlockState(pos.below()),level,pos.below()))return false;

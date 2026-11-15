@@ -41,6 +41,7 @@ public final class UwUDimension {
         SakuraMaterials.register(bus);
         SakuraTools.register(bus);
         SacredSpring.register(bus);
+        WeatherParticles.register(bus);
         MoonveilWood.register(bus);
         Understory.register(bus);
         ReachArchitecture.register(bus);

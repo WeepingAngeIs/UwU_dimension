@@ -83,10 +83,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_longsword"
-        },
-        {
-          "type": "minecraft:item",
           "name": "uwudimension:counter_iron_twinblade"
         },
         {
@@ -119,10 +115,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_claymore"
-        },
-        {
-          "type": "minecraft:item",
           "name": "uwudimension:counter_iron_greathammer"
         },
         {
@@ -140,10 +132,6 @@
         {
           "type": "minecraft:item",
           "name": "uwudimension:counter_iron_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_longsword"
         },
         {
           "type": "minecraft:item",
@@ -179,10 +167,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_claymore"
-        },
-        {
-          "type": "minecraft:item",
           "name": "uwudimension:counter_gold_greathammer"
         },
         {
@@ -200,10 +184,6 @@
         {
           "type": "minecraft:item",
           "name": "uwudimension:counter_gold_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_longsword"
         },
         {
           "type": "minecraft:item",
@@ -239,10 +219,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_claymore"
-        },
-        {
-          "type": "minecraft:item",
           "name": "uwudimension:counter_diamond_greathammer"
         },
         {
@@ -260,10 +236,6 @@
         {
           "type": "minecraft:item",
           "name": "uwudimension:counter_diamond_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_longsword"
         },
         {
           "type": "minecraft:item",
@@ -299,10 +271,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_claymore"
-        },
-        {
-          "type": "minecraft:item",
           "name": "uwudimension:counter_netherite_greathammer"
         },
         {
@@ -320,10 +288,6 @@
         {
           "type": "minecraft:item",
           "name": "uwudimension:counter_netherite_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_longsword"
         },
         {
           "type": "minecraft:item",
@@ -356,10 +320,6 @@
         {
           "type": "minecraft:item",
           "name": "uwudimension:counter_runic_cutlass"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_claymore"
         },
         {
           "type": "minecraft:item",

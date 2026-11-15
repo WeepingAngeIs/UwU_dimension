@@ -1,0 +1,179 @@
+package dev.uwu.test;
+
+import java.util.Map;
+import java.util.UUID;
+import dev.uwu.dimension.AcquisitionPolicy;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+
+/** Multi-tick tests on a disposable dedicated server, with a connected test visitor. */
+final class ToolAreaProof {
+    private static ChestProof.Visitor visitor;
+    private static ServerPlayer player;
+    private static Map<UUID, ServerPlayer> playersById;
+    private static BlockPos center;
+    private static boolean oldAreaSetting, forced;
+    private static net.neoforged.neoforge.common.ModConfigSpec.BooleanValue excavation;
+    private static boolean oldExcavation;
+    private static int stage, ticks;
+
+    private static void require(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<UUID, ServerPlayer> playerMap(ServerLevel level) throws Exception {
+        var field = level.getServer().getPlayerList().getClass().getDeclaredField("playersByUUID");
+        field.setAccessible(true);
+        return (Map<UUID, ServerPlayer>)field.get(level.getServer().getPlayerList());
+    }
+
+    private static Item item(String name) {
+        return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("uwudimension", name));
+    }
+
+    private static void fill(ServerLevel level) {
+        for (int x=-4; x<=4; x++) for (int z=-4; z<=4; z++)
+            level.setBlockAndUpdate(center.offset(x, 0, z), Blocks.STONE.defaultBlockState());
+    }
+
+    private static int remaining(ServerLevel level) {
+        int count = 0;
+        for (int x=-4; x<=4; x++) for (int z=-4; z<=4; z++)
+            if (level.getBlockState(center.offset(x, 0, z)).is(Blocks.STONE)) count++;
+        return count;
+    }
+
+    private static void shootDown(ServerLevel level) {
+        Item launcher = item("heart_launcher");
+        player.getCooldowns().removeCooldown(launcher);
+        player.moveTo(8.5, center.getY()+5, 8.5, 0, 90);
+        player.setDeltaMovement(0,0,0);
+        launcher.use(level, player, InteractionHand.MAIN_HAND);
+    }
+
+    static boolean tick(ServerLevel level) throws Exception {
+        try {
+            if (stage == 0) {
+                require(AcquisitionPolicy.SPEC.isLoaded(), "Server policy is not loaded");
+                oldAreaSetting = AcquisitionPolicy.AREA_MINING.get();
+                center = new BlockPos(8, level.getMaxBuildHeight()-24, 8);
+                forced = level.setChunkForced(0, 0, true);
+                level.getChunkAt(center);
+                visitor = new ChestProof.Visitor(level, center, "AreaToolProof", UUID.randomUUID());
+                player = visitor.player;
+                level.addNewPlayer(player);
+                playersById = playerMap(level);
+                playersById.put(player.getUUID(), player);
+                player.moveTo(8.5, center.getY()+3, 8.5, 0, 90);
+                player.setNoGravity(true);
+                player.setShiftKeyDown(true);
+                Item hammer = item("bell_hammer");
+                require(hammer != Items.AIR, "Bell Hammer item missing");
+                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(hammer));
+                fill(level);
+                AcquisitionPolicy.AREA_MINING.set(false);
+                require(player.gameMode.destroyBlock(center), "Disabled-mode center break failed");
+                stage = 1;
+                ticks = 0;
+                return false;
+            }
+            ticks++;
+            if (stage == 1 && ticks >= 3) {
+                require(remaining(level) == 80, "Disabled area mining broke neighboring blocks");
+                AcquisitionPolicy.AREA_MINING.set(true);
+                fill(level);
+                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item("bell_hammer")));
+                require(player.gameMode.destroyBlock(center), "Enabled-mode center break failed");
+                require(remaining(level) == 80, "Area mining did not wait for a later server tick");
+                stage = 2;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 2 && ticks >= 18) {
+                require(remaining(level) == 0, "Hammer failed to mine the full 9 x 9 plane: "+remaining(level)+" remain");
+                require(player.getMainHandItem().getDamageValue() == 81, "Hammer durability did not match 81 breaks");
+                int drops = level.getEntitiesOfClass(ItemEntity.class,
+                        new net.minecraft.world.phys.AABB(center).inflate(32)).stream()
+                        .filter(e -> e.getItem().is(Items.COBBLESTONE)).mapToInt(e -> e.getItem().getCount()).sum();
+                require(drops >= 81, "Hammer failed to drop cobblestone for all 81 blocks: "+drops);
+                player.setShiftKeyDown(false);
+                Item launcher = item("heart_launcher");
+                require(launcher != Items.AIR, "Heart Launcher item missing");
+                ItemStack held = new ItemStack(launcher);
+                player.setItemInHand(InteractionHand.MAIN_HAND, held);
+                player.moveTo(8.5, center.getY()+3, 8.5, 0, 0);
+                player.setDeltaMovement(0,0,0);
+                launcher.use(level, player, InteractionHand.MAIN_HAND);
+                require(player.getCooldowns().isOnCooldown(launcher) && held.getDamageValue() == 1,
+                        "Launcher did not apply cooldown and shot durability");
+                require(player.getDeltaMovement().z < 0, "Launcher did not kick the player backward");
+                var projectiles = level.getEntitiesOfClass(ThrowableItemProjectile.class, player.getBoundingBox().inflate(5),
+                        shot -> shot.getOwner()==player && BuiltInRegistries.ENTITY_TYPE.getKey(shot.getType())
+                                .equals(ResourceLocation.fromNamespaceAndPath("uwudimension", "launcher_heart")));
+                require(projectiles.size()==1, "Launcher failed to spawn one heart projectile");
+                launcher.use(level, player, InteractionHand.MAIN_HAND);
+                require(held.getDamageValue()==1, "Launcher fired again during recoil cooldown");
+                var shot = projectiles.getFirst();
+                var nbt = shot.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+                nbt.putDouble("uwu_distance", 95.5);
+                shot.load(nbt);
+                shot.setOwner(player);
+                shot.setDeltaMovement(.75, 0, 0);
+                double before = shot.getX();
+                shot.tick();
+                require(shot.isRemoved() && shot.getX() - before <= .501,
+                        "Heart projectile did not stop at 96 blocks of travel");
+                var field = Class.forName("dev.uwu.dimension.HeartLauncher").getDeclaredField("EXCAVATION");
+                field.setAccessible(true);
+                excavation = (net.neoforged.neoforge.common.ModConfigSpec.BooleanValue)field.get(null);
+                oldExcavation = excavation.get();
+                excavation.set(false);
+                fill(level);
+                shootDown(level);
+                stage = 3;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 3 && ticks >= 12) {
+                require(remaining(level) == 81, "Default-off launcher damaged rock");
+                excavation.set(true);
+                shootDown(level);
+                stage = 4;
+                ticks = 0;
+                return false;
+            }
+            if (stage == 4 && ticks >= 18) {
+                int removed = 81 - remaining(level);
+                require(removed > 0 && removed <= 32, "Enabled launcher failed its bounded excavation: " + removed);
+                System.out.println("UWU AREA TOOLS SERVER PASS 81-block plane, policy, durability, drops, recoil, range and excavation toggle");
+                close(level);
+                return true;
+            }
+            require(ticks < 100, "Area tool proof timed out at stage " + stage);
+            return false;
+        } catch (Throwable failure) {
+            close(level);
+            throw failure;
+        }
+    }
+
+    private static void close(ServerLevel level) throws Exception {
+        if (AcquisitionPolicy.SPEC.isLoaded()) AcquisitionPolicy.AREA_MINING.set(oldAreaSetting);
+        if (excavation != null) excavation.set(oldExcavation);
+        if (playersById != null && player != null) playersById.remove(player.getUUID());
+        if (player != null) player.discard();
+        if (visitor != null) visitor.close();
+        if (forced) level.setChunkForced(0,0,false);
+    }
+}

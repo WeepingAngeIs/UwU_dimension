@@ -27,7 +27,12 @@ public final class GlitchBow extends Item {
         text.add(Component.literal("Draw and fire: a different UwU weapon emerges from the static."));
         text.add(Component.literal("The same bow keeps its enchantments and wear. Its form lasts until the next shot."));
         var data=s.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(data.contains("uwu_form"))text.add(Component.literal("Current form: "+FORMS.get(Math.floorMod(data.getInt("uwu_form"),FORMS.size())).replace('_',' ')));
+        if(data.contains("uwu_form")) {
+            String id = FORMS.get(Math.floorMod(data.getInt("uwu_form"), FORMS.size()));
+            CounterArsenal.Entry counter = CounterArsenal.entry(id);
+            String display = counter != null ? counter.name() : Arsenal.Relic.valueOf(id.toUpperCase(Locale.ROOT)).title;
+            text.add(Component.literal("Current form: " + display));
+        }
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level,Player p,InteractionHand hand){
         if(p.getCooldowns().isOnCooldown(this))return InteractionResultHolder.fail(p.getItemInHand(hand));
@@ -40,7 +45,12 @@ public final class GlitchBow extends Item {
         if(BowItem.getPowerForTime(72000-left)<.4F)return;
         CompoundTag prior=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int current=prior.contains("uwu_form")?Math.floorMod(prior.getInt("uwu_form"),FORMS.size()):-1;
-        int next=level.random.nextInt(FORMS.size()-(current>=0?1:0));if(current>=0&&next>=current)next++;
+        var choices=new ArrayList<Integer>();
+        for (int index=0; index<FORMS.size(); index++) {
+            var entry=CounterArsenal.entry(FORMS.get(index));
+            if(index!=current && (entry==null || CounterArsenal.active(entry))) choices.add(index);
+        }
+        int next=choices.get(level.random.nextInt(choices.size()));
         String form=FORMS.get(next);
         CounterArsenal.Entry counter=CounterArsenal.entry(form);
         if(counter!=null)CounterArsenal.fire(level,p,counter);
