@@ -56,13 +56,33 @@ public final class CounterProof {
                 player.setItemInHand(InteractionHand.MAIN_HAND,stack);player.getCooldowns().removeCooldown(item);
                 if(entry.shape().equals("whip"))System.out.println("WHIP AIM "+entry.id()+" actorHp="+player.getHealth()+" origin="+player.getEyePosition()+" aim="+player.getLookAngle()+" foe="+foe.position()+" visible="+player.hasLineOfSight(foe));
                 item.use(level,player,InteractionHand.MAIN_HAND);
-                if(entry.shape().equals("scythe")){player.getPersistentData().remove("uwu.scythe_flight");item.onUseTick(level,player,stack,71988);}
+                if(entry.shape().equals("scythe")){
+                    player.getPersistentData().remove("uwu.scythe_flight");
+                    item.onUseTick(level,player,stack,71988);
+                    require(player.getMainHandItem()==stack,"Scythe threw before release "+entry.id());
+                    item.releaseUsing(stack,level,player,71988);
+                }
+                RelicFlight thrown=null;
+                if(!entry.shape().equals("whip")) {
+                    var launched=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));
+                    require(launched.size()==1,"Physical counter throw missing "+entry.id());
+                    thrown=launched.getFirst();
+                    require(player.getMainHandItem().isEmpty(),"Physical counter remained in hand "+entry.id());
+                    require(thrown.getItem().is(item)&&thrown.getItem().getDamageValue()==1,
+                        "Thrown counter stack durability "+entry.id());
+                }
                 for(var projectile:level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&projectile.isAlive();t++){projectile.tickCount++;projectile.tick();}
                 for(var f:level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)))for(int t=0;t<9&&f.isAlive();t++){f.tickCount++;f.tick();}
                 for(var lash:level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(3)))for(int t=0;t<6&&lash.isAlive();t++){lash.tickCount++;lash.tick();}
                 require(CounterEffects.active(player)!=null&&CounterEffects.active(player).target().equals(entry.target()),"Ward failed "+entry.id());
                 require(CounterEffects.marked(foe)!=null&&CounterEffects.marked(foe).target().equals(entry.target()),"Normal cast missed matching player "+entry.id()+" actorAlive="+player.isAlive()+" actorHp="+player.getHealth()+" foeAlive="+foe.isAlive()+" lashes="+level.getEntitiesOfClass(RibbonLash.class,player.getBoundingBox().inflate(24)).stream().map(l->"age="+l.tickCount+" tip="+l.tip()+" owner="+(l.owner()==player)).toList()+" projectiles="+level.getEntitiesOfClass(Snowball.class,player.getBoundingBox().inflate(24)).stream().map(b->b.position()+" alive="+b.isAlive()).toList());
-                require(stack.getDamageValue()==1,"Cast durability "+entry.id());
+                if(thrown==null) require(stack.getDamageValue()==1,"Cast durability "+entry.id());
+                else {
+                    for(int t=0;t<150&&thrown.isAlive();t++){thrown.tickCount++;thrown.tick();}
+                    require(!thrown.isAlive()&&player.getMainHandItem().is(item)
+                            &&player.getMainHandItem().getDamageValue()==1,
+                        "Counter failed to return damaged stack "+entry.id());
+                }
                 clearProjectiles(level,player);
             }
             System.out.println("COUNTER ROSTER PASS 133 normal casts against installed player-held weapon forms");
@@ -97,10 +117,12 @@ public final class CounterProof {
             System.out.println("WHIP EFFECTS PASS frost freeze and marked-target safe teleport");
             var scythe=Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();var scytheStack=new ItemStack(scythe);player.setItemInHand(InteractionHand.MAIN_HAND,scytheStack);player.getCooldowns().removeCooldown(scythe);player.getPersistentData().remove("uwu.scythe_flight");
             scythe.use(level,player,InteractionHand.MAIN_HAND);scythe.onUseTick(level,player,scytheStack,71988);
-            var flights=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));require(flights.size()==1&&!flights.getFirst().wave(),"Held throw must fire without release");
-            scythe.onUseTick(level,player,scytheStack,71987);require(level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)).size()==1,"Held throw duplicated");
-            require(player.getMainHandItem()==scytheStack&&scytheStack.getCount()==1,"Scythe ownership changed");
-            for(int t=0;t<60&&flights.getFirst().isAlive();t++){flights.getFirst().tickCount++;flights.getFirst().tick();}require(!flights.getFirst().isAlive(),"Thrown scythe failed to return");
+            require(level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3)).isEmpty(),"Scythe threw before release");
+            scythe.releaseUsing(scytheStack,level,player,71988);
+            var flights=level.getEntitiesOfClass(RelicFlight.class,player.getBoundingBox().inflate(3));require(flights.size()==1&&!flights.getFirst().wave(),"Charged release must throw the scythe");
+            require(player.getMainHandItem().isEmpty()&&flights.getFirst().getItem().getDamageValue()==1,"Scythe custody or durability incorrect");
+            for(int t=0;t<150&&flights.getFirst().isAlive();t++){flights.getFirst().tickCount++;flights.getFirst().tick();}
+            require(!flights.getFirst().isAlive()&&player.getMainHandItem().is(scythe)&&player.getMainHandItem().getDamageValue()==1,"Thrown scythe failed to return");
             System.out.println("RANGED RELICS PASS textured lash, exactly two axolotls, held scythe return");
             var glitch=(GlitchBow)UwUDimension.GLITCH.get();var bow=new ItemStack(glitch);player.setItemInHand(InteractionHand.MAIN_HAND,bow);
             int last=-1;

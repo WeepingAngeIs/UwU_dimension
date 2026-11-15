@@ -87,37 +87,30 @@ final class VillageSakura {
             int ground=GroveSites.height(v.level.getLevel(),v.wx(p.x+x,p.z+z),v.wz(p.x+x,p.z+z));
             for (int y=ground-p.y+1; y<1; y++) put(v,p,x,y,z,log);
         }
-        int[][] boughs = {{-10,3,-3},{8,5,-8},{11,2,4},{-6,6,10},{2,8,2}};
+        // Off-center, overlapping canopies give the skyline several different heights.
+        // Each lobe is carried by a rising, slightly curved branch from the trunk.
+        int[][] boughs = {
+                {-9,4,-2,8,4,7}, {6,5,-7,8,5,7}, {9,3,5,7,4,8},
+                {-5,6,8,8,5,7}, {0,6,0,7,5,7}, {-4,8,-6,6,4,6}
+        };
         for (int[] branch : boughs) {
-            int steps=Math.max(Math.abs(branch[0]),Math.abs(branch[2]));
+            int steps=Math.max(1,Math.max(Math.abs(branch[0]),Math.abs(branch[2])));
             for (int i=0; i<=steps; i++) {
                 int x=Math.round(branch[0]*i/(float)steps);
-                int y=p.trunk+Math.round(branch[1]*i/(float)steps);
+                int y=p.trunk+Math.round(branch[1]*i/(float)steps)
+                        +(int)Math.round(Math.sin(Math.PI*i/steps));
                 int z=Math.round(branch[2]*i/(float)steps);
                 Direction.Axis axis=Math.abs(branch[0])>=Math.abs(branch[2])?Direction.Axis.X:Direction.Axis.Z;
                 put(v,p,x,y,z,log.setValue(RotatedPillarBlock.AXIS,v.face(axis==Direction.Axis.X?Direction.EAST:Direction.SOUTH).getAxis()));
             }
             int bx=branch[0], by=p.trunk+branch[1]+2, bz=branch[2];
-            for (int x=-5;x<=5;x++) for (int z=-5;z<=5;z++) for (int y=-2;y<=3;y++) {
-                if (x*x+z*z+3*y*y>29) continue;
-                if (by+y<=p.trunk) continue;
-                if ((HeartwaterFeature.Valley.mix(p.x+bx+x,p.z+bz+z,v.seed+y)&15)==0) continue;
+            int rx=branch[3], ry=branch[4], rz=branch[5];
+            for (int x=-rx;x<=rx;x++) for (int z=-rz;z<=rz;z++) for (int y=-ry;y<=ry;y++) {
+                double edge=(double)(x*x)/(rx*rx)+(double)(y*y)/(ry*ry)+(double)(z*z)/(rz*rz);
+                if (edge>1 || by+y<=p.trunk) continue;
+                int noise=HeartwaterFeature.Valley.mix(p.x+bx+x,p.z+bz+z,v.seed+y);
+                if (edge>.72 && (noise&7)==0 || edge<.72 && (noise&127)==0) continue;
                 put(v,p,bx+x,by+y,bz+z,leaf);
-            }
-        }
-        // Spread overlapping, asymmetrical foliage lobes between the raised boughs.
-        // Raise the rim and vary the underside to avoid a flat umbrella silhouette.
-        for (int x=-13;x<=13;x++) for (int z=-12;z<=12;z++) {
-            double edge=x*x/169.0+z*z/144.0;
-            double swell=Math.sin(x*.31)+Math.cos(z*.27)+Math.sin((x+z)*.23);
-            int noise=HeartwaterFeature.Valley.mix(p.x+x,p.z+z,v.seed);
-            if (edge>1+.12*swell || edge>.70 && (noise&15)<3) continue;
-            if(edge<.66 && (noise&63)==0) continue;
-            int bottom=1+(edge>.68?1:0)+(swell>1.0?1:0);
-            int top=bottom+2+(swell>.2?1:0);
-            for (int y=bottom;y<=top;y++) {
-                if (edge>.65 && (noise&7)==0 && y==bottom) continue;
-                put(v,p,x,p.trunk+y,z,leaf);
             }
         }
     }

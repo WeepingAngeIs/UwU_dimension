@@ -31,8 +31,8 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 20m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee launcher-client.log
           grep -F 'LAUNCHER CLIENT VIEWS PASS' launcher-client.log
-          grep -F 'LAUNCHER RECOIL PASS launcher-first-recoil' launcher-client.log
-          grep -F 'LAUNCHER RECOIL PASS launcher-third-recoil' launcher-client.log
+          grep -F 'LAUNCHER RECOIL FRAME PASS launcher-first-recoil' launcher-client.log
+          grep -F 'LAUNCHER RECOIL FRAME PASS launcher-third-recoil' launcher-client.log
           test -s run/screenshots/launcher-first-recoil.png
           test -s run/screenshots/launcher-third-recoil.png
           test -s run/screenshots/launcher-first-rest.png

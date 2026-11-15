@@ -23,6 +23,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 /** Uses a real client to photograph the launcher during its actual cooldown. */
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
@@ -30,7 +31,7 @@ public final class LauncherCamera {
     private static String state="menu";
     private static int ticks, shot;
     private static boolean captured;
-    private static int cooldownFrames;
+    private static boolean awaitingRecoil;
     private LauncherCamera() {}
     @SubscribeEvent public static void tick(ClientTickEvent.Post event) {
         if(!"launcher".equals(System.getenv("UWU_VISIT")))return;
@@ -70,18 +71,12 @@ public final class LauncherCamera {
             mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
             mc.options.hideGui=false;
             mc.player.setYRot(0);mc.player.setXRot(0);
-            captured=false;cooldownFrames=0;state="firing";ticks=0;
+            captured=false;awaitingRecoil=false;state="firing";ticks=0;
             mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);return;
         }
         if(state.equals("firing")) {
             var stack=mc.player.getMainHandItem();
-            if(mc.player.getCooldowns().getCooldownPercent(stack.getItem(),0)>0) cooldownFrames++;
-            if(!captured && cooldownFrames>=2) {
-                captured=true;
-                String frame=shot==0?"launcher-first-recoil":"launcher-third-recoil";
-                Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
-                System.out.println("LAUNCHER RECOIL PASS "+frame);
-            }
+            if(mc.player.getCooldowns().getCooldownPercent(stack.getItem(),0)>0) awaitingRecoil=true;
             if(ticks>70) {
                 if(!captured)throw new AssertionError("Launcher cooldown not observed in view "+shot);
                 shot++;
@@ -89,6 +84,15 @@ public final class LauncherCamera {
                 else {state="armed";ticks=0;}
             }
         }
+    }
+    @SubscribeEvent public static void rendered(RenderGuiEvent.Post event) {
+        if(!"launcher".equals(System.getenv("UWU_VISIT")) || !state.equals("firing") || captured || !awaitingRecoil) return;
+        var mc=Minecraft.getInstance();
+        if(mc.player==null || mc.player.getCooldowns().getCooldownPercent(mc.player.getMainHandItem().getItem(),0)<=0) return;
+        captured=true;
+        String frame=shot==0?"launcher-first-recoil":"launcher-third-recoil";
+        Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+        System.out.println("LAUNCHER RECOIL FRAME PASS "+frame);
     }
 }
 
