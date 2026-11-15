@@ -1,0 +1,246 @@
+package dev.uwu.test;
+
+import dev.uwu.dimension.Arsenal;
+import dev.uwu.dimension.CounterArsenal;
+import dev.uwu.dimension.DaggerBackstab;
+import dev.uwu.dimension.RelicFlight;
+import java.lang.reflect.Field;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
+
+/** Server-side proof uses real attacks and physical throw hit handling. */
+final class DaggerProof {
+    private static final double DISTANCE = 2;
+    private static Field cooldown;
+
+    private DaggerProof() {}
+
+    private static void require(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+    }
+
+    private static boolean near(float actual, float expected) {
+        return Math.abs(actual - expected) < Math.max(.02F, Math.abs(expected) * .03F);
+    }
+
+    private static boolean behind(LivingEntity target, Vec3 attackPosition) throws Exception {
+        return DaggerBackstab.isBehind(target, attackPosition);
+    }
+
+    private static Vec3 positionAtAngle(LivingEntity target, double angleFromRear, double height) {
+        double angle = Math.toRadians(angleFromRear);
+        return target.position().add(Math.sin(angle) * DISTANCE, height, -Math.cos(angle) * DISTANCE);
+    }
+
+    private static void geometry(LivingEntity target, String label) throws Exception {
+        target.setYRot(0);
+        target.setYHeadRot(0);
+        target.setXRot(0);
+        require(behind(target, positionAtAngle(target, 0, 0)), label + ": rear rejected");
+        for (double side : new double[]{-1, 1}) {
+            require(behind(target, positionAtAngle(target, side * 89.9, 0)),
+                    label + ": rear-side 89.9 rejected");
+            require(!behind(target, positionAtAngle(target, side * 90, 0)),
+                    label + ": exact side 90 accepted");
+            require(!behind(target, positionAtAngle(target, side * 90.1, 0)),
+                    label + ": front-side 90.1 accepted");
+            require(behind(target, positionAtAngle(target, side * 89.9, 80)),
+                    label + ": vertical offset altered horizontal bearing");
+        }
+        require(!behind(target, target.position()), label + ": overlapping hit accepted");
+        require(!behind(target, target.position().add(0, 100, 0)), label + ": vertical-only hit accepted");
+        require(!behind(target, target.position().add(0.00001, 0, 0)), label + ": near-zero separation accepted");
+        require(!behind(target, new Vec3(Double.NaN, 0, 0)), label + ": non-finite position accepted");
+        require(!behind(target, new Vec3(Double.POSITIVE_INFINITY, 0, 0)), label + ": infinite position accepted");
+        // The head can turn independently of the body, and a vertical look retains yaw.
+        target.setYRot(0);
+        target.setYHeadRot(180);
+        require(!behind(target, positionAtAngle(target, 0, 0)), label + ": ignored turned head");
+        require(behind(target, positionAtAngle(target, 180, 0)), label + ": turned rear rejected");
+        target.setXRot(-90);
+        require(behind(target, positionAtAngle(target, 180, 50)), label + ": vertical look lost head yaw");
+        target.setXRot(0);
+        target.setYHeadRot(0);
+    }
+
+    private static void resetTarget(LivingEntity target) {
+        target.setHealth(200);
+        target.invulnerableTime = 0;
+        target.setDeltaMovement(Vec3.ZERO);
+        target.setYRot(0);
+        target.setYHeadRot(0);
+        target.setXRot(0);
+    }
+
+    private static float attack(ServerPlayer player, LivingEntity target, Vec3 spot,
+                                int strength, boolean airborne) throws Exception {
+        resetTarget(target);
+        player.moveTo(spot.x, spot.y, spot.z, 0, 0);
+        player.setDeltaMovement(Vec3.ZERO);
+        player.setSprinting(false);
+        player.setOnGround(!airborne);
+        player.fallDistance = airborne ? 1F : 0F;
+        cooldown.setInt(player, strength);
+        player.attack(target);
+        float damage = 200 - target.getHealth();
+        require(damage > 0, "Actual attack caused no damage");
+        return damage;
+    }
+
+    private static void melee(ServerPlayer player, LivingEntity target, Item dagger, String label) throws Exception {
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(dagger));
+        Vec3 front = target.position().add(0, 0, DISTANCE);
+        Vec3 rear = target.position().add(0, 0, -DISTANCE);
+        Vec3 side = target.position().add(DISTANCE, 0, 0);
+        float frontDamage = attack(player, target, front, 100, false);
+        float sideDamage = attack(player, target, side, 100, false);
+        float rearDamage = attack(player, target, rear, 100, false);
+        float partialFront = attack(player, target, front, 2, false);
+        float partialRear = attack(player, target, rear, 2, false);
+        require(near(sideDamage, frontDamage), label + ": exact-side melee awarded bonus");
+        require(near(rearDamage, frontDamage * 2), label + ": rear melee not 2x");
+        require(partialFront < frontDamage && near(partialRear, partialFront * 2),
+                label + ": partial cooldown bypassed or rear damage incorrect");
+
+        // The event supplies crit feedback with a neutral multiplier. The primary
+        // attack's final pre-armor amount gets the single 2x backstab adjustment.
+        resetTarget(target);
+        player.moveTo(rear.x, rear.y, rear.z, 0, 0);
+        CriticalHitEvent event = new CriticalHitEvent(player, target, 1.5F, true);
+        NeoForge.EVENT_BUS.post(event);
+        require(event.isCriticalHit() && near(event.getDamageMultiplier(), 1F),
+                label + ": rear stacked ordinary crit into another multiplier");
+        float rearAir = attack(player, target, rear, 100, true);
+        require(near(rearAir, rearDamage), label + ": airborne rear damage stacked criticals");
+
+        // Vanilla main-hand melee does not use an offhand dagger when another item
+        // is selected. Better Combat may swap attack hands; that path needs its mod.
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(dagger));
+        resetTarget(target);
+        player.moveTo(rear.x, rear.y, rear.z, 0, 0);
+        CriticalHitEvent offhandOnly = new CriticalHitEvent(player, target, 1F, false);
+        NeoForge.EVENT_BUS.post(offhandOnly);
+        require(!offhandOnly.isCriticalHit(), label + ": vanilla offhand-only melee falsely treated as dagger");
+        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(dagger));
+    }
+
+    private static void enchantmentAndArmor(ServerLevel level, ServerPlayer player, LivingEntity target) throws Exception {
+        var dagger = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get());
+        Vec3 front = target.position().add(0, 0, DISTANCE);
+        Vec3 rear = target.position().add(0, 0, -DISTANCE);
+        player.setItemInHand(InteractionHand.MAIN_HAND, dagger.copy());
+        float unenchanted = attack(player, target, front, 100, false);
+        dagger.enchant(level.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                .getHolderOrThrow(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS), 3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, dagger);
+        float sharpFront = attack(player, target, front, 100, false);
+        float sharpRear = attack(player, target, rear, 100, false);
+        require(sharpFront > unenchanted, "Sharpness did not contribute to front damage");
+        require(near(sharpRear, sharpFront * 2), "Backstab failed to double total Sharpness damage");
+        float sharpRearAir = attack(player, target, rear, 100, true);
+        require(near(sharpRearAir, sharpRear), "Airborne Sharpness backstab stacked critical multipliers");
+        target.getAttribute(Attributes.ARMOR).setBaseValue(10);
+        float armoredFront = attack(player, target, front, 100, false);
+        float armoredRear = attack(player, target, rear, 100, false);
+        require(armoredFront < sharpFront && armoredRear < sharpRear && armoredRear > armoredFront,
+                "Armor did not apply normally to front and rear dagger damage");
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0);
+    }
+
+    private static float thrown(ServerLevel level, ServerPlayer player, LivingEntity target,
+                                InteractionHand hand, boolean rear) throws Exception {
+        resetTarget(target);
+        Item item = Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get();
+        player.getInventory().clearContent();
+        player.getCooldowns().removeCooldown(item);
+        // Keep the owner opposite the impact so the test distinguishes the flight
+        // hit position from the thrower's location.
+        double sign = rear ? -1 : 1;
+        player.moveTo(target.getX(), target.getY(), target.getZ() - sign * 8, 0, 0);
+        player.setItemInHand(hand, new ItemStack(item));
+        item.use(level, player, hand);
+        require(player.getItemInHand(hand).isEmpty(), "Thrown dagger did not leave " + hand);
+        RelicFlight flight = level.getEntitiesOfClass(RelicFlight.class, player.getBoundingBox().inflate(5),
+                e -> e.getOwner() == player && e.getItem().is(item)).stream().findFirst().orElseThrow();
+        Vec3 start = target.position().add(0, target.getBbHeight() * .5, sign * 1.2);
+        flight.setPos(start);
+        flight.setNoGravity(true);
+        flight.setDeltaMovement(0, 0, -sign * 2.4);
+        try {
+            // A real projectile tick sweeps through the target's bounding box,
+            // computing the collision position used by the backstab check.
+            flight.tick();
+            float damage = 200 - target.getHealth();
+            require(damage > 0, "Thrown " + hand + " dagger did no damage");
+            require(flight.returning(), "Thrown dagger did not enter return state");
+            return damage;
+        } finally {
+            flight.discard();
+            player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG)
+                    .remove("uwudimension.relic_returns");
+            player.getInventory().clearContent();
+        }
+    }
+
+    static void run(ServerLevel level, BlockPos base, ServerPlayer player, ServerPlayer other) throws Exception {
+        cooldown = LivingEntity.class.getDeclaredField("attackStrengthTicker");
+        cooldown.setAccessible(true);
+        Mob mob = EntityType.HUSK.create(level);
+        require(mob != null, "Missing backstab test mob");
+        mob.moveTo(base.getX()+.5, base.getY(), base.getZ()+.5, 0, 0);
+        mob.setNoAi(true);
+        mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        mob.setHealth(200);
+        level.addFreshEntity(mob);
+        other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
+        other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        other.setHealth(200);
+        try {
+            geometry(mob, "mob");
+            geometry(other, "player");
+            Item named = Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get();
+            Item counter = CounterArsenal.ITEMS.get("counter_toxic_longsword").get();
+            require(((CounterArsenal.CounterItem) counter).entry.shape().equals("dagger"),
+                    "Retained Plague counter is not a dagger");
+            melee(player, mob, named, "named mob");
+            melee(player, mob, counter, "counter mob");
+            enchantmentAndArmor(level, player, mob);
+            require(player.canHarmPlayer(other), "PVP fixture does not permit the player-target test");
+            melee(player, other, named, "named player");
+            for (InteractionHand hand : InteractionHand.values()) {
+                float front = thrown(level, player, mob, hand, false);
+                float rear = thrown(level, player, mob, hand, true);
+                require(near(rear, front * 2), hand + ": thrown mob rear not 2x: " + front + "/" + rear);
+            }
+            float frontPlayer = thrown(level, player, other, InteractionHand.MAIN_HAND, false);
+            float rearPlayer = thrown(level, player, other, InteractionHand.MAIN_HAND, true);
+            require(near(rearPlayer, frontPlayer * 2),
+                    "Thrown player rear not 2x: " + frontPlayer + "/" + rearPlayer);
+        } finally {
+            mob.discard();
+            player.fallDistance = 0;
+            player.setOnGround(true);
+            player.getInventory().clearContent();
+            other.getInventory().clearContent();
+            other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);
+            other.setHealth(20);
+        }
+        System.out.println("UWU DAGGER ANGLE PASS 90-degree boundaries, turning, cooldown, airborne and thrown impacts");
+        System.out.println("UWU DAGGER LIMIT Better Combat offhand interaction requires its mod and a graphical client");
+    }
+}
+

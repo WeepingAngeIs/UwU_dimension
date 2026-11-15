@@ -46,6 +46,7 @@ final class ToolLoreProof {
             level.addNewPlayer(other);
             try {
                 dagger(level, base, player);
+                DaggerProof.run(level, base, player, other);
                 fishing(level, player);
                 chakram(level, base, player);
                 lore(level, base, player, other);
