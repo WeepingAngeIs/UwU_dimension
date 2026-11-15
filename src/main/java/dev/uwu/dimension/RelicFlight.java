@@ -325,8 +325,12 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 finish();
                 return;
             }
-            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), hit.getLocation());
-            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), hit.getLocation());
+            // Minecraft's throwable collision result contains the target's position,
+            // rather than the entry point. Reconstruct the entry from the swept path.
+            Vec3 impact = target.getBoundingBox().inflate(0.3D)
+                    .clip(position(), position().add(getDeltaMovement())).orElse(position());
+            if (counter().isEmpty()) RangedRelics.strike(server, player, target, relic(), impact);
+            else CounterEffects.hit(server, player, target, CounterArsenal.entry(counter()), impact);
             if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER)
                 summonHare(server, player, target.blockPosition());
             if (relic() == Arsenal.Relic.VESPER_SCYTHE) {

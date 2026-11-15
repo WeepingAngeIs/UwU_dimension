@@ -6,6 +6,10 @@ import dev.uwu.dimension.DaggerBackstab;
 import dev.uwu.dimension.RelicFlight;
 import java.lang.reflect.Field;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -247,6 +252,59 @@ public final class DaggerProof {
         }
     }
 
+    private static float legacySnowball(ServerLevel level, ServerPlayer player, LivingEntity target,
+                                        boolean rear) {
+        resetTarget(target);
+        double sign = rear ? -1 : 1;
+        player.moveTo(target.getX(), target.getY(), target.getZ() - sign * 8, 0, 0);
+        Snowball ball = new Snowball(level, player);
+        ball.getPersistentData().putString("uwu.counter", "counter_toxic_longsword");
+        ball.setPos(target.getX(), target.getY() + target.getBbHeight() * .5, target.getZ() + sign * 1.2);
+        ball.setNoGravity(true);
+        ball.setDeltaMovement(0, 0, -sign * 2.4);
+        level.addFreshEntity(ball);
+        try {
+            ball.tick();
+            float damage = 200 - target.getHealth();
+            require(damage > 0, "Legacy counter projectile missed its target");
+            return damage;
+        } finally {
+            ball.discard();
+        }
+    }
+
+    private static void independentCrit(ServerPlayer player, LivingEntity target,
+                                        net.minecraft.world.entity.ai.attributes.AttributeInstance chance) throws Exception {
+        if (chance == null) return;
+        var damageKey = ResourceKey.create(Registries.ATTRIBUTE,
+                ResourceLocation.fromNamespaceAndPath("apothic_attributes", "crit_damage"));
+        var damage = BuiltInRegistries.ATTRIBUTE.getHolder(damageKey).map(player::getAttribute).orElse(null);
+        require(damage != null, "Apothic critical chance exists without critical damage");
+        double previousDamage = damage.getBaseValue();
+        try {
+            damage.setBaseValue(1.5);
+            chance.setBaseValue(0);
+            player.setItemInHand(InteractionHand.MAIN_HAND,
+                    new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get()));
+            player.setNoGravity(true);
+            player.doTick();
+            Vec3 front = target.position().add(0, 0, DISTANCE);
+            Vec3 rear = target.position().add(0, 0, -DISTANCE);
+            float ordinaryFront = attack(player, target, front, 100, false);
+            float ordinaryRear = attack(player, target, rear, 100, false);
+            chance.setBaseValue(1);
+            require(near((float)chance.getValue(), 1F), "Fixture could not force Apothic critical chance");
+            float modifiedFront = attack(player, target, front, 100, false);
+            float modifiedRear = attack(player, target, rear, 100, false);
+            require(near(modifiedFront, ordinaryFront * 1.5F) && near(modifiedRear, ordinaryRear * 1.5F),
+                    "Independent Apothic critical modifier was lost or added more than once");
+            System.out.println("UWU DAGGER APOTHIC PASS separate critical modifier applied once");
+        } finally {
+            chance.setBaseValue(0);
+            damage.setBaseValue(previousDamage);
+        }
+    }
+
     static void run(ServerLevel level, BlockPos base, ServerPlayer player, ServerPlayer other) throws Exception {
         cooldown = LivingEntity.class.getDeclaredField("attackStrengthTicker");
         cooldown.setAccessible(true);
@@ -267,6 +325,14 @@ public final class DaggerProof {
         for (int tick = 0; tick < 70; tick++) other.tick();
         other.moveTo(base.getX()+10.5, base.getY(), base.getZ()+.5, 0, 0);
         other.setHealth(200);
+        var chanceKey = ResourceKey.create(Registries.ATTRIBUTE,
+                ResourceLocation.fromNamespaceAndPath("apothic_attributes", "crit_chance"));
+        var chance = BuiltInRegistries.ATTRIBUTE.getHolder(chanceKey).map(player::getAttribute).orElse(null);
+        double previousChance = chance == null ? 0 : chance.getBaseValue();
+        if (chance != null) {
+            chance.setBaseValue(0);
+            require(near((float)chance.getValue(), 0F), "Fixture could not disable independent Apothic critical chance");
+        }
         DamageObserver observer = new DamageObserver();
         NeoForge.EVENT_BUS.register(observer);
         try {
@@ -290,8 +356,14 @@ public final class DaggerProof {
             float rearPlayer = thrown(level, player, other, InteractionHand.MAIN_HAND, true);
             require(near(rearPlayer, frontPlayer * 2),
                     "Thrown player rear not 2x: " + frontPlayer + "/" + rearPlayer);
+            float legacyFront = legacySnowball(level, player, mob, false);
+            float legacyRear = legacySnowball(level, player, mob, true);
+            require(near(legacyRear, legacyFront * 2),
+                    "Legacy counter projectile rear not 2x: " + legacyFront + "/" + legacyRear);
+            independentCrit(player, mob, chance);
         } finally {
             NeoForge.EVENT_BUS.unregister(observer);
+            if (chance != null) chance.setBaseValue(previousChance);
             observedTarget = null;
             observedAttacker = null;
             mob.discard();

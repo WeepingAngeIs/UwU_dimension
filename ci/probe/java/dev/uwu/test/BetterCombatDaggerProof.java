@@ -121,6 +121,12 @@ public final class BetterCombatDaggerProof {
                 target.getAttribute(Attributes.ARMOR).setBaseValue(0);
                 if (!player.getOffhandItem().is(dagger.getItem()) || !player.getMainHandItem().is(Items.IRON_SWORD))
                     throw new AssertionError("Better Combat did not restore both hands");
+                System.out.println("UWU BETTER COMBAT OBSERVED item="
+                        + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(daggerItem)
+                        + " category=dagger offhandCombo=" + offhandCombo + " front=" + front
+                        + " rear=" + rear + " partialFront=" + partialFront + " partialRear=" + partialRear
+                        + " airborneRear=" + airborneRear + " armoredRear=" + armoredRear
+                        + " boundaries=passed handsRestored=true");
             }
             target.discard();
             player.discard();
