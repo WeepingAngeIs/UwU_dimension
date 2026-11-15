@@ -31,7 +31,7 @@ final class HeartCombatGlow {
     static void charmHearts(ServerLevel level, double x, double y, double z, int fullCount,
             double spreadX, double spreadY, double spreadZ, double speed) {
         for (var viewer : level.players()) {
-            if (viewer.distanceToSqr(x, y, z) > 32 * 32) continue;
+            if (!CupidEffects.inRange(viewer, viewer.getEyePosition().distanceToSqr(x, y, z))) continue;
             int mode = ReachLife.preference(viewer, "sakura_effects", 2);
             int count = mode == 0 ? 1 : mode == 1 ? (fullCount + 1) / 2 : fullCount;
             level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false, x, y, z,
@@ -57,6 +57,10 @@ final class HeartCombatGlow {
             }
         }
 
+        illuminate(level,center,radius);
+    }
+
+    static void illuminate(ServerLevel level, Vec3 center, double radius) {
         placeLight(level, BlockPos.containing(center));
         int steps = 8;
         for (int i = 0; i < steps; i++) {

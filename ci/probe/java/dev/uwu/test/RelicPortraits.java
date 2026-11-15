@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -32,6 +34,17 @@ public final class RelicPortraits {
     private static Entity camera;
     private static HeartArrow tracked;
     private static boolean filmArrow;
+    private static boolean filmedArrow,drawCue;
+    private static Vec3 impactCue;
+    private static int impactFrames;
+    private static UUID targetId;
+
+    public static void received(ClientboundLevelParticlesPacket packet) {
+        if(!recording || finished)return;
+        if(packet.getParticle().getType()==CupidParticles.DRAW_HEART.get()) drawCue=true;
+        if(flight && packet.getParticle().getType()==CupidParticles.IMPACT_OUTLINE.get())
+            impactCue=new Vec3(packet.getX(),packet.getY(),packet.getZ());
+    }
 
     static SeaWatch.View frame(ServerPlayer p,String name) {
         var level=p.serverLevel();
@@ -66,6 +79,18 @@ public final class RelicPortraits {
         player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         player.setItemInHand(hand,new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()));
         player.containerMenu.broadcastChanges();
+        if(hand==InteractionHand.OFF_HAND) {
+            var level=player.serverLevel();
+            var bank=BlockPos.containing(player.getEyePosition().add(0,1.45,-17));
+            for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
+                level.setBlockAndUpdate(bank.offset(x,-1,z),net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState());
+            var cow=EntityType.COW.create(level);
+            if(cow==null)throw new AssertionError("Missing archery subject");
+            cow.moveTo(player.getX(),bank.getY(),player.getZ()-17,90,0);
+            cow.setNoAi(true);cow.setPersistenceRequired();
+            if(!level.addFreshEntity(cow))throw new AssertionError("Archery subject did not join");
+            targetId=cow.getUUID();
+        }
     }
 
     static boolean guardian(Minecraft mc) {
@@ -90,7 +115,7 @@ public final class RelicPortraits {
             }
             mc.gameMode.releaseUsingItem(mc.player);
             if(!flight) {
-                side=1;stage=0;handTicks=0;
+                side=1;stage=0;handTicks=0;drawCue=false;
                 var server=mc.getSingleplayerServer();var id=mc.player.getUUID();
                 server.execute(()->putBow(server.getPlayerList().getPlayer(id),InteractionHand.OFF_HAND));
             }
@@ -114,16 +139,29 @@ public final class RelicPortraits {
                     && arrow.getDeltaMovement().lengthSqr()>.1) {
                 tracked=arrow;break;
             }
-        if(tracked==null || tracked.getDeltaMovement().lengthSqr()<=.1)return;
+        if(tracked==null || (!filmedArrow && tracked.getDeltaMovement().lengthSqr()<=.1))return;
         if(camera==null) {
             camera=EntityType.ARMOR_STAND.create(mc.level);
             if(camera==null)throw new AssertionError("Missing photo camera");
             mc.setCameraEntity(camera);
         }
-        var focus=tracked.getPosition(event.getPartialTick().getGameTimeDeltaPartialTick(false));
-        var forward=tracked.getDeltaMovement().normalize();
-        var lateral=forward.cross(new Vec3(0,1,0)).normalize();
-        var eye=focus.add(lateral.scale(1.5)).add(0,.25,0);
+        Vec3 focus,eye;
+        if(!filmedArrow) {
+            focus=tracked.getPosition(event.getPartialTick().getGameTimeDeltaPartialTick(false));
+            var lateral=tracked.getDeltaMovement().normalize().cross(new Vec3(0,1,0)).normalize();
+            eye=focus.add(lateral.scale(1.5)).add(0,.25,0);
+        } else {
+            Entity subject=null;
+            for(var entity:mc.level.entitiesForRendering()) if(entity.getUUID().equals(targetId)){subject=entity;break;}
+            if(subject==null)return;
+            focus=subject.position().add(0,subject.getBbHeight()+.38,0);
+            eye=focus.add(1,.1,2.9);
+            if(impactCue!=null) {
+                if(impactCue.distanceToSqr(subject.position().add(0,subject.getBbHeight()+.82,0))>1)
+                    throw new AssertionError("Cupid outline did not arrive at the photographed target");
+                impactFrames++;
+            }
+        }
         var aim=focus.subtract(eye);
         float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,Math.hypot(aim.x,aim.z)));
@@ -139,18 +177,24 @@ public final class RelicPortraits {
         var mc=Minecraft.getInstance();
         if(flight) {
             if(!filmArrow)return;
-            var renderer=mc.getEntityRenderDispatcher().getRenderer(tracked);
-            String texture=renderer.getTextureLocation(tracked).toString();
-            if(!texture.equals("uwudimension:textures/entity/cupid_heart_arrow.png"))throw new AssertionError("Cupid missile rendered "+texture);
-            photo(mc,"cupid-arrow-flight");
-            System.out.println("CUPID HELD MODEL PASS four distinct models in both hands, moving arrow " + texture);
+            if(!filmedArrow) {
+                var renderer=mc.getEntityRenderDispatcher().getRenderer(tracked);
+                String texture=renderer.getTextureLocation(tracked).toString();
+                if(!texture.equals("uwudimension:textures/entity/cupid_heart_arrow.png"))throw new AssertionError("Cupid missile rendered "+texture);
+                photo(mc,"cupid-arrow-flight");
+                filmedArrow=true;
+                return;
+            }
+            if(impactFrames<2)return;
+            photo(mc,"cupid-impact-outline");
+            System.out.println("CUPID HELD MODEL PASS four distinct models in both hands, moving heart-tipped arrow, full-draw and real impact cues");
             mc.setCameraEntity(mc.player);finished=true;return;
         }
         if(stage>=4 || handTicks<8)return;  // Allow the hand-transition animation to settle before the idle photo.
         var stack=mc.player.getItemInHand(hand());
         if(!stack.is(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get()))return;
         int t=mc.player.getTicksUsingItem();
-        if(stage==0&&mc.player.isUsingItem() || stage==1&&(t<3||t>=10) || stage==2&&(t<11||t>=18) || stage==3&&t<20) return;
+        if(stage==0&&mc.player.isUsingItem() || stage==1&&(t<3||t>=10) || stage==2&&(t<11||t>=18) || stage==3&&(t<20||!drawCue)) return;
         var rendered=mc.getItemRenderer().getModel(stack,mc.level,mc.player,0);
         var sprite=rendered.getParticleIcon().contents().name().toString();
         String expected="uwudimension:item/cupid_bow"+(stage==0?"":"_draw"+(stage-1));

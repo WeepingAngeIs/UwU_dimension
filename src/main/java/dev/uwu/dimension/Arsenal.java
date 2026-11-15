@@ -107,10 +107,16 @@ public final class Arsenal {
             return properties;
         }
         @Override public boolean onEntityItemUpdate(ItemStack stack, net.minecraft.world.entity.item.ItemEntity item) {
-            if (relic == Relic.CUPID_BOW && item.level().isClientSide && (item.tickCount % 4 == 0)) {
+            if (relic == Relic.CUPID_BOW && item.level() instanceof ServerLevel level && item.tickCount % 4 == 0) {
                 double phase = item.tickCount * .17;
-                item.level().addParticle(GOLD_SPARK, item.getX() + Math.cos(phase) * .27,
-                        item.getY() + .16, item.getZ() + Math.sin(phase) * .27, 0, .04, 0);
+                var at = item.position().add(Math.cos(phase)*.27,.16,Math.sin(phase)*.27);
+                for (var viewer : level.players()) {
+                    if (!CupidEffects.inRange(viewer, viewer.getEyePosition().distanceToSqr(at))) continue;
+                    int mode = ReachLife.preference(viewer,"sakura_effects",2);
+                    int interval = mode == 0 ? 16 : mode == 1 ? 8 : 4;
+                    if (item.tickCount % interval == 0)
+                        level.sendParticles(viewer,GOLD_SPARK,false,at.x,at.y,at.z,0,0,.04,0,1);
+                }
             }
             return false;
         }
@@ -130,6 +136,7 @@ public final class Arsenal {
             ItemStack stack = player.getItemInHand(hand);
             if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
             if (relic.bow() || relic == Relic.VESPER_SCYTHE) {
+                if (relic == Relic.CUPID_BOW && !level.isClientSide) CupidEffects.resetDraw(player);
                 player.startUsingItem(hand);
                 return InteractionResultHolder.consume(stack);
             }
@@ -151,7 +158,10 @@ public final class Arsenal {
         @Override public int getUseDuration(ItemStack stack, LivingEntity user) { return relic.bow() || relic == Relic.VESPER_SCYTHE ? 72000 : 0; }
         @Override public UseAnim getUseAnimation(ItemStack stack) { return relic.bow() ? UseAnim.BOW : UseAnim.NONE; }
         @Override public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
-            if (relic != Relic.VESPER_SCYTHE || !(level instanceof ServerLevel server) || !(user instanceof Player p)) return;
+            if (!(level instanceof ServerLevel server) || !(user instanceof Player p)) return;
+            if (relic == Relic.CUPID_BOW && BowItem.getPowerForTime(getUseDuration(stack,user)-remaining) >= 1)
+                CupidEffects.fullDraw(server,p);
+            if (relic != Relic.VESPER_SCYTHE) return;
             if (getUseDuration(stack,user)-remaining == 12 && p.getPersistentData().getLong("uwu.scythe_flight") <= level.getGameTime()) {
                 if (RelicFlight.castWeapon(server, p, relic, p.getUsedItemHand())) {
                     p.getCooldowns().addCooldown(this, 60);
@@ -162,6 +172,10 @@ public final class Arsenal {
         @Override public void releaseUsing(ItemStack stack, Level level, LivingEntity user, int left) {
             if (!relic.bow() || !(level instanceof ServerLevel server) || !(user instanceof Player player)) return;
             float draw = BowItem.getPowerForTime(getUseDuration(stack, user) - left);
+            if (relic == Relic.CUPID_BOW) {
+                if (draw >= 1) CupidEffects.fullDraw(server,player);
+                CupidEffects.resetDraw(player);
+            }
             if (draw < 0.15F) return;
             HeartArrow.fire(server, player, relic, draw);
             if (relic.cooldown > 0) player.getCooldowns().addCooldown(this, relic.cooldown);

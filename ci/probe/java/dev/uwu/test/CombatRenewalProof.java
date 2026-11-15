@@ -113,8 +113,14 @@ public final class CombatRenewalProof {
                 "Optional Apotheosis fixture mismatch");
         var loaded = ItemStack.parseOptional(level.registryAccess(), (CompoundTag)bow.save(level.registryAccess()));
         for (var stack : new ItemStack[]{bow, loaded}) {
-            require(stack.getRarity() == Rarity.EPIC
-                    && stack.getHoverName().getStyle().getColor().getValue() == 0xFFAA00, "Cupid Epic/gold fallback");
+            var displayed = stack.getHoverName();
+            int expectedNameColor = expected ? 0xED7014 : 0xFFAA00;
+            var displayedColor = displayed.getStyle().getColor();
+            require(stack.getRarity() == Rarity.EPIC && displayedColor != null
+                    && displayedColor.getValue() == expectedNameColor,
+                    "Wrong Cupid name/tier: "+displayed.getString()+" "+displayedColor+" base="+stack.getRarity());
+            System.out.println("CUPID STACK name="+displayed.getString()+" base="+stack.getRarity()
+                    +" nameColor="+Integer.toHexString(displayedColor.getValue()));
             var text = new java.util.ArrayList<net.minecraft.network.chat.Component>();
             stack.getItem().appendHoverText(stack, net.minecraft.world.item.Item.TooltipContext.EMPTY,
                     text, net.minecraft.world.item.TooltipFlag.NORMAL);
@@ -130,22 +136,50 @@ public final class CombatRenewalProof {
             var color = (net.minecraft.network.chat.TextColor)rarity.getClass().getMethod("color").invoke(rarity);
             float height = (float)render.getClass().getMethod("beamHeight").invoke(render);
             require(color.getValue()==0xED7014 && height>0, "Mythic beam render data did not resolve");
+            System.out.println("CUPID APOTHEOSIS tier=apotheosis:mythic label=Mythic beamColor="
+                    +Integer.toHexString(color.getValue())+" beamHeight="+height);
         }
         System.out.println("SAKURA CUPID RARITY PASS "+(expected?"Apotheosis Mythic":"standalone Epic"));
     }
 
     private static void charm(ServerLevel level, BlockPos at, ServerPlayer owner) {
-        try (var visitor = new ChestProof.Visitor(level, at, "RoseRecipient", UUID.randomUUID())) {
+        try (var visitor = new ChestProof.Visitor(level, at, "RoseRecipient", UUID.randomUUID());
+             var observer = new ChestProof.Visitor(level, at, "PetalObserver", UUID.randomUUID())) {
             ServerPlayer target = visitor.player;
             target.moveTo(owner.getX(), owner.getY(), owner.getZ() + 4, 180, 0);
             target.setNoGravity(true);
             level.addNewPlayer(target);
+            var watcher = observer.player;
+            watcher.moveTo(owner.getX()+3, owner.getY(), owner.getZ());
+            watcher.setNoGravity(true);
+            level.addNewPlayer(watcher);
             try {
                 var bow = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get());
                 owner.setItemInHand(InteractionHand.MAIN_HAND, bow);
                 owner.setYRot(0);
                 owner.setXRot(0);
+                int duration = bow.getUseDuration(owner);
+                for (int draw = 0; draw < 2; draw++) {
+                    bow.use(level,owner,InteractionHand.MAIN_HAND);
+                    bow.getItem().onUseTick(level,owner,bow,duration-19);
+                    require(visitor.drawCues==draw && observer.drawCues==draw, "Partial draw emitted a cue");
+                    bow.getItem().onUseTick(level,owner,bow,duration-20);
+                    bow.getItem().onUseTick(level,owner,bow,duration-20);
+                    bow.getItem().onUseTick(level,owner,bow,duration-43);
+                    require(visitor.drawCues==draw+1 && observer.drawCues==draw+1, "Held full draw repeated its cue");
+                    owner.stopUsingItem(); // Cancel each held draw without an arrow.
+                }
+                bow.use(level,owner,InteractionHand.MAIN_HAND);
+                bow.getItem().onUseTick(level,owner,bow,duration-4);
+                owner.stopUsingItem();
+                require(visitor.drawCues==2 && observer.drawCues==2 && visitor.impactCues==0, "Canceled short draw flashed");
                 shootAt(level, owner, bow);
+                require(visitor.drawCues==3 && observer.drawCues==3 && visitor.impactCues==1 && observer.impactCues==1
+                        && visitor.impactQuality==2 && observer.impactQuality==2 && visitor.impactY>target.getEyeY()+.65,
+                        "Rapid release/draw, shared heart outline, or first-person clearance failed");
+                var watcherPrefs = watcher.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+                watcherPrefs.putInt("sakura_distance",2);
+                watcher.getPersistentData().put(Player.PERSISTED_NBT_TAG,watcherPrefs);
                 String key = "uwudimension.charm_owner";
                 require(target.getPersistentData().hasUUID(key)
                         && target.getPersistentData().getUUID(key).equals(owner.getUUID()), "Real heart arrow failed to charm player");
@@ -159,12 +193,18 @@ public final class CombatRenewalProof {
                 target.getPersistentData().put(Player.PERSISTED_NBT_TAG, preferences);
                 shootAt(level, owner, bow);
                 int quietHearts = visitor.receivedCupidHearts - fullHearts;
-                require(quietHearts > 0 && quietHearts < fullHearts, "Cupid heart settings lost their cue or effect");
-                System.out.println("SAKURA CUPID HEARTS PASS full="+fullHearts+" quiet="+quietHearts);
+                require(fullHearts>0 && quietHearts<=fullHearts && visitor.impactCues==2 && visitor.impactQuality==0
+                        && observer.impactCues==1 && observer.drawCues==3 && visitor.drawCues==4,
+                        "Quiet impact outline, rapid redraw, or distant viewer filter failed");
+                System.out.println("SAKURA CUPID HEARTS PASS fullTrail="+fullHearts+" quietTrail="+quietHearts
+                        +" impacts="+visitor.impactCues+" fullDrawCues="+visitor.drawCues+" distant="+(observer.impactCues-1));
                 NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent(
                         target, level.dimension(), net.minecraft.world.level.Level.OVERWORLD));
                 require(!target.getPersistentData().hasUUID(key), "Player charm persisted after dimension change");
+                watcherPrefs.putInt("sakura_distance",12);
                 shootAt(level, owner, bow);
+                require(observer.impactCues==2 && observer.drawCues==4, "Viewer's expanded distance did not restore cues");
+                watcher.moveTo(owner.getX()+3, owner.getY()+37, owner.getZ());
                 NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.living.LivingDeathEvent(
                         target, level.damageSources().generic()));
                 require(!target.getPersistentData().hasUUID(key), "Player charm persisted after death notification");
@@ -187,6 +227,7 @@ public final class CombatRenewalProof {
                     board.removePlayerTeam(team);
                 }
             } finally {
+                watcher.discard();
                 target.discard();
             }
         }

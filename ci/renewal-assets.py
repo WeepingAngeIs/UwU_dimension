@@ -36,6 +36,8 @@ def check_jar(jar):
     for frame in ("cupid_bow","cupid_bow_draw0","cupid_bow_draw1","cupid_bow_draw2"):
         image(f"item/{frame}.png", (64, 64))
     image("entity/cupid_heart_arrow.png", (64, 64))
+    for particle in ("pastel_heart", "cupid_impact_outline"):
+        assert read(art + "particles/" + particle + ".json")["textures"]
     for family in ("petalweave", "nightbriar"):
         for part in ("helmet", "chestplate", "leggings", "boots"):
             name = family + "_" + part

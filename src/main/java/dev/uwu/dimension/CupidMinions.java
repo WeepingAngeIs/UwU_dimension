@@ -96,8 +96,6 @@ final class CupidMinions {
         data.putLong(HeartMagic.END, level.getGameTime() + CHARM_TICKS);
         data.remove(COMMAND_TARGET);
         data.remove(COMMAND_END);
-        HeartCombatGlow.charmHearts(level, target.getX(), target.getEyeY(), target.getZ(),
-            28, .55, .45, .55, .045);
         target.displayClientMessage(net.minecraft.network.chat.Component.literal("You have been charmed into a temporary minion."), true);
         keeper.displayClientMessage(net.minecraft.network.chat.Component.literal(target.getGameProfile().getName() + " is charmed for 40 seconds."), true);
         sendControl(target, keeper, 3.0);
@@ -112,7 +110,7 @@ final class CupidMinions {
             return;
         }
         if (minion.tickCount % 8 == 0)
-            HeartCombatGlow.charmHearts(level, minion.getX(), minion.getEyeY(), minion.getZ(),
+            HeartCombatGlow.charmHearts(level, minion.getX(), minion.getY()+minion.getBbHeight()+.38, minion.getZ(),
                 2, .22, .25, .22, .015);
 
         if (minion.tickCount % 2 != 0) return;
@@ -181,7 +179,7 @@ final class CupidMinions {
             owner.displayClientMessage(net.minecraft.network.chat.Component.literal("You have no charmed allies to command."), true);
             return;
         }
-        HeartCombatGlow.charmHearts(level, target.getX(), target.getEyeY(), target.getZ(),
+        HeartCombatGlow.charmHearts(level, target.getX(), target.getY()+target.getBbHeight()+.38, target.getZ(),
             10, .35, .35, .35, .025);
         owner.displayClientMessage(net.minecraft.network.chat.Component.literal("Your charmed allies are targeting "
             + target.getDisplayName().getString() + "."), true);

@@ -44,7 +44,8 @@ public final class ChestProof {
         final ServerPlayer player;
         final EmbeddedChannel channel;
         int receivedPetalPackets;
-        int receivedCupidHearts;
+        int receivedCupidHearts, drawCues, impactCues, impactQuality;
+        double impactY;
         Visitor(ServerLevel level, BlockPos near, String name, UUID id) {
             var profile = new GameProfile(id, name);
             player = new ServerPlayer(level.getServer(), level, profile, ClientInformation.createDefault());
@@ -58,6 +59,16 @@ public final class ChestProof {
                     if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles
                             && particles.getParticle().getType() == dev.uwu.dimension.CupidParticles.PASTEL_HEART.get())
                         receivedCupidHearts += particles.getCount();
+                    if (packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particles) {
+                        var type = particles.getParticle().getType();
+                        if (type == dev.uwu.dimension.CupidParticles.DRAW_HEART.get()) drawCues += particles.getCount();
+                        if (type == dev.uwu.dimension.CupidParticles.IMPACT_OUTLINE.get()) {
+                            impactCues++;
+                            require(particles.getCount()==0, "Impact should be one client-side outline");
+                            impactQuality = Math.round(particles.getXDist());
+                            impactY = particles.getY();
+                        }
+                    }
                 }
                 @Override public void send(Packet<?> packet, PacketSendListener callback) { send(packet); }
             };

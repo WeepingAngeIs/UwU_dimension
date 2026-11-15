@@ -43,9 +43,10 @@ public final class HeartArrow extends Arrow {
         super.tick();
         if (!isAlive()) return;
         if (level() instanceof ServerLevel server) {
-            if (rippleBow())
+            if (rippleBow()) {
                 server.sendParticles(ParticleTypes.GLOW, getX(), getY(), getZ(), 1, .025, .025, .025, 0);
-            HeartCombatGlow.trail(server, position(), rippleBow() ? 1 : 0, !rippleBow());
+                HeartCombatGlow.trail(server, position(), 1, false);
+            } else CupidEffects.trail(server, this);
         }
     }
 
@@ -57,24 +58,25 @@ public final class HeartArrow extends Arrow {
             if (!charmed && (!(creature instanceof Player other) || player.canHarmPlayer(other)))
                 creature.hurt(damageSources().arrow(this, player), (ripple ? Arsenal.Relic.RIPPLE_BOW.damage : Arsenal.Relic.CUPID_BOW.damage) * getPersistentData().getFloat("strength"));
         }
-        HeartCombatGlow.burst(server, hit.getLocation(), 1.5, ripple ? 1 : 0);
-        heartBurst(server, hit.getLocation(), ripple);
+        if (ripple) HeartCombatGlow.burst(server, hit.getLocation(), 1.5, 1);
+        else {
+            CupidEffects.impact(server,hit.getEntity());
+            HeartCombatGlow.illuminate(server,hit.getLocation(),1.5);
+        }
         burst(server, hit.getLocation(), player);
         discard();
     }
     @Override protected void onHitBlock(BlockHitResult hit) {
         if (level() instanceof ServerLevel server) {
-            HeartCombatGlow.burst(server, hit.getLocation(), .9, rippleBow() ? 1 : 0);
-            heartBurst(server, hit.getLocation(), rippleBow());
+            if (rippleBow()) HeartCombatGlow.burst(server,hit.getLocation(),.9,1);
+            else {
+                HeartCombatGlow.illuminate(server,hit.getLocation(),.9);
+                Vec3 at=hit.getLocation();
+                HeartCombatGlow.charmHearts(server,at.x,at.y+.1,at.z,3,.12,.10,.12,.01);
+            }
             if (getOwner() instanceof Player player) burst(server, hit.getLocation(), player);
             discard();
         }
-    }
-
-    private static void heartBurst(ServerLevel level, Vec3 center, boolean ripple) {
-        if (ripple) return;
-        HeartCombatGlow.charmHearts(level, center.x, center.y, center.z,
-                20, .24, .30, .24, .035);
     }
 
     private void burst(ServerLevel level, Vec3 spot, Player player) {

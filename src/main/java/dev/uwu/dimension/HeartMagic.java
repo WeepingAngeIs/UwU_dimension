@@ -31,9 +31,7 @@ final class HeartMagic {
         data.remove(CupidMinions.COMMAND_TARGET);
         data.remove(CupidMinions.COMMAND_END);
         clearTarget(mob);
-        if (pastelCupid)
-            HeartCombatGlow.charmHearts(level, mob.getX(), mob.getEyeY(), mob.getZ(), 10, .5, .2, .5, .05);
-        else
+        if (!pastelCupid)
             level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, .5, .2, .5, .05);
         return true;
     }
@@ -95,7 +93,7 @@ final class HeartMagic {
         }
         if (mob.tickCount % 5 != 0) return;
         if (data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 8 == 0)
-            HeartCombatGlow.charmHearts(level, mob.getX(), mob.getEyeY(), mob.getZ(), 2, .2, .2, .2, .015);
+            HeartCombatGlow.charmHearts(level, mob.getX(), mob.getY()+mob.getBbHeight()+.38, mob.getZ(), 2, .17, .06, .17, .01);
         else if (!data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 20 == 0)
             level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, .16, .1, .16, 0);
         if (!(level.getEntity(data.getUUID(OWNER)) instanceof Player keeper)) { clearTarget(mob); return; }

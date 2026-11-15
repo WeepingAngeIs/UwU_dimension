@@ -11,18 +11,18 @@ In the 1.4.9 source, Relic.CUPID_BOW specifies a 65-tick cooldown (3.25 seconds 
 
 On feature/sakura-renewal the Cupid Bow specifies zero cooldown. A successful release starts no item cooldown, so the player can begin the next draw immediately. Each shot still requires a draw strength of at least 0.15 and uses one durability in Survival. The 14 attack damage, 1.4 attack speed and 1,024 maximum durability remain. Rippleglass Bow keeps its own cooldown. The attack speed attribute is a melee statistic.
 
-The Cupid Bow has vanilla Epic rarity and a gold display name. If Apotheosis supplies its rarity data component, the bow requests apotheosis:mythic. Mythic is the highest default tier found in the pack's Apotheosis 8.9.0 jar. The default Mythic beam color is orange (#ED7014). A separate client-side gold particle effect circles the dropped bow, including in installations without Apotheosis. Existing bows that inherited their item defaults also inherit the new presentation. A saved stack with its own explicit rarity component keeps that override. This presentation does not grant extra affixes, damage, or a lower drop chance. Other client or server packs can customize the native beam, rarity label, and color. Actual rendering of the complete pack's beam has not been confirmed.
+The Cupid Bow has vanilla Epic rarity and a gold display name. If Apotheosis supplies its rarity data component, the bow requests apotheosis:mythic. Mythic is the highest default tier found in the pack's Apotheosis 8.9.0 jar. Apotheosis's ItemStackMixin applies the native Mythic color to the item name. In the supplied Apotheosis defaults both that name and the native beam are orange (#ED7014). The standalone name is gold (#FFAA00), and the additional gold particles still surround a dropped bow in both cases. A separate gold particle effect circles the dropped bow, including in installations without Apotheosis. Existing bows that inherited their item defaults also inherit the new presentation. A saved stack with its own explicit rarity component keeps that override. This presentation does not grant extra affixes, damage, or a lower drop chance. Other client or server packs can customize the native beam, rarity label, and color. Actual rendering of the complete pack's beam has not been confirmed.
 
 Code map (paths relative to the folder containing gradlew)
 
 src/main/java/dev/uwu/dimension/Arsenal.java
-  Relic.CUPID_BOW and RelicItem.properties define stats, usage hint, durability and base rarity. RelicItem.use starts drawing. RelicItem.releaseUsing validates the draw, creates the arrow, applies any positive cooldown, and consumes durability. RelicItem.getName, appendHoverText and onEntityItemUpdate handle gold naming, the optional Mythic line, and dropped-item gold particles. Search by these symbols if line numbers drift.
+  Relic.CUPID_BOW and RelicItem.properties define stats, usage hint, durability and base rarity. RelicItem.use starts drawing. onUseTick detects full charge. RelicItem.releaseUsing validates the draw, creates the arrow, applies any positive cooldown, and consumes durability. RelicItem.getName, appendHoverText and onEntityItemUpdate handle gold naming, the optional Mythic line, and dropped-item gold particles. Search by these symbols if line numbers drift.
 
 src/main/java/dev/uwu/dimension/CupidRarity.java
   apply resolves the optional apotheosis:rarity component and sets its default to apotheosis:mythic through the component's own codec. hasMythicPresentation checks the actual stack's component before displaying the Mythic line. The hook is registered in src/main/java/dev/uwu/dimension/UwUDimension.java. Apotheosis 8.9.0's AffixItemEffectRenderer calls AffixHelper.getRarity on the dropped stack and checks whether its holder is bound. The mod can load without Apotheosis.
 
 src/main/java/dev/uwu/dimension/HeartArrow.java
-  fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. onHitBlock and heartBurst produce the pink impact effect. Rippleglass shares this entity and has its own behavior.
+  fire launches the projectile. tick emits its trail. onHitEntity attempts charm for eligible targets, then uses the damage fallback when appropriate. On an entity hit CupidEffects.impact makes a single heart-shaped outline above the target. onHitBlock produces a small hollow-heart landing cue. Rippleglass shares this entity and has its own behavior.
 
 src/main/java/dev/uwu/dimension/HeartMagic.java
   charm handles eligible mobs, saves their previous target if present, and sets an 800-tick (40-second) expiry. The LivingEntity overload dispatches player hits to CupidMinions. friendly, filterTarget, protectKeeper and tick govern ownership, combat protection and charmed mob behavior. Look up the uwudimension:charm_immune entity-type tag for data-driven exceptions.
@@ -33,11 +33,16 @@ src/main/java/dev/uwu/dimension/CupidMinions.java
 src/main/java/dev/uwu/dimension/CupidMinionClient.java
   Sends left-click designation requests and applies the server's steering instructions to the charmed player's client.
 
+src/main/java/dev/uwu/dimension/CupidEffects.java
+  Tracks a full draw once per player and positions one hollow heart beside the used hand. A canceled partial draw gives no charge cue. The arrow trail is one small hollow heart per eligible interval. An entity impact sends a single cue per viewer within their Sakura effects distance (2 to 24 blocks, default 12). Each client draws the perimeter using 8, 16, or 32 small hearts according to effects preference and distance. The shape faces that viewer and sits above the target's head. Shared world lighting still marks the impact.
+
 src/main/java/dev/uwu/dimension/CupidParticles.java
 src/main/java/dev/uwu/dimension/CupidParticleClient.java
 src/main/resources/assets/uwudimension/particles/pastel_heart.json
+src/main/resources/assets/uwudimension/particles/cupid_draw_heart.json
+src/main/resources/assets/uwudimension/particles/cupid_impact_outline.json
 src/main/resources/assets/uwudimension/textures/particle/pastel_heart.png
-  Define the pink heart particle, sprite, rise and fade. The renewal branch sets the base quad size to 0.15 instead of 0.43. Arrow trails, impacts and charm pulses honor the viewer's Sakura effects setting; Quiet retains a small pink-heart cue. The dropped bow has its own gold effect.
+  Define the three cues, the transparent-center pastel heart sprite, gentle rise and fade. The renewal branch sets the base quad size to 0.15 instead of 0.43. Arrow trails, impacts and charm pulses honor the viewer's Sakura effects setting; Quiet retains the full-draw cue and the impact silhouette. The dropped bow has its own gold effect.
 
 src/main/java/dev/uwu/dimension/HeartCombatGlow.java
 src/main/java/dev/uwu/dimension/HeartFlashLightBlock.java
@@ -57,7 +62,7 @@ tools/generate_cupid_bow.py
 
 Code-level checks for a collaborator
 
-ci/probe/java/dev/uwu/test/CombatRenewalProof.java exercises firing, the Cupid/Rippleglass cooldown distinction, durability, base Epic rarity, and eligibility/cleanup for a player struck by a heart arrow. On seed 152045 the hosted script installs pinned Apotheosis 8.9.0, Placebo 9.9.2 and Apothic Attributes 2.11.0. The rarity check resolves fresh and reloaded bows through Apotheosis's own API. Seed 4372191 checks the standalone Epic behavior. A dedicated server can verify the beam's render data; its output does not show a customized client's final pixels. Consult the Actions result for the precise branch revision under review.
+ci/probe/java/dev/uwu/test/CombatRenewalProof.java exercises firing, the Cupid/Rippleglass cooldown distinction, durability, base Epic rarity, eligibility/cleanup for a player struck by a heart arrow, and the actual draw/impact/trail packets sent for repeated, canceled and rapid shots with two viewers. On seed 152045 the hosted script installs pinned Apotheosis 8.9.0, Placebo 9.9.2 and Apothic Attributes 2.11.0. The rarity check resolves fresh and reloaded bows through Apotheosis's own API. Seed 4372191 checks the standalone Epic behavior. A dedicated server can verify the beam's render data; its output does not show a customized client's final pixels. Consult the Actions result for the precise branch revision under review.
 
 The supplied source tree includes the Gradle wrapper and project configuration. Runtime libraries normally resolve through Gradle. The repository handoff can be reviewed independently of the author's CurseForge test profile.
 
