@@ -44,6 +44,11 @@ public final class RelicFlight extends ThrowableItemProjectile {
             net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class,
                     net.minecraft.network.syncher.EntityDataSerializers.STRING);
 
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Float> EMBED_YAW =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class, net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Float> EMBED_PITCH =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(RelicFlight.class, net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
+
     private boolean physicalWeapon;
     private boolean reserved;
     private UUID physicalOwner;
@@ -62,6 +67,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         builder.define(WAVE, false);
         builder.define(HARE_ORB, false);
         builder.define(LANDED, false);
+        builder.define(EMBED_YAW, 0f);
+        builder.define(EMBED_PITCH, 0f);
         builder.define(RETURNING, false);
     }
 
@@ -73,6 +80,14 @@ public final class RelicFlight extends ThrowableItemProjectile {
     public int element() { return entityData.get(ELEMENT); }
     public boolean wave() { return entityData.get(WAVE); }
     public boolean hareOrb() { return entityData.get(HARE_ORB); }
+    float flightYaw(float partial) {
+        return landed() ? entityData.get(EMBED_YAW) : net.minecraft.util.Mth.rotLerp(partial, yRotO, getYRot());
+    }
+
+    float flightPitch(float partial) {
+        return landed() ? entityData.get(EMBED_PITCH) : net.minecraft.util.Mth.lerp(partial, xRotO, getXRot());
+    }
+
     public boolean landed() { return entityData.get(LANDED); }
     public boolean returning() { return entityData.get(RETURNING); }
 
@@ -163,7 +178,12 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     private Player findOwner(ServerLevel server) {
-        if (physicalOwner != null) return server.getServer().getPlayerList().getPlayer(physicalOwner);
+        if (physicalOwner != null) {
+            Player online = server.getServer().getPlayerList().getPlayer(physicalOwner);
+            if (online != null) return online;
+        }
+        // NeoForge fake players can wield a relic without joining PlayerList.
+        // Vanilla getOwner() discards its cached reference when a player is removed.
         return getOwner() instanceof Player player ? player : null;
     }
 
@@ -176,6 +196,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     private void landOnBlock(ServerLevel server, BlockHitResult hit) {
+        var velocity = getDeltaMovement();
+        entityData.set(EMBED_PITCH, (float) Math.toDegrees(Math.atan2(velocity.y, velocity.horizontalDistance())));
+        entityData.set(EMBED_YAW, (float) Math.toDegrees(Math.atan2(velocity.x, velocity.z)));
         entityData.set(LANDED, true);
         landedTicks = 0;
         setNoGravity(true);
@@ -335,6 +358,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         tag.putBoolean("wave", wave());
         tag.putBoolean("hare_orb", hareOrb());
         tag.putBoolean("landed", landed());
+        tag.putFloat("embed_yaw", entityData.get(EMBED_YAW));
+        tag.putFloat("embed_pitch", entityData.get(EMBED_PITCH));
         tag.putInt("landed_ticks", landedTicks);
         tag.putBoolean("returning", returning());
         tag.putBoolean("physical_weapon", physicalWeapon);
@@ -351,6 +376,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         entityData.set(WAVE, tag.getBoolean("wave"));
         entityData.set(HARE_ORB, tag.getBoolean("hare_orb"));
         entityData.set(LANDED, tag.getBoolean("landed"));
+        entityData.set(EMBED_YAW, tag.getFloat("embed_yaw"));
+        entityData.set(EMBED_PITCH, tag.getFloat("embed_pitch"));
         landedTicks = Math.max(0, Math.min(15, tag.getInt("landed_ticks")));
         entityData.set(RETURNING, tag.getBoolean("returning"));
         physicalWeapon = tag.getBoolean("physical_weapon");

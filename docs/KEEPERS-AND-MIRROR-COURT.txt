@@ -1,0 +1,23 @@
+SAKURA REACH | KEEPERS AND THE MIRROR COURT
+
+A square for two villages
+
+Petal homes have pink roofs, light plaster and pink glass. Dusk homes use mulberry eaves, dark posts and violet glazing. When a street or its walk to a doorstep rises, stone steps mark the climb. New sites include workstations for the gardener (composter), baker (smoker), healer (brewing stand), cartographer (cartography table) and festival host (loom). Residents work at their stations, meet at the bell and claim beds. Their local wares and market greetings reflect their work. Drift blossoms sit one block above water and give visitors footing across a pond.
+
+Meeting a keeper
+
+Hold emeralds to approach a wary Dusk keeper. Ordinary interaction opens the shop. Crouch with four emeralds and interact to hear an offer, then crouch and interact with the same keeper again within fifteen seconds to join. Payment occurs only on confirmation. A recruited keeper gets a name, follows you and can defend you. Crouch and interact with an empty hand to settle your keeper. Repeat to resume following.
+
+Use /keepers roster for each recruit's name, calling, allegiance, follow or settle order, last known dimension and coordinates, and any home post. A remote recruit may be unloaded. Older recruits enter the roster when their chunks next tick. Reading the roster never requests a chunk ticket.
+
+Your oath lets you recruit from that settlement. /keepers truce explains reconciliation. /keepers truce confirm ends the oath and grants peaceful passage, so you may later accept an invitation from the other shore. Your companions keep their orders. Recruited keepers live together peacefully even in a mixed household.
+
+The court beyond the archive
+
+Each player who wishes to fight can touch the glowing bell with an empty hand. Readiness lasts thirty seconds. A ready player crouches and rings the bell to begin with the ready players within 24 blocks. A single ready player can begin alone. During an encounter, touching the bell joins as a helper.
+
+Deal damage or spend five active seconds within sight of the moth in its arena to earn your personal victory seal. The court remembers participants through a restart. A win unlocks that bell's treasure for the community. Lootr still supplies each visitor's own inventory. Ring again to arrange a rematch, including a chance to earn a seal for latecomers. Walking near a quiet court or opening a sealed chest only provides directions.
+
+Operator controls (permission level 2)
+
+In Sakura Reach, /uwucourt status <x> <y> <z> reports one bell's guardian identity, last chamber, treasure and helper seals. /uwucourt reconcile <x> <y> <z> checks an occupied record whose guardian is missing. Visit the last chamber normally if it is unloaded. With entity data loaded and the guardian still absent, repeat after five seconds to clear the stale record. Neither command starts a fight. If the original guardian ever reappears after recovery, its identity is checked against the saved encounter.

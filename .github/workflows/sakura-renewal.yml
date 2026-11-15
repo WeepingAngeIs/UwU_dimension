@@ -27,3 +27,67 @@ jobs:
           name: UwU-Dimension-1.5.0-beta.1
           path: build/libs/*.jar
           if-no-files-found: error
+
+  server:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [152045,4372191]
+    timeout-minutes: 45
+    env:
+      UWU_FIELD_SEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew jar && bash ci/renewal-server.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-evidence-${{ matrix.seed }}
+          path: |
+            build/renewal-server/*.log
+            build/renewal-server/first-site.txt
+            build/renewal-server/crash-reports/
+
+  client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      UWU_VISIT: renewal
+      UWU_FIELD_SEED: 152045
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Photograph the route and both armor sets
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
+          printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 27m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
+          grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' client-visit.log
+          for frame in arrival armor-gallery village blush-reef mirror-court; do test -s "run/screenshots/$frame.png"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sakura-field-visit
+          path: |
+            run/screenshots
+            run/logs/latest.log
+            run/crash-reports
+            client-visit.log

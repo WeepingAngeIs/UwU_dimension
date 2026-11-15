@@ -80,10 +80,10 @@ public final class RangedRelicRenderer {
             }else{
                 // Trident-style alignment: the long axis points along the projectile's
                 // velocity, leaving the 2-D pixel weapon edge-on during forward flight.
-                float flightYaw=Mth.rotLerp(partial,e.yRotO,e.getYRot());
-                float flightPitch=Mth.lerp(partial,e.xRotO,e.getXRot());
+                float flightYaw=e.flightYaw(partial);
+                float flightPitch=e.flightPitch(partial);
                 poses.mulPose(Axis.YP.rotationDegrees(flightYaw-90.0F));
-                poses.mulPose(Axis.ZP.rotationDegrees(flightPitch+90.0F));
+                poses.mulPose(Axis.ZP.rotationDegrees(flightPitch-45.0F));
                 poses.scale(1.8F,1.8F,1.8F);
                 itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,15728880,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }

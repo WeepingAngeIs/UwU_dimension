@@ -28,10 +28,11 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
+    private static final boolean RENEWAL="renewal".equals(System.getenv("UWU_VISIT"));
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -63,6 +64,19 @@ public final class FieldCamera {
             var reef=SeaWatch.reef(p,origin,previousReef,name);
             if(previousReef!=null && previousReef.distSqr(BlockPos.containing(reef.eye()))<512*512)throw new AssertionError("Duplicate field sites");
             previousReef=BlockPos.containing(reef.eye());SeaWatch.reset();return reef;
+        }
+        if (name.equals("armor-gallery")) {
+            BlockPos plinth=GroveSites.arrival(l).above(7);
+            for(int i=-3;i<=3;i++) for(int j=-1;j<=1;j++) l.setBlockAndUpdate(plinth.offset(i,0,j),net.minecraft.world.level.block.Blocks.CALCITE.defaultBlockState());
+            for(int i=0;i<2;i++) {
+                var stand=net.minecraft.world.entity.EntityType.ARMOR_STAND.create(l);
+                stand.moveTo(plinth.getX()-.7+i*2.4,plinth.getY()+1,plinth.getZ()+.5,0,0);
+                String set=i==0?"petalweave":"nightbriar";
+                var types=new net.minecraft.world.item.ArmorItem.Type[]{net.minecraft.world.item.ArmorItem.Type.HELMET,net.minecraft.world.item.ArmorItem.Type.CHESTPLATE,net.minecraft.world.item.ArmorItem.Type.LEGGINGS,net.minecraft.world.item.ArmorItem.Type.BOOTS};
+                for(var type:types) stand.setItemSlot(type.getSlot(),new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:"+set+"_"+type.getName()))));
+                l.addFreshEntity(stand);
+            }
+            return frame(name,point(plinth).add(.2,2.1,5),point(plinth).add(0,1.5,0));
         }
         if(name.equals("arrival"))return frame(name,point(arrival).add(0,1.2,0),point(site.pos(0,site.entryY()+4,site.lip())));
         if(name.equals("offsite-terrain")){
@@ -152,7 +166,7 @@ public final class FieldCamera {
         if(state.equals("arriving")&&mc.level.dimension().equals(ReefLife.REACH))enter("advance");
         if(state.equals("advance")){
             if(index==TOUR.length){
-                if(SEA||VILLAGE||FURNISHINGS){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
+                if(RENEWAL||SEA||VILLAGE||FURNISHINGS){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
                 else enter("provoke");
                 return;
             }
@@ -191,12 +205,12 @@ public final class FieldCamera {
             if(ticks%400==0)System.out.println("FIELD WAIT "+view.file()+" secs="+seconds()+" clientEye="+mc.player.getEyePosition()
                     +" renderSections="+mc.levelRenderer.countRenderedSections()+" mesh="+sceneryReady(mc)+" "+sample.counts());
             if(seconds()>330)throw new AssertionError("Field visit timed out "+view.file()+" "+sample.counts());
-            if(seconds()<38||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
+            if(seconds()<(RENEWAL?5:38)||mc.player.getEyePosition().distanceToSqr(view.eye())>12||!sceneryReady(mc)){
                 readySince=0;return;
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
-            if(index==0&&!SEA){MusicProof.surface();WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}
+            if(index==0&&!SEA&&!RENEWAL){MusicProof.surface();WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);

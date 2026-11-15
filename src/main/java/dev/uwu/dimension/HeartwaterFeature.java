@@ -67,13 +67,13 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
     private final boolean surface;
     private HeartwaterFeature(boolean surface) { super(NoneFeatureConfiguration.CODEC);this.surface=surface; }
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-        // The biome modifier also participates in vanilla cherry and lush biomes. It must
-        // never write UwU landmarks outside one of the three UwU dimensions.
+        // The shared cherry and lush biomes also occur in the Overworld. Gate all writes by dimension.
         var level=context.level().getLevel();
         if (!ReefLife.isSettlementRealm(level)) return false;
+        boolean strata = !surface && SakuraStrata.decorate(context.level(), context.origin(), context.random());
         var pos=new ChunkPos(context.origin());
         var site=GroveSites.forChunk(level,pos);
-        if(!site.usable())return false;
+        if(!site.usable())return strata;
         var valley=new Valley(context.level(),context.level().getChunk(pos.x,pos.z),site);
         if(surface)valley.surfaceLandmarks();else valley.draw();
         return true;

@@ -66,6 +66,56 @@ public final class MirrorCourt {
         NeoForge.EVENT_BUS.addListener(MirrorCourt::target);
         NeoForge.EVENT_BUS.addListener(MirrorCourt::approach);
         NeoForge.EVENT_BUS.addListener(MirrorCourt::treasure);
+        NeoForge.EVENT_BUS.addListener(MirrorCourt::commands);
+    }
+
+    private static void commands(net.neoforged.neoforge.event.RegisterCommandsEvent event) {
+        var command = net.minecraft.commands.Commands.literal("uwucourt").requires(source -> source.hasPermission(2));
+        for (String action : java.util.List.of("status", "reconcile")) {
+            command.then(net.minecraft.commands.Commands.literal(action)
+                    .then(net.minecraft.commands.Commands.argument("bell", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                    .executes(context -> {
+                        var source = context.getSource();
+                        ServerLevel level = source.getLevel();
+                        var bell = net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos(context, "bell");
+                        String result = inspect(level, bell, action.equals("reconcile"));
+                        source.sendSuccess(() -> Component.literal(result), false);
+                        return 1;
+                    })));
+        }
+        event.getDispatcher().register(command);
+    }
+
+    private static String inspect(ServerLevel level, BlockPos bell, boolean reconcile) {
+        if (!ReefLife.isReach(level)) return "Run this command in Sakura Reach.";
+        long key = bell.asLong();
+        Ledger ledger = ledger(level);
+        String victory = ledger.defeated.contains(key) ? "open" : "sealed";
+        String summary = "Court " + bell.toShortString() + " | treasure " + victory + " | "
+                + ledger.seals.getOrDefault(key, java.util.Set.of()).size() + " personal seals | ";
+        UUID id = ledger.active.get(key);
+        if (id == null) {
+            if (level.hasChunkAt(bell) && !level.getBlockState(bell).is(BELL.get())) return "No court bell at " + bell.toShortString();
+            return summary + "no active encounter";
+        }
+        if (level.getEntity(id) instanceof VelvetVesper moth && moth.isAlive()) {
+            return summary + "guardian " + id + " at " + moth.blockPosition().toShortString() + ", " + (int)moth.getHealth() + " HP";
+        }
+        if (!ledger.lastSeen.containsKey(key) && !level.hasChunkAt(bell)) return summary + "old encounter; bell chunk unloaded";
+        BlockPos last = ledger.lastSeen.containsKey(key) ? BlockPos.of(ledger.lastSeen.get(key)) : bell;
+        if (!ledger.lastSeen.containsKey(key) && level.getBlockState(bell).is(BELL.get())) {
+            last = bell.relative(level.getBlockState(bell).getValue(BlockStateProperties.HORIZONTAL_FACING), 6);
+        }
+        if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(last))) {
+            ledger.missingSince.remove(key);
+            return summary + "guardian unloaded; last seen " + last.toShortString();
+        }
+        if (!reconcile) return summary + "guardian absent from its loaded chamber; /uwucourt reconcile can clear this record";
+        long since = ledger.missingSince.computeIfAbsent(key, ignored -> level.getGameTime());
+        long left = 100 - (level.getGameTime()-since);
+        if (left > 0) return summary + "checking absent guardian; repeat in " + ((left+19)/20) + " seconds";
+        release(level, bell, id);
+        return summary + "stale encounter cleared; players can ready at the bell";
     }
 
     private static void attributes(EntityAttributeCreationEvent event) {

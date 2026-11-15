@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -38,7 +37,6 @@ public final class SakuraCraft {
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MOD);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD);
     private static final DeferredRegister<ArmorMaterial> MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, MOD);
-    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, MOD);
     private static final List<Supplier<? extends Item>> NATURAL = new ArrayList<>();
     private static final List<Supplier<? extends Item>> GEAR = new ArrayList<>();
 
@@ -67,7 +65,6 @@ public final class SakuraCraft {
             addGear(BLOOM, PETAL, type);
             addGear(THORN, BRIAR, type);
         }
-        FEATURES.register("sakura_strata", SakuraStrata::new);
     }
     private SakuraCraft() {}
 
@@ -75,7 +72,6 @@ public final class SakuraCraft {
         MATERIALS.register(bus);
         BLOCKS.register(bus);
         ITEMS.register(bus);
-        FEATURES.register(bus);
         bus.addListener(SakuraCraft::creative);
         NeoForge.EVENT_BUS.addListener(SakuraCraft::attributes);
         NeoForge.EVENT_BUS.addListener(SakuraCraft::guard);

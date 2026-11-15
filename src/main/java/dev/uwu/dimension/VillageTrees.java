@@ -28,6 +28,16 @@ final class VillageTrees {
         var sections=chunk.getSections();
         for(int i=0;i<sections.length;i++){
             var section=sections[i];
+            // Terrain grading can remove soil below features placed by a neighboring chunk.
+            // Repair only newly generated lots and only plants visibly detached from their soil.
+            if (section.maybeHas(VillageTrees::groundFlower)) {
+                for (int x=0;x<16;x++) for (int z=0;z<16;z++) for (int y=0;y<16;y++) {
+                    if (!groundFlower(section.getBlockState(x,y,z))) continue;
+                    int worldY=(chunk.getSectionYFromSectionIndex(i)<<4)+y;
+                    var at=new BlockPos(pos.getMinBlockX()+x, worldY, pos.getMinBlockZ()+z);
+                    if (chunk.getBlockState(at.below()).isAir()) chunk.setBlockState(at,Blocks.AIR.defaultBlockState(),false);
+                }
+            }
             if(!section.maybeHas(state->state.is(Blocks.CHERRY_LOG)))continue;
             int baseY=chunk.getSectionYFromSectionIndex(i)<<4;
             for(int dx=0;dx<16;dx++)for(int dz=0;dz<16;dz++)for(int dy=0;dy<16;dy++){
@@ -36,6 +46,10 @@ final class VillageTrees {
                 if(!seen.contains(at))rootComponent(level,chunk,at,seen);
             }
         }
+    }
+    private static boolean groundFlower(BlockState state) {
+        return state.is(Blocks.PINK_PETALS) || state.getBlock() instanceof DimensionCropBlock
+                || state.getBlock() instanceof net.minecraft.world.level.block.FlowerBlock;
     }
     private static void rootComponent(ServerLevel level,ChunkAccess chunk,BlockPos start,Set<BlockPos> seen){
         var queue=new ArrayDeque<BlockPos>();queue.add(start);seen.add(start);
