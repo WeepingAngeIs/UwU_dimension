@@ -36,6 +36,7 @@ final class ReachLife {
         NeoForge.EVENT_BUS.addListener(LoreDiscovery::chestInteraction);
         NeoForge.EVENT_BUS.addListener(LoreDiscovery::containerOpened);
         NeoForge.EVENT_BUS.addListener(LoreDiscovery::tick);
+        NeoForge.EVENT_BUS.addListener(FarmChakram::tick);
         NeoForge.EVENT_BUS.addListener(ReachLife::commands);
     }
     static int preference(ServerPlayer player, String key, int fallback) {

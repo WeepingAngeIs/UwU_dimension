@@ -46,6 +46,7 @@ public final class UwUDimension {
         SOUNDS.register(bus);
         Arsenal.register(bus);
         HeartLauncher.register(bus);
+        BellHammer.register(bus);
         CounterArsenal.register(bus);
         People.register(bus);
         RealmResidents.register();

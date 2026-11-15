@@ -51,6 +51,24 @@ final class RelicReturns {
         return flights.contains(flight.getStringUUID()) && !flights.getCompound(flight.getStringUUID()).getBoolean("Ready");
     }
 
+    /** Charge the reserved weapon itself, even while the owner's hand is empty. */
+    static void damageHarvest(ServerPlayer owner, RelicFlight flight) {
+        if (owner.isCreative()) return;
+        CompoundTag flights = saved(owner).getCompound(FLIGHTS);
+        String key = flight.getStringUUID();
+        if (!flights.contains(key)) return;
+        CompoundTag entry = flights.getCompound(key);
+        ItemStack stack = ItemStack.parseOptional(owner.registryAccess(), entry.getCompound("Stack"));
+        if (stack.isEmpty()) return;
+        stack.hurtAndBreak(1, owner.serverLevel(), owner, ignored -> {});
+        if (stack.isEmpty()) {
+            flights.remove(key);
+        } else {
+            entry.put("Stack", stack.save(owner.registryAccess()));
+            flight.setItem(stack.copy());
+        }
+    }
+
     static void returned(Player owner, RelicFlight flight) {
         CompoundTag flights = saved(owner).getCompound(FLIGHTS);
         if (flights.contains(flight.getStringUUID())) {

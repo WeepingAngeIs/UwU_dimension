@@ -8,7 +8,19 @@
       "predicate": {
         "uwudimension:recoil": 0.01
       },
-      "model": "uwudimension:item/heart_launcher_recoil"
+      "model": "uwudimension:item/heart_launcher_recoil_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:recoil": 0.34
+      },
+      "model": "uwudimension:item/heart_launcher_recoil_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:recoil": 0.67
+      },
+      "model": "uwudimension:item/heart_launcher_recoil_3"
     }
   ]
 }

@@ -164,6 +164,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->{
                     BlossomVillage.place(this,p);
                     MoonveilTreehouse.plan(level.getLevel(),p).ifPresent(tree->MoonveilTreehouse.place(this,tree));
+                    VillageSakura.place(this,p);
                 });
             }
             if(GroveSites.adventure(level.getLevel(),site))falls();

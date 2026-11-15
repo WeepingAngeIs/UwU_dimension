@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SIP",
+    "CSD",
+    "  S"
+  ],
+  "key": {
+    "S": {
+      "item": "uwudimension:silver_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "uwudimension:roseglass_prism"
+    },
+    "C": {
+      "item": "minecraft:crossbow"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "uwudimension:heart_launcher",
+    "count": 1
+  }
+}

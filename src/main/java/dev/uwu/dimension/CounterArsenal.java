@@ -63,7 +63,8 @@ public final class CounterArsenal {
         }
         @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
             return (entry.shape().equals("axe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability))
-                || (entry.shape().equals("scythe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability));
+                || (entry.shape().equals("scythe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability))
+                || (entry.shape().equals("spear") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(ability));
         }
         @Override public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
                 net.minecraft.core.BlockPos pos, LivingEntity user) {
@@ -83,6 +84,7 @@ public final class CounterArsenal {
         }
         @Override public InteractionResultHolder<ItemStack> use(Level world,Player p,InteractionHand hand){
             ItemStack stack=p.getItemInHand(hand);
+            if(entry.shape().equals("spear") && p.isShiftKeyDown())return SpearFishing.use(world,p,hand);
             if(p.getCooldowns().isOnCooldown(this))return InteractionResultHolder.fail(stack);
             if(entry.shape().equals("scythe")){p.startUsingItem(hand);return InteractionResultHolder.consume(stack);}
             if(world instanceof ServerLevel level){

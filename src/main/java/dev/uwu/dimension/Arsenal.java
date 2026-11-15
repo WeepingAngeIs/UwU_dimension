@@ -136,6 +136,8 @@ public final class Arsenal {
         }
         @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
             ItemStack stack = player.getItemInHand(hand);
+            if ((relic == Relic.LANTERN_SPEAR || relic == Relic.TIDELACE_TRIDENT) && player.isShiftKeyDown())
+                return SpearFishing.use(level, player, hand);
             if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
             if (relic.bow() || relic == Relic.VESPER_SCYTHE) {
                 if (relic == Relic.CUPID_BOW && !level.isClientSide) CupidEffects.resetDraw(player);
@@ -158,7 +160,9 @@ public final class Arsenal {
         }
         @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
             return (relic.axe() && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability))
-                || (relic == Relic.VESPER_SCYTHE && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability));
+                || (relic == Relic.VESPER_SCYTHE && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability))
+                || ((relic == Relic.LANTERN_SPEAR || relic == Relic.TIDELACE_TRIDENT)
+                    && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(ability));
         }
         @Override public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
                 net.minecraft.core.BlockPos pos, LivingEntity user) {

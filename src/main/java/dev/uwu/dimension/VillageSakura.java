@@ -81,6 +81,12 @@ final class VillageSakura {
                 if (Math.abs(x)+Math.abs(z) <= radius+1) put(v,p,x,y,z,log);
             }
         }
+        // Follow small surveyed dips without grading or replacing the surrounding ground.
+        for (int x=-2; x<=2; x++) for (int z=-2; z<=2; z++) {
+            if (Math.abs(x)+Math.abs(z)>3) continue;
+            int ground=GroveSites.height(v.level.getLevel(),v.wx(p.x+x,p.z+z),v.wz(p.x+x,p.z+z));
+            for (int y=ground-p.y+1; y<1; y++) put(v,p,x,y,z,log);
+        }
         int[][] boughs = {{-10,3,-3},{8,5,-8},{11,2,4},{-6,6,10},{2,8,2}};
         for (int[] branch : boughs) {
             int steps=Math.max(Math.abs(branch[0]),Math.abs(branch[2]));

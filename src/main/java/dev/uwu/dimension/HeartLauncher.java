@@ -171,7 +171,7 @@ final class HeartLauncher {
             BreakJob job = PENDING.peek();
             if (job.level().getServer() != event.getServer()) { PENDING.remove(); continue; }
             ServerPlayer owner = event.getServer().getPlayerList().getPlayer(job.owner());
-            if (owner == null || owner.serverLevel() != job.level() || !owner.getMainHandItem().is(LAUNCHER.get())
+            if (owner == null || !owner.isAlive() || owner.serverLevel() != job.level() || !owner.getMainHandItem().is(LAUNCHER.get())
                     || !SPEC.isLoaded() || !EXCAVATION.get()) { PENDING.remove(); continue; }
             BlockPos pos = job.positions().poll();
             if (pos == null) { PENDING.remove(); continue; }
