@@ -177,7 +177,7 @@ public final class CombatRenewalProof {
                 require(visitor.drawCues==2 && observer.drawCues==2 && visitor.impactCues==0, "Canceled short draw flashed");
                 shootAt(level, owner, bow);
                 require(visitor.drawCues==3 && observer.drawCues==3 && visitor.impactCues==1 && observer.impactCues==1
-                        && visitor.impactQuality==2 && observer.impactQuality==2 && Math.abs(visitor.impactY-(target.getY()+target.getBbHeight()*.55))<.02
+                        && visitor.impactQuality==2 && observer.impactQuality==2 && Math.abs(visitor.impactY-(target.getY()+target.getBbHeight()*.27))<.02
                         && visitor.rippleSounds==4 && observer.rippleSounds==4 && Math.abs(visitor.lastRippleVolume-.19F)<.001F,
                         "Rapid release/draw, shared heart outline, or first-person clearance failed");
                 var watcherPrefs = watcher.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);

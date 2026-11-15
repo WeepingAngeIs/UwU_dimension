@@ -20,9 +20,9 @@ public final class CupidParticleClient {
         event.registerSpriteSet(CupidParticles.PASTEL_HEART.get(), sprites ->
                 (type, level, x,y,z, dx,dy,dz) -> new Heart(level,x,y,z,sprites,.15F,18));
         event.registerSpriteSet(CupidParticles.DRAW_HEART.get(), sprites ->
-                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality)));
+                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality),(float)dy,(int)Math.round(dz)));
         event.registerSpriteSet(CupidParticles.IMPACT_OUTLINE.get(), sprites ->
-                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality)));
+                (type, level, x,y,z, quality,dy,dz) -> new Ripple(level,x,y,z,sprites,(int)Math.round(quality),(float)dy,(int)Math.round(dz)));
     }
 
     private static class Heart extends TextureSheetParticle {
@@ -51,13 +51,32 @@ public final class CupidParticleClient {
     /** One textured quad with hollow lobes and two transparent sides of the heart contour. */
     private static final class Ripple extends TextureSheetParticle {
         private final float expansion,opacity;
-        Ripple(ClientLevel level,double x,double y,double z,SpriteSet sprites,int quality) {
+        private final org.joml.Quaternionf plane;
+        private final org.joml.Vector3f normal;
+        Ripple(ClientLevel level,double x,double y,double z,SpriteSet sprites,int quality,float yaw,int surface) {
             super(level,x,y,z);
             quality=Mth.clamp(quality,0,2);
             pickSprite(sprites);
             lifetime=quality==0?12:quality==1?16:20;
-            expansion=quality==0?.84F:quality==1?1.14F:1.44F;
+            expansion=quality==0?1.48F:quality==1?1.75F:2.00F;
             opacity=quality==0?.57F:quality==1?.74F:.86F;
+            float rad=(float)(Math.PI/180);
+            plane=new org.joml.Quaternionf();
+            if(surface==0){
+                // A gently inclined world-space wave can be seen both from the side and from above.
+                plane.rotateY(-yaw*rad).rotateX(75*rad);
+            }else{
+                var faces=net.minecraft.core.Direction.values();
+                switch(faces[Math.floorMod(surface-1,faces.length)]){
+                    case UP -> plane.rotateY(-yaw*rad).rotateX(-90*rad);
+                    case DOWN -> plane.rotateY(-yaw*rad).rotateX(90*rad);
+                    case NORTH -> plane.rotateY(180*rad);
+                    case EAST -> plane.rotateY(90*rad);
+                    case WEST -> plane.rotateY(-90*rad);
+                    case SOUTH -> { }
+                }
+            }
+            normal=new org.joml.Vector3f(0,0,1).rotate(plane);
             hasPhysics=false;
         }
         @Override public ParticleRenderType getRenderType(){return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;}
@@ -70,14 +89,13 @@ public final class CupidParticleClient {
         @Override public void render(VertexConsumer out,Camera camera,float partial){
             Vec3 eye=camera.getPosition();
             Vec3 offset=new Vec3(x,y,z).subtract(eye);
-            if(offset.lengthSqr()<1.2*1.2){
-                // Someone inside the ripple would see its back or clip through the near plane.
-                // Render that viewer's copy ahead of their eyes with the crosshair completely open.
-                offset=new Vec3(camera.getLookVector()).scale(2.8);
-            }
+            // Backface reversal keeps the same plane and silhouette and never moves the effect
+            // toward the camera. A first-person wearer naturally sees the forward arc underfoot.
+            org.joml.Quaternionf face=offset.x*normal.x+offset.y*normal.y+offset.z*normal.z>0
+                    ? new org.joml.Quaternionf(plane).rotateY((float)Math.PI) : plane;
             float t=Mth.clamp((age+partial)/lifetime,0,1);
             alpha=opacity*(1-t*t);
-            renderRotatedQuad(out,camera.rotation(),(float)offset.x,(float)offset.y,(float)offset.z,partial);
+            renderRotatedQuad(out,face,(float)offset.x,(float)offset.y,(float)offset.z,partial);
         }
     }
 }

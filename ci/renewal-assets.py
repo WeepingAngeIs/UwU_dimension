@@ -67,6 +67,35 @@ def rgba_pixels(png, size):
     return pixels
 
 
+def understory(jar, art, data, read, locale):
+    species = ("short_grass","tall_grass","lace_fern","star_clover","rain_bell","wood_aster","frost_sorrel")
+    silhouettes = set()
+    for region in ("petal","dusk"):
+        expected = {"uwudimension:"+region+"_"+name for name in species}
+        assert set(read(data+"tags/block/"+region+"_understory.json")["values"]) == expected
+        for name in species:
+            key=region+"_"+name
+            assert locale["block.uwudimension."+key]
+            variants=read(art+"blockstates/"+key+".json")["variants"]
+            tall=name=="tall_grass"
+            assert set(variants)==({"half=upper","half=lower"} if tall else {""})
+            silhouette=bytearray()
+            for prop in (("half=upper","half=lower") if tall else ("",)):
+                model=read(art+"models/"+variants[prop]["model"].split(":")[1]+".json")
+                assert model["render_type"]=="minecraft:cutout" and model["parent"]=="minecraft:block/cross"
+                tex=model["textures"]["cross"].split(":")[1]
+                pixels=rgba_pixels(jar.read(art+"textures/"+tex+".png"),16)
+                alpha=pixels[3::4]
+                assert set(alpha)=={0,255} and 8<=alpha.count(255)<=170, key
+                silhouette.extend(alpha)
+            assert bytes(silhouette) not in silhouettes, "Repeated plant silhouette: "+key
+            silhouettes.add(bytes(silhouette))
+            itemtex=read(art+"models/item/"+key+".json")["textures"]["layer0"].split(":")[1]
+            rgba_pixels(jar.read(art+"textures/"+itemtex+".png"),16)
+            assert read(data+"loot_table/blocks/"+key+".json")["pools"]
+    print("NATIVE UNDERSTORY ASSETS PASS 14 distinct silhouettes, two tall halves, transparent 16px foliage, matching items and loot")
+
+
 def bow_masks(jar, art, name):
     base = art + "textures/item/" + name
     png = jar.read(base+".png")
@@ -264,6 +293,7 @@ def check_jar(jar):
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
     assert meta["mods"][0]["version"] == "1.5.0-beta.2"
     locale = read(art + "lang/en_us.json")
+    understory(jar, art, data, read, locale)
     workshop_resources(jar, art, read)
     owl_residents(jar, art, read, locale)
     bow = read(art + "models/item/cupid_bow.json")

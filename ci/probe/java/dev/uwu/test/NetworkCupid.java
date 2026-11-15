@@ -41,6 +41,8 @@ public final class NetworkCupid {
             return max-min>.18F && bright-faint>.025F;
         }
     }
+    private static net.minecraft.world.phys.Vec3 chargeAt,hitAt;
+    private static int aimStable;
     private static Progress chargeGrowth=new Progress(),impactGrowth=new Progress();
     public static void sound(net.minecraft.network.protocol.game.ClientboundSoundPacket packet){
         if(!ACTIVE || (phase!=Phase.DRAW && phase!=Phase.FLY)
@@ -53,7 +55,7 @@ public final class NetworkCupid {
     private static final float[][] familyMeasurements=new float[4][];
     private static boolean drawPhoto,trailPhoto,impactPhoto;
     private static long started;
-    private record Quad(float x,float y,float z,float size,float alpha,boolean outline) {}
+    private record Quad(float x,float y,float z,float size,float alpha,boolean outline,org.joml.Quaternionf facing) {}
     private static final List<Quad> quads=new ArrayList<>();
 
     public static void received(ClientboundLevelParticlesPacket packet) {
@@ -61,16 +63,16 @@ public final class NetworkCupid {
         var type=packet.getParticle().getType();
         if(type!=CupidParticles.DRAW_HEART.get() && type!=CupidParticles.PASTEL_HEART.get() && type!=CupidParticles.IMPACT_OUTLINE.get()) return;
         if(!packet.isOverrideLimiter()) throw new AssertionError("Visible bow cue omitted its recipient override flag");
-        if(type==CupidParticles.DRAW_HEART.get()) drawPackets++;
-        else if(type==CupidParticles.IMPACT_OUTLINE.get()) impactPackets++;
+        if(type==CupidParticles.DRAW_HEART.get()){drawPackets++;chargeAt=new net.minecraft.world.phys.Vec3(packet.getX(),packet.getY(),packet.getZ());}
+        else if(type==CupidParticles.IMPACT_OUTLINE.get()){impactPackets++;hitAt=new net.minecraft.world.phys.Vec3(packet.getX(),packet.getY(),packet.getZ());}
         else trailPackets++;
     }
 
-    public static void quad(SingleQuadParticle particle,float x,float y,float z,float partial) {
+    public static void quad(SingleQuadParticle particle,org.joml.Quaternionf face,float x,float y,float z,float partial) {
         if(phase!=Phase.DRAW && phase!=Phase.FLY) return;
         String type=particle.getClass().getName();
         if(type.equals(HEART) || type.equals(OUTLINE))
-            quads.add(new Quad(x,y,z,particle.getQuadSize(partial),((dev.uwu.test.mixin.CupidOpacity)particle).uwuProbeOpacity(),type.equals(OUTLINE)));
+            quads.add(new Quad(x,y,z,particle.getQuadSize(partial),((dev.uwu.test.mixin.CupidOpacity)particle).uwuProbeOpacity(),type.equals(OUTLINE),new org.joml.Quaternionf(face)));
     }
 
     @SubscribeEvent public static void beginFrame(RenderFrameEvent.Pre event) {
@@ -114,23 +116,33 @@ public final class NetworkCupid {
             for(var q:quads) {
                 var offset=new Vector3f(q.x,q.y,q.z);
                 double depth=offset.dot(camera.getLookVector());
-                if(depth<.2) continue;
+                if(depth<.2&&!q.outline) continue;
                 int x=(int)Math.round(pixels.getWidth()*.5-offset.dot(camera.getLeftVector())*scale/depth);
                 int y=(int)Math.round(pixels.getHeight()*.5-offset.dot(camera.getUpVector())*scale/depth);
                 int r=(int)Math.ceil(q.size*scale/depth)+3;
                 if(q.outline){
+                    boolean charging=phase==Phase.DRAW;
+                    var center=charging?chargeAt:hitAt;
+                    if(center==null||camera.getPosition().add(q.x,q.y,q.z).distanceToSqr(center)>.01)continue;
                     int hits=0;
-                    double radius=q.size*scale/depth;
-                    // Probe the actual lobes, sides and point. The shader need only supply one real hollow quad.
-                    for(int sample=0;sample<24;sample++){
-                        double a=Math.PI*sample/12;
+                    for(int sample=0;sample<32;sample++){
+                        double a=Math.PI*sample/16;
                         double px=16*Math.pow(Math.sin(a),3)*1.74/32.0;
-                        double py=(26.8-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*1.64-31.5)/32.0;
-                        if(pink(pixels,(int)Math.round(x+px*radius),(int)Math.round(y+py*radius),Math.max(2,(int)Math.ceil(radius*.052))))hits++;
+                        double py=(31.5-26.8+(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*1.64)/32.0;
+                        var pixel=new Vector3f((float)px*q.size,(float)py*q.size,0).rotate(q.facing).add(q.x,q.y,q.z);
+                        double z=pixel.dot(camera.getLookVector());
+                        if(z<.12)continue;
+                        int sx=(int)Math.round(pixels.getWidth()*.5-pixel.dot(camera.getLeftVector())*scale/z);
+                        int sy=(int)Math.round(pixels.getHeight()*.5-pixel.dot(camera.getUpVector())*scale/z);
+                        if(sx<0||sy<0||sx>=pixels.getWidth()||sy>=pixels.getHeight())continue;
+                        int thickness=Math.clamp((int)Math.ceil(q.size*scale/z*.041),2,11);
+                        if(pink(pixels,sx,sy,thickness))hits++;
                     }
-                    if(hits<7)continue;
-                    if(depth<3.2 && phase==Phase.DRAW && chargeGrowth.observe(q.size,q.alpha))drawSeen=hits;
-                    if(depth>=4 && phase==Phase.FLY && impactGrowth.observe(q.size,q.alpha))outlineSeen=hits;
+                    // The first-person wearer looks down at the forward half of the actual ring.
+                    int threshold=charging&&shot==0?3:7;
+                    if(hits<threshold)continue;
+                    if(charging && chargeGrowth.observe(q.size,q.alpha))drawSeen=hits;
+                    if(!charging && impactGrowth.observe(q.size,q.alpha))outlineSeen=hits;
                 }else if(depth>=4&&pink(pixels,x,y,r))trailSeen++;
             }
             if(takeDraw && drawSeen>0) {
@@ -192,7 +204,12 @@ public final class NetworkCupid {
         }
         if(phase==Phase.DRAW) {
             if(drawPackets>1) throw new AssertionError("Full draw emitted twice");
-            if(drawPhoto && mc.player.isUsingItem() && ticks>=26) {
+            if(drawPhoto){
+                mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+                mc.player.setXRot(3);
+                aimStable++;
+            }
+            if(drawPhoto && aimStable>=4 && mc.player.isUsingItem() && ticks>=26) {
                 phase=Phase.FLY; ticks=0;
                 mc.options.keyUse.setDown(false);
                 mc.gameMode.releaseUsingItem(mc.player);
@@ -211,7 +228,7 @@ public final class NetworkCupid {
                 if(mc.options.particles().get()!=ParticleStatus.MINIMAL) throw new AssertionError("Minimal mode changed");
                 phase=Phase.FAMILY;ticks=0;
                 mc.player.setYRot(90);mc.player.setXRot(4);
-                System.out.println("NETWORK CUPID VISUAL PASS | real TCP server, first-person shooter, Minimal + Smart Particles + Particle Core, six framebuffer captures");
+                System.out.println("NETWORK CUPID VISUAL PASS | real TCP server, first-person shooter and ordinary elevated rear charge view, Minimal + Smart Particles + Particle Core, six framebuffer captures");
             }
         }
     }
@@ -227,12 +244,13 @@ public final class NetworkCupid {
 
     private static void beginShot(Minecraft mc) {
         ticks=drawPackets=trailPackets=impactPackets=chargePings=impactPings=0;
-        chargeGrowth=new Progress();impactGrowth=new Progress();
+        chargeGrowth=new Progress();impactGrowth=new Progress();chargeAt=hitAt=null;aimStable=0;
         drawPhoto=trailPhoto=impactPhoto=false;
         phase=Phase.DRAW;
         mc.options.hideGui=false;
         mc.player.setYRot(shot==0?0:-18);
-        mc.player.setXRot(3);
+        mc.options.setCameraType(shot==0?net.minecraft.client.CameraType.FIRST_PERSON:net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+        mc.player.setXRot(shot==0?53:40);
         mc.options.keyUse.setDown(true);
         mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
     }

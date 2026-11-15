@@ -23,7 +23,7 @@ final class CupidEffects {
 
     static void fullDraw(ServerLevel level, Player player) {
         if (!FULL_DRAW.add(player)) return;
-        ripple(level, player.position().add(0,player.getBbHeight()*.55,0), true);
+        ripple(level,player.position().add(0,player.getBbHeight()*.27,0),true,player.getYRot(),0);
     }
 
     static void trail(ServerLevel level, HeartArrow arrow) {
@@ -40,14 +40,14 @@ final class CupidEffects {
 
     static void impact(ServerLevel level, Entity struck) {
         // The world-space origin surrounds the target's body for every ordinary observer.
-        ripple(level,struck.position().add(0,struck.getBbHeight()*.55,0),false);
+        ripple(level,struck.position().add(0,struck.getBbHeight()*.27,0),false,struck.getYRot(),0);
     }
 
-    static void impact(ServerLevel level, Vec3 at) {
-        ripple(level,at,false);
+    static void impact(ServerLevel level, Vec3 at,net.minecraft.core.Direction face,float yaw) {
+        ripple(level,at,false,yaw,face.ordinal()+1);
     }
 
-    private static void ripple(ServerLevel level,Vec3 at,boolean charge) {
+    private static void ripple(ServerLevel level,Vec3 at,boolean charge,float yaw,int surface) {
         long seed=level.getRandom().nextLong();
         var sound=net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(UwUDimension.CUPID_RIPPLE.get());
         for (var viewer:level.players()) {
@@ -57,7 +57,7 @@ final class CupidEffects {
             if(distance>20*20)quality=0;
             // count=0 transmits one local animation, with its quality in the X-speed field.
             level.sendParticles(viewer,charge?CupidParticles.DRAW_HEART.get():CupidParticles.IMPACT_OUTLINE.get(),
-                    true,at.x,at.y,at.z,0,quality,0,0,1);
+                    true,at.x,at.y,at.z,0,quality,yaw,surface,1);
             float volume=(charge?.30F:.19F)*(quality==0?.55F:quality==1?.80F:1F);
             viewer.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(sound,
                     net.minecraft.sounds.SoundSource.PLAYERS,at.x,at.y,at.z,volume,charge?1F:1.07F,seed));

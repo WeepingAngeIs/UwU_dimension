@@ -12,8 +12,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 final class AmbienceProof {
     private static final ArrayList<ChestProof.Visitor> visitors = new ArrayList<>();
     private static int elapsed;
+    private static boolean complete;
 
     static boolean tick(ServerLevel level) {
+        if (complete) return true;
         if (visitors.isEmpty()) {
             BlockPos together = new BlockPos(6,level.getMaxBuildHeight()-5,6);
             for (int i=0; i<4; i++) {
@@ -36,6 +38,7 @@ final class AmbienceProof {
             visitors.forEach(ChestProof.Visitor::close);
             visitors.clear();
         }
+        complete=true;
         return true;
     }
 }

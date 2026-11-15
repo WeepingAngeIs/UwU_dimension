@@ -43,6 +43,9 @@ def draw(side, kind):
     if kind in ("short_grass","tall_grass"):
         high=kind=="tall_grass"
         blades=[(3,1,5,1),(5,2,7,2),(6,6,5,1),(7,5,10,2),(8,9,8,2),(9,13,9,1),(11,12,5,3),(12,15,4,2)]
+        if side=="dusk":
+            # The highland tuft has a leaning wind-combed crown, with a short windward edge.
+            blades=[(3,1,4,1),(4,3,5,2),(5,7,8,1),(6,10,10,2),(8,10,7,1),(9,13,10,3),(10,14,7,1),(12,15,5,2)]
         for i,(x,tip,n,shade) in enumerate(blades):
             blade(x,tip,n*(2 if high else 1)+(i%3 if high else -2),shade)
         if high:
@@ -52,7 +55,8 @@ def draw(side, kind):
                 for dx,dy in [(2,4),(1,5),(0,7),(3,6),(2,8),(4,9)]:
                     dot(dx+offset,dy,g[4 if dy%2==0 else 3])
     elif kind=="lace_fern":
-        for ex,ey,bx in [(1,6,7),(6,2,8),(11,3,8),(15,8,9)]:
+        tips=[(1,6,7),(6,2,8),(11,3,8),(15,8,9)] if side=="petal" else [(1,10,7),(3,5,8),(8,1,8),(14,5,9)]
+        for ex,ey,bx in tips:
             line([(bx,15),(ex,ey)],g[1])
             for k in (.25,.48,.71,.89):
                 x=round(bx+(ex-bx)*k);y=round(15+(ey-15)*k)
@@ -61,28 +65,28 @@ def draw(side, kind):
                 line([(x,y),(x+arm,y-1),(x+arm,y-2)],g[3])
     elif kind=="star_clover":
         bloom=BLOOMS[side][0]
-        for x,y in [(3,12),(8,9),(12,12)]:
+        for x,y in ([(3,12),(8,9),(12,12)] if side=="petal" else [(3,10),(8,11),(12,9)]):
             line([(8,15),(x,y)],g[1])
             for dx,dy in [(-2,0),(0,-2),(2,0)]:
                 pen.rectangle((x+dx-1,y+dy-1,x+dx,y+dy), fill=g[2])
                 dot(x+dx,y+dy-1,g[3])
-        for x,y in [(4,9),(11,10)]:
+        for x,y in ([(4,9),(11,10)] if side=="petal" else [(3,7),(10,9),(13,7)]):
             line([(x-1,y),(x+1,y)],bloom[1]);line([(x,y-1),(x,y+1)],bloom[1]);dot(x,y,bloom[2])
     else:
         flower=BLOOMS[side][{"rain_bell":1,"wood_aster":2,"frost_sorrel":3}[kind]]
         if kind=="rain_bell":
-            for x,y,foot in [(4,6,6),(10,3,9),(13,9,10)]:
+            for x,y,foot in ([(4,6,6),(10,3,9),(13,9,10)] if side=="petal" else [(3,9,6),(6,4,8),(11,6,9)]):
                 line([(foot,15),(foot,10),(x-1,y-1),(x,y-1)],g[2])
                 line([(x-1,y),(x+1,y)],flower[0]);pen.rectangle((x-1,y+1,x+1,y+2),fill=flower[1])
                 dot(x-2,y+3,flower[1]);dot(x,y+2,flower[2]);dot(x+1,y+3,flower[2])
         elif kind=="wood_aster":
-            for x,y,foot in [(5,7,7),(10,4,9)]:
+            for x,y,foot in ([(5,7,7),(10,4,9)] if side=="petal" else [(3,8,6),(8,4,8),(12,9,9)]):
                 line([(foot,15),(x,y+1)],g[2])
                 for dx,dy in [(-2,0),(2,0),(0,-2),(0,2),(-1,-1),(1,-1),(1,1),(-1,1)]:
                     dot(x+dx,y+dy,flower[1 if dx+dy>0 else 2])
                 dot(x,y,"#edbe76" if side=="petal" else "#ebac83")
         else:
-            for x,y in [(3,10),(7,7),(12,9)]:
+            for x,y in ([(3,10),(7,7),(12,9)] if side=="petal" else [(5,7),(9,6),(12,11)]):
                 line([(7,15),(x,y+1)],g[2])
                 for dx,dy in [(-1,0),(1,0),(0,1),(0,-1)]:
                     dot(x+dx,y+dy,flower[2 if dy<1 else 1])
