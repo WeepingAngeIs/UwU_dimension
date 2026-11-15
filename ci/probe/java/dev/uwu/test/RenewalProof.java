@@ -17,6 +17,19 @@ final class RenewalProof {
     private static void check(boolean pass, String reason) {
         if (!pass) throw new AssertionError(reason);
     }
+    @FunctionalInterface
+    interface Check { void run() throws Exception; }
+
+    private static void exercise(java.util.List<Throwable> issues, String name, Check work) {
+        try {
+            work.run();
+        } catch (Exception | AssertionError error) {
+            System.err.println("SAKURA CHECK FAILED " + name);
+            error.printStackTrace();
+            issues.add(error);
+        }
+    }
+
     static void run(ServerLevel reach) throws Exception {
         var server = reach.getServer();
         check(server.levelKeys().stream().filter(k -> k.location().getNamespace().equals("uwudimension")).count()==1, "dimension count");
@@ -24,6 +37,9 @@ final class RenewalProof {
         var arrival = GroveSites.arrival(reach);
         var checkpoint=Path.of("first-site.txt");
         if (Files.exists(checkpoint)) {
+            var savedArrival = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+                    .resolve("dimensions/uwudimension/sakura_reach/data/uwudimension_arrival.dat");
+            check(Files.isRegularFile(savedArrival), "arrival has no saved-data file");
             check(Files.readString(checkpoint).equals(site.toString()),"arrival moved after restart");
             check(reach.getBlockState(arrival.above(5)).is(Blocks.AMETHYST_BLOCK),"saved player block replaced");
             CombatRenewalProof.resume(reach);
@@ -49,15 +65,25 @@ final class RenewalProof {
             var second=two.player;
             first.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(item));
             second.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(item));
-            item.use(home, first,InteractionHand.MAIN_HAND);
+            BlockPos blocked = site.usable() ? dev.uwu.dimension.BlossomVillage.first(reach,false).plaza() : null;
+            var original = blocked == null ? null : reach.getBlockState(blocked);
+            if (blocked != null) reach.setBlockAndUpdate(blocked,Blocks.CACTUS.defaultBlockState());
+            try {
+                item.use(home, first,InteractionHand.MAIN_HAND);
+                check(blocked == null || !first.blockPosition().equals(blocked),"arrival chose cactus");
+            } finally {
+                if (blocked != null) reach.setBlockAndUpdate(blocked,original);
+            }
             item.use(home, second,InteractionHand.MAIN_HAND);
             check(first.serverLevel()==reach && second.serverLevel()==reach, "both visitors arrived");
             var swap=first.getMainHandItem();first.setItemInHand(InteractionHand.MAIN_HAND,second.getMainHandItem());
             second.setItemInHand(InteractionHand.MAIN_HAND,swap);
             home.setBlockAndUpdate(a.offset(0,0,1),Blocks.LAVA.defaultBlockState());
+            home.setBlockAndUpdate(b.offset(0,1,1),Blocks.STONE.defaultBlockState());
             item.use(reach,first,InteractionHand.MAIN_HAND);item.use(reach,second,InteractionHand.MAIN_HAND);
             check(first.serverLevel()==home && second.serverLevel()==home, "both returned");
             check(first.blockPosition().closerThan(a,6) && second.blockPosition().closerThan(b,6),"traded locket used wrong anchor");
+            check(home.noCollision(second.getBoundingBox()),"return under blocked headroom");
             check(home.getFluidState(first.blockPosition()).isEmpty() && home.noCollision(first.getBoundingBox()),"landing hazard");
         }
         System.out.println("SAKURA TWO VISITOR LOCKET PASS seed="+reach.getSeed()+" arrival="+arrival+" villageSite="+site.usable());
@@ -66,9 +92,15 @@ final class RenewalProof {
             reach.getChunkAt(chest);
             ChestProof.run(reach,chest);
         }
-        RenewalArmorProof.run(reach);
-        VillageRenewalProof.run(reach);
-        CombatRenewalProof.run(reach);
+        var issues = new java.util.ArrayList<Throwable>();
+        exercise(issues, "guardian, projectiles and players", () -> CombatRenewalProof.run(reach));
+        exercise(issues, "villages, projects and plants", () -> VillageRenewalProof.run(reach));
+        exercise(issues, "armor and natural habitats", () -> RenewalArmorProof.run(reach));
+        if (!issues.isEmpty()) {
+            var failure = new AssertionError("Failed renewal checks: " + issues.size());
+            issues.forEach(failure::addSuppressed);
+            throw failure;
+        }
         reach.setBlockAndUpdate(arrival.above(5),Blocks.AMETHYST_BLOCK.defaultBlockState());
         Files.writeString(checkpoint,site.toString());
         System.out.println("SAKURA RENEWAL SERVER PASS");

@@ -20,11 +20,22 @@ final class HeartCombatGlow {
             int mode = ReachLife.preference(viewer, "sakura_effects", 2);
             if (mode == 0 && level.getGameTime() % 4 != 0) continue;
             level.sendParticles(viewer, sigil, false, at.x, at.y, at.z, 1, .035, .035, .035, .005);
-            if (pastelHeart && mode > 0)
+            if (pastelHeart)
                 level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false,
                         at.x, at.y, at.z, 1, .045, .045, .045, .008);
             if (mode == 2) level.sendParticles(viewer, ParticleTypes.END_ROD, false,
                     at.x, at.y, at.z, 1, .035, .035, .035, .01);
+        }
+    }
+
+    static void charmHearts(ServerLevel level, double x, double y, double z, int fullCount,
+            double spreadX, double spreadY, double spreadZ, double speed) {
+        for (var viewer : level.players()) {
+            if (viewer.distanceToSqr(x, y, z) > 32 * 32) continue;
+            int mode = ReachLife.preference(viewer, "sakura_effects", 2);
+            int count = mode == 0 ? 1 : mode == 1 ? (fullCount + 1) / 2 : fullCount;
+            level.sendParticles(viewer, CupidParticles.PASTEL_HEART.get(), false, x, y, z,
+                    count, spreadX, spreadY, spreadZ, speed);
         }
     }
 

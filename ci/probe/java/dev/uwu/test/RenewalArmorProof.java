@@ -34,8 +34,9 @@ public final class RenewalArmorProof {
         Block opal = BuiltInRegistries.BLOCK.get(id("vesper_opal_ore"));
         boolean sawRose = false, sawOpal = false;
         for (int x = 0; x < 5 && !(sawRose && sawOpal); x++) for (int z = 0; z < 5 && !(sawRose && sawOpal); z++) {
-            // Adjacent untouched chunks, away from the disposable visitor fixtures.
-            var chunk = level.getChunk(18 + x, 18 + z);
+            // The 1.4.9 migration fixture forces chunk (20,20) and its neighbors before upgrade.
+            // Visit a separate region for new-generation ores, leaving the old blocks intact.
+            var chunk = level.getChunk(143 + x, -117 + z);
             sawRose |= contains(chunk, rose);
             sawOpal |= contains(chunk, opal);
         }

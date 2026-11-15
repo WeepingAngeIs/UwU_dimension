@@ -104,6 +104,7 @@ public final class RealmResidents {
             var prior=zombie.getPersistentData().getCompound(ORIGIN);var now=new CompoundTag();keeper.saveWithoutId(now);
             for(String key:List.of("Companion","Hearth","Settled","NextGift","OfferedJobLevel","VillageCourt","SeekLegacyCourt","Inventory"))if(prior.contains(key))now.put(key,prior.get(key).copy());
             keeper.readAdditionalSaveData(now);
+            KeeperSociety.remember((ServerLevel) keeper.level(), keeper);
         }
     }
 }

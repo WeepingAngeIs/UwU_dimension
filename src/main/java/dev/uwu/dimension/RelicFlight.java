@@ -164,13 +164,14 @@ public final class RelicFlight extends ThrowableItemProjectile {
         // own no-gravity phase after impact or timeout.
         flight.setNoGravity(wave);
         flight.physicalWeapon = physical;
+        // A saved projectile is a visual from birth, even if another join listener saves the level.
+        flight.reserved = physical;
         flight.physicalOwner = physical ? owner.getUUID() : null;
         flight.returnHand = hand;
         flight.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0, wave ? 1.5F : physical ? 2.05F : 1.8F, 0);
         if (!level.addFreshEntity(flight)) return null;
         if (physical) {
             RelicReturns.reserve(owner, flight, display, hand);
-            flight.reserved = true;
             owner.setItemInHand(hand, ItemStack.EMPTY);
             HeartCombatGlow.trail(level, flight.position(), element);
         }

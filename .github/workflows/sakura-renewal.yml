@@ -22,6 +22,7 @@ jobs:
         with:
           cache-read-only: false
       - run: ./gradlew build --stacktrace
+      - run: python3 ci/renewal-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
           name: UwU-Dimension-1.5.0-beta.1
@@ -81,7 +82,7 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 27m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee client-visit.log
           grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' client-visit.log
-          for frame in arrival armor-gallery village blush-reef mirror-court; do test -s "run/screenshots/$frame.png"; done
+          for frame in arrival armor-gallery village blush-reef roseglass-cavern moonwake-trench mirror-court; do test -s "run/screenshots/$frame.png"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:

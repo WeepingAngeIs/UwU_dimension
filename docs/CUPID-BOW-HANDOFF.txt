@@ -37,7 +37,7 @@ src/main/java/dev/uwu/dimension/CupidParticles.java
 src/main/java/dev/uwu/dimension/CupidParticleClient.java
 src/main/resources/assets/uwudimension/particles/pastel_heart.json
 src/main/resources/assets/uwudimension/textures/particle/pastel_heart.png
-  Define the pink heart particle, sprite, size, rise and fade. These are separate from the gold effect on a dropped bow.
+  Define the pink heart particle, sprite, rise and fade. The renewal branch sets the base quad size to 0.15 instead of 0.43. Arrow trails, impacts and charm pulses honor the viewer's Sakura effects setting; Quiet retains a small pink-heart cue. The dropped bow has its own gold effect.
 
 src/main/java/dev/uwu/dimension/HeartCombatGlow.java
 src/main/java/dev/uwu/dimension/HeartFlashLightBlock.java

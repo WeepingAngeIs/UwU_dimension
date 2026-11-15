@@ -28,7 +28,7 @@ final class HeartwaterLocket extends Item {
         ItemStack stack = user.getItemInHand(hand);
         if (!(user instanceof ServerPlayer player)) return InteractionResultHolder.sidedSuccess(stack, true);
         if (ReefLife.isReach(level) && player.isShiftKeyDown()) {
-            BlockPos reef = ReefCharts.nearest(player.serverLevel(), player.blockPosition(), 0);
+            BlockPos reef = ReefCharts.bearing(player.serverLevel(), player.blockPosition());
             player.displayClientMessage(Component.literal(reef == null ? "The locket cannot find reef waters nearby."
                     : "Blush Reef waters · X " + reef.getX() + "  Z " + reef.getZ()), false);
             player.getCooldowns().addCooldown(this, 80);

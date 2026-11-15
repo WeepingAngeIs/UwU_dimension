@@ -22,6 +22,15 @@ if [[ "$UWU_FIELD_SEED" = 4372191 ]]; then
   mv candidate/*.jar mods/
 fi
 for visit in first restart; do
-  UWU_RENEWAL=1 timeout 15m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$visit.log"
-  if [[ "$visit" = first ]]; then grep -F 'SAKURA RENEWAL SERVER PASS' first.log; else grep -F 'SAKURA DISK RESTART PASS' restart.log; fi
+  UWU_RENEWAL=1 timeout 24m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$visit.log"
+  if [[ "$visit" = first ]]; then
+    grep -F 'VILLAGE RENEWAL PASS' first.log
+    if [[ "$UWU_FIELD_SEED" = 152045 ]]; then grep -F 'VILLAGE LIFE PASS' first.log; fi
+    grep -F 'MIRROR COURT PASS' first.log
+    grep -F 'SAKURA RENEWAL SERVER PASS' first.log
+    test -s mirror-checkpoint.properties
+  else
+    grep -F 'MIRROR COURT DISK RESTART PASS' restart.log
+    grep -F 'SAKURA DISK RESTART PASS' restart.log
+  fi
 done

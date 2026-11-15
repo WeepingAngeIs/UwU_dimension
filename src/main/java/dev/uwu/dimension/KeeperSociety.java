@@ -121,10 +121,10 @@ final class KeeperSociety extends SavedData {
             for (var level : player.server.getAllLevels()) {
                 if (level.getEntity(row.getKey()) instanceof Keeper) { loaded = true; break; }
             }
-            player.sendSystemMessage(Component.literal(e.name() + " · " + e.job() + " · " + e.faction()
-                    + " · " + (e.settled() ? "settled" : "following") + " · " + (loaded ? "loaded" : "unloaded / last seen")
-                    + " · " + e.realm() + " " + e.lastSeen().toShortString()
-                    + (e.home() == null ? "" : " · home " + e.home().toShortString())));
+            player.sendSystemMessage(Component.literal(e.name() + " Â· " + e.job() + " Â· " + e.faction()
+                    + " Â· " + (e.settled() ? "settled" : "following") + " Â· " + (loaded ? "loaded" : "unloaded / last seen")
+                    + " Â· " + e.realm() + " " + e.lastSeen().toShortString()
+                    + (e.home() == null ? "" : " Â· home " + e.home().toShortString())));
         }
         if (roster.isEmpty()) player.sendSystemMessage(Component.literal("No recorded companions yet. Meet a keeper with four emeralds."));
         return roster.size();

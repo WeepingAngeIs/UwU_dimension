@@ -42,17 +42,10 @@ public final class HeartArrow extends Arrow {
     @Override public void tick() {
         super.tick();
         if (!isAlive()) return;
-        if (level().isClientSide) {
-            if (!rippleBow()) {
-                double offsetX = (random.nextDouble() - .5) * .06;
-                double offsetZ = (random.nextDouble() - .5) * .06;
-                level().addParticle(CupidParticles.PASTEL_HEART.get(), getX() + offsetX, getY(), getZ() + offsetZ,
-                        0, .015, 0);
-            }
-        } else if (level() instanceof ServerLevel server) {
+        if (level() instanceof ServerLevel server) {
             if (rippleBow())
                 server.sendParticles(ParticleTypes.GLOW, getX(), getY(), getZ(), 1, .025, .025, .025, 0);
-            HeartCombatGlow.trail(server, position(), rippleBow() ? 1 : 0, false);
+            HeartCombatGlow.trail(server, position(), rippleBow() ? 1 : 0, !rippleBow());
         }
     }
 
@@ -80,7 +73,7 @@ public final class HeartArrow extends Arrow {
 
     private static void heartBurst(ServerLevel level, Vec3 center, boolean ripple) {
         if (ripple) return;
-        level.sendParticles(CupidParticles.PASTEL_HEART.get(), center.x, center.y, center.z,
+        HeartCombatGlow.charmHearts(level, center.x, center.y, center.z,
                 20, .24, .30, .24, .035);
     }
 

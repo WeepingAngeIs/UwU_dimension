@@ -32,7 +32,7 @@ public final class FieldCamera {
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","blush-reef","roseglass-cavern","moonwake-trench","mirror-court"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -58,6 +58,7 @@ public final class FieldCamera {
         if(FURNISHINGS)return FurnishingCamera.view(p,name);
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
+        if (name.equals("roseglass-cavern") || name.equals("moonwake-trench")) return StrataCamera.frame(p,arrival,name);
         if(name.equals("grove-water")){SeaWatch.reset();return SeaWatch.inland(p,arrival.offset(345,0,-560));}
         if(name.endsWith("reef")){
             var origin=previousReef==null?arrival.offset(725,0,349):previousReef.offset(1050,0,-1120);
@@ -66,17 +67,18 @@ public final class FieldCamera {
             previousReef=BlockPos.containing(reef.eye());SeaWatch.reset();return reef;
         }
         if (name.equals("armor-gallery")) {
-            BlockPos plinth=GroveSites.arrival(l).above(7);
-            for(int i=-3;i<=3;i++) for(int j=-1;j<=1;j++) l.setBlockAndUpdate(plinth.offset(i,0,j),net.minecraft.world.level.block.Blocks.CALCITE.defaultBlockState());
+            BlockPos plinth=BlossomVillage.first(l,false).plaza().offset(1,0,2);
+            l.getChunkAt(plinth);
+            for(int i=-2;i<=2;i++) for(int j=-1;j<=1;j++) l.setBlockAndUpdate(plinth.offset(i,0,j),net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ.defaultBlockState());
             for(int i=0;i<2;i++) {
                 var stand=net.minecraft.world.entity.EntityType.ARMOR_STAND.create(l);
-                stand.moveTo(plinth.getX()-.7+i*2.4,plinth.getY()+1,plinth.getZ()+.5,0,0);
+                stand.moveTo(plinth.getX()-.32+i*1.66,plinth.getY()+1,plinth.getZ()+.5,0,0);
                 String set=i==0?"petalweave":"nightbriar";
                 var types=new net.minecraft.world.item.ArmorItem.Type[]{net.minecraft.world.item.ArmorItem.Type.HELMET,net.minecraft.world.item.ArmorItem.Type.CHESTPLATE,net.minecraft.world.item.ArmorItem.Type.LEGGINGS,net.minecraft.world.item.ArmorItem.Type.BOOTS};
                 for(var type:types) stand.setItemSlot(type.getSlot(),new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:"+set+"_"+type.getName()))));
                 l.addFreshEntity(stand);
             }
-            return frame(name,point(plinth).add(.2,2.1,5),point(plinth).add(0,1.5,0));
+            return frame(name,point(plinth).add(.1,1.8,2.9),point(plinth).add(0,1.45,0));
         }
         if(name.equals("arrival"))return frame(name,point(arrival).add(0,1.2,0),point(site.pos(0,site.entryY()+4,site.lip())));
         if(name.equals("offsite-terrain")){
@@ -135,6 +137,9 @@ public final class FieldCamera {
         p.server.overworld().setDayTime(2100);p.server.overworld().setWeatherParameters(9000,0,false,false);
         p.getAbilities().invulnerable=true;p.getAbilities().mayfly=true;p.getAbilities().flying=true;p.onUpdateAbilities();
         p.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,20000,0,false,false));
+        if(v.file().equals("roseglass-cavern") || v.file().equals("moonwake-trench"))
+            p.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION,20000,0,false,false));
+        else p.removeEffect(MobEffects.NIGHT_VISION);
         p.teleportTo(p.serverLevel(),v.eye().x,v.eye().y-p.getEyeHeight(),v.eye().z,yaw,pitch);
     }
     @SubscribeEvent public static void step(ClientTickEvent.Post event){
@@ -210,7 +215,7 @@ public final class FieldCamera {
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
-            if(index==0&&!SEA&&!RENEWAL){MusicProof.surface();WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}
+            if(index==0&&!SEA){MusicProof.surface();if(!RENEWAL){WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}}
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             if(view.file().equals("keeper-family"))server.execute(FamilyCamera::release);

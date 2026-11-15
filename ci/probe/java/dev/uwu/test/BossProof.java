@@ -202,7 +202,7 @@ public final class BossProof {
             vale.player.setShiftKeyDown(false);
             var again=livingMoths(level,center);
             require(again.size()==1 && !again.getFirst().getUUID().equals(moth.getUUID()) && again.getFirst().getHealth()==500,"Court did not restart cleanly");
-            if ("152045".equals(System.getenv("UWU_FIELD_SEED"))) {
+            if ("152045".equals(System.getenv("UWU_FIELD_SEED")) || System.getenv("UWU_RENEWAL")!=null) {
                 moth=again.getFirst();
                 moth.hurt(level.damageSources().playerAttack(vale.player),27);
                 require(moth.getHealth()==473,"Restart specimen did not retain initial damage");

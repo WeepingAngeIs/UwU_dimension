@@ -35,7 +35,7 @@ public final class VillageRenewalProof {
         require(level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(pos)), "Village fixture entity chunk is not loaded");
         try (var guest = new ChestProof.Visitor(level, pos, "RenewalVisitor", UUID.randomUUID())) {
             var visitor = guest.player;
-            visitor.moveTo(pos.getX()+.5, pos.getY()+1, pos.getZ()+.5, 0, 90);
+            visitor.moveTo(pos.getX()+.5, pos.getY()+2.25, pos.getZ()+.5, 0, 90);
             level.addNewPlayer(visitor);
             try {
                 interactions(level, pos, visitor);
@@ -102,16 +102,86 @@ public final class VillageRenewalProof {
             require(visitor.getMainHandItem().isEmpty() && command(level,visitor,"keepers roster")==2, "Reconciliation lost former recruit");
             dusk.setTarget(petal);
             require(dusk.getTarget()==null, "Opposing companions fought at a shared base");
-            var zombie = dusk.convertTo(net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, false);
-            require(zombie instanceof ZombieVillager && zombie.getType()==People.DUSK_ZOMBIE.get(),
-                    "Converting Dusk keeper selected a vanilla zombie villager");
-            zombie.discard();
-            petal.discard();
-            System.out.println("VILLAGE RENEWAL PASS | seven planted crops, bonemeal and correct harvest, source-water pad collision, deliberate solo readiness, no duplicate boss, recruit preview, truce, two-companion roster, keeper title, Dusk zombie identity");
+            conversion(level, visitor, dusk, true);
+            conversion(level, visitor, petal, false);
+            commons(level);
+            System.out.println("VILLAGE RENEWAL PASS | seven planted crops, bonemeal and correct harvest, source-water pad collision, deliberate solo readiness, no duplicate boss, recruit preview, truce, two-companion roster, keeper titles, both factions zombified and cured, personal commons claims");
         } finally {
             level.setBlockAndUpdate(pos,original);
             level.setBlockAndUpdate(pos.above(),above);
         }
+    }
+
+    private static void conversion(ServerLevel level, ServerPlayer player, dev.uwu.dimension.Keeper keeper, boolean dusk) {
+        var difficulty = level.getDifficulty();
+        var killer = net.minecraft.world.entity.EntityType.ZOMBIE.create(level);
+        var place = keeper.getBoundingBox().inflate(1);
+        String name = keeper.getName().getString();
+        var expected = dusk ? People.DUSK_ZOMBIE.get() : People.PETAL_ZOMBIE.get();
+        try {
+            level.getServer().setDifficulty(net.minecraft.world.Difficulty.HARD,true);
+            killer.moveTo(keeper.position());
+            require(level.addFreshEntity(killer), "Could not add attacking zombie");
+            keeper.hurt(level.damageSources().mobAttack(killer), 999);
+            var infected = level.getEntitiesOfClass(ZombieVillager.class, place,
+                    entity -> entity.getType()==expected && name.equals(entity.getName().getString()));
+            require(infected.size()==1 && keeper.isRemoved(),"Killing "+name+" failed to produce faction zombie");
+            var undead = infected.getFirst();
+            undead.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS,200));
+            player.setShiftKeyDown(false);
+            player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.GOLDEN_APPLE));
+            undead.interact(player,InteractionHand.MAIN_HAND);
+            require(undead.isConverting() && player.getMainHandItem().isEmpty(),"Cure did not accept weakness and golden apple");
+            var saved=undead.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+            saved.putInt("ConversionTime",1);
+            undead.load(saved);
+            undead.tick();
+            var healed=level.getEntitiesOfClass(dev.uwu.dimension.Keeper.class,place,entity ->
+                    entity.getType()==keeper.getType() && name.equals(entity.getName().getString()));
+            require(healed.size()==1 && undead.isRemoved(),"Cure lost "+name+"'s faction");
+            var restored=healed.getFirst().saveWithoutId(new net.minecraft.nbt.CompoundTag());
+            require(restored.hasUUID("Companion") && restored.getUUID("Companion").equals(player.getUUID()),
+                    "Cure lost the keeper's owner");
+            healed.getFirst().discard();
+        } finally {
+            killer.discard();
+            level.getServer().setDifficulty(difficulty,true);
+        }
+    }
+
+    private static void commons(ServerLevel level) {
+        var village=dev.uwu.dimension.BlossomVillage.first(level,false);
+        var bell=village.site().pos(village.x()+2,village.y()+1,village.z()-2);
+        require(level.getBlockState(bell).is(Blocks.BELL),"Missing commons bell in generated Petal plaza at "+bell);
+        var supply=BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:sakura_rice_seeds"));
+        var prize=BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:heartbloom_sapling"));
+        try(var first=new ChestProof.Visitor(level,bell,"GardenReed",UUID.randomUUID());
+            var second=new ChestProof.Visitor(level,bell,"GardenIris",UUID.randomUUID())) {
+            for (var guest : java.util.List.of(first,second)) guest.player.setShiftKeyDown(true);
+            first.player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(supply,3));
+            interactCommons(level, bell, first.player);
+            require(first.player.getMainHandItem().isEmpty(),"First contribution not consumed");
+            interactCommons(level, bell, first.player);
+            require(first.player.getInventory().countItem(prize)==0,"Premature commons claim succeeded");
+            second.player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(supply,5));
+            interactCommons(level, bell, second.player);
+            require(second.player.getMainHandItem().isEmpty(),"Second contribution not consumed");
+            for (var guest : java.util.List.of(first,second)) {
+                interactCommons(level, bell, guest.player);
+                require(guest.player.getInventory().countItem(prize)==1,"Contributor did not receive personal sapling");
+                guest.player.getInventory().removeItemNoUpdate(guest.player.getInventory().selected);
+                interactCommons(level,bell,guest.player);
+                require(guest.player.getInventory().countItem(prize)==0,"Contributor could claim twice");
+            }
+        }
+    }
+
+    private static void interactCommons(ServerLevel level, BlockPos bell, ServerPlayer player) {
+        var ray=new BlockHitResult(Vec3.atCenterOf(bell),Direction.UP,bell,false);
+        var event=new net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock(
+                player, InteractionHand.MAIN_HAND,bell,ray);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(event);
+        require(event.isCanceled() && event.getCancellationResult().consumesAction(),"Commons declined its plaza bell");
     }
 
     private static void crops(ServerLevel level, BlockPos soil, ServerPlayer player) {

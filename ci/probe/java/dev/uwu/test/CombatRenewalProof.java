@@ -37,6 +37,7 @@ public final class CombatRenewalProof {
             charm(level, at, owner.player);
             landing(level, owner.player);
             returns(level, owner.player);
+            deathDuringThrow(level, at);
             guardian(level, at);
             saveAcrossRestart(level, owner.player);
         }
@@ -225,6 +226,69 @@ public final class CombatRenewalProof {
         require(player.getInventory().countItem(sword) == 1 && escrow.isEmpty(), "Return duplicated a sword");
     }
 
+    private static void deathDuringThrow(ServerLevel level, BlockPos at) {
+        UUID id = UUID.randomUUID();
+        var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
+        try (var original = new ChestProof.Visitor(level, at, "PetalKnight", id);
+             var replacement = new ChestProof.Visitor(level, at, "PetalKnight", id)) {
+            var before = original.player;
+            var after = replacement.player;
+            var held = new ItemStack(sword);
+            held.set(DataComponents.CUSTOM_NAME, Component.literal("Petal Knight's Keepsake"));
+            before.setItemInHand(InteractionHand.MAIN_HAND, held);
+            held.use(level, before, InteractionHand.MAIN_HAND);
+            var flight = level.getEntitiesOfClass(RelicFlight.class, before.getBoundingBox().inflate(4),
+                    f -> f.getOwner()==before).getFirst();
+            before.setHealth(0);
+            before.die(before.damageSources().genericKill());
+            flight.tick();
+            require(!flight.isAlive() && before.getInventory().countItem(sword)==0, "Dead owner received a relic");
+            after.restoreFrom(before, false);
+            after.tickCount = 20;
+            NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(after));
+            NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(after));
+            var caught = after.getMainHandItem();
+            require(caught.is(sword) && caught.getDamageValue()==1
+                    && caught.getHoverName().getString().equals("Petal Knight's Keepsake")
+                    && after.getInventory().countItem(sword)==1, "Player respawn lost or duplicated the thrown stack");
+        }
+    }
+
+    private static void blockedCrowd(ServerLevel level, BlockPos at, BlossomWarden guardian,
+            CompoundTag save, net.minecraft.world.entity.LivingEntity reachable) {
+        BlockPos prison = at.offset(4, 0, 4);
+        var trapped = EntityType.HUSK.create(level);
+        trapped.moveTo(prison.getX()+.5, prison.getY(), prison.getZ()+.5);
+        level.addFreshEntity(trapped);
+        var removed = new java.util.HashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
+        try {
+            // An enclosed target offers no collision-free adjacent intercept position.
+            for (int x=-2; x<=2; x++) for (int z=-2; z<=2; z++) {
+                if (x==0 && z==0) continue;
+                var pos = prison.offset(x, 1, z);
+                removed.put(pos, level.getBlockState(pos));
+                level.setBlock(pos, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(), 2);
+            }
+            var queue = new net.minecraft.nbt.ListTag();
+            for (UUID id : new UUID[]{trapped.getUUID(), reachable.getUUID()}) {
+                CompoundTag entry = new CompoundTag();
+                entry.putUUID("Offender", id);
+                queue.add(entry);
+            }
+            save.put("Offenders", queue);
+            save.putInt("PursueTicks", 599);
+            guardian.load(save);
+            reachable.moveTo(at.getX()+1, at.getY(), at.getZ());
+            guardian.aiStep();
+            require(reachable.getUUID().equals(guardian.offender()), "A blocked enemy starved the reachable queue");
+            guardian.aiStep();
+            require(guardian.gripping(), "Guardian ignored the next reachable enemy");
+        } finally {
+            removed.forEach((pos, original)->level.setBlock(pos, original, 2));
+            trapped.discard();
+        }
+    }
+
     private static void guardian(ServerLevel level, BlockPos at) {
         BlossomWarden guardian = People.BLOSSOM_WARDEN.get().create(level);
         var threat = EntityType.HUSK.create(level);
@@ -273,6 +337,7 @@ public final class CombatRenewalProof {
                 guardian.aiStep();
             }
             require(guardian.gripping(), "Stalled pursuit failed to intercept");
+            blockedCrowd(level, at, guardian, save, threat);
             var handmade = EntityType.IRON_GOLEM.create(level);
             handmade.moveTo(at.getX(), at.getY()+4, at.getZ());
             handmade.setPlayerCreated(true);

@@ -9,6 +9,28 @@ import net.minecraft.world.level.levelgen.Heightmap;
 /** Uses biome noise before requesting terrain. Checks real water depth at the selected column. */
 public final class ReefCharts {
     private ReefCharts() {}
+    /** A locket gives directions from generator data alone, even when the destination is unloaded. */
+    static BlockPos bearing(ServerLevel level, BlockPos origin) {
+        var chunks = level.getChunkSource();
+        var generator = chunks.getGenerator();
+        var noise = chunks.randomState();
+        int sea = generator.getSeaLevel();
+        for (int ring = 0; ring <= 24; ring++) {
+            for (int dx = -ring; dx <= ring; dx++) {
+                // Only the west/east edges contain interior z offsets.
+                int stride = Math.abs(dx) == ring ? 1 : 2 * ring;
+                for (int dz = -ring; dz <= ring; dz += stride) {
+                    int x = origin.getX() + dx * 64, z = origin.getZ() + dz * 64;
+                    if (!generator.getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x),QuartPos.fromBlock(sea-5),
+                            QuartPos.fromBlock(z),noise.sampler()).is(ReefLife.REEF)) continue;
+                    if (generator.getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,level,noise) <= sea-8)
+                        return new BlockPos(x,sea-5,z);
+                }
+            }
+        }
+        return null;
+    }
+
     public static BlockPos nearest(ServerLevel level, BlockPos origin, int skipRadius) {
         return nearest(level,origin,skipRadius,null,0);
     }

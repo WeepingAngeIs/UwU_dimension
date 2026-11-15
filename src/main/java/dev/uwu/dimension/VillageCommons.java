@@ -89,7 +89,7 @@ final class VillageCommons extends SavedData {
         if (match == null) {
             if (GroveSites.adventure(level,site)) {
                 BlockPos falls = site.pos(0,site.entryY(),site.lip());
-                tell(player, "Waterfall trail · Follow the spring to X " + falls.getX() + ", Z " + falls.getZ() +
+                tell(player, "Waterfall trail Â· Follow the spring to X " + falls.getX() + ", Z " + falls.getZ() +
                         ". The tideglass marks a passage behind the water.");
             }
             for (var project : Project.values()) {

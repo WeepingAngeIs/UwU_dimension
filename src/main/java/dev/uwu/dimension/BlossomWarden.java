@@ -56,6 +56,7 @@ public final class BlossomWarden extends PathfinderMob {
             SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BOOLEAN);
     public boolean female() { return entityData.get(FEMALE); }
     private final ArrayDeque<UUID> offenders = new ArrayDeque<>();
+    private final Map<UUID, Long> unreachableUntil = new HashMap<>();
     private BlockPos court;
     private int pursueTicks, motionTicks, missingTicks, stallTicks;
     private double bestGap = Double.MAX_VALUE;
@@ -156,7 +157,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private void accuse(LivingEntity culprit) {
-        if (culprit == this || !culprit.isAlive() || culprit.getPersistentData().contains(GuardianFlight.STATE) || offenders.contains(culprit.getUUID())) return;
+        if (culprit == this || !culprit.isAlive() || temporarilyUnreachable(culprit) || culprit.getPersistentData().contains(GuardianFlight.STATE) || offenders.contains(culprit.getUUID())) return;
         accuse(culprit.getUUID());
     }
 
@@ -224,6 +225,8 @@ public final class BlossomWarden extends PathfinderMob {
             if (!inReach && (stallTicks >= STALL_LIMIT || pursueTicks >= 600)) {
                 Vec3 landing = interceptPosition(level, culprit);
                 if (landing == null) {
+                    // Give the other threats a turn while this target remains boxed in.
+                    unreachableUntil.put(culprit.getUUID(), level.getGameTime()+100);
                     finish(level);
                     return;
                 }
@@ -271,7 +274,13 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
 
+    private boolean temporarilyUnreachable(LivingEntity target) {
+        return unreachableUntil.getOrDefault(target.getUUID(), 0L) > level().getGameTime()
+                && distanceToSqr(target) > reachSquared(target);
+    }
+
     private void acquireThreat(ServerLevel level) {
+        unreachableUntil.values().removeIf(expiry -> expiry <= level.getGameTime());
         AABB area = new AABB(this.court).inflate(48.0D);
         List<Keeper> keepers = level.getEntitiesOfClass(Keeper.class, area,
                 keeper -> keeper.isAlive()
@@ -283,7 +292,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private boolean isHostileThreat(Mob mob, List<Keeper> keepers) {
-        if (mob == this || mob instanceof BlossomWarden || mob instanceof Keeper || !mob.isAlive()) return false;
+        if (mob == this || mob instanceof BlossomWarden || mob instanceof Keeper || !mob.isAlive() || temporarilyUnreachable(mob)) return false;
         if (mob.getPersistentData().contains(GuardianFlight.STATE) || !(mob instanceof Enemy)) return false;
         boolean guardsNearby = distanceToSqr(mob) <= 24 * 24 && hasLineOfSight(mob);
         return guardsNearby || keepers.stream().anyMatch(keeper -> mob.distanceToSqr(keeper) <= 24.0D * 24.0D);

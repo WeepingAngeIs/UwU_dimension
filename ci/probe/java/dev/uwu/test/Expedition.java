@@ -31,21 +31,36 @@ public class Expedition {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
             if (System.getenv("UWU_RENEWAL") != null) {
+                boolean restart = java.nio.file.Files.exists(java.nio.file.Path.of("first-site.txt"));
                 if (stage == 0) {
-                    level.setChunkForced(0, 0, true);
+                    if (restart && !BossProof.verifyRestart(level)) return;
+                    if (level.setChunkForced(0, 0, true)) arenaTickets.add(new net.minecraft.world.level.ChunkPos(0,0));
                     arenaReadyAt = level.getGameTime() + 40;
                     stage = 1;
                     return;
                 }
-                if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(0,0))) {
-                    if (level.getGameTime() - arenaReadyAt > 400) throw new AssertionError("Arena entity data unavailable");
+                if (stage == 1) {
+                    if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(0,0))) {
+                        if (level.getGameTime() - arenaReadyAt > 400) throw new AssertionError("Arena entity data unavailable");
+                        return;
+                    }
+                    if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
+                    try {
+                        RenewalProof.run(level);
+                    } finally {
+                        for (var chunk : arenaTickets) level.setChunkForced(chunk.x,chunk.z,false);
+                        arenaTickets.clear();
+                    }
+                    if (!restart) { stage = 2; return; }
+                } else if (stage == 2) {
+                    if ("152045".equals(System.getenv("UWU_FIELD_SEED"))
+                            && !VillageProof.tick(level,GroveSites.village(level,false))) return;
+                    stage = 3;
                     return;
-                }
-                if (level.getGameTime() < arenaReadyAt || !AmbienceProof.tick(level)) return;
-                try {
-                    RenewalProof.run(level);
-                } finally {
-                    level.setChunkForced(0, 0, false);
+                } else if (stage == 3) {
+                    var site = GroveSites.first(level);
+                    if (!site.usable()) throw new AssertionError("Both hosted seeds should have a generated Mirror Court");
+                    if (!BossProof.tick(level,site.pos(-7,-17,146))) return;
                 }
                 stage = -1;
                 server.halt(false);

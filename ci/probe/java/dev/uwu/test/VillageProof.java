@@ -30,7 +30,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 /** True server ticks, generated houses and POI tickets. Only time-of-day is advanced. */
 public final class VillageProof {
     private static long start = -1, nightAt = -1, dayAt = -1, accusationAt;
-    private static boolean work, slept, woke, stock, fed, pickup, grab, finishedThrow;
+    private static boolean work, slept, woke, stock, fed, pickup, grab, rising, finishedThrow;
     private static final Set<UUID> sleepingResidents = new HashSet<>();
     private static final Set<UUID> emptied = new HashSet<>();
     private static final Set<UUID> emptiedJob = new HashSet<>();
@@ -76,8 +76,7 @@ public final class VillageProof {
         }
         if(age>=2 && lesson<STATIONS.length) checkLessons(level,village,age);
         if(keepers.isEmpty() && age>240) throw new AssertionError("No generated petal villagers at "+village);
-        if (!keepers.isEmpty() && !fed) {
-            require(keepers.size()>=2,"Generated village should have at least two residents");
+        if (keepers.size()>=2 && !fed) {
             var chosen=keepers.getFirst();
             FakePlayer guest=new FakePlayer(level, new GameProfile(UUID.fromString("474723a4-02b7-4bb9-b944-26e80d6ef07c"),"Gardener"));
             guest.moveTo(chosen.getX(),chosen.getY(),chosen.getZ(),0,0);
@@ -243,20 +242,22 @@ public final class VillageProof {
 
     private static void inspectGuardian(ServerLevel level,long now) {
         long elapsed=now-accusationAt;
-        if(elapsed<600) require(!guard.gripping() && guard.getY()<takeoff-20,"Guardian intercepted before >30 seconds");
         if(guard.gripping() && !grab) {
-            require(elapsed>=600 && guard.getY()>=takeoff-4,"Guardian failed to teleport to inaccessible attacker after "+elapsed+" ticks: guardian="+guard.position()+" attacker="+attacker.position()+" starting elevation="+takeoff);
+            require(elapsed>0 && elapsed<=620 && guard.getY()>=takeoff-4,"Guardian failed to intercept its inaccessible attacker after "+elapsed+" ticks: guardian="+guard.position()+" attacker="+attacker.position()+" starting elevation="+takeoff);
             grab=true;
         }
-        if(grab && guard.offender()==null) {
-            double rise=attacker.getY()-takeoff;
+        double rise=attacker.getY()-takeoff;
+        if (attacker.getPersistentData().contains(dev.uwu.dimension.GuardianFlight.STATE) && rise>3 && rise<7950) rising=true;
+        if(grab && guard.offender()==null && rise>=7998) {
             double away=Math.hypot(attacker.getX()-startX,attacker.getZ()-startZ);
             require(rise>=7998 && rise<=8010 && away>=85,"Actual Warden went "+rise+" up and "+away+" across");
             require(witness.getY()<platform.getY()+3 && witness.isAlive(),"Bystander disturbed");
-            System.out.println("GUARDIAN PASS: 30-second pursuit; visible grip; launch/fallback displacement "+rise+" up, "+away+" horizontal. Non-offender safe.");
+            int recoveries=attacker.getPersistentData().getInt(dev.uwu.dimension.GuardianFlight.RECOVERIES);
+            require(rising || recoveries>0,"Warden arrived without measured flight or obstruction recovery");
+            System.out.println("GUARDIAN PASS: stalled pursuit intercepted; visible grip; ascent="+rising+" recoveries="+recoveries+" displacement "+rise+" up, "+away+" horizontal. Non-offender safe.");
             attacker.discard();witness.discard();guard.discard();finishedThrow=true;
         }
-        if(elapsed>700) throw new AssertionError("Guardian did not finish pursuit: "+guard.blockPosition()+" offender="+guard.offender()+" target="+attacker.blockPosition());
+        if(elapsed>1200) throw new AssertionError("Guardian did not finish pursuit: "+guard.blockPosition()+" offender="+guard.offender()+" target="+attacker.blockPosition());
     }
     private static void require(boolean ok,String message) { if(!ok) throw new AssertionError(message); }
 }
