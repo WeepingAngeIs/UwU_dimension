@@ -66,6 +66,8 @@ public final class CounterArsenal {
                 properties.component(net.minecraft.core.component.DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
             if (entry.shape().equals("scythe"))
                 properties.component(net.minecraft.core.component.DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_HOE));
+            if (entry.shape().equals("hammer"))
+                properties.component(net.minecraft.core.component.DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_PICKAXE));
             return properties;
         }
         @Override public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
@@ -76,11 +78,12 @@ public final class CounterArsenal {
         @Override public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility ability) {
             return (entry.shape().equals("axe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(ability))
                 || (entry.shape().equals("scythe") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_HOE_ACTIONS.contains(ability))
+                || (entry.shape().equals("hammer") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_PICKAXE_ACTIONS.contains(ability))
                 || (entry.shape().equals("spear") && net.neoforged.neoforge.common.ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(ability));
         }
         @Override public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
                 net.minecraft.core.BlockPos pos, LivingEntity user) {
-            if ((entry.shape().equals("axe") || entry.shape().equals("scythe")) && !level.isClientSide
+            if ((entry.shape().equals("axe") || entry.shape().equals("scythe") || entry.shape().equals("hammer")) && !level.isClientSide
                     && state.getDestroySpeed(level, pos) != 0)
                 stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
             return true;
@@ -93,6 +96,7 @@ public final class CounterArsenal {
             if(!entry.shape().equals("whip"))tips.add(Component.literal("Innate Swift Loyalty III • returns to your hand").withStyle(ChatFormatting.AQUA));
             tips.add(Component.literal("Use to cast • "+entry.damage()+" damage • 8-second matching ward").withStyle(ChatFormatting.GRAY));
             if(entry.runic())tips.add(Component.literal("Also cleanses rolled runic ailments during the ward.").withStyle(ChatFormatting.AQUA));
+            if(entry.shape().equals("hammer"))tips.add(Component.literal("Crouch and mine for a 9 × 9 plane when server area mining is enabled.").withStyle(ChatFormatting.GRAY));
         }
         @Override public InteractionResultHolder<ItemStack> use(Level world,Player p,InteractionHand hand){
             ItemStack stack=p.getItemInHand(hand);

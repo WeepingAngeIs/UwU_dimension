@@ -1,0 +1,50 @@
+name: Sakura environment visual proof
+on:
+  push:
+    branches: [feature/sakura-art-implementation]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  environment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      UWU_VISIT: environment
+      UWU_FIELD_SEED: 152045
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Photograph generated spring and snowy biomes
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
+          printf 'particles:0\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 28m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee environment-client.log
+          grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' environment-client.log
+          grep -F 'ENVIRONMENT SPRING BED PASS' environment-client.log
+          grep -F 'ENVIRONMENT SPRING PLAYER IN WATER PASS' environment-client.log
+          grep -F 'ENVIRONMENT SNOW WEATHER PASS snow-petal' environment-client.log
+          grep -F 'ENVIRONMENT SNOW WEATHER PASS snow-dusk' environment-client.log
+          for frame in spring-surface spring-overlay snow-petal snow-dusk; do test -s "run/screenshots/$frame.png"; done
+          if grep -Fq 'ENVIRONMENT GIANT TREE PASS' environment-client.log; then test -s run/screenshots/giant-sakura.png; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sakura-environment-client
+          path: |
+            run/screenshots
+            run/logs/latest.log
+            run/crash-reports
+            environment-client.log
+

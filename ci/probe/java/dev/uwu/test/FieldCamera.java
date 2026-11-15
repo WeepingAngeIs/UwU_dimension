@@ -28,11 +28,12 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
-    private static final boolean RENEWAL="renewal".equals(System.getenv("UWU_VISIT"));
+    private static final boolean ENVIRONMENT="environment".equals(System.getenv("UWU_VISIT"));
+    private static final boolean RENEWAL="renewal".equals(System.getenv("UWU_VISIT")) || ENVIRONMENT;
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine","treehouse-petal-exterior","treehouse-petal-interior","treehouse-dusk-exterior","treehouse-dusk-interior","petal-understory","dusk-understory"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=ENVIRONMENT?new String[]{"spring-surface","spring-overlay","snow-petal","snow-dusk","giant-sakura"}:RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine","treehouse-petal-exterior","treehouse-petal-interior","treehouse-dusk-exterior","treehouse-dusk-interior","petal-understory","dusk-understory"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -55,6 +56,7 @@ public final class FieldCamera {
     private static Vec3 point(BlockPos p){return Vec3.atCenterOf(p);}
     private static SeaWatch.View frame(String name,Vec3 eye,Vec3 subject){return new SeaWatch.View(eye,subject,name,false);}
     private static SeaWatch.View viewFor(ServerPlayer p,String name){
+        if(ENVIRONMENT)return EnvironmentCamera.frame(p,name);
         if(FURNISHINGS)return FurnishingCamera.view(p,name);
         ServerLevel l=p.serverLevel();var site=GroveSites.first(l);
         var arrival=GroveSites.arrival(l);
@@ -145,7 +147,9 @@ public final class FieldCamera {
     private static void place(ServerPlayer p,SeaWatch.View v){
         Vec3 d=v.subject().subtract(v.eye());
         float yaw=(float)Math.toDegrees(Math.atan2(-d.x,d.z)),pitch=(float)-Math.toDegrees(Math.atan2(d.y,Math.hypot(d.x,d.z)));
-        p.server.overworld().setDayTime((v.file().equals("sakura-night")||v.file().startsWith("lantern-"))?16500:2100);p.server.overworld().setWeatherParameters(9000,0,false,false);
+        p.server.overworld().setDayTime((v.file().equals("sakura-night")||v.file().startsWith("lantern-"))?16500:2100);
+        boolean snow=ENVIRONMENT&&v.file().startsWith("snow-");
+        p.server.overworld().setWeatherParameters(snow?0:9000,snow?12000:0,snow,false);
         p.getAbilities().invulnerable=true;p.getAbilities().mayfly=true;p.getAbilities().flying=true;p.onUpdateAbilities();
         p.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,20000,0,false,false));
         if(v.file().equals("rainbow-riverbed") || v.file().equals("roseglass-cavern") || v.file().equals("moonwake-trench"))
@@ -180,6 +184,7 @@ public final class FieldCamera {
             });return;
         }
         if(state.equals("arriving")&&mc.level.dimension().equals(ReefLife.REACH))enter("advance");
+        if(state.equals("skip")){index++;enter("advance");return;}
         if(state.equals("advance")){
             if(index==TOUR.length){
                 if(RENEWAL||SEA||VILLAGE||FURNISHINGS){enter("returning");server.execute(()->use(server.getPlayerList().getPlayer(id),false));}
@@ -193,7 +198,9 @@ public final class FieldCamera {
                 var p=server.getPlayerList().getPlayer(id);
                 try {
                     System.out.println("SURVEY START "+name);
-                    view=viewFor(p,name);readySince=0;observation=new SeaWatch.Observation(false,"");place(p,view);enter("pose");
+                    view=viewFor(p,name);readySince=0;observation=new SeaWatch.Observation(false,"");
+                    if(view==null){enter("skip");return;}
+                    place(p,view);enter("pose");
                     System.out.println("FIELD CAMERA "+name+" eye="+view.eye()+" subject="+view.subject());
                 } catch(Throwable error){cameraFailure=error;}
             });return;
@@ -211,7 +218,7 @@ public final class FieldCamera {
         }
         if(state.equals("pose")){
             boolean bowPortrait=view.file().startsWith("cupid-");
-            mc.options.hideGui=!bowPortrait||view.file().equals("cupid-angles");
+            mc.options.hideGui=!(ENVIRONMENT&&view.file().equals("spring-overlay"))&&(!bowPortrait||view.file().equals("cupid-angles"));
             if(mc.screen!=null && !(pantrySession && view.file().equals("pantry-gallery")) && mc.level.dimension().equals(ReefLife.REACH))mc.setScreen(null);
             if(view.sea()&&ticks%40==0)server.execute(()->{
                 var p=server.getPlayerList().getPlayer(id);boolean inland=view.file().equals("grove-water");SeaWatch.observe(p,inland);observation=SeaWatch.snapshot(inland);
@@ -235,6 +242,14 @@ public final class FieldCamera {
             }
             if(readySince==0)readySince=System.nanoTime();
             if(System.nanoTime()-readySince<10_000_000_000L||(view.sea()&&!sample.stocked()))return;
+            if(ENVIRONMENT&&view.file().equals("spring-overlay")) {
+                if(!mc.player.isInWater())throw new AssertionError("Spring overlay camera is not in water");
+                System.out.println("ENVIRONMENT SPRING PLAYER IN WATER PASS");
+            }
+            if(ENVIRONMENT&&view.file().startsWith("snow-")) {
+                if(!mc.level.isRaining())throw new AssertionError("Snow weather not active");
+                System.out.println("ENVIRONMENT SNOW WEATHER PASS "+view.file());
+            }
             if(view.file().equals("pantry-gallery")){
                 if(!pantrySession){PantryGallery.begin(mc);pantrySession=true;}
                 if(!PantryGallery.tick(mc))return;
@@ -250,7 +265,7 @@ public final class FieldCamera {
                 server.execute(()->RelicPortraits.restore(server.getPlayerList().getPlayer(id)));
                 index++;enter("advance");return;
             }
-            if(index==0&&!SEA){MusicProof.surface();if(!RENEWAL){WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}}
+            if(index==0&&!SEA&&!ENVIRONMENT){MusicProof.surface();if(!RENEWAL){WardrobeProof.verify(mc);HeartFloorClientProof.verify(mc);}}
             if(view.file().equals("sakura-night")) MusicProof.night(mc);
             if(view.sea()){MusicProof.water();System.out.println("SEA-LIFE PASS "+SEED+" "+view.file()+" "+sample.counts());}
             Screenshot.grab(mc.gameDirectory,view.file()+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));

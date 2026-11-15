@@ -60,13 +60,18 @@ public final class BellHammer {
         }
     }
 
-    private record Job(ServerLevel level, UUID owner, BlockPos center, long startTick, ArrayDeque<BlockPos> positions) {}
+    private record Job(ServerLevel level, UUID owner, ItemStack tool, BlockPos center, long startTick, ArrayDeque<BlockPos> positions) {}
+
+    private static boolean hammer(ItemStack stack) {
+        return stack.is(ITEM.get()) || (stack.getItem() instanceof CounterArsenal.CounterItem item
+                && item.entry.shape().equals("hammer"));
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void breakBlock(BlockEvent.BreakEvent event) {
         if (processing || event.isCanceled() || !AcquisitionPolicy.SPEC.isLoaded() || !AcquisitionPolicy.AREA_MINING.get()
                 || !(event.getPlayer() instanceof ServerPlayer player)
-                || !player.isShiftKeyDown() || !player.getMainHandItem().is(ITEM.get())
+                || !player.isShiftKeyDown() || !hammer(player.getMainHandItem())
                 || !SakuraAccess.mayInteract(player, event.getPos()) || JOBS.size() >= 32) return;
         if (!event.getState().is(BlockTags.MINEABLE_WITH_PICKAXE) || event.getState().hasBlockEntity()
                 || !player.getMainHandItem().isCorrectToolForDrops(event.getState())) return;
@@ -85,7 +90,7 @@ public final class BellHammer {
                 });
             }
         }
-        JOBS.add(new Job(player.serverLevel(), player.getUUID(), center,
+        JOBS.add(new Job(player.serverLevel(), player.getUUID(), player.getMainHandItem(), center,
                 player.serverLevel().getGameTime(), positions));
     }
 
@@ -98,7 +103,7 @@ public final class BellHammer {
             ServerPlayer player = event.getServer().getPlayerList().getPlayer(job.owner());
             if (!AcquisitionPolicy.SPEC.isLoaded() || !AcquisitionPolicy.AREA_MINING.get()
                     || player == null || !player.isAlive() || player.serverLevel() != job.level()
-                    || !player.getMainHandItem().is(ITEM.get())) { JOBS.remove(); continue; }
+                    || player.getMainHandItem() != job.tool() || !hammer(player.getMainHandItem())) { JOBS.remove(); continue; }
             if (job.level().getGameTime() <= job.startTick()) break;
             if (!job.level().hasChunkAt(job.center()) || !job.level().getBlockState(job.center()).isAir()) {
                 JOBS.remove();
