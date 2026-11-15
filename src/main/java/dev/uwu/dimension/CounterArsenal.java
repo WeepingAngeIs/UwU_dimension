@@ -26,11 +26,17 @@ public final class CounterArsenal {
     public static final List<Entry> ROSTER=load();
     public static final Map<String,Supplier<CounterItem>> ITEMS=new LinkedHashMap<>();
     private static final DeferredRegister.Items REGISTRY=DeferredRegister.createItems("uwudimension");
-    private static final Set<String> LEGACY_COMMON_BLADES = Set.of(
-        "counter_iron_longsword", "counter_gold_longsword", "counter_diamond_longsword",
-        "counter_netherite_longsword", "counter_runic_longsword",
-        "counter_iron_claymore", "counter_gold_claymore", "counter_diamond_claymore",
-        "counter_netherite_claymore", "counter_runic_claymore");
+    // One representative of each existing ability, shape, theme and runic combination.
+    // Other exact IDs remain registered and obtainable by retuning a held counter.
+    private static final Set<String> DIRECT_FORMS = Set.of(
+        "counter_iron_spear", "counter_iron_glaive", "counter_iron_twinblade", "counter_iron_rapier",
+        "counter_iron_greataxe", "counter_gold_greataxe", "counter_iron_greathammer", "counter_gold_greathammer",
+        "counter_iron_chakram", "counter_gold_chakram", "counter_runic_spear", "counter_runic_glaive",
+        "counter_runic_twinblade", "counter_runic_rapier", "counter_runic_greataxe", "counter_runic_greathammer",
+        "counter_runic_chakram", "counter_hearthflame", "counter_emberblade", "counter_watching_warglaive",
+        "counter_tainted_relic", "counter_toxic_longsword", "counter_the_devourer", "counter_frostfall",
+        "counter_storms_edge", "counter_thunderbrand", "counter_ionbound_stormscale", "counter_stormbringer",
+        "counter_soulstealer", "counter_soulrender", "counter_harbinger", "counter_hiveheart");
     private static List<Entry> load(){
         try(var stream=CounterArsenal.class.getResourceAsStream("/assets/uwudimension/counter_roster.json")){
             if(stream==null)throw new IllegalStateException("Missing counter roster");
@@ -39,12 +45,12 @@ public final class CounterArsenal {
     }
     public static Entry entry(String id){return ROSTER.stream().filter(e->e.id().equals(id)).findFirst().orElse(null);}
     /** Legacy counters remain registered so saved stacks and their exact matching wards keep working. */
-    static boolean active(Entry entry) {
-        return !LEGACY_COMMON_BLADES.contains(entry.id());
+    public static boolean active(Entry entry) {
+        return entry != null && DIRECT_FORMS.contains(entry.id());
     }
     static void register(IEventBus bus){
         for(Entry e:ROSTER)ITEMS.put(e.id(),REGISTRY.register(e.id(),()->new CounterItem(e)));
-        REGISTRY.register(bus);CounterEffects.register(bus);
+        REGISTRY.register(bus);CounterEffects.register(bus);CounterRetuning.register();
         bus.addListener((BuildCreativeModeTabContentsEvent e)->{
             if(e.getTabKey().equals(CreativeModeTabs.COMBAT))
                 ROSTER.stream().filter(CounterArsenal::active).forEach(entry -> e.accept(ITEMS.get(entry.id()).get()));
@@ -95,6 +101,7 @@ public final class CounterArsenal {
             tips.add(Component.literal(CounterEffects.description(entry.school())).withStyle(entry.theme().equals("dusk")?ChatFormatting.DARK_PURPLE:ChatFormatting.LIGHT_PURPLE));
             if(!entry.shape().equals("whip"))tips.add(Component.literal("Innate Swift Loyalty III • returns to your hand").withStyle(ChatFormatting.AQUA));
             tips.add(Component.literal("Use to cast • "+entry.damage()+" damage • 8-second matching ward").withStyle(ChatFormatting.GRAY));
+            tips.add(Component.literal("Retune to another target: /sakura counter").withStyle(ChatFormatting.GRAY));
             if(entry.runic())tips.add(Component.literal("Also cleanses rolled runic ailments during the ward.").withStyle(ChatFormatting.AQUA));
             if(entry.shape().equals("hammer"))tips.add(Component.literal("Crouch and mine for a 9 × 9 plane when server area mining is enabled.").withStyle(ChatFormatting.GRAY));
         }

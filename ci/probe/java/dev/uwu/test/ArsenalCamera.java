@@ -24,8 +24,8 @@ import net.neoforged.neoforge.client.event.*;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class ArsenalCamera {
     private static String state="menu";
-    private static int ticks,index;
-    private static boolean shot;
+    private static int ticks,index,shotTick;
+    private static boolean shot,thirdShot;
     private static UUID foeId;
     private static final Set<String> captured=new HashSet<>();
     private static final String[] IDS={"axolotl_whip","frost_whip","counter_soulrender","vesper_scythe","glitch_bow"};
@@ -57,7 +57,7 @@ public final class ArsenalCamera {
         if(state.equals("ready")&&ticks>100){state="equip";ticks=0;}
         if(state.equals("equip")){
             if(index>=IDS.length){state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());return;}
-            String id=IDS[index];state="armed";ticks=0;shot=false;captured.clear();
+            String id=IDS[index];state="armed";ticks=0;shot=false;thirdShot=false;shotTick=-1;captured.clear();
             server.execute(()->{var p=server.getPlayerList().getPlayer(uuid);p.stopUsingItem();p.getPersistentData().remove("uwu.scythe_flight");var item=BuiltInRegistries.ITEM.get(ResourceLocation.parse("uwudimension:"+id));p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(item));p.getCooldowns().removeCooldown(item);p.teleportTo(.5,151,.5);p.setYRot(0);p.setXRot(0);var foe=p.serverLevel().getEntity(foeId);if(foe!=null)foe.moveTo(.5,151,index>=2?20:9,180,0);});return;
         }
         if(state.equals("armed")&&ticks>35){
@@ -66,18 +66,29 @@ public final class ArsenalCamera {
             else{mc.options.keyUse.setDown(true);mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);}
             state="shooting";ticks=0;return;
         }
+        if(state.equals("armed")){
+            if(ticks==12){mc.options.setCameraType(CameraType.FIRST_PERSON);Screenshot.grab(mc.gameDirectory,PHOTOS[index]+"-held-first.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));}
+            if(ticks==18)mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            if(ticks==25)Screenshot.grab(mc.gameDirectory,PHOTOS[index]+"-held-third.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+            if(ticks==30)mc.options.setCameraType(CameraType.FIRST_PERSON);
+        }
         if(state.equals("shooting")){
+            if(index>=3&&ticks==8)Screenshot.grab(mc.gameDirectory,PHOTOS[index]+"-draw-first.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+            if(index>=3&&ticks==10)mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            if(index>=3&&ticks==15)Screenshot.grab(mc.gameDirectory,PHOTOS[index]+"-draw-third.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
+            if(index>=3&&ticks==17)mc.options.setCameraType(CameraType.FIRST_PERSON);
             if((index==3&&ticks==18)||(index==4&&ticks==22)){mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);}
             boolean visible=false;
             for(Entity e:mc.level.entitiesForRendering())if((index<2&&e instanceof RibbonLash&&e.tickCount>=3&&e.tickCount<=7)||((index==2||index==3)&&e instanceof RelicFlight f&&f.tickCount>=2&&f.tickCount<=9&&f.wave()==(index==2)))visible=true;
             if(index==4&&ticks>=24&&ticks<=29)visible=mc.player.getMainHandItem().has(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-            if(visible&&!shot){shot=true;Screenshot.grab(mc.gameDirectory,PHOTOS[index]+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));System.out.println("ARSENAL VISUAL PASS "+PHOTOS[index]);}
+            if(visible&&!shot){shot=true;shotTick=ticks;Screenshot.grab(mc.gameDirectory,PHOTOS[index]+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));System.out.println("ARSENAL VISUAL PASS "+PHOTOS[index]);if(index==2||index==3)mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);}
+            if((index==2||index==3)&&shot&&!thirdShot&&ticks>shotTick&&visible){thirdShot=true;Screenshot.grab(mc.gameDirectory,PHOTOS[index]+"-flight-third.png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));mc.options.setCameraType(CameraType.FIRST_PERSON);}
             if(index==2||index==3)for(Entity e:mc.level.entitiesForRendering())if(e instanceof RelicFlight f&&f.wave()==(index==2)&&f.tickCount>=2&&f.tickCount<=10&&f.tickCount%2==0){
                 String frame=PHOTOS[index]+"-age-"+f.tickCount;
                 if(captured.add(frame))Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
             }
             if(index==4&&(ticks==24||ticks==27||ticks==34||ticks==45))Screenshot.grab(mc.gameDirectory,"glitch-transition-"+ticks+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
-            if(ticks>80){mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);if(!shot)throw new AssertionError("Expected rendered attack "+PHOTOS[index]);index++;state="equip";ticks=0;}
+            if(ticks>80){mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);if(!shot)throw new AssertionError("Expected rendered attack "+PHOTOS[index]);if((index==2||index==3)&&!thirdShot)throw new AssertionError("Missing third-person flight view "+PHOTOS[index]);index++;state="equip";ticks=0;}
         }
     }
 }

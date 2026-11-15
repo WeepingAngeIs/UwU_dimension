@@ -83,495 +83,163 @@
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_twinblade"
+          "name": "uwudimension:counter_iron_twinblade",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_rapier"
+          "name": "uwudimension:counter_iron_rapier",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_katana"
+          "name": "uwudimension:counter_iron_spear",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_sai"
+          "name": "uwudimension:counter_iron_glaive",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_spear"
+          "name": "uwudimension:counter_iron_greathammer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_glaive"
+          "name": "uwudimension:counter_iron_greataxe",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_warglaive"
+          "name": "uwudimension:counter_iron_chakram",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_cutlass"
+          "name": "uwudimension:counter_gold_greathammer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_greathammer"
+          "name": "uwudimension:counter_gold_greataxe",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_greataxe"
+          "name": "uwudimension:counter_gold_chakram",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_chakram"
+          "name": "uwudimension:counter_runic_twinblade",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_scythe"
+          "name": "uwudimension:counter_runic_rapier",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_iron_halberd"
+          "name": "uwudimension:counter_runic_spear",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_twinblade"
+          "name": "uwudimension:counter_runic_glaive",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_rapier"
+          "name": "uwudimension:counter_runic_chakram",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_katana"
+          "name": "uwudimension:counter_runic_greataxe",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_sai"
+          "name": "uwudimension:counter_runic_greathammer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_spear"
+          "name": "uwudimension:counter_the_devourer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_glaive"
+          "name": "uwudimension:counter_storms_edge",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_warglaive"
+          "name": "uwudimension:counter_ionbound_stormscale",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_cutlass"
+          "name": "uwudimension:counter_stormbringer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_greathammer"
+          "name": "uwudimension:counter_watching_warglaive",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_greataxe"
+          "name": "uwudimension:counter_toxic_longsword",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_chakram"
+          "name": "uwudimension:counter_emberblade",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_scythe"
+          "name": "uwudimension:counter_hearthflame",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_gold_halberd"
+          "name": "uwudimension:counter_soulstealer",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_twinblade"
+          "name": "uwudimension:counter_soulrender",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_rapier"
+          "name": "uwudimension:counter_frostfall",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_katana"
+          "name": "uwudimension:counter_thunderbrand",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_sai"
+          "name": "uwudimension:counter_tainted_relic",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_spear"
+          "name": "uwudimension:counter_harbinger",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_glaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_warglaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_cutlass"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_greathammer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_greataxe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_chakram"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_scythe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_diamond_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_twinblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_rapier"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_katana"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_sai"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_spear"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_glaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_warglaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_cutlass"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_greathammer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_greataxe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_chakram"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_scythe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_netherite_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_twinblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_rapier"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_katana"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_sai"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_spear"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_glaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_warglaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_cutlass"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_chakram"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_greataxe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_greathammer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_scythe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_runic_halberd"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_brimstone_claymore"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_watcher_claymore"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_the_devourer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_storms_edge"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_stormscale"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_ionbound_stormscale"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_stormbringer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_sword_on_a_stick"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_bramblethorn"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_watching_warglaive"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_toxic_longsword"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_emberblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_hearthflame"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_soulkeeper"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_twisted_blade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_soulstealer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_soulrender"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_soulstalker"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_soulpyre"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_frostfall"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_molten_edge"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_livyatan"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_icewhisper"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_arcanethyst"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_thunderbrand"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_mjolnir"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_slumbering_lichblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_waking_lichblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_awakened_lichblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_shadowsting"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_dormant_relic"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_righteous_relic"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_tainted_relic"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_sunfire"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_harbinger"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_whisperwind"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_dreadwhisper"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_emberlash"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_waxweaver"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_hiveheart"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_stars_edge"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_wickpiercer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_gloampiercer"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_tempest"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_flamewind"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_ribboncleaver"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_decaying_relic"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_magiscythe"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_enigma"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_magispear"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_magiblade"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_caelestis"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_dawnquiver"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_riftmane"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_wraithfang"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_wraithmaw"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_bloodwake"
-        },
-        {
-          "type": "minecraft:item",
-          "name": "uwudimension:counter_chompolotl"
+          "name": "uwudimension:counter_hiveheart",
+          "weight": 3
         },
         {
           "type": "minecraft:item",

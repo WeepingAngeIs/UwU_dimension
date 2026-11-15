@@ -1,7 +1,7 @@
 name: Sakura Reach renewal
 on:
   push:
-    branches: [feature/sakura-renewal, feature/sakura-art-implementation]
+    branches: [feature/sakura-renewal, feature/sakura-art-implementation, feature/sakura-roster-art]
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,7 +26,7 @@ jobs:
       - run: python3 ci/moonveil-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.5.0-beta.4-dev
+          name: UwU-Dimension-1.5.0-beta.5-dev
           path: build/libs/*.jar
           if-no-files-found: error
 

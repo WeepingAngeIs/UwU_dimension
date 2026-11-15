@@ -42,6 +42,7 @@ public final class CounterProof {
     public static void run(ServerLevel level) throws Exception {
         BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
         try{
+            RosterProof.run(level,player);
             require(CounterArsenal.ROSTER.size()==133,"Expected audited 133 weapon/relic identities");
             Set<String> targets=new HashSet<>();
             for(var entry:CounterArsenal.ROSTER){

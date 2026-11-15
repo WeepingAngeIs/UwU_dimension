@@ -1,0 +1,139 @@
+Sakura counter acquisition and exact target roster
+
+Direct acquisition: 32 representative counters appear in Combat creative and the four weapon chest tables, and can roll on Glitch Bow. All 133 exact IDs remain registered and player-selectable by retuning a held counter using /sakura counter. Retuning is free and therefore provides every target variant after acquiring one counter; this deliberately changes progression and should be reviewed for balance.
+The matching representative below shares school, shape, palette and runic flag. Retuning changes the actual ID, so its own precise target, damage, name, runic flag and ward still apply. Legacy IDs were not deleted. The ten previous common-blade legacy IDs are now retunable rather than direct drops. Glitch Bow saved index order is unchanged.
+
+Status | Counter ID | Exact matching source target | In-game name | School | Shape | Palette | Runic | Damage | Representative
+RETUNABLE EXACT-ID VARIANT | counter_iron_longsword | simplyswords:iron_longsword | Ribbonreach Iron Spear | SPACE | spear | petal | False | 14 | counter_iron_glaive
+DIRECT / RETAIN | counter_iron_twinblade | simplyswords:iron_twinblade | Velvetguard Iron Twin Chakram | GUARD | chakram | dusk | False | 15 | counter_iron_twinblade
+DIRECT / RETAIN | counter_iron_rapier | simplyswords:iron_rapier | Velvetguard Iron Needle Chakram | GUARD | chakram | petal | False | 16 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_iron_katana | simplyswords:iron_katana | Velvetguard Iron Crescent Chakram | GUARD | chakram | dusk | False | 17 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_iron_sai | simplyswords:iron_sai | Velvetguard Iron Sai Chakram | GUARD | chakram | petal | False | 18 | counter_iron_rapier
+DIRECT / RETAIN | counter_iron_spear | simplyswords:iron_spear | Ribbonreach Iron Lance Spear | SPACE | spear | dusk | False | 19 | counter_iron_spear
+DIRECT / RETAIN | counter_iron_glaive | simplyswords:iron_glaive | Ribbonreach Iron Glaive Spear | SPACE | spear | petal | False | 20 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_iron_warglaive | simplyswords:iron_warglaive | Ribbonreach Iron Warglaive Spear | SPACE | spear | dusk | False | 21 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_iron_cutlass | simplyswords:iron_cutlass | Ribbonreach Iron Sail Spear | SPACE | spear | petal | False | 22 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_iron_claymore | simplyswords:iron_claymore | Bellfall Iron Axe | STAGGER | axe | dusk | False | 23 | counter_iron_greataxe
+DIRECT / RETAIN | counter_iron_greathammer | simplyswords:iron_greathammer | Bellfall Iron Hammer | STAGGER | hammer | petal | False | 24 | counter_iron_greathammer
+DIRECT / RETAIN | counter_iron_greataxe | simplyswords:iron_greataxe | Bellfall Iron Greataxe Axe | STAGGER | axe | dusk | False | 14 | counter_iron_greataxe
+DIRECT / RETAIN | counter_iron_chakram | simplyswords:iron_chakram | Hushveil Iron Ring Bow | SILENCE | bow | petal | False | 15 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_iron_scythe | simplyswords:iron_scythe | Ribbonreach Iron Petal Spear | SPACE | spear | dusk | False | 16 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_iron_halberd | simplyswords:iron_halberd | Ribbonreach Iron Halberd Spear | SPACE | spear | petal | False | 17 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_gold_longsword | simplyswords:gold_longsword | Ribbonreach Gold Spear | SPACE | spear | dusk | False | 18 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_gold_twinblade | simplyswords:gold_twinblade | Velvetguard Gold Twin Chakram | GUARD | chakram | petal | False | 19 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_gold_rapier | simplyswords:gold_rapier | Velvetguard Gold Needle Chakram | GUARD | chakram | dusk | False | 20 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_gold_katana | simplyswords:gold_katana | Velvetguard Gold Crescent Chakram | GUARD | chakram | petal | False | 21 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_gold_sai | simplyswords:gold_sai | Velvetguard Gold Sai Chakram | GUARD | chakram | dusk | False | 22 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_gold_spear | simplyswords:gold_spear | Ribbonreach Gold Lance Spear | SPACE | spear | petal | False | 23 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_gold_glaive | simplyswords:gold_glaive | Ribbonreach Gold Glaive Spear | SPACE | spear | dusk | False | 24 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_gold_warglaive | simplyswords:gold_warglaive | Ribbonreach Gold Warglaive Spear | SPACE | spear | petal | False | 14 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_gold_cutlass | simplyswords:gold_cutlass | Ribbonreach Gold Sail Spear | SPACE | spear | dusk | False | 15 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_gold_claymore | simplyswords:gold_claymore | Bellfall Gold Axe | STAGGER | axe | petal | False | 16 | counter_gold_greataxe
+DIRECT / RETAIN | counter_gold_greathammer | simplyswords:gold_greathammer | Bellfall Gold Hammer | STAGGER | hammer | dusk | False | 17 | counter_gold_greathammer
+DIRECT / RETAIN | counter_gold_greataxe | simplyswords:gold_greataxe | Bellfall Gold Greataxe Axe | STAGGER | axe | petal | False | 18 | counter_gold_greataxe
+DIRECT / RETAIN | counter_gold_chakram | simplyswords:gold_chakram | Hushveil Gold Ring Bow | SILENCE | bow | dusk | False | 19 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_gold_scythe | simplyswords:gold_scythe | Ribbonreach Gold Petal Spear | SPACE | spear | petal | False | 20 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_gold_halberd | simplyswords:gold_halberd | Ribbonreach Gold Halberd Spear | SPACE | spear | dusk | False | 21 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_diamond_longsword | simplyswords:diamond_longsword | Ribbonreach Diamond Spear | SPACE | spear | petal | False | 22 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_diamond_twinblade | simplyswords:diamond_twinblade | Velvetguard Diamond Twin Chakram | GUARD | chakram | dusk | False | 23 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_diamond_rapier | simplyswords:diamond_rapier | Velvetguard Diamond Needle Chakram | GUARD | chakram | petal | False | 24 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_diamond_katana | simplyswords:diamond_katana | Velvetguard Diamond Crescent Chakram | GUARD | chakram | dusk | False | 14 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_diamond_sai | simplyswords:diamond_sai | Velvetguard Diamond Sai Chakram | GUARD | chakram | petal | False | 15 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_diamond_spear | simplyswords:diamond_spear | Ribbonreach Diamond Lance Spear | SPACE | spear | dusk | False | 16 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_diamond_glaive | simplyswords:diamond_glaive | Ribbonreach Diamond Glaive Spear | SPACE | spear | petal | False | 17 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_diamond_warglaive | simplyswords:diamond_warglaive | Ribbonreach Diamond Warglaive Spear | SPACE | spear | dusk | False | 18 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_diamond_cutlass | simplyswords:diamond_cutlass | Ribbonreach Diamond Sail Spear | SPACE | spear | petal | False | 19 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_diamond_claymore | simplyswords:diamond_claymore | Bellfall Diamond Axe | STAGGER | axe | dusk | False | 20 | counter_iron_greataxe
+RETUNABLE EXACT-ID VARIANT | counter_diamond_greathammer | simplyswords:diamond_greathammer | Bellfall Diamond Hammer | STAGGER | hammer | petal | False | 21 | counter_iron_greathammer
+RETUNABLE EXACT-ID VARIANT | counter_diamond_greataxe | simplyswords:diamond_greataxe | Bellfall Diamond Greataxe Axe | STAGGER | axe | dusk | False | 22 | counter_iron_greataxe
+RETUNABLE EXACT-ID VARIANT | counter_diamond_chakram | simplyswords:diamond_chakram | Hushveil Diamond Ring Bow | SILENCE | bow | petal | False | 23 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_diamond_scythe | simplyswords:diamond_scythe | Ribbonreach Diamond Petal Spear | SPACE | spear | dusk | False | 24 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_diamond_halberd | simplyswords:diamond_halberd | Ribbonreach Diamond Halberd Spear | SPACE | spear | petal | False | 14 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_netherite_longsword | simplyswords:netherite_longsword | Ribbonreach Netherite Spear | SPACE | spear | dusk | False | 15 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_netherite_twinblade | simplyswords:netherite_twinblade | Velvetguard Netherite Twin Chakram | GUARD | chakram | petal | False | 16 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_netherite_rapier | simplyswords:netherite_rapier | Velvetguard Netherite Needle Chakram | GUARD | chakram | dusk | False | 17 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_netherite_katana | simplyswords:netherite_katana | Velvetguard Netherite Crescent Chakram | GUARD | chakram | petal | False | 18 | counter_iron_rapier
+RETUNABLE EXACT-ID VARIANT | counter_netherite_sai | simplyswords:netherite_sai | Velvetguard Netherite Sai Chakram | GUARD | chakram | dusk | False | 19 | counter_iron_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_netherite_spear | simplyswords:netherite_spear | Ribbonreach Netherite Lance Spear | SPACE | spear | petal | False | 20 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_netherite_glaive | simplyswords:netherite_glaive | Ribbonreach Netherite Glaive Spear | SPACE | spear | dusk | False | 21 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_netherite_warglaive | simplyswords:netherite_warglaive | Ribbonreach Netherite Warglaive Spear | SPACE | spear | petal | False | 22 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_netherite_cutlass | simplyswords:netherite_cutlass | Ribbonreach Netherite Sail Spear | SPACE | spear | dusk | False | 23 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_netherite_claymore | simplyswords:netherite_claymore | Bellfall Netherite Axe | STAGGER | axe | petal | False | 24 | counter_gold_greataxe
+RETUNABLE EXACT-ID VARIANT | counter_netherite_greathammer | simplyswords:netherite_greathammer | Bellfall Netherite Hammer | STAGGER | hammer | dusk | False | 14 | counter_gold_greathammer
+RETUNABLE EXACT-ID VARIANT | counter_netherite_greataxe | simplyswords:netherite_greataxe | Bellfall Netherite Greataxe Axe | STAGGER | axe | petal | False | 15 | counter_gold_greataxe
+RETUNABLE EXACT-ID VARIANT | counter_netherite_chakram | simplyswords:netherite_chakram | Hushveil Netherite Ring Bow | SILENCE | bow | dusk | False | 16 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_netherite_scythe | simplyswords:netherite_scythe | Ribbonreach Netherite Petal Spear | SPACE | spear | petal | False | 17 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_netherite_halberd | simplyswords:netherite_halberd | Ribbonreach Netherite Halberd Spear | SPACE | spear | dusk | False | 18 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_runic_longsword | simplyswords:runic_longsword | Ribbonreach Runic Spear | SPACE | spear | petal | True | 19 | counter_runic_glaive
+DIRECT / RETAIN | counter_runic_twinblade | simplyswords:runic_twinblade | Velvetguard Runic Twin Chakram | GUARD | chakram | dusk | True | 20 | counter_runic_twinblade
+DIRECT / RETAIN | counter_runic_rapier | simplyswords:runic_rapier | Velvetguard Runic Needle Chakram | GUARD | chakram | petal | True | 21 | counter_runic_rapier
+RETUNABLE EXACT-ID VARIANT | counter_runic_katana | simplyswords:runic_katana | Velvetguard Runic Crescent Chakram | GUARD | chakram | dusk | True | 22 | counter_runic_twinblade
+RETUNABLE EXACT-ID VARIANT | counter_runic_sai | simplyswords:runic_sai | Velvetguard Runic Sai Chakram | GUARD | chakram | petal | True | 23 | counter_runic_rapier
+DIRECT / RETAIN | counter_runic_spear | simplyswords:runic_spear | Ribbonreach Runic Lance Spear | SPACE | spear | dusk | True | 24 | counter_runic_spear
+DIRECT / RETAIN | counter_runic_glaive | simplyswords:runic_glaive | Ribbonreach Runic Glaive Spear | SPACE | spear | petal | True | 14 | counter_runic_glaive
+RETUNABLE EXACT-ID VARIANT | counter_runic_warglaive | simplyswords:runic_warglaive | Ribbonreach Runic Warglaive Spear | SPACE | spear | dusk | True | 15 | counter_runic_spear
+RETUNABLE EXACT-ID VARIANT | counter_runic_cutlass | simplyswords:runic_cutlass | Ribbonreach Runic Sail Spear | SPACE | spear | petal | True | 16 | counter_runic_glaive
+RETUNABLE EXACT-ID VARIANT | counter_runic_claymore | simplyswords:runic_claymore | Bellfall Runic Axe | STAGGER | axe | dusk | True | 17 | counter_runic_greataxe
+DIRECT / RETAIN | counter_runic_chakram | simplyswords:runic_chakram | Hushveil Runic Ring Bow | SILENCE | bow | petal | True | 18 | counter_runic_chakram
+DIRECT / RETAIN | counter_runic_greataxe | simplyswords:runic_greataxe | Bellfall Runic Greataxe Axe | STAGGER | axe | dusk | True | 19 | counter_runic_greataxe
+DIRECT / RETAIN | counter_runic_greathammer | simplyswords:runic_greathammer | Bellfall Runic Hammer | STAGGER | hammer | petal | True | 20 | counter_runic_greathammer
+RETUNABLE EXACT-ID VARIANT | counter_runic_scythe | simplyswords:runic_scythe | Ribbonreach Runic Petal Spear | SPACE | spear | dusk | True | 21 | counter_runic_spear
+RETUNABLE EXACT-ID VARIANT | counter_runic_halberd | simplyswords:runic_halberd | Ribbonreach Runic Halberd Spear | SPACE | spear | petal | True | 22 | counter_runic_glaive
+RETUNABLE EXACT-ID VARIANT | counter_brimstone_claymore | simplyswords:brimstone_claymore | Dewglass Emberfall Spear | QUENCH | spear | dusk | False | 23 | counter_hearthflame
+RETUNABLE EXACT-ID VARIANT | counter_watcher_claymore | simplyswords:watcher_claymore | Clearheart The Watcher Wand | CLEANSE | wand | petal | False | 24 | counter_watching_warglaive
+DIRECT / RETAIN | counter_the_devourer | simplyswords:the_devourer | Threadsunder The Devourer Scythe | SEVER | scythe | dusk | False | 14 | counter_the_devourer
+DIRECT / RETAIN | counter_storms_edge | simplyswords:storms_edge | Stillmoon Storm's Edge Whip | ANCHOR | whip | petal | False | 15 | counter_storms_edge
+RETUNABLE EXACT-ID VARIANT | counter_stormscale | simplyswords:stormscale | Threadsunder Stormscale Scythe | SEVER | scythe | dusk | False | 16 | counter_the_devourer
+DIRECT / RETAIN | counter_ionbound_stormscale | simplyswords:ionbound_stormscale | Prismbreaker Ionbound Stormscale Dagger | SHATTER | dagger | petal | False | 17 | counter_ionbound_stormscale
+DIRECT / RETAIN | counter_stormbringer | simplyswords:stormbringer | Afterglow Stormbringer Dagger | FEINT | dagger | dusk | False | 18 | counter_stormbringer
+RETUNABLE EXACT-ID VARIANT | counter_sword_on_a_stick | simplyswords:sword_on_a_stick | Ribbonreach Heartwood Spear | SPACE | spear | petal | False | 19 | counter_iron_glaive
+RETUNABLE EXACT-ID VARIANT | counter_bramblethorn | simplyswords:bramblethorn | Threadsunder Bramblethorn Scythe | SEVER | scythe | dusk | False | 20 | counter_the_devourer
+DIRECT / RETAIN | counter_watching_warglaive | simplyswords:watching_warglaive | Clearheart Watching Warglaive Wand | CLEANSE | wand | petal | False | 21 | counter_watching_warglaive
+DIRECT / RETAIN | counter_toxic_longsword | simplyswords:toxic_longsword | Clearheart Plague Ward Dagger | CLEANSE | dagger | dusk | False | 22 | counter_toxic_longsword
+DIRECT / RETAIN | counter_emberblade | simplyswords:emberblade | Dewglass Ember Spear | QUENCH | spear | petal | False | 23 | counter_emberblade
+DIRECT / RETAIN | counter_hearthflame | simplyswords:hearthflame | Dewglass Hearthflame Spear | QUENCH | spear | dusk | False | 24 | counter_hearthflame
+RETUNABLE EXACT-ID VARIANT | counter_soulkeeper | simplyswords:soulkeeper | Hushveil Soulkeeper Bow | SILENCE | bow | petal | False | 14 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_twisted_blade | simplyswords:twisted_blade | Afterglow Thorn Dagger | FEINT | dagger | dusk | False | 15 | counter_stormbringer
+DIRECT / RETAIN | counter_soulstealer | simplyswords:soulstealer | Thornwake Soulstealer Scythe | REAP | scythe | petal | False | 16 | counter_soulstealer
+DIRECT / RETAIN | counter_soulrender | simplyswords:soulrender | Thornwake Soulrender Scythe | REAP | scythe | dusk | False | 17 | counter_soulrender
+RETUNABLE EXACT-ID VARIANT | counter_soulstalker | simplyswords:soulstalker | Stillmoon Soulstalker Whip | ANCHOR | whip | petal | False | 18 | counter_storms_edge
+RETUNABLE EXACT-ID VARIANT | counter_soulpyre | simplyswords:soulpyre | Hushveil Soul Pyre Bow | SILENCE | bow | dusk | False | 19 | counter_gold_chakram
+DIRECT / RETAIN | counter_frostfall | simplyswords:frostfall | Threadsunder Frostfall Scythe | SEVER | scythe | petal | False | 20 | counter_frostfall
+RETUNABLE EXACT-ID VARIANT | counter_molten_edge | simplyswords:molten_edge | Dewglass Molten Edge Spear | QUENCH | spear | dusk | False | 21 | counter_hearthflame
+RETUNABLE EXACT-ID VARIANT | counter_livyatan | simplyswords:livyatan | Threadsunder Livyatan Scythe | SEVER | scythe | petal | False | 22 | counter_frostfall
+RETUNABLE EXACT-ID VARIANT | counter_icewhisper | simplyswords:icewhisper | Threadsunder Icewhisper Scythe | SEVER | scythe | dusk | False | 23 | counter_the_devourer
+RETUNABLE EXACT-ID VARIANT | counter_arcanethyst | simplyswords:arcanethyst | Stillmoon Arcanethyst Whip | ANCHOR | whip | petal | False | 24 | counter_storms_edge
+DIRECT / RETAIN | counter_thunderbrand | simplyswords:thunderbrand | Stillmoon Thunderbrand Whip | ANCHOR | whip | dusk | False | 14 | counter_thunderbrand
+RETUNABLE EXACT-ID VARIANT | counter_mjolnir | simplyswords:mjolnir | Threadsunder Mjolnir Scythe | SEVER | scythe | petal | False | 15 | counter_frostfall
+RETUNABLE EXACT-ID VARIANT | counter_slumbering_lichblade | simplyswords:slumbering_lichblade | Hushveil Slumbering Lich Bow | SILENCE | bow | dusk | False | 16 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_waking_lichblade | simplyswords:waking_lichblade | Hushveil Waking Lich Bow | SILENCE | bow | petal | False | 17 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_awakened_lichblade | simplyswords:awakened_lichblade | Hushveil Awakened Lich Bow | SILENCE | bow | dusk | False | 18 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_shadowsting | simplyswords:shadowsting | Stillmoon Shadowsting Whip | ANCHOR | whip | petal | False | 19 | counter_storms_edge
+RETUNABLE EXACT-ID VARIANT | counter_dormant_relic | simplyswords:dormant_relic | Ribbonreach Dormant Relic Spear | SPACE | spear | dusk | False | 20 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_righteous_relic | simplyswords:righteous_relic | Thornwake Righteous Relic Scythe | REAP | scythe | petal | False | 21 | counter_soulstealer
+DIRECT / RETAIN | counter_tainted_relic | simplyswords:tainted_relic | Clearheart Tainted Relic Wand | CLEANSE | wand | dusk | False | 22 | counter_tainted_relic
+RETUNABLE EXACT-ID VARIANT | counter_sunfire | simplyswords:sunfire | Thornwake Sunfire Scythe | REAP | scythe | petal | False | 23 | counter_soulstealer
+DIRECT / RETAIN | counter_harbinger | simplyswords:harbinger | Nestward Harbinger Whip | BANISH | whip | dusk | False | 24 | counter_harbinger
+RETUNABLE EXACT-ID VARIANT | counter_whisperwind | simplyswords:whisperwind | Stillmoon Whisperwind Whip | ANCHOR | whip | petal | False | 14 | counter_storms_edge
+RETUNABLE EXACT-ID VARIANT | counter_dreadwhisper | simplyswords:dreadwhisper | Clearheart Dreadwhisper Wand | CLEANSE | wand | dusk | False | 15 | counter_tainted_relic
+RETUNABLE EXACT-ID VARIANT | counter_emberlash | simplyswords:emberlash | Thornwake Emberlash Scythe | REAP | scythe | petal | False | 16 | counter_soulstealer
+RETUNABLE EXACT-ID VARIANT | counter_waxweaver | simplyswords:waxweaver | Thornwake Waxweaver Scythe | REAP | scythe | dusk | False | 17 | counter_soulrender
+DIRECT / RETAIN | counter_hiveheart | simplyswords:hiveheart | Nestward Hiveheart Whip | BANISH | whip | petal | False | 18 | counter_hiveheart
+RETUNABLE EXACT-ID VARIANT | counter_stars_edge | simplyswords:stars_edge | Afterglow Star's Edge Dagger | FEINT | dagger | dusk | False | 19 | counter_stormbringer
+RETUNABLE EXACT-ID VARIANT | counter_wickpiercer | simplyswords:wickpiercer | Thornwake Wickpiercer Scythe | REAP | scythe | petal | False | 20 | counter_soulstealer
+RETUNABLE EXACT-ID VARIANT | counter_gloampiercer | simplyswords:gloampiercer | Hushveil Gloampiercer Bow | SILENCE | bow | dusk | False | 21 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_tempest | simplyswords:tempest | Clearheart Tempest Wand | CLEANSE | wand | petal | False | 22 | counter_watching_warglaive
+RETUNABLE EXACT-ID VARIANT | counter_flamewind | simplyswords:flamewind | Dewglass Flamewind Spear | QUENCH | spear | dusk | False | 23 | counter_hearthflame
+RETUNABLE EXACT-ID VARIANT | counter_ribboncleaver | simplyswords:ribboncleaver | Prismbreaker Ribboncleaver Dagger | SHATTER | dagger | petal | False | 24 | counter_ionbound_stormscale
+RETUNABLE EXACT-ID VARIANT | counter_decaying_relic | simplyswords:decaying_relic | Ribbonreach Decaying relic Spear | SPACE | spear | dusk | False | 14 | counter_iron_spear
+RETUNABLE EXACT-ID VARIANT | counter_magiscythe | simplyswords:magiscythe | Threadsunder Magiscythe Scythe | SEVER | scythe | petal | False | 15 | counter_frostfall
+RETUNABLE EXACT-ID VARIANT | counter_enigma | simplyswords:enigma | Threadsunder Enigma Scythe | SEVER | scythe | dusk | False | 16 | counter_the_devourer
+RETUNABLE EXACT-ID VARIANT | counter_magispear | simplyswords:magispear | Hushveil Magispear Bow | SILENCE | bow | petal | False | 17 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_magiblade | simplyswords:magiblade | Hushveil Magic Bow | SILENCE | bow | dusk | False | 18 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_caelestis | simplyswords:caelestis | Nestward Caelestis Whip | BANISH | whip | petal | False | 19 | counter_hiveheart
+RETUNABLE EXACT-ID VARIANT | counter_dawnquiver | simplyswords:dawnquiver | Hushveil Dawnquiver Bow | SILENCE | bow | dusk | False | 20 | counter_gold_chakram
+RETUNABLE EXACT-ID VARIANT | counter_riftmane | simplyswords:riftmane | Stillmoon Riftmane Whip | ANCHOR | whip | petal | False | 21 | counter_storms_edge
+RETUNABLE EXACT-ID VARIANT | counter_wraithfang | simplyswords:wraithfang | Stillmoon Wraithfang Whip | ANCHOR | whip | dusk | False | 22 | counter_thunderbrand
+RETUNABLE EXACT-ID VARIANT | counter_wraithmaw | simplyswords:wraithmaw | Hushveil Wraithmaw Bow | SILENCE | bow | petal | False | 23 | counter_iron_chakram
+RETUNABLE EXACT-ID VARIANT | counter_bloodwake | simplyswords:bloodwake | Clearheart Bloodwake Wand | CLEANSE | wand | dusk | False | 24 | counter_tainted_relic
+RETUNABLE EXACT-ID VARIANT | counter_chompolotl | simplyswords:chompolotl | Nestward Chomp'olotl Whip | BANISH | whip | petal | False | 14 | counter_hiveheart
