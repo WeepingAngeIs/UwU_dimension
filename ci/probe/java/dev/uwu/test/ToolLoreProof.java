@@ -66,6 +66,8 @@ final class ToolLoreProof {
         target.setYHeadRot(0);
         target.setNoAi(true);
         target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0);
+        target.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(0);
         target.setHealth(200);
         level.addFreshEntity(target);
         ItemStack dagger = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get());
@@ -80,8 +82,13 @@ final class ToolLoreProof {
         var chance = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getHolder(chanceKey)
                 .map(player::getAttribute).orElse(null);
         double previousChance = chance == null ? 0 : chance.getBaseValue();
+        boolean previousNoGravity = player.isNoGravity();
         if (chance != null) chance.setBaseValue(0);
         try {
+            // Equipment attributes are applied on the player tick, not when the
+            // stack is inserted into the hand.
+            player.setNoGravity(true);
+            player.doTick();
             player.moveTo(target.getX(), target.getY(), target.getZ()+1.5, 180, 0);
             cooldown.setInt(player, 100);
             player.setOnGround(true);
@@ -100,6 +107,7 @@ final class ToolLoreProof {
                     "Dagger front/rear damage incorrect: " + front + "/" + rear);
         } finally {
             if (chance != null) chance.setBaseValue(previousChance);
+            player.setNoGravity(previousNoGravity);
             target.discard();
             player.getInventory().clearContent();
         }
