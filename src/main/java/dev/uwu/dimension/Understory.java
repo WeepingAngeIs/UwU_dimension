@@ -69,11 +69,20 @@ public final class Understory {
         return soil.is(SOIL) && soil.getFluidState().isEmpty() && soil.isFaceSturdy(level,pos,Direction.UP);
     }
     private static final class LowPlant extends BushBlock {
+        private static final com.mojang.serialization.MapCodec<LowPlant> CODEC=com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(
+                fields->fields.group(com.mojang.serialization.Codec.intRange(1,16).fieldOf("height").forGetter((LowPlant plant)->plant.height),
+                        propertiesCodec()).apply(fields,LowPlant::new));
         private final VoxelShape shape;
+        private final int height;
         LowPlant(int height){
-            super(BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_GRASS).noOcclusion());
+            this(height,BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_GRASS).noOcclusion());
+        }
+        LowPlant(int height,BlockBehaviour.Properties properties){
+            super(properties);
+            this.height=height;
             shape=Block.box(2,0,2,14,height,14);
         }
+        @Override protected com.mojang.serialization.MapCodec<LowPlant> codec(){return CODEC;}
         @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){
             var offset=state.getOffset(level,pos);
             return shape.move(offset.x,offset.y,offset.z);
