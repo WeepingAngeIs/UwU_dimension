@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 import dev.uwu.dimension.Arsenal;
 import dev.uwu.dimension.CounterArsenal;
+import dev.uwu.dimension.GlitchBow;
+import dev.uwu.dimension.UwUDimension;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,10 +73,17 @@ public final class BetterCombatDaggerProof {
             double previousChance = chance == null ? 0 : chance.getBaseValue();
             if (chance != null) chance.setBaseValue(0);
             try {
-            for (var daggerItem : java.util.List.of(
-                    Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get(),
-                    CounterArsenal.ITEMS.get("counter_toxic_longsword").get())) {
-                ItemStack dagger = new ItemStack(daggerItem);
+            var daggerStacks=new java.util.ArrayList<ItemStack>();
+            daggerStacks.add(new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.ROSE_DAGGER).get()));
+            daggerStacks.add(new ItemStack(CounterArsenal.ITEMS.get("counter_toxic_longsword").get()));
+            for(String form:java.util.List.of("rose_dagger","counter_toxic_longsword")){
+                var mimic=new ItemStack(UwUDimension.GLITCH.get());int index=GlitchBow.FORMS.indexOf(form);
+                if(index<0)throw new AssertionError("Missing Glitch form "+form);
+                net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,mimic,n->n.putInt("uwu_form",index));
+                daggerStacks.add(mimic);
+            }
+            for (var dagger : daggerStacks) {
+                var daggerItem=dagger.getItem();
                 player.setItemInHand(InteractionHand.OFF_HAND, dagger);
 
                 Class<?> helper = Class.forName("net.bettercombat.logic.PlayerAttackHelper");
@@ -138,6 +147,24 @@ public final class BetterCombatDaggerProof {
                         + " airborneRear=" + airborneRear + " armoredRear=" + armoredRear
                         + " boundaries=passed handsRestored=true");
             }
+            // The registry is stack-aware: Glitch must use its selected form's
+            // Better Combat data while leaving explicit player presets untouched.
+            var registry=Class.forName("net.bettercombat.logic.WeaponRegistry");
+            Method attributes=registry.getMethod("getAttributes",ItemStack.class);
+            var targetStack=new ItemStack(CounterArsenal.ITEMS.get("counter_runic_twinblade").get());
+            var mimic=new ItemStack(UwUDimension.GLITCH.get());int index=GlitchBow.FORMS.indexOf("counter_runic_twinblade");
+            net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,mimic,n->n.putInt("uwu_form",index));
+            Object expected=attributes.invoke(null,targetStack),actual=attributes.invoke(null,mimic);
+            if(expected==null||actual==null||!expected.getClass().getMethod("category").invoke(expected).equals(actual.getClass().getMethod("category").invoke(actual)))
+                throw new AssertionError("Glitch Twin Chakram Better Combat category does not follow its form");
+            var raw=net.minecraft.core.registries.BuiltInRegistries.DATA_COMPONENT_TYPE.getOptional(net.minecraft.resources.ResourceLocation.parse("bettercombat:preset_id")).orElseThrow();
+            @SuppressWarnings("unchecked") var preset=(net.minecraft.core.component.DataComponentType<net.minecraft.resources.ResourceLocation>)raw;
+            var explicit=net.minecraft.resources.ResourceLocation.parse("bettercombat:dagger");
+            targetStack.set(preset,explicit);mimic.set(preset,explicit);
+            expected=attributes.invoke(null,targetStack);actual=attributes.invoke(null,mimic);
+            if(expected==null||actual==null||!expected.getClass().getMethod("category").invoke(expected).equals(actual.getClass().getMethod("category").invoke(actual))||!explicit.equals(mimic.get(preset)))
+                throw new AssertionError("Glitch changed or ignored an explicitly supplied Better Combat preset");
+            System.out.println("UWU GLITCH BETTER COMBAT PASS form-specific Twin Chakram and explicit player preset");
             } finally {
                 if (chance != null) chance.setBaseValue(previousChance);
             }

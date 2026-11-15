@@ -1,0 +1,29 @@
+name: Sakura Glitch lifecycle
+on:
+  push:
+    branches: [feature/sakura-glitch-guardian]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sakura-glitch-lifecycle-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test real held forms, melee, projectile custody and switch gates
+        run: ./gradlew jar && bash ci/glitch-lifecycle-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: glitch-lifecycle-evidence
+          path: |
+            build/glitch-lifecycle-server/glitch-lifecycle.log
+            build/glitch-lifecycle-server/logs/latest.log
+            build/glitch-lifecycle-server/crash-reports/

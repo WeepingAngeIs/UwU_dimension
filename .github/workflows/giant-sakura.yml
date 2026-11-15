@@ -1,0 +1,62 @@
+name: Giant Sakura growth and landmark
+on:
+  push:
+    branches: [feature/sakura-glitch-guardian]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: giant-sakura-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  growth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Exercise growth, obstruction safety, recipe and natural generation
+        run: ./gradlew jar && bash ci/giant-sakura-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: giant-sakura-server-evidence
+          path: |
+            build/giant-sakura-server/giant-sakura.log
+            build/giant-sakura-server/logs/latest.log
+            build/giant-sakura-server/crash-reports
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {UWU_VISIT: giant-sakura, UWU_FIELD_SEED: '152045'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Capture natural giant sakura from four sides
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config/cobblemon/spawning
+          cp ci/natural-spawning.json run/config/cobblemon/main.json
+          cp ci/pack-spawning.json run/config/cobblemon/spawning/best-spawner-config.json
+          printf 'particles:2\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:5\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 30m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee giant-sakura-client.log
+          grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' giant-sakura-client.log
+          grep -F 'GIANT SAKURA NATURAL PASS' giant-sakura-client.log
+          for angle in front side base canopy; do test -s "run/screenshots/giant-sakura-$angle.png"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: giant-sakura-visual-evidence
+          path: |
+            run/screenshots/giant-sakura-*.png
+            giant-sakura-client.log
+            run/logs/latest.log
+            run/crash-reports

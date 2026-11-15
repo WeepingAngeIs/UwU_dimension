@@ -63,9 +63,9 @@ public final class GlitchBow extends Item {
     }
     static void begin(ItemStack stack,ServerLevel level,int ticks,UUID token){
         identity(stack);
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.putBoolean("uwu_glitch_pending",true);n.putLong("uwu_glitch_ready",level.getServer().overworld().getGameTime()+ticks);if(token!=null)n.putUUID("uwu_glitch_token",token);else n.remove("uwu_glitch_token");});
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.putBoolean("uwu_glitch_pending",true);n.putLong("uwu_glitch_ready",level.getServer().overworld().getGameTime()+ticks);n.remove("uwu_glitch_fishing");n.remove("uwu_glitch_fish_owner");n.remove("uwu_glitch_fish_hook");if(token!=null)n.putUUID("uwu_glitch_token",token);else n.remove("uwu_glitch_token");});
     }
-    private static void cancel(ItemStack stack){CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.remove("uwu_glitch_pending");n.remove("uwu_glitch_ready");n.remove("uwu_glitch_token");n.remove("uwu_glitch_fishing");});}
+    private static void cancel(ItemStack stack){CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.remove("uwu_glitch_pending");n.remove("uwu_glitch_ready");n.remove("uwu_glitch_token");n.remove("uwu_glitch_fishing");n.remove("uwu_glitch_fish_owner");n.remove("uwu_glitch_fish_hook");});}
     @Override public void inventoryTick(ItemStack stack,Level world,Entity entity,int slot,boolean selected){
         if(!(world instanceof ServerLevel level))return;
         CompoundTag n=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -74,13 +74,21 @@ public final class GlitchBow extends Item {
         if(entity instanceof Player p && p.getCooldowns().isOnCooldown(this))return;
         // Vanilla fishing hooks belong to the player and are not persisted on logout.
         // Keep the form while that hook remains active, including if the stack moves.
-        if(n.getBoolean("uwu_glitch_fishing") && entity instanceof Player p && p.fishing!=null)return;
+        if(n.getBoolean("uwu_glitch_fishing")){
+            if(n.hasUUID("uwu_glitch_fish_owner")){
+                Player owner=level.getServer().getPlayerList().getPlayer(n.getUUID("uwu_glitch_fish_owner"));
+                // Fake players are not in PlayerList, but may still be the holder.
+                if(owner==null && entity instanceof Player holder && holder.getUUID().equals(n.getUUID("uwu_glitch_fish_owner")))owner=holder;
+                if(owner==null)return;
+                if(owner.fishing!=null&&!owner.fishing.isRemoved()&&(!n.hasUUID("uwu_glitch_fish_hook")||owner.fishing.getUUID().equals(n.getUUID("uwu_glitch_fish_hook"))))return;
+            }else if(entity instanceof Player holder && holder.fishing!=null)return;
+        }
         if(n.hasUUID("uwu_glitch_token")&&(!n.hasUUID("uwu_glitch_id")||!GlitchCompletions.completed(level,n.getUUID("uwu_glitch_id"),n.getUUID("uwu_glitch_token"))))return;
         int current=currentIndex(stack);var choices=new ArrayList<Integer>();
         for(int i=0;i<FORMS.size();i++){var e=CounterArsenal.entry(FORMS.get(i));if(i!=current&&(e==null||CounterArsenal.active(e)))choices.add(i);}
         if(choices.isEmpty())return;
         int next=choices.get(level.random.nextInt(choices.size()));
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,d->{d.putInt("uwu_form",next);d.remove("uwu_glitch_pending");d.remove("uwu_glitch_ready");d.remove("uwu_glitch_token");d.remove("uwu_glitch_fishing");d.remove("uwu_static_until");});
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,d->{d.putInt("uwu_form",next);d.remove("uwu_glitch_pending");d.remove("uwu_glitch_ready");d.remove("uwu_glitch_token");d.remove("uwu_glitch_fishing");d.remove("uwu_glitch_fish_owner");d.remove("uwu_glitch_fish_hook");d.remove("uwu_static_until");});
     }
     /** Preserve all custom attributes except the two native base modifiers, which follow the form. */
     static void attributes(ItemAttributeModifierEvent event){
@@ -106,12 +114,14 @@ public final class GlitchBow extends Item {
         if(fishingForm && p.isShiftKeyDown()){
             CompoundTag data=s.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             if(data.getBoolean("uwu_glitch_pending")&&!data.getBoolean("uwu_glitch_fishing"))return InteractionResultHolder.fail(s);
+            if(data.hasUUID("uwu_glitch_fish_owner")&&!data.getUUID("uwu_glitch_fish_owner").equals(p.getUUID()))return InteractionResultHolder.fail(s);
             if(data.getBoolean("uwu_glitch_fishing")&&p.fishing==null)return InteractionResultHolder.fail(s);
-            boolean alreadyFishing=p.fishing!=null;
+            var priorHook=p.fishing;boolean alreadyFishing=priorHook!=null;
             var result=SpearFishing.use(world,p,hand);
             if(world instanceof ServerLevel level && (!alreadyFishing&&p.fishing!=null || alreadyFishing)){
                 begin(s,level,0,null);
-                CustomData.update(DataComponents.CUSTOM_DATA,s,n->n.putBoolean("uwu_glitch_fishing",true));
+                var activeHook=p.fishing!=null?p.fishing:priorHook;
+                CustomData.update(DataComponents.CUSTOM_DATA,s,n->{n.putBoolean("uwu_glitch_fishing",true);n.putUUID("uwu_glitch_fish_owner",p.getUUID());if(activeHook!=null)n.putUUID("uwu_glitch_fish_hook",activeHook.getUUID());});
             }
             return result;
         }
@@ -120,10 +130,13 @@ public final class GlitchBow extends Item {
         if(draw){if(r==Arsenal.Relic.CUPID_BOW&&!world.isClientSide)CupidEffects.resetDraw(p);p.startUsingItem(hand);return InteractionResultHolder.consume(s);}
         if(!(world instanceof ServerLevel level))return InteractionResultHolder.sidedSuccess(s,true);
         int cooldown=c!=null?60:r.cooldown;
+        // Every counter cast grants an eight-second matching ward. Retain the
+        // form through that active ability even though its item cooldown is shorter.
+        int formDuration=c!=null?Math.max(160,cooldown):cooldown;
         if(c!=null){
             CounterEffects.ward(level,p,c);
-            if(c.shape().equals("whip")){begin(s,level,Math.max(12,cooldown),null);RibbonLash.castCounter(level,p,c);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));}
-            else{begin(s,level,cooldown,null);if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
+            if(c.shape().equals("whip")){begin(s,level,Math.max(12,formDuration),null);RibbonLash.castCounter(level,p,c);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));}
+            else{begin(s,level,formDuration,null);if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
         }else if(RangedRelics.isWhip(r)||r==Arsenal.Relic.BLUE_HOUR_WAND){
             if(!RangedRelics.activate(level,p,r,hand))return InteractionResultHolder.fail(s);
             begin(s,level,Math.max(RangedRelics.isWhip(r)?12:0,cooldown),null);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
@@ -144,7 +157,9 @@ public final class GlitchBow extends Item {
         if(c!=null&&c.shape().equals("scythe")||r==Arsenal.Relic.VESPER_SCYTHE){
             if(72000-left<12||p.getPersistentData().getLong("uwu.scythe_flight")>level.getGameTime())return;
             if(c!=null)CounterEffects.ward(level,p,c);
-            begin(stack,level,60,null);
+            // The real scythe item cooldown is 60 ticks; counter scythes also
+            // retain their form through the matching 160-tick ward.
+            begin(stack,level,c!=null?160:60,null);
             if(RelicFlight.castGlitchWeapon(level,p,hand,r,c))p.getCooldowns().addCooldown(this,60);else cancel(stack);
             return;
         }
@@ -158,9 +173,14 @@ public final class GlitchBow extends Item {
         stack.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
     }
     @Override public boolean hurtEnemy(ItemStack stack,LivingEntity target,LivingEntity attacker){
-        var r=relic(stack);return r!=null?Arsenal.WEAPONS.get(r).get().hurtEnemy(stack,target,attacker):true;
+        var c=counter(stack);var r=relic(stack);
+        return c!=null?CounterArsenal.ITEMS.get(c.id()).get().hurtEnemy(stack,target,attacker):Arsenal.WEAPONS.get(r).get().hurtEnemy(stack,target,attacker);
     }
-    @Override public void postHurtEnemy(ItemStack stack,LivingEntity target,LivingEntity attacker){stack.hurtAndBreak(1,attacker,EquipmentSlot.MAINHAND);}
+    @Override public void postHurtEnemy(ItemStack stack,LivingEntity target,LivingEntity attacker){
+        var c=counter(stack);var r=relic(stack);
+        if(c!=null)CounterArsenal.ITEMS.get(c.id()).get().postHurtEnemy(stack,target,attacker);
+        else Arsenal.WEAPONS.get(r).get().postHurtEnemy(stack,target,attacker);
+    }
     @Override public boolean canPerformAction(ItemStack stack,net.neoforged.neoforge.common.ItemAbility ability){
         var c=counter(stack);var r=relic(stack);return c!=null?CounterArsenal.ITEMS.get(c.id()).get().canPerformAction(stack,ability):Arsenal.WEAPONS.get(r).get().canPerformAction(stack,ability);
     }

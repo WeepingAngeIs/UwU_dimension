@@ -161,7 +161,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         if (flight == null) return false;
         flight.getPersistentData().putUUID("uwu.glitch_id", stackId);
         flight.getPersistentData().putUUID("uwu.glitch_token", token);
-        GlitchBow.begin(stack, level, 14, token);
+        GlitchBow.begin(stack, level, counter == null ? 14 : 160, token);
         return true;
     }
 

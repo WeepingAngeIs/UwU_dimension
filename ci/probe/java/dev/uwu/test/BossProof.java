@@ -205,8 +205,18 @@ public final class BossProof {
             require(again.size()==1 && !again.getFirst().getUUID().equals(moth.getUUID()) && again.getFirst().getHealth()==500,"Court did not restart cleanly");
             if ("152045".equals(System.getenv("UWU_FIELD_SEED")) || System.getenv("UWU_RENEWAL")!=null) {
                 moth=again.getFirst();
-                moth.hurt(level.damageSources().playerAttack(vale.player),27);
-                require(moth.getHealth()==473,"Restart specimen did not retain initial damage");
+                // The fresh-world fixture includes Apothic Attributes, whose
+                // independent critical roll can otherwise change this exact hit.
+                var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ATTRIBUTE,
+                        net.minecraft.resources.ResourceLocation.parse("apothic_attributes:crit_chance"));
+                var chance=net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getHolder(key)
+                        .map(vale.player::getAttribute).orElse(null);
+                double previous=chance==null?0:chance.getBaseValue();
+                boolean accepted;
+                try {if(chance!=null)chance.setBaseValue(0);accepted=moth.hurt(level.damageSources().playerAttack(vale.player),27);}
+                finally {if(chance!=null)chance.setBaseValue(previous);}
+                require(accepted&&moth.getHealth()==473,"Restart specimen initial damage expected 473; actual="
+                        +moth.getHealth()+" accepted="+accepted+" guarding="+moth.guarding()+" critBase="+previous);
                 preparingRestart=true;
                 return false;
             }

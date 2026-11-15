@@ -38,6 +38,14 @@ public class Expedition {
                 if(GuardianCreeperProof.tick(level)){stage=-1;server.halt(false);}
                 return;
             }
+            if(System.getenv("UWU_GLITCH_LIFECYCLE")!=null){
+                if(GlitchLifecycleProof.tick(level)){stage=-1;server.halt(false);}
+                return;
+            }
+            if(System.getenv("UWU_GIANT_SAKURA")!=null){
+                if(GiantSakuraProof.tick(level)){stage=-1;server.halt(false);}
+                return;
+            }
             if(System.getenv("UWU_ROSTER_POLICY")!=null){
                 var actor=CounterProof.player(level,new com.mojang.authlib.GameProfile(java.util.UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da11"),"UwUArcher"));
                 level.addNewPlayer(actor);
