@@ -63,8 +63,9 @@ public final class BellHammer {
     private record Job(ServerLevel level, UUID owner, ItemStack tool, BlockPos center, long startTick, ArrayDeque<BlockPos> positions) {}
 
     private static boolean hammer(ItemStack stack) {
+        var form = GlitchBow.counter(stack);
         return stack.is(ITEM.get()) || (stack.getItem() instanceof CounterArsenal.CounterItem item
-                && item.entry.shape().equals("hammer"));
+                && item.entry.shape().equals("hammer")) || (form != null && form.shape().equals("hammer"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

@@ -21,10 +21,11 @@ final class FarmChakram {
                 || !(flight.level() instanceof ServerLevel level)
                 || !(flight.getOwner() instanceof ServerPlayer player)
                 || player.level() != level || !player.isAlive()
-                || !(flight.getItem().getItem() instanceof CounterArsenal.CounterItem item)
-                || !item.entry.shape().equals("chakram")
                 || !RelicReturns.active(player, flight)
                 || !player.getMainHandItem().isEmpty()) return;
+        var carried = flight.getItem();
+        var counter = carried.getItem() instanceof CounterArsenal.CounterItem item ? item.entry : GlitchBow.counter(carried);
+        if (counter == null || !counter.shape().equals("chakram")) return;
 
         long[] visited = flight.getPersistentData().getLongArray(VISITED);
         if (visited.length >= MAX_VISITED) return;

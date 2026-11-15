@@ -43,6 +43,7 @@ public final class UwUDimension {
         SacredSpring.register(bus);
         WeatherParticles.register(bus);
         MoonveilWood.register(bus);
+        GiantSakuraSapling.register(bus);
         Understory.register(bus);
         ReachArchitecture.register(bus);
         ITEMS.register(bus);

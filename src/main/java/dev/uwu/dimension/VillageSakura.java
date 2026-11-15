@@ -61,6 +61,10 @@ final class VillageSakura {
                         int h = GroveSites.height(level,wx+dx,wz+dz);
                         if (h <= 63 || Math.abs(h-y) > 2 || !GroveSites.cherry(level,wx+dx,h+1,wz+dz)) suitable = false;
                     }
+                    // All four trunk columns must meet the same soil surface: do not
+                    // build independent, exposed pillars down a sloping hillside.
+                    for(int dx=0;dx<2;dx++)for(int dz=0;dz<2;dz++)
+                        if(GroveSites.height(level,site.wx(x+dx,z+dz),site.wz(x+dx,z+dz))!=y)suitable=false;
                     if (suitable) {
                         int height = 20 + Math.floorMod(HeartwaterFeature.Valley.mix(wx,wz,level.getSeed()),6);
                         return Optional.of(new Plot(x,y,z,height));
@@ -73,45 +77,15 @@ final class VillageSakura {
 
     private static void build(HeartwaterFeature.Valley v, Plot p) {
         if (!v.overlaps(p.x-RADIUS,p.z-RADIUS,p.x+RADIUS,p.z+RADIUS)) return;
-        BlockState log = Blocks.CHERRY_LOG.defaultBlockState();
-        BlockState leaf = Blocks.CHERRY_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT,true);
-        for (int y=1; y<=p.trunk; y++) {
-            int radius = y<=4 ? 2 : 1;
-            for (int x=-radius; x<=radius; x++) for (int z=-radius; z<=radius; z++) {
-                if (Math.abs(x)+Math.abs(z) <= radius+1) put(v,p,x,y,z,log);
+        var plan=GiantSakuraTree.plan(p.trunk,v.seed ^ p.x*31L ^ p.z);
+        for(var entry:plan.entrySet()){
+            var at=entry.getKey();var state=entry.getValue();
+            if(state.is(Blocks.CHERRY_LOG)){
+                var axis=state.getValue(RotatedPillarBlock.AXIS);
+                if(axis!=Direction.Axis.Y)state=state.setValue(RotatedPillarBlock.AXIS,
+                        v.face(axis==Direction.Axis.X?Direction.EAST:Direction.SOUTH).getAxis());
             }
-        }
-        // Follow small surveyed dips without grading or replacing the surrounding ground.
-        for (int x=-2; x<=2; x++) for (int z=-2; z<=2; z++) {
-            if (Math.abs(x)+Math.abs(z)>3) continue;
-            int ground=GroveSites.height(v.level.getLevel(),v.wx(p.x+x,p.z+z),v.wz(p.x+x,p.z+z));
-            for (int y=ground-p.y+1; y<1; y++) put(v,p,x,y,z,log);
-        }
-        // Off-center, overlapping canopies give the skyline several different heights.
-        // Each lobe is carried by a rising, slightly curved branch from the trunk.
-        int[][] boughs = {
-                {-9,4,-2,8,4,7}, {6,5,-7,8,5,7}, {9,3,5,7,4,8},
-                {-5,6,8,8,5,7}, {0,6,0,7,5,7}, {-4,8,-6,6,4,6}
-        };
-        for (int[] branch : boughs) {
-            int steps=Math.max(1,Math.max(Math.abs(branch[0]),Math.abs(branch[2])));
-            for (int i=0; i<=steps; i++) {
-                int x=Math.round(branch[0]*i/(float)steps);
-                int y=p.trunk+Math.round(branch[1]*i/(float)steps)
-                        +(int)Math.round(Math.sin(Math.PI*i/steps));
-                int z=Math.round(branch[2]*i/(float)steps);
-                Direction.Axis axis=Math.abs(branch[0])>=Math.abs(branch[2])?Direction.Axis.X:Direction.Axis.Z;
-                put(v,p,x,y,z,log.setValue(RotatedPillarBlock.AXIS,v.face(axis==Direction.Axis.X?Direction.EAST:Direction.SOUTH).getAxis()));
-            }
-            int bx=branch[0], by=p.trunk+branch[1]+2, bz=branch[2];
-            int rx=branch[3], ry=branch[4], rz=branch[5];
-            for (int x=-rx;x<=rx;x++) for (int z=-rz;z<=rz;z++) for (int y=-ry;y<=ry;y++) {
-                double edge=(double)(x*x)/(rx*rx)+(double)(y*y)/(ry*ry)+(double)(z*z)/(rz*rz);
-                if (edge>1 || by+y<=p.trunk) continue;
-                int noise=HeartwaterFeature.Valley.mix(p.x+bx+x,p.z+bz+z,v.seed+y);
-                if (edge>.72 && (noise&7)==0 || edge<.72 && (noise&127)==0) continue;
-                put(v,p,bx+x,by+y,bz+z,leaf);
-            }
+            put(v,p,at.getX(),at.getY()+1,at.getZ(),state);
         }
     }
 

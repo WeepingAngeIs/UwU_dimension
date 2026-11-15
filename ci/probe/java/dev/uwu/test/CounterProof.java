@@ -126,14 +126,16 @@ public final class CounterProof {
             require(!flights.getFirst().isAlive()&&player.getMainHandItem().is(scythe)&&player.getMainHandItem().getDamageValue()==1,"Thrown scythe failed to return");
             System.out.println("RANGED RELICS PASS textured lash, exactly two axolotls, held scythe return");
             var glitch=(GlitchBow)UwUDimension.GLITCH.get();var bow=new ItemStack(glitch);player.setItemInHand(InteractionHand.MAIN_HAND,bow);
-            int last=-1;
-            for(int i=0;i<180;i++){
-                player.getCooldowns().removeCooldown(glitch);glitch.use(level,player,InteractionHand.MAIN_HAND);glitch.releaseUsing(bow,level,player,71980);
-                int next=bow.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag().getInt("uwu_form");
-                require(next!=last,"Glitch repeated form");last=next;require(player.getMainHandItem()==bow&&bow.getCount()==1,"Glitch manufactured inventory weapon");clearProjectiles(level,player);
-            }
-            require(bow.getDamageValue()==180,"Glitch did not preserve cumulative durability");
-            System.out.println("GLITCH PASS 180 distinct-consecutive firing transitions on one durable stack");
+            int form=GlitchBow.FORMS.indexOf("counter_runic_twinblade");
+            require(form>=0,"Missing preserved Runic Twin Chakram form");
+            net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,bow,n->n.putInt("uwu_form",form));
+            require(GlitchBow.currentIndex(bow)==form&&GlitchBow.counter(bow).id().equals("counter_runic_twinblade"),"Glitch selected the wrong form");
+            require(glitch.getUseAnimation(bow)!=UseAnim.BOW,"Twin Chakram still uses bow animation");
+            var tooltip=new ArrayList<net.minecraft.network.chat.Component>();
+            glitch.appendHoverText(bow,Item.TooltipContext.EMPTY,tooltip,TooltipFlag.Default.NORMAL);
+            require(tooltip.stream().anyMatch(t->t.getString().contains(GlitchBow.counter(bow).name())),"Glitch tooltip does not identify the current chakram form");
+            require(tooltip.stream().noneMatch(t->t.getString().contains("Draw and fire")),"Glitch chakram retains bow instructions");
+            System.out.println("GLITCH FORM PASS saved index, current Twin Chakram tooltip and non-bow animation");
             loot(level);
             var site=GroveSites.first(level);level.getChunkAt(site.pos(0,53,103));
             dev.uwu.test.ChestProof.run(level,site.pos(0,53,103));

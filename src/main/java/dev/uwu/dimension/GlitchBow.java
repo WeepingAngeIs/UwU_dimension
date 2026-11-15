@@ -170,4 +170,10 @@ public final class GlitchBow extends Item {
     @Override public boolean mineBlock(ItemStack stack,Level level,net.minecraft.world.level.block.state.BlockState state,net.minecraft.core.BlockPos pos,LivingEntity user){
         var c=counter(stack);var r=relic(stack);return c!=null?CounterArsenal.ITEMS.get(c.id()).get().mineBlock(stack,level,state,pos,user):Arsenal.WEAPONS.get(r).get().mineBlock(stack,level,state,pos,user);
     }
+    @Override public float getDestroySpeed(ItemStack stack,net.minecraft.world.level.block.state.BlockState state){
+        ItemStack form=mimicStack(stack);return form.getItem().getDestroySpeed(form,state);
+    }
+    @Override public boolean isCorrectToolForDrops(ItemStack stack,net.minecraft.world.level.block.state.BlockState state){
+        ItemStack form=mimicStack(stack);return form.getItem().isCorrectToolForDrops(form,state);
+    }
 }

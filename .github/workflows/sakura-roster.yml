@@ -1,7 +1,7 @@
 name: Sakura weapon roster evidence
 on:
   push:
-    branches: [feature/sakura-roster-art]
+    branches: [feature/sakura-roster-art, feature/sakura-glitch-guardian]
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
           grep -F 'UWU ROSTER ACQUISITION PASS' build/counter-server/counter.log
           grep -F 'UWU RETUNING PASS 133 targets in both hands' build/counter-server/counter.log
           grep -F 'COUNTER ROSTER PASS 133 normal casts' build/counter-server/counter.log
-          grep -F 'GLITCH PASS 180' build/counter-server/counter.log
+          grep -F 'GLITCH FORM PASS saved index' build/counter-server/counter.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

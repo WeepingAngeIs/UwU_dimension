@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {"item": "minecraft:cherry_sapling"},
+    {"item": "minecraft:cherry_sapling"},
+    {"item": "minecraft:cherry_sapling"},
+    {"item": "minecraft:cherry_sapling"},
+    {"item": "minecraft:bone_meal"}
+  ],
+  "result": {"id": "uwudimension:giant_sakura_sapling", "count": 1}
+}
