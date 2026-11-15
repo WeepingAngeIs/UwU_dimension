@@ -23,6 +23,7 @@ public final class UwUDimension {
     public UwUDimension(IEventBus bus, net.neoforged.fml.ModContainer container) {
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,AcquisitionPolicy.SPEC,"uwudimension-server.toml");
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,HeartLauncher.SPEC,"uwudimension-launcher.toml");
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT,SacredSpring.CLIENT_SPEC,"uwudimension-client.toml");
         bus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Loading event) -> {
             if(event.getConfig().getSpec()==AcquisitionPolicy.SPEC){
                 AcquisitionPolicy.heartLocketCraftingEnabled();AcquisitionPolicy.weaponAcquisitionEnabled();
@@ -38,6 +39,8 @@ public final class UwUDimension {
         ReachLife.register(bus);
         SakuraCraft.register(bus);
         SakuraMaterials.register(bus);
+        SakuraTools.register(bus);
+        SacredSpring.register(bus);
         MoonveilWood.register(bus);
         Understory.register(bus);
         ReachArchitecture.register(bus);

@@ -28,7 +28,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** A deliberate crouch-break queues one 9 by 9 plane, processed at eight blocks per tick. */
 @EventBusSubscriber(modid = "uwudimension")
-final class BellHammer {
+public final class BellHammer {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("uwudimension");
     static final Supplier<Item> ITEM = ITEMS.register("bell_hammer", HammerItem::new);
     private static final ArrayDeque<Job> JOBS = new ArrayDeque<>();
@@ -56,7 +56,7 @@ final class BellHammer {
         }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context,
                 java.util.List<net.minecraft.network.chat.Component> tips, net.minecraft.world.item.TooltipFlag flag) {
-            tips.add(net.minecraft.network.chat.Component.literal("Crouch and mine to break a 9 × 9 plane."));
+            tips.add(net.minecraft.network.chat.Component.literal("Crouch and mine for a 9 × 9 plane when server area mining is enabled."));
         }
     }
 
@@ -64,7 +64,8 @@ final class BellHammer {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void breakBlock(BlockEvent.BreakEvent event) {
-        if (processing || event.isCanceled() || !(event.getPlayer() instanceof ServerPlayer player)
+        if (processing || event.isCanceled() || !AcquisitionPolicy.SPEC.isLoaded() || !AcquisitionPolicy.AREA_MINING.get()
+                || !(event.getPlayer() instanceof ServerPlayer player)
                 || !player.isShiftKeyDown() || !player.getMainHandItem().is(ITEM.get())
                 || !SakuraAccess.mayInteract(player, event.getPos()) || JOBS.size() >= 32) return;
         if (!event.getState().is(BlockTags.MINEABLE_WITH_PICKAXE) || event.getState().hasBlockEntity()
@@ -95,7 +96,8 @@ final class BellHammer {
             Job job = JOBS.peek();
             if (job.level().getServer() != event.getServer()) { JOBS.remove(); continue; }
             ServerPlayer player = event.getServer().getPlayerList().getPlayer(job.owner());
-            if (player == null || !player.isAlive() || player.serverLevel() != job.level()
+            if (!AcquisitionPolicy.SPEC.isLoaded() || !AcquisitionPolicy.AREA_MINING.get()
+                    || player == null || !player.isAlive() || player.serverLevel() != job.level()
                     || !player.getMainHandItem().is(ITEM.get())) { JOBS.remove(); continue; }
             if (job.level().getGameTime() <= job.startTick()) break;
             if (!job.level().hasChunkAt(job.center()) || !job.level().getBlockState(job.center()).isAir()) {

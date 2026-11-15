@@ -98,6 +98,7 @@ final class RenewalProof {
         }
         var issues = new java.util.ArrayList<Throwable>();
         exercise(issues, "guardian, projectiles and players", () -> CombatRenewalProof.run(reach));
+        exercise(issues, "dagger, field tools and lore", () -> ToolLoreProof.run(reach));
         exercise(issues, "villages, projects and plants", () -> VillageRenewalProof.run(reach));
         exercise(issues, "new terrain and materials", () -> ReachMaterialsProof.run(reach));
         exercise(issues, "Sakura native understory", () -> UnderstoryProof.run(reach));

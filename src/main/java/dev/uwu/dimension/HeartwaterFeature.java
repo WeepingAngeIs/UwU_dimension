@@ -325,6 +325,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             if(!overlaps(-14,79,14,106))return;
             shell(-14,51,82,14,62,106,ReachChambers.Room.BATH);
             doorway(0,52,82,ReachArchitecture.PEARL.get());
+            box(-5,51,88,5,51,99,SacredSpring.BED.get());
             box(-5,52,88,5,52,99,water);
             for(int z=86;z<=102;z+=4)for(int x:new int[]{-11,11}){
                 block(x,60,z,ROSETTE.get());

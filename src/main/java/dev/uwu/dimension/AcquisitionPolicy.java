@@ -10,6 +10,7 @@ public final class AcquisitionPolicy {
          GUARDIAN_POPULATION_RADIUS,GUARDIAN_POPULATION_CAP,GUARDIAN_PERMISSION;
  public static final ModConfigSpec.BooleanValue HEART_LOCKET_CRAFTING;
  public static final ModConfigSpec.BooleanValue WEAPON_ACQUISITION;
+ public static final ModConfigSpec.BooleanValue AREA_MINING;
  public static final ModConfigSpec.BooleanValue CUPID_WISHES, CUPID_PLAYER_WITNESSES;
  public static final ModConfigSpec.IntValue CUPID_WISH_RADIUS, CUPID_WISH_PERMISSION;
  static {
@@ -17,6 +18,7 @@ public final class AcquisitionPolicy {
   SETTLEMENT_DISTANCE=b.comment("Minimum separation between native new Petal/Dusk village footprints, in blocks. Chosen when the world first opens with this version and then saved per world; old villages keep their locations.").worldRestart().defineInRange("nativeVillageSpacingBlocks",384,192,2048);
   HEART_LOCKET_CRAFTING=b.comment("Allow crafting heartwater_locket. Restart the world/server after changing; clients receive the server policy.").worldRestart().define("heartLocketCraftingEnabled",true);
   WEAPON_ACQUISITION=b.comment("Allow new survival acquisition of all UwU weapons through crafting, trades and generated loot (including unopened Lootr rolls). Existing owned/opened inventories and operator/creative access remain. Restart after changing.").worldRestart().define("weaponAcquisitionEnabled",true);
+  AREA_MINING=b.comment("Allow deliberate 9 by 9 Bell Hammer mining. Block permissions and harvest rules still apply.").define("bellHammerAreaMiningEnabled",true);
   b.push("cupidWishes");
   CUPID_WISHES=b.comment("Allow two selected charmed targets to summon a young creature.").define("enabled",true);
   CUPID_PLAYER_WITNESSES=b.comment("Allow a player who opts in to witness a creature wish.").define("playerWitnesses",true);
