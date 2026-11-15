@@ -26,8 +26,38 @@
               2
             ],
             "continentalness": [
-              -2,
+              -0.52,
               -0.22
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:moonwake_trench",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              2
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -2,
+              -0.53
             ],
             "depth": [
               -2,
@@ -44,12 +74,102 @@
               2
             ],
             "humidity": [
+              -0.65,
+              0.5
+            ],
+            "erosion": [
+              -0.46,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:ribbon_bluffs",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              -0.66
+            ],
+            "erosion": [
+              -0.46,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:lantern_fens",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              0.51,
+              2
+            ],
+            "erosion": [
+              -0.46,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -0.21,
+              2
+            ],
+            "depth": [
+              -2,
+              0.52
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:velvet_highlands",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
               -2,
               2
             ],
             "erosion": [
               -2,
-              2
+              -0.47
             ],
             "weirdness": [
               -2,
@@ -74,8 +194,68 @@
               2
             ],
             "humidity": [
+              0.5,
+              2
+            ],
+            "erosion": [
               -2,
               2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -2,
+              2
+            ],
+            "depth": [
+              0.54,
+              2
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:lantern_grotto",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -0.24,
+              0.49
+            ],
+            "erosion": [
+              -2,
+              2
+            ],
+            "weirdness": [
+              -2,
+              2
+            ],
+            "continentalness": [
+              -2,
+              2
+            ],
+            "depth": [
+              0.54,
+              2
+            ],
+            "offset": 0
+          }
+        },
+        {
+          "biome": "uwudimension:vesper_hollows",
+          "parameters": {
+            "temperature": [
+              -2,
+              2
+            ],
+            "humidity": [
+              -2,
+              -0.25
             ],
             "erosion": [
               -2,

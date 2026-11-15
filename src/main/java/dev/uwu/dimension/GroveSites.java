@@ -12,6 +12,8 @@ import java.util.Random;
 
 /** Pure land survey. Base-height queries sample the generator, never a neighboring generating chunk. */
 public final class GroveSites {
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.level.biome.Biome> SETTLEMENT_LAND =
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("sakura_settlement_land"));
     public static final int SPACING=768;
     private static final class Maps {
         final Map<Long,Site> sites=new ConcurrentHashMap<>();
@@ -38,7 +40,7 @@ public final class GroveSites {
         var biome=chunks.getGenerator().getBiomeSource().getNoiseBiome(
                 net.minecraft.core.QuartPos.fromBlock(x),net.minecraft.core.QuartPos.fromBlock(y),
                 net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler());
-        return biome.is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE);
+        return biome.is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE) || biome.is(SETTLEMENT_LAND);
     }
     public static Site site(ServerLevel level,int gx,int gz){
         Maps m=maps(level);
@@ -66,9 +68,22 @@ public final class GroveSites {
         }
         return new Site(gx*SPACING,gz*SPACING,turn,0,gx,gz,false,false);
     }
+    static void restore(ServerLevel level, Site saved) {
+        Maps cache = maps(level);
+        if (saved.usable()) cache.sites.put(ChunkPos.asLong(saved.gx(),saved.gz()), saved);
+        cache.first = saved;
+    }
+
     public static Site first(ServerLevel level){
+        Maps cache = maps(level);
+        Site selected = cache.first;
+        if (selected != null) return selected;
+        synchronized (cache) { return selectFirst(level); }
+    }
+
+    private static Site selectFirst(ServerLevel level){
         Maps m=maps(level);Site first=m.first;if(first!=null)return first;
-        for(int ring=0;ring<=18;ring++)for(int gx=-ring;gx<=ring;gx++)for(int gz=-ring;gz<=ring;gz++){
+        for(int ring=0;ring<=3;ring++)for(int gx=-ring;gx<=ring;gx++)for(int gz=-ring;gz<=ring;gz++){
             if(Math.max(Math.abs(gx),Math.abs(gz))!=ring)continue;
             Site s=site(level,gx,gz);
             if(!s.usable())continue;
@@ -78,7 +93,8 @@ public final class GroveSites {
             }
             m.first=s;return s;
         }
-        throw new IllegalStateException("Unable to find inland cherry foothills");
+        // Ordinary shore entry remains possible on seeds without a qualified village in the survey.
+        return m.first = new Site(0, 0, 0, 64, 0, 0, false, false);
     }
     private static boolean walkToVillage(ServerLevel level,Site site,BlossomVillage.Plan village){
         int startZ=site.lip()-9;

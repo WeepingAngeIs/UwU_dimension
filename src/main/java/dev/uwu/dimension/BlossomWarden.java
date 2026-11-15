@@ -46,11 +46,19 @@ import net.minecraft.world.phys.Vec3;
 /** An elder flowering hedge. Protects residents from approaching undead and recorded attackers. */
 public final class BlossomWarden extends PathfinderMob {
     public static final int LAUNCH_HEIGHT = 8000;
+    /** Ticks to wait for a queued offender that has vanished (exploded, killed, despawned) before dropping it. */
+    private static final int MISSING_GRACE = 10;
+    /** Ticks without closing the gap before the guardian intercepts instead of waiting on a blocked route. */
+    private static final int STALL_LIMIT = 60;
     private static final byte IDLE = 0, CHASE = 1, GRIP = 2, THROW = 3;
     private static final EntityDataAccessor<Byte> POSE = SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> FEMALE =
+            SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BOOLEAN);
+    public boolean female() { return entityData.get(FEMALE); }
     private final ArrayDeque<UUID> offenders = new ArrayDeque<>();
     private BlockPos court;
-    private int pursueTicks, motionTicks, missingTicks;
+    private int pursueTicks, motionTicks, missingTicks, stallTicks;
+    private double bestGap = Double.MAX_VALUE;
     private double takeoffY;
     private boolean ownCombatSpeed;
     private Vec3 destination = Vec3.ZERO;
@@ -61,12 +69,14 @@ public final class BlossomWarden extends PathfinderMob {
         getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
         setHealth(6666);
         setPersistenceRequired();
+        if (!level.isClientSide) entityData.set(FEMALE, random.nextBoolean());
 
     }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(POSE, IDLE);
+        builder.define(FEMALE, false);
     }
 
     @Override protected void registerGoals() {
@@ -182,11 +192,10 @@ public final class BlossomWarden extends PathfinderMob {
         }
         if (offenders.isEmpty() && tickCount%10==0) acquireThreat(level);
         if (offenders.isEmpty()) return;
-        // This short vanilla ticket expires automatically and keeps an active pursuit ticking.
-        if (tickCount % 3 == 0) level.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, chunkPosition(), 2, getId());
         Entity tracked = level.getEntity(offenders.getFirst());
         if (!(tracked instanceof LivingEntity culprit) || !culprit.isAlive()) {
-            if (tracked != null || ++missingTicks > 600) finish(level);
+            // Still present but dead: drop now. Vanished (exploded, killed, despawned): drop after a short grace.
+            if (tracked != null || ++missingTicks >= MISSING_GRACE) finish(level);
             return;
         }
         missingTicks = 0;
@@ -195,12 +204,25 @@ public final class BlossomWarden extends PathfinderMob {
         if(culprit.getPersistentData().contains(GuardianFlight.STATE)&&phase!=GRIP&&phase!=THROW){finish(level);return;}
         if (phase == IDLE || phase == CHASE) {
             getLookControl().setLookAt(culprit, 30, 30);
-            if (++pursueTicks > 600 && distanceToSqr(culprit) > reachSquared(culprit)) {
+            ++pursueTicks;
+            boolean inReach = distanceToSqr(culprit) <= reachSquared(culprit);
+            // If the gap stops closing (water, a cliff, no usable route), intercept now instead of waiting 600 ticks.
+            double gap = Math.sqrt(distanceToSqr(culprit));
+            if (gap < bestGap - .5) { bestGap = gap; stallTicks = 0; }
+            else if (!inReach) stallTicks++;
+            if (!inReach && (stallTicks >= STALL_LIMIT || pursueTicks >= 600)) {
                 Vec3 side = culprit.getLookAngle().multiply(-1,0,-1).normalize().scale(1.4);
                 // Intercept works even on a cliff or in flight. The grip begins on this same tick.
-                teleportTo(culprit.getX()+side.x, culprit.getY(), culprit.getZ()+side.z);
+                Vec3 landing = culprit.position().add(side);
+                AABB at = getBoundingBox().move(landing.subtract(position()));
+                if (!level.getWorldBorder().isWithinBounds(at) || !level.noCollision(this, at)) {
+                    finish(level);
+                    return;
+                }
+                teleportTo(landing.x, landing.y, landing.z);
                 setDeltaMovement(Vec3.ZERO);
                 fallDistance = 0;
+                stallTicks = 0;
                 petals(level, position());
             }
             if (distanceToSqr(culprit) <= reachSquared(culprit)) {
@@ -246,7 +268,6 @@ public final class BlossomWarden extends PathfinderMob {
         List<Keeper> keepers = level.getEntitiesOfClass(Keeper.class, area,
                 keeper -> keeper.isAlive()
                         && (keeper.villageCourt() == null || this.court.equals(keeper.villageCourt())));
-        if (keepers.isEmpty()) return;
         level.getEntitiesOfClass(Mob.class, area, mob -> isHostileThreat(mob, keepers))
                 .stream()
                 .min(Comparator.comparingDouble((Mob mob) -> this.distanceToSqr(mob)))
@@ -256,7 +277,8 @@ public final class BlossomWarden extends PathfinderMob {
     private boolean isHostileThreat(Mob mob, List<Keeper> keepers) {
         if (mob == this || mob instanceof BlossomWarden || mob instanceof Keeper || !mob.isAlive()) return false;
         if (mob.getPersistentData().contains(GuardianFlight.STATE) || !(mob instanceof Enemy)) return false;
-        return keepers.stream().anyMatch(keeper -> mob.distanceToSqr(keeper) <= 24.0D * 24.0D);
+        boolean guardsNearby = distanceToSqr(mob) <= 24 * 24 && hasLineOfSight(mob);
+        return guardsNearby || keepers.stream().anyMatch(keeper -> mob.distanceToSqr(keeper) <= 24.0D * 24.0D);
     }
 
     private double reachSquared(LivingEntity foe) {
@@ -277,7 +299,7 @@ public final class BlossomWarden extends PathfinderMob {
         offenders.removeFirst();
         setTarget(null);
         getNavigation().stop();
-        pursueTicks=0; missingTicks=0;
+        pursueTicks=0; missingTicks=0; stallTicks=0; bestGap=Double.MAX_VALUE;
         transition(offenders.isEmpty()?IDLE:CHASE);
         if (offenders.isEmpty() && court != null && distanceToSqr(Vec3.atBottomCenterOf(court))>50*50) {
             teleportTo(court.getX()+.5,court.getY(),court.getZ()+.5);
@@ -295,6 +317,7 @@ public final class BlossomWarden extends PathfinderMob {
     @Override public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("GuardianVitalityVersion",1);
+        tag.putBoolean("FemaleGuardian", female());
         if (court != null) tag.putLong("VillageCourt",court.asLong());
         ListTag list = new ListTag();
         for (UUID id:offenders) { var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry); }
@@ -304,6 +327,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
     @Override public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        entityData.set(FEMALE, tag.getBoolean("FemaleGuardian"));
         double oldMaximum=320;
         var attributes=tag.getList("attributes",Tag.TAG_COMPOUND);
         for(int i=0;i<attributes.size();i++) if(attributes.getCompound(i).getString("id").equals("minecraft:generic.max_health"))oldMaximum=attributes.getCompound(i).getDouble("base");

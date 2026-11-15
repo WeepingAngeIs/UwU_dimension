@@ -24,7 +24,7 @@ public final class BlossomVillage {
     private record Key(int gx,int gz,boolean dusk){}
     private static final Map<ServerLevel,Map<Key,Optional<Plan>>> CACHE=new WeakHashMap<>();
     private static synchronized Map<Key,Optional<Plan>> cache(ServerLevel level){return CACHE.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
-    private static final Block[] JOBS={Blocks.COMPOSTER,Blocks.LOOM,Blocks.BARREL,Blocks.LECTERN,Blocks.SMITHING_TABLE,Blocks.FLETCHING_TABLE,Blocks.CARTOGRAPHY_TABLE,Blocks.STONECUTTER};
+    private static final Block[] JOBS={Blocks.COMPOSTER,Blocks.LOOM,Blocks.SMOKER,Blocks.BREWING_STAND,Blocks.CARTOGRAPHY_TABLE,Blocks.LECTERN,Blocks.FLETCHING_TABLE,Blocks.STONECUTTER};
     private static final int HALF=32;
     private static int ground(ServerLevel level,GroveSites.Site s,int x,int z){return GroveSites.height(level,s.wx(x,z),s.wz(x,z));}
     public static Optional<Plan> plan(ServerLevel level,GroveSites.Site s,boolean dusk){
@@ -86,14 +86,24 @@ public final class BlossomVillage {
     }
     static void place(HeartwaterFeature.Valley v,Plan p){
         if(!v.overlaps(p.x()-HALF-3,p.z()-30,p.x()+HALF+3,p.z()+30))return;
-        for(int dx=-HALF;dx<=HALF;dx++)for(int dz=-1;dz<=1;dz++)
-            road(v,p.x()+dx,p.road()[dx+HALF],p.z()+p.bends()[dx+HALF]+dz,p.dusk());
+        for (int dx=-HALF; dx<=HALF; dx++) for (int dz=-1; dz<=1; dz++) {
+            int i=dx+HALF, y=p.road()[i], x=p.x()+dx, z=p.z()+p.bends()[i]+dz;
+            road(v,x,y,z,p.dusk());
+            if (i+1<p.road().length && p.road()[i+1]<y) step(v,x,y,z,Direction.WEST,p.dusk());
+            else if (i>0 && p.road()[i-1]<y) step(v,x,y,z,Direction.EAST,p.dusk());
+        }
         for(House h:p.houses()){
             int za=p.z()+p.bends()[h.x()-p.x()+HALF]+h.side()*2,zb=h.z()-h.side()*h.depth();
             int y0=p.road()[h.x()-p.x()+HALF],n=Math.abs(zb-za);
             for(int i=0;i<=n;i++)for(int dx=-1;dx<=1;dx++){
                 int y=y0+(int)Math.round((h.floor()-y0)*i/(double)Math.max(1,n));
-                road(v,h.x()+dx,y,za+i*h.side(),p.dusk());
+                int x = h.x()+dx, z = za+i*h.side();
+                road(v,x,y,z,p.dusk());
+                int previous = y0+(int)Math.round((h.floor()-y0)*Math.max(0,i-1)/(double)Math.max(1,n));
+                int next = y0+(int)Math.round((h.floor()-y0)*Math.min(n,i+1)/(double)Math.max(1,n));
+                Direction inward = h.side()>0 ? Direction.SOUTH : Direction.NORTH;
+                if (previous<y) step(v,x,y,z,inward,p.dusk());
+                else if (next<y) step(v,x,y,z,inward.getOpposite(),p.dusk());
             }
             home(v,p,h);
         }
@@ -149,6 +159,9 @@ public final class BlossomVillage {
         Block surface=patch<2?Blocks.COBBLESTONE:patch<4?Blocks.ANDESITE:patch==4?Blocks.MOSSY_STONE_BRICKS:
                 dark?Blocks.TUFF_BRICKS:Blocks.DIRT_PATH;
         clear(v,x,y+1,z);floor(v,x,y,z,surface);
+    }
+    private static void step(HeartwaterFeature.Valley v, int x, int y, int z, Direction uphill, boolean dusk) {
+        v.put(x,y,z,v.stair(dusk ? Blocks.TUFF_BRICK_STAIRS : Blocks.MOSSY_STONE_BRICK_STAIRS, uphill));
     }
     private static void home(HeartwaterFeature.Valley v,Plan p,House h){
         int x=h.x(),z=h.z(),y=h.floor(),w=h.width(),d=h.depth(),side=h.side(),front=z-side*d;

@@ -31,6 +31,7 @@ public final class ReefLife {
     static boolean isReach(Level level) { return level.dimension().equals(REACH); }
     static boolean isProduceRealm(Level level) { return level.dimension().equals(REACH); }
     public static final ResourceKey<Biome> REEF = ResourceKey.create(Registries.BIOME, UwUDimension.id("blush_reef"));
+    static final ResourceKey<Biome> TRENCH = ResourceKey.create(Registries.BIOME, UwUDimension.id("moonwake_trench"));
     private static final DeferredRegister<EntityType<?>> TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, "uwudimension");
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, "uwudimension");
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("uwudimension");
@@ -56,12 +57,12 @@ public final class ReefLife {
                 WaterAnimal::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
     // An additional small, local shoal when vanilla's global water cap is occupied elsewhere.
-    // Only loaded, open surface water or water near the swimmer is sampled. Pokémon use Cobblemon itself.
+    // Only loaded, open surface water or water near the swimmer is sampled. PokÃ©mon use Cobblemon itself.
     private static void waterLife(PlayerTickEvent.Post e) {
         if (!(e.getEntity() instanceof ServerPlayer player) || player.isSpectator() || !isReach(player.level())) return;
         ServerLevel level=player.serverLevel();
         long clock=level.getGameTime()+player.getId();
-        if (clock%10==0 && player.isUnderWater() && level.getBiome(player.blockPosition()).is(REEF)) {
+        if (clock%10==0 && player.isUnderWater() && seaBiome(level, player.blockPosition())) {
             RandomSource rng=player.getRandom();
             BlockPos glint=player.blockPosition().offset(rng.nextInt(13)-6,rng.nextInt(7)-3,rng.nextInt(13)-6);
             if (level.getFluidState(glint).is(FluidTags.WATER))
@@ -82,7 +83,7 @@ public final class ReefLife {
             BlockPos at=new BlockPos(axis.getX(),y,axis.getZ());
             if(!clearWater(level,at)||level.getNearestPlayer(at.getX()+.5,y,at.getZ()+.5,18,false)!=null)continue;
             AABB area=new AABB(at).inflate(42,16,42);
-            boolean sea=level.getBiome(at).is(REEF);
+            boolean sea=seaBiome(level, at);
             if(sea && surface-y<=8 && level.canSeeSkyFromBelowWater(at) && rng.nextBoolean()
                     && level.getEntitiesOfClass(Dolphin.class,area,d->d.getType()==DOLPHIN.get()).size()<2) {
                 DOLPHIN.get().spawn(level,at,MobSpawnType.NATURAL);
@@ -105,23 +106,60 @@ public final class ReefLife {
         return l.getBlockState(p).is(Blocks.WATER) && l.getBlockState(p.above()).is(Blocks.WATER)
                 && l.getBlockState(p.below()).is(Blocks.WATER);
     }
+    private static boolean seaBiome(LevelReader level, BlockPos at) {
+        var biome = level.getBiome(at);
+        return biome.is(REEF) || biome.is(TRENCH);
+    }
+
     public static final class Garden extends Feature<NoneFeatureConfiguration> {
-        public Garden(){super(NoneFeatureConfiguration.CODEC);}
-        @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> ctx) {
-            var l=ctx.level();var r=ctx.random();BlockPos center=ctx.origin();
-            if(!l.getLevel().dimension().equals(REACH))return false;
-            Block[] colony={Blocks.BRAIN_CORAL_BLOCK,Blocks.FIRE_CORAL_BLOCK,Blocks.BUBBLE_CORAL_BLOCK,Blocks.TUBE_CORAL_BLOCK,Blocks.HORN_CORAL_BLOCK};
-            Block[] crowns={Blocks.BRAIN_CORAL_FAN,Blocks.FIRE_CORAL,Blocks.BUBBLE_CORAL_FAN,Blocks.TUBE_CORAL,Blocks.HORN_CORAL_FAN};
-            int kind=r.nextInt(colony.length),size=2+r.nextInt(3);
-            for(int dx=-size;dx<=size;dx++)for(int dz=-size;dz<=size;dz++) {
-                if(dx*dx+dz*dz>size*size || r.nextInt(4)==0)continue;
-                int x=center.getX()+dx,z=center.getZ()+dz;
-                BlockPos p=new BlockPos(x,l.getHeight(Heightmap.Types.OCEAN_FLOOR_WG,x,z),z);
-                if(!l.getBlockState(p.below()).isFaceSturdy(l,p.below(),Direction.UP) || !l.getBlockState(p).is(Blocks.WATER)
-                    || !l.getBlockState(p.above(3)).is(Blocks.WATER))continue;
-                int height=1+(dx*dx+dz*dz<=2?r.nextInt(2):0);
-                for(int y=0;y<height;y++)l.setBlock(p.above(y),(r.nextInt(11)==0?PEARL.get():colony[kind]).defaultBlockState(),2);
-                l.setBlock(p.above(height),crowns[kind].defaultBlockState(),2);
+        public Garden() { super(NoneFeatureConfiguration.CODEC); }
+
+        @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+            var level = context.level();
+            if (!isReach(level.getLevel())) return false;
+            var random = context.random();
+            var origin = context.origin();
+            int cx = (origin.getX() & ~15) + 4 + random.nextInt(8);
+            int cz = (origin.getZ() & ~15) + 4 + random.nextInt(8);
+            boolean deep = level.getBiome(origin).is(TRENCH);
+            var bed = deep ? SakuraCraft.ABYSS.get() : SakuraCraft.SHELF.get();
+            var plume = deep ? SakuraCraft.KELP.get() : SakuraCraft.PLUME.get();
+            boolean made = false;
+            for (int dx = -3; dx <= 3; dx++) {
+                for (int dz = -3; dz <= 3; dz++) {
+                    if (dx*dx + dz*dz > 11 || random.nextInt(4) == 0) continue;
+                    var at = new BlockPos(cx + dx, level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, cx + dx, cz + dz), cz + dz);
+                    if (!level.getBlockState(at.below()).isFaceSturdy(level, at.below(), Direction.UP)
+                            || !level.getBlockState(at).is(Blocks.WATER) || !level.getBlockState(at.above(3)).is(Blocks.WATER)) continue;
+                    int height = dx*dx + dz*dz < 4 ? 2 : 1;
+                    for (int y = 0; y < height; y++) {
+                        level.setBlock(at.above(y), (random.nextInt(18) == 0 ? PEARL.get() : bed).defaultBlockState(), 2);
+                    }
+                    var crown = random.nextInt(4) == 0 ? SakuraCraft.CLAM.get() : plume;
+                    level.setBlock(at.above(height), crown.defaultBlockState(), 2);
+                    made = true;
+                }
+            }
+            if (deep && random.nextInt(5) == 0) made |= arch(level, cx, cz, bed);
+            return made;
+        }
+
+        // Paired ribs grow from the actual seabed. A swimmer can pass through the eye.
+        private static boolean arch(WorldGenLevel level, int x, int z, Block bed) {
+            int left = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x - 3, z);
+            int right = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x + 3, z);
+            if (Math.abs(left - right) > 2) return false;
+            int top = Math.max(left, right) + 4;
+            if (!level.getBlockState(new BlockPos(x, top + 1, z)).is(Blocks.WATER)) return false;
+            for (int dx = -3; dx <= 3; dx++) {
+                int outer = Math.abs(dx);
+                int from = outer == 3 ? (dx < 0 ? left : right) : top - (outer == 2 ? 1 : 0);
+                int to = top - (outer == 3 ? 1 : 0);
+                for (int y = from; y <= to; y++) {
+                    var pos = new BlockPos(x + dx, y, z);
+                    if (level.getBlockState(pos).is(Blocks.WATER))
+                        level.setBlock(pos, (dx == 0 ? PEARL.get() : bed).defaultBlockState(), 2);
+                }
             }
             return true;
         }

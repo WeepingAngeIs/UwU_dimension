@@ -82,13 +82,15 @@
       "minecraft:spring_lava"
     ],
     [
+      "minecraft:glow_lichen",
+      "minecraft:patch_tall_grass_2",
+      "minecraft:patch_grass_plain",
       "minecraft:flower_cherry",
-      "minecraft:trees_cherry",
       "uwudimension:heartbloom_tree",
       "uwudimension:starpetal_tree"
     ],
     [
-      "uwudimension:heartwater_landscape",
+      "minecraft:freeze_top_layer",
       "uwudimension:pantry_garden"
     ]
   ],

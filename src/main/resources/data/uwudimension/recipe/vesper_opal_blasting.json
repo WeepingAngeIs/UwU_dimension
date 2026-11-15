@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "uwudimension:rough_vesper_opal"
+  },
+  "result": {
+    "id": "uwudimension:vesper_opal"
+  },
+  "experience": 0.7,
+  "cookingtime": 100
+}

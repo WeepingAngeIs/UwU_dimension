@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "result": {
+    "id": "uwudimension:confluence_lamp",
+    "count": 2
+  },
+  "ingredients": [
+    {
+      "item": "uwudimension:roseglass_prism"
+    },
+    {
+      "item": "uwudimension:vesper_opal"
+    },
+    {
+      "item": "minecraft:lantern"
+    },
+    {
+      "item": "minecraft:glass"
+    }
+  ]
+}

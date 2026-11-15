@@ -25,6 +25,11 @@ public final class RealmResidents {
         NeoForge.EVENT_BUS.addListener(RealmResidents::join);
         NeoForge.EVENT_BUS.addListener(RealmResidents::tick);
         NeoForge.EVENT_BUS.addListener(RealmResidents::converted);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::stopped);
+    }
+    private static void stopped(net.neoforged.neoforge.event.server.ServerStoppedEvent event) {
+        pending.removeIf(v -> v.getServer() == event.getServer());
+        pendingUndead.removeIf(v -> v.getServer() == event.getServer());
     }
     private static void join(EntityJoinLevelEvent event){
         if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.VILLAGER&&event.getEntity() instanceof Villager v)pending.add(v);
@@ -85,13 +90,12 @@ public final class RealmResidents {
         }
     }
     private static void converted(LivingConversionEvent.Post event){
-        if(!applies(event.getEntity().level()))return;
+        if (!(event.getEntity().level() instanceof ServerLevel)) return;
         if(event.getEntity() instanceof Keeper keeper&&event.getOutcome() instanceof ZombieVillager zombie){
             var tag=new CompoundTag();keeper.saveWithoutId(tag);tag.putBoolean("WasDusk",keeper.getType()==People.DUSK_KEEPER.get());
             zombie.getPersistentData().put(ORIGIN,tag);
-            var customType=tag.getBoolean("WasDusk")?People.DUSK_ZOMBIE.get():People.PETAL_ZOMBIE.get();
-            if(zombie.getType()!=customType&&zombie.convertTo(customType,true) instanceof ZombieVillager custom)
-                custom.getPersistentData().put(ORIGIN,tag.copy());
+            // Mob.convertTo already picked the correct type, so vanilla finishes filling
+            // profession, gossip and trade XP into the very same zombie instance.
         }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof ZombieVillager undead
                 &&zombie.getPersistentData().contains(ORIGIN)){
             undead.getPersistentData().put(ORIGIN,zombie.getPersistentData().getCompound(ORIGIN).copy());

@@ -45,6 +45,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
                     net.minecraft.network.syncher.EntityDataSerializers.STRING);
 
     private boolean physicalWeapon;
+    private boolean reserved;
     private UUID physicalOwner;
     private InteractionHand returnHand = InteractionHand.MAIN_HAND;
     private int landedTicks;
@@ -153,6 +154,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         flight.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0, wave ? 1.5F : physical ? 2.05F : 1.8F, 0);
         if (!level.addFreshEntity(flight)) return null;
         if (physical) {
+            RelicReturns.reserve(owner, flight, display, hand);
+            flight.reserved = true;
             owner.setItemInHand(hand, ItemStack.EMPTY);
             HeartCombatGlow.trail(level, flight.position(), element);
         }
@@ -160,8 +163,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     private Player findOwner(ServerLevel server) {
-        if (getOwner() instanceof Player player) return player;
-        return physicalOwner == null ? null : server.getServer().getPlayerList().getPlayer(physicalOwner);
+        if (physicalOwner != null) return server.getServer().getPlayerList().getPlayer(physicalOwner);
+        return getOwner() instanceof Player player ? player : null;
     }
 
     private void beginReturn() {
@@ -187,15 +190,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     private void returnTo(Player player) {
-        ItemStack carried = getItem().copy();
-        if (physicalWeapon && !carried.isEmpty()) {
-            ItemStack inHand = player.getItemInHand(returnHand);
-            if (inHand.isEmpty()) player.setItemInHand(returnHand, carried);
-            else {
-                player.getInventory().add(carried);
-                if (!carried.isEmpty()) player.drop(carried, false);
-            }
-        }
+        if (physicalWeapon) RelicReturns.returned(player, this);
         if (relic() == Arsenal.Relic.VESPER_SCYTHE)
             player.getPersistentData().remove("uwu.scythe_flight");
         discard();
@@ -203,7 +198,23 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     @Override public void tick() {
         ServerLevel server = level() instanceof ServerLevel s ? s : null;
-        if (server == null && (landed() || returning())) {
+        if (physicalWeapon && server != null) {
+            Player owner = findOwner(server);
+            if (owner == null || !owner.isAlive()) {
+                if (reserved) discard(); // The surviving player record will return it.
+                return; // Legacy flights must wait for a player save to accept custody.
+            }
+            if (!reserved) reserved = RelicReturns.migrate(owner, this, returnHand);
+            if (!reserved || !RelicReturns.active(owner, this)) {
+                discard();
+                return;
+            }
+            if (owner.level() != server) {
+                returnTo(owner);
+                return;
+            }
+        }
+        if (server == null && landed()) {
             setNoGravity(true);
             noPhysics = true;
             setDeltaMovement(Vec3.ZERO);
@@ -248,7 +259,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         super.tick();
         if (server == null || !isAlive()) return;
 
-        if (physicalWeapon && !returning() && tickCount >= 120) beginReturn();
+        if (physicalWeapon && !returning() && !landed() && tickCount >= 120) beginReturn();
         else if (!physicalWeapon && !wave() && relic() == Arsenal.Relic.VESPER_SCYTHE && tickCount >= 12)
             beginReturn();
         HeartCombatGlow.trail(server, position(), element());
@@ -262,7 +273,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     @Override protected void onHitEntity(EntityHitResult hit) {
-        if (returning()) return;
+        if (returning() || landed()) return;
         if (level() instanceof ServerLevel server && getOwner() instanceof Player player
                 && hit.getEntity() instanceof LivingEntity target) {
             if (!RangedRelics.enemy(player, target)) {
@@ -288,6 +299,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     }
 
     @Override protected void onHitBlock(BlockHitResult hit) {
+        if (returning() || landed()) return;
         if (level() instanceof ServerLevel server)
             HeartCombatGlow.burst(server, hit.getLocation(), .9, element());
         if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && level() instanceof ServerLevel server
@@ -326,6 +338,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         tag.putInt("landed_ticks", landedTicks);
         tag.putBoolean("returning", returning());
         tag.putBoolean("physical_weapon", physicalWeapon);
+        tag.putBoolean("reserved", reserved);
         tag.putInt("return_hand", returnHand == InteractionHand.OFF_HAND ? 1 : 0);
         if (physicalOwner != null) tag.putUUID("physical_owner", physicalOwner);
     }
@@ -341,6 +354,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         landedTicks = Math.max(0, Math.min(15, tag.getInt("landed_ticks")));
         entityData.set(RETURNING, tag.getBoolean("returning"));
         physicalWeapon = tag.getBoolean("physical_weapon");
+        reserved = tag.getBoolean("reserved");
         returnHand = tag.getInt("return_hand") == 1 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         physicalOwner = tag.hasUUID("physical_owner") ? tag.getUUID("physical_owner") : null;
         if (returning() || landed()) {

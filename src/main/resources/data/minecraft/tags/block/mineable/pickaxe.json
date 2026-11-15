@@ -43,6 +43,13 @@
     "uwudimension:red_heartsill",
     "uwudimension:red_heartsill_slab",
     "uwudimension:black_heartsill",
-    "uwudimension:black_heartsill_slab"
+    "uwudimension:black_heartsill_slab",
+    "uwudimension:sazanami_tuff",
+    "uwudimension:nightshale",
+    "uwudimension:roseglass_ore",
+    "uwudimension:vesper_opal_ore",
+    "uwudimension:blush_shellstone",
+    "uwudimension:moonwake_shellstone",
+    "uwudimension:confluence_lamp"
   ]
 }

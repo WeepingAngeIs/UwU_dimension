@@ -170,7 +170,9 @@ public final class ChestProof {
         a.setShiftKeyDown(true);
         a.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.EMERALD, 4));
         dusk.mobInteract(a, InteractionHand.MAIN_HAND);
-        require(a.getMainHandItem().isEmpty(), "Recruitment did not charge four emeralds");
+        require(a.getMainHandItem().getCount()==4, "Oath preview spent emeralds");
+        dusk.mobInteract(a, InteractionHand.MAIN_HAND);
+        require(a.getMainHandItem().isEmpty(), "Confirmed recruitment did not charge four emeralds");
         dusk.mobInteract(a, InteractionHand.MAIN_HAND);
         CompoundTag keeper = new CompoundTag();
         dusk.addAdditionalSaveData(keeper);
@@ -184,7 +186,11 @@ public final class ChestProof {
         b.setShiftKeyDown(true);
         b.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.EMERALD, 4));
         petal.mobInteract(b, InteractionHand.MAIN_HAND);
+        require(b.getMainHandItem().getCount()==4, "Second player's oath preview spent emeralds");
+        petal.mobInteract(b, InteractionHand.MAIN_HAND);
         require(b.getMainHandItem().isEmpty(), "Second player could not choose Petal faction");
+        dusk.setTarget(petal);
+        require(dusk.getTarget()==null, "Recruit attacked opposite-faction neighbor in a shared base");
         System.out.println("KEEPER FACTION PASS: hostility, emerald truce, four-offer merchant, one-emerald candle purchase, grace after shop close, opposing oaths, recruitment and settled-owner save");
     }
 

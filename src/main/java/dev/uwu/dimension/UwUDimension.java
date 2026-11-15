@@ -30,6 +30,8 @@ public final class UwUDimension {
         PinkRoofTiles.register(bus);
         HeartLanterns.register(bus);
         ReefLife.register(bus);
+        ReachLife.register(bus);
+        SakuraCraft.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));
         SOUNDS.register(bus);
@@ -38,6 +40,8 @@ public final class UwUDimension {
         People.register(bus);
         RealmResidents.register();
         GolemSwap.register();
+        GuardianCommands.register();
+        GuardianTargeting.register();
         GuardianFlight.register(bus);
         MirrorCourt.register(bus);
         HeartwaterFeature.register(bus);

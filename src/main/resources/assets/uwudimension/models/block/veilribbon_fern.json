@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "uwudimension:block/veilribbon_fern"
+  },
+  "render_type": "minecraft:cutout"
+}

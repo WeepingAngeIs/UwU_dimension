@@ -26,12 +26,26 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
     private static final ModelLayerLocation LAYER=new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("uwudimension","blossom_warden"),"petals");
     private static final ResourceLocation TEXTURE=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/entity/blossom_warden.png");
     private static final ResourceLocation PAD=ResourceLocation.fromNamespaceAndPath("uwudimension","textures/block/drift_blossom_pad.png");
+    private static final ModelLayerLocation FEMALE_LAYER = new ModelLayerLocation(Arsenal.id("female_guardian"), "body");
+    private static final ResourceLocation FEMALE_TEXTURE = Arsenal.id("textures/entity/female_uwu_guardian.png");
+    private final Model maleModel;
+    private final Model femaleModel;
+
     public BlossomWardenRenderer(EntityRendererProvider.Context context) {
         super(context,new Model(context.bakeLayer(LAYER)),.78F);
+        maleModel = model;
+        femaleModel = new Model(FemaleGuardianModel.sizeCubes(context.bakeLayer(FEMALE_LAYER)));
         addLayer(new LilyPadCrownLayer(this));
     }
-    @Override public ResourceLocation getTextureLocation(BlossomWarden entity) { return TEXTURE; }
-    @SubscribeEvent public static void model(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER,Model::layer); }
+    @Override public ResourceLocation getTextureLocation(BlossomWarden entity) {
+        return entity.female() ? FEMALE_TEXTURE : TEXTURE;
+    }
+    @Override public void render(BlossomWarden entity, float yaw, float partial, PoseStack poses,
+            MultiBufferSource buffers, int light) {
+        model = entity.female() ? femaleModel : maleModel;
+        super.render(entity, yaw, partial, poses, buffers, light);
+    }
+    @SubscribeEvent public static void model(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER,Model::layer); e.registerLayerDefinition(FEMALE_LAYER,FemaleGuardianModel::layer); }
     @SubscribeEvent public static void renderer(EntityRenderersEvent.RegisterRenderers e) {
         e.registerEntityRenderer(People.BLOSSOM_WARDEN.get(),BlossomWardenRenderer::new);
     }
@@ -40,6 +54,7 @@ public final class BlossomWardenRenderer extends MobRenderer<BlossomWarden,Bloss
         LilyPadCrownLayer(BlossomWardenRenderer renderer){super(renderer);}
         @Override public void render(PoseStack poses,MultiBufferSource buffers,int light,BlossomWarden entity,
                 float limbSwing,float limbSwingAmount,float partialTick,float age,float netHeadYaw,float headPitch){
+            if (entity.female()) return; // Her lily pads and blooms are part of her model.
             poses.pushPose();
             getParentModel().root().getChild("head").translateAndRotate(poses);
             VertexConsumer consumer=buffers.getBuffer(RenderType.entityCutoutNoCull(PAD));

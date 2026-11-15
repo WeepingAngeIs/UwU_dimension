@@ -41,6 +41,14 @@ public final class VelvetVesper extends PathfinderMob {
             BossEvent.BossBarColor.PINK,BossEvent.BossBarOverlay.PROGRESS);
     private final Map<UUID,Long> charmEnd=new HashMap<>();
     private BlockPos bell;
+    // A support player can earn a seal by spending five active seconds in the arena.
+    private final Map<UUID, Integer> participants = new HashMap<>();
+    private boolean invitationOnly;
+
+    void join(Player player) { participants.putIfAbsent(player.getUUID(), 0); }
+    private boolean participating(Player player) {
+        return !invitationOnly || participants.containsKey(player.getUUID());
+    }
     private int beat;
     private Vec3 aim=Vec3.ZERO;
 
@@ -56,7 +64,7 @@ public final class VelvetVesper extends PathfinderMob {
     }
     @Override public boolean isPushable() {return false;}
     @Override public boolean removeWhenFarAway(double distance) {return false;}
-    public void bindBell(BlockPos pos) {bell=pos.immutable();}
+    public void bindBell(BlockPos pos) {bell=pos.immutable(); invitationOnly = true;}
     public boolean guarding() {return entityData.get(PHASE)==MIRROR;}
     public boolean folding() {return entityData.get(PHASE)==FOLDING;}
     public boolean casting() {int p=entityData.get(PHASE);return p==NEEDLE || p==POLLEN;}
@@ -81,9 +89,13 @@ public final class VelvetVesper extends PathfinderMob {
     }
     @Override public boolean hurt(DamageSource source,float amount) {
         // getEntity is the credited attacker, including arrows, thrown relics and magic.
+        if (source.getEntity() instanceof ServerPlayer player && !participating(player)) return false;
         if (amount>0 && source.getEntity() instanceof LivingEntity attacker && refusesAttack(attacker)) return false;
         boolean accepted=super.hurt(source,amount);
-        if (!level().isClientSide && accepted) bar.setProgress(getHealth()/getMaxHealth());
+        if (!level().isClientSide && accepted) {
+            bar.setProgress(getHealth()/getMaxHealth());
+            if (source.getEntity() instanceof ServerPlayer player) participants.put(player.getUUID(), 100);
+        }
         return accepted;
     }
     @Override public void stopSeenByPlayer(ServerPlayer player) {
@@ -100,7 +112,10 @@ public final class VelvetVesper extends PathfinderMob {
     @Override public void die(DamageSource source) {
         super.die(source);
         if (isDeadOrDying() && level() instanceof ServerLevel server) {
-            MirrorCourt.defeated(server,bell);
+            var credit = new HashSet<UUID>();
+            participants.forEach((id, ticks) -> { if (ticks >= 100) credit.add(id); });
+            if (source.getEntity() instanceof ServerPlayer player && participating(player)) credit.add(player.getUUID());
+            MirrorCourt.defeated(server, bell, getUUID(), credit);
             bar.removeAllPlayers();
             MirrorCourt.release(server,bell,getUUID());
             server.sendParticles(ParticleTypes.CHERRY_LEAVES,getX(),getY()+1,getZ(),65,1,1,1,.09);
@@ -129,6 +144,10 @@ public final class VelvetVesper extends PathfinderMob {
     @Override protected void customServerAiStep() {
         super.customServerAiStep();
         ServerLevel server=(ServerLevel)level();
+        if (!MirrorCourt.track(server, bell, this)) {
+            discard();
+            return;
+        }
         charmEnd.values().removeIf(end->server.getGameTime()>=end);
         bar.setProgress(getHealth()/getMaxHealth());
         var viewers=new HashSet<>(server.getPlayers(p->p.isAlive() && p.distanceToSqr(this)<20*20 && Math.abs(p.getY()-getY())<9));
@@ -136,7 +155,8 @@ public final class VelvetVesper extends PathfinderMob {
         ServerPlayer focus=null;
         for (ServerPlayer watcher:viewers) {
             bar.addPlayer(watcher);
-            if (watcher.isCreative() || watcher.isSpectator() || !hasLineOfSight(watcher)) continue;
+            if (!validVictim(watcher)) continue;
+            participants.compute(watcher.getUUID(), (id, ticks) -> Math.min(100, 1 + (ticks == null ? 0 : ticks)));
             if(focus==null || watcher.distanceToSqr(this)<focus.distanceToSqr(this)) focus=watcher;
         }
         if(focus==null) return;
@@ -171,7 +191,7 @@ public final class VelvetVesper extends PathfinderMob {
         }
     }
     private boolean validVictim(ServerPlayer player) {
-        return !player.isCreative() && !player.isSpectator() && hasLineOfSight(player);
+        return participating(player) && !player.isCreative() && !player.isSpectator() && hasLineOfSight(player);
     }
     private void chime(ServerLevel level,float pitch) {
         level.playSound(null,blockPosition(),SoundEvents.AMETHYST_BLOCK_RESONATE,SoundSource.HOSTILE,1.25F,pitch);
@@ -197,12 +217,27 @@ public final class VelvetVesper extends PathfinderMob {
         var rows=new ListTag();
         charmEnd.forEach((id,end)->{var r=new CompoundTag();r.putUUID("Attacker",id);r.putLong("Until",end);rows.add(r);});
         tag.put("MirrorBonds",rows);
+        tag.putBoolean("InvitationOnly", invitationOnly);
+        var helpers = new ListTag();
+        participants.forEach((id, ticks) -> {
+            var row = new CompoundTag();
+            row.putUUID("Player", id);
+            row.putInt("Ticks", ticks);
+            helpers.add(row);
+        });
+        tag.put("Participants", helpers);
     }
     @Override public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         beat=Math.floorMod(tag.getInt("CourtBeat"),SEQUENCE);
         aim=new Vec3(tag.getDouble("AimX"),tag.getDouble("AimY"),tag.getDouble("AimZ"));
         bell=tag.contains("CourtBell")?BlockPos.of(tag.getLong("CourtBell")):null;
+        invitationOnly = tag.getBoolean("InvitationOnly");
+        participants.clear();
+        for (Tag entry : tag.getList("Participants", Tag.TAG_COMPOUND)) {
+            var row = (CompoundTag)entry;
+            if (row.hasUUID("Player")) participants.put(row.getUUID("Player"), row.getInt("Ticks"));
+        }
         charmEnd.clear();
         for (Tag t:tag.getList("MirrorBonds",Tag.TAG_COMPOUND)) {
             var r=(CompoundTag)t;

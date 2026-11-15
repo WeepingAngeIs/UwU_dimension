@@ -46,6 +46,7 @@ public final class People {
     }
 
     public static void register(IEventBus bus) {
+        KeeperSociety.register();
         TYPES.register(bus);
         SOUNDS.register(bus);
         bus.addListener(People::attributes);

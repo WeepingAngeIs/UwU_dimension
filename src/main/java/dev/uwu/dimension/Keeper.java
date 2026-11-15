@@ -90,8 +90,17 @@ public final class Keeper extends Villager {
         return side().equals(player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getString(ALLEGIANCE));
     }
 
+    String allegiance() { return side(); }
+    UUID ownerId() { return companion; }
+    boolean isSettled() { return settled; }
+    BlockPos hearth() { return home; }
+
+    private boolean rivals(Keeper other) {
+        return dusk() != other.dusk() && companion == null && other.companion == null;
+    }
+
     private boolean attacks(Player player) {
-        return dusk() && !owns(player) && !allied(player) && !showsMoney(player)
+        return companion == null && !KeeperSociety.hasTruce(player) && dusk() && !owns(player) && !allied(player) && !showsMoney(player)
                 && peacefulUntil.getOrDefault(player.getUUID(), 0L) <= level().getGameTime()
                 && player != getTradingPlayer() && !player.isCreative() && !player.isSpectator();
     }
@@ -103,7 +112,7 @@ public final class Keeper extends Villager {
         goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.02, true));
         goalSelector.addGoal(2, new FollowFriend());
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Keeper.class, true,
-                mob -> mob instanceof Keeper keeper && keeper.dusk() != dusk()));
+                mob -> mob instanceof Keeper keeper && rivals(keeper)));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true,
                 mob -> mob instanceof Player player && attacks(player)));
     }
@@ -146,13 +155,14 @@ public final class Keeper extends Villager {
 
     @Override
     public void setTarget(@Nullable LivingEntity target) {
+        if (target instanceof Keeper keeper && !rivals(keeper)) return;
         if (target != null && (isTrading() || target instanceof Player player && !attacks(player))) return;
         super.setTarget(target);
     }
 
     @Override
     public boolean doHurtTarget(Entity victim) {
-        if (victim instanceof Player player && !attacks(player)) {
+        if ((victim instanceof Player player && !attacks(player)) || (victim instanceof Keeper keeper && !rivals(keeper))) {
             setTarget(null);
             return false;
         }
@@ -175,7 +185,8 @@ public final class Keeper extends Villager {
                     peacefulUntil.put(nearby.getUUID(), now + 400);
                 }
             }
-            if (getTarget() instanceof Player player && !attacks(player)) {
+            if (companion != null && (tickCount == 1 || tickCount % 200 == 0)) KeeperSociety.remember(server, this);
+            if ((getTarget() instanceof Player player && !attacks(player)) || (getTarget() instanceof Keeper keeper && !rivals(keeper))) {
                 setTarget(null);
                 getNavigation().stop();
             }
@@ -456,6 +467,7 @@ public final class Keeper extends Villager {
                 settled = !settled;
                 if (settled) assignHome(blockPosition());
                 else { clearRestriction(); home = null; releaseDailyPois(); }
+                KeeperSociety.remember((ServerLevel)level(), this);
                 player.displayClientMessage(Component.literal(settled ? "Your keeper will live here." : "Your keeper will follow you."), true);
             } else if (held.is(Items.EMERALD)) {
                 recruit(player, held);
@@ -468,7 +480,19 @@ public final class Keeper extends Villager {
         setTarget(null);
         setTradingPlayer(player);
         openTradingScreen(player, getDisplayName(), getVillagerData().getLevel());
+        player.displayClientMessage(Component.literal(KeeperCraft.of(this).greeting), true);
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    protected Component getTypeName() {
+        var profession = getVillagerData().getProfession();
+        Component faction = Component.translatable(getType().getDescriptionId());
+        if (profession == VillagerProfession.NONE) return faction;
+        var key = BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession);
+        String job = "entity." + key.getNamespace() + ".villager." + key.getPath();
+        return Component.translatableWithFallback("keeper.uwudimension.trade_title", "%1$s · %2$s",
+                faction, Component.translatableWithFallback(job, key.getPath().replace('_', ' ')));
     }
 
     private void teachProfession(ServerLevel level, Player player, VillagerProfession job) {
@@ -518,21 +542,32 @@ public final class Keeper extends Villager {
         if (companion != null) {
             player.displayClientMessage(Component.literal(owns(player) ? "Already your companion. Crouch with an empty hand to settle or follow." : "This keeper already has a companion."), true);
         } else if (!allegiance.isEmpty() && !allegiance.equals(side())) {
-            player.displayClientMessage(Component.literal("Your oath belongs to the other settlement."), true);
+            player.displayClientMessage(Component.literal("You pledged to the other settlement. Both trade with you. Use /keepers truce to reconcile before choosing again."), true);
         } else if (held.getCount() < 4 && !player.isCreative()) {
             player.displayClientMessage(Component.literal("Hold four emeralds together to join this keeper's settlement."), true);
         } else {
+            if (!KeeperSociety.confirmRecruit(player, this)) return;
             saved.putString(ALLEGIANCE, side());
             root.put(Player.PERSISTED_NBT_TAG, saved);
             if (!player.isCreative()) held.shrink(4);
             companion = player.getUUID();
+            if (!hasCustomName()) setCustomName(Component.literal(KeeperSociety.givenName(this)));
             home = null;
             settled = false;
             clearRestriction();
             releaseDailyPois();
+            setTarget(null);
+            KeeperSociety.remember((ServerLevel)level(), this);
             playSound(getNotifyTradeSound(), 0.8F, 1.12F);
             player.displayClientMessage(Component.literal("Oath accepted. Crouch and interact with an empty hand to settle your keeper."), true);
         }
+    }
+
+    @Override public void remove(Entity.RemovalReason reason) {
+        if (companion != null && level() instanceof ServerLevel level && reason.shouldDestroy()) {
+            KeeperSociety.forget(level, getUUID());
+        }
+        super.remove(reason);
     }
 
     private void releaseDailyPois() {
@@ -586,12 +621,12 @@ public final class Keeper extends Villager {
     private void addFactionOffers() {
         if (dusk()) {
             sell(1, Items.BLACK_CANDLE, 3);
-            sell(2, Items.SOUL_LANTERN, 2);
+            sell(2, KeeperCraft.of(this).wares(true), 2);
             sell(5, Items.ENDER_PEARL, 2);
             buy(Items.AMETHYST_SHARD, 6);
         } else {
             sell(1, Items.PUMPKIN_PIE, 3);
-            sell(2, Items.PINK_PETALS, 12);
+            sell(2, KeeperCraft.of(this).wares(false), 3);
             sell(3, Items.CHERRY_SAPLING, 2);
             buy(Items.HONEYCOMB, 4);
         }

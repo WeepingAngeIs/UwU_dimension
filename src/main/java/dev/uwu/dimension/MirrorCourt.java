@@ -138,20 +138,52 @@ public final class MirrorCourt {
             return InteractionResult.sidedSuccess(world.isClientSide);
         }
         private void ring(ServerLevel level, BlockPos pos, BlockState state, Player player) {
-            if (!level.dimension().location().getNamespace().equals(MOD)) return;
+            if (!ReefLife.isReach(level)) return;
             Ledger ledger = ledger(level);
-            if (ledger.active.containsKey(pos.asLong())) {
-                player.displayClientMessage(Component.translatable("message.uwudimension.court_busy"), true);
+            long key = pos.asLong();
+            BlockPos center = pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING), 6);
+            if (ledger.active.containsKey(key)) {
+                var existing = level.getEntity(ledger.active.get(key));
+                if (existing instanceof VelvetVesper moth && moth.isAlive()) {
+                    moth.join(player);
+                    player.displayClientMessage(Component.literal("You joined this encounter. Help near the dais to earn a personal victory seal."), false);
+                    return;
+                }
+                BlockPos last = BlockPos.of(ledger.lastSeen.getOrDefault(key, center.asLong()));
+                if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(last))) {
+                    ledger.missingSince.remove(key);
+                    player.displayClientMessage(Component.literal("The guardian's last chamber is unloaded. Its encounter is saved."), false);
+                    return;
+                }
+                long first = ledger.missingSince.computeIfAbsent(key, ignored -> level.getGameTime());
+                if (level.getGameTime() - first < 100) {
+                    player.displayClientMessage(Component.literal("The court is listening. Ring again in five seconds."), false);
+                    return;
+                }
+                release(level, pos, ledger.active.get(key));
+            }
+            var ready = ledger.ready.computeIfAbsent(key, ignored -> new HashMap<>());
+            ready.entrySet().removeIf(e -> e.getValue() <= level.getGameTime());
+            if (!player.isShiftKeyDown() || !ready.containsKey(player.getUUID())) {
+                ready.put(player.getUUID(), level.getGameTime() + 600);
+                player.displayClientMessage(Component.literal("Ready for 30 seconds. Allies may touch the bell to join. "
+                        + "Crouch and ring to begin with nearby ready players. Solo is welcome."), false);
                 return;
             }
-            BlockPos center=pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING),6);
             VelvetVesper moth=VESPER.get().create(level);
             if (moth==null) return;
             moth.bindBell(pos);
+            for (var guest : level.players()) {
+                if (guest.isAlive() && !guest.isSpectator() && guest.blockPosition().closerThan(pos, 24)
+                        && ready.containsKey(guest.getUUID())) moth.join(guest);
+            }
+            moth.join(player);
             moth.moveTo(center.getX()+.5,center.getY()+.05,center.getZ()+.5,
                     state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite().toYRot(),0);
             if (!level.noCollision(moth) || !level.addFreshEntity(moth)) return;
-            ledger.active.put(pos.asLong(),moth.getUUID());
+            ledger.active.put(key,moth.getUUID());
+            ledger.lastSeen.put(key, center.asLong());
+            ledger.ready.remove(key);
             ledger.setDirty();
             level.playSound(null,pos,SoundEvents.BELL_RESONATE,SoundSource.HOSTILE,1,.72F);
             level.sendParticles(ParticleTypes.CHERRY_LEAVES,moth.getX(),moth.getY()+1,moth.getZ(),38,1,1,1,.05);
@@ -168,10 +200,7 @@ public final class MirrorCourt {
             p.getPersistentData().putLong("uwu.court_hint",bell.asLong());
             p.sendSystemMessage(Component.literal("Beyond the archive, the Mirror Court waits. Follow the lit path to the glowing bell at "+bell.getX()+", "+bell.getY()+", "+bell.getZ()+". Its guardian watches over a sealed treasure chest."));
         }
-        var ledger=ledger(level);
-        if(distance<11*11 && !ledger.defeated.contains(bell.asLong()) && !ledger.active.containsKey(bell.asLong())){
-            BELL.get().ring(level,bell,level.getBlockState(bell),p);
-        }
+
     }
     private static void treasure(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock event){
         if(!(event.getLevel() instanceof ServerLevel level)||!ReefLife.isReach(level))return;
@@ -181,22 +210,60 @@ public final class MirrorCourt {
             BlockPos bell=chest.above().relative(facing,-13);
             if(!level.hasChunkAt(bell)||!level.getBlockState(bell).is(BELL.get()))continue;
             if(ledger(level).defeated.contains(bell.asLong()))return;
-            BELL.get().ring(level,bell,level.getBlockState(bell),event.getEntity());
-            event.getEntity().displayClientMessage(Component.literal("Defeat Velvet Vesper to unseal this court's treasure."),true);event.setCanceled(true);return;
+            
+            event.getEntity().displayClientMessage(Component.literal("Ring the court bell, then crouch and ring again to challenge Velvet Vesper. A victory opens personal treasure for everyone."),true);event.setCanceled(true);return;
         }
     }
-    static void defeated(ServerLevel level,BlockPos bell){if(bell!=null){var data=ledger(level);data.defeated.add(bell.asLong());data.setDirty();}}
-    static void release(ServerLevel level, BlockPos pos, UUID id) {
-        if (pos==null) return;
-        Ledger ledger=ledger(level);
-        if (ledger.active.remove(pos.asLong(),id)) ledger.setDirty();
+    static boolean track(ServerLevel level, BlockPos bell, VelvetVesper moth) {
+        if (bell == null) return true;
+        Ledger data = ledger(level);
+        if (!moth.getUUID().equals(data.active.get(bell.asLong()))) return false;
+        long here = moth.blockPosition().asLong();
+        Long before = data.lastSeen.put(bell.asLong(), here);
+        if (before == null || before.longValue() != here) data.setDirty();
+        data.missingSince.remove(bell.asLong());
+        return true;
     }
+
+    static void defeated(ServerLevel level, BlockPos bell, UUID boss, java.util.Set<UUID> helpers) {
+        if (bell == null) return;
+        Ledger data = ledger(level);
+        long key = bell.asLong();
+        if (!boss.equals(data.active.get(key))) return;
+        data.defeated.add(key);
+        data.seals.computeIfAbsent(key, ignored -> new java.util.HashSet<>()).addAll(helpers);
+        data.setDirty();
+        for (var player : level.players()) {
+            if (helpers.contains(player.getUUID())) player.sendSystemMessage(Component.literal(
+                    "Mirror Court victory seal earned. This village's personal treasure is open to everyone."));
+        }
+    }
+
+    public static boolean hasSeal(ServerLevel level, BlockPos bell, UUID player) {
+        return ledger(level).seals.getOrDefault(bell.asLong(), java.util.Set.of()).contains(player);
+    }
+
+    static void release(ServerLevel level, BlockPos pos, UUID id) {
+        if (pos == null) return;
+        Ledger ledger = ledger(level);
+        long key = pos.asLong();
+        if (ledger.active.remove(key, id)) {
+            ledger.lastSeen.remove(key);
+            ledger.missingSince.remove(key);
+            ledger.setDirty();
+        }
+    }
+
     private static Ledger ledger(ServerLevel world) {
         return world.getDataStorage().computeIfAbsent(Ledger.FACTORY,"uwudimension_mirror_courts");
     }
     private static final class Ledger extends SavedData {
         static final Factory<Ledger> FACTORY=new Factory<>(Ledger::new,Ledger::load,null);
         final Map<Long,UUID> active=new HashMap<>();
+        final Map<Long,Long> lastSeen = new HashMap<>();
+        final Map<Long,Long> missingSince = new HashMap<>();
+        final Map<Long,Map<UUID,Long>> ready = new HashMap<>();
+        final Map<Long,java.util.Set<UUID>> seals = new HashMap<>();
         final java.util.Set<Long> defeated=new java.util.HashSet<>();
         static Ledger load(CompoundTag root, HolderLookup.Provider registry) {
             var state=new Ledger();
@@ -204,13 +271,27 @@ public final class MirrorCourt {
             for (Tag element : root.getList("Courts",Tag.TAG_COMPOUND)) {
                 var row=(CompoundTag)element;
                 if (row.hasUUID("Moth")) state.active.put(row.getLong("Bell"),row.getUUID("Moth"));
+                if (row.contains("Last")) state.lastSeen.put(row.getLong("Bell"),row.getLong("Last"));
+            }
+            for (Tag element : root.getList("Seals", Tag.TAG_COMPOUND)) {
+                var row = (CompoundTag)element;
+                if (row.hasUUID("Player")) state.seals.computeIfAbsent(row.getLong("Bell"),
+                        ignored -> new java.util.HashSet<>()).add(row.getUUID("Player"));
             }
             return state;
         }
         @Override public CompoundTag save(CompoundTag root, HolderLookup.Provider registry) {
             var rows=new ListTag();
-            active.forEach((pos,id)->{var row=new CompoundTag();row.putLong("Bell",pos);row.putUUID("Moth",id);rows.add(row);});
+            active.forEach((pos,id)->{var row=new CompoundTag();row.putLong("Bell",pos);row.putUUID("Moth",id); if(lastSeen.containsKey(pos)) row.putLong("Last",lastSeen.get(pos)); rows.add(row);});
             root.put("Courts",rows);
+            var sealsTag = new ListTag();
+            seals.forEach((bell, players) -> players.forEach(player -> {
+                var row = new CompoundTag();
+                row.putLong("Bell", bell);
+                row.putUUID("Player", player);
+                sealsTag.add(row);
+            }));
+            root.put("Seals", sealsTag);
             root.putLongArray("Defeated",defeated.stream().mapToLong(Long::longValue).toArray());
             return root;
         }

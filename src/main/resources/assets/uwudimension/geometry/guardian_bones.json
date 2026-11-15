@@ -1,0 +1,1256 @@
+{
+  "width": 256,
+  "height": 96,
+  "bones": [
+    {
+      "name": "basket",
+      "pivot": [
+        0.0,
+        4.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "torso_upper_leaf",
+          "position": [
+            -3.1,
+            -11.0,
+            -2.2
+          ],
+          "size": [
+            6.2,
+            6.5,
+            4.4
+          ],
+          "tile": 0
+        },
+        {
+          "name": "torso_waist_leaf",
+          "position": [
+            -2.15,
+            -6.0,
+            -2.0
+          ],
+          "size": [
+            4.3,
+            9.0,
+            4.0
+          ],
+          "tile": 0
+        },
+        {
+          "name": "neck",
+          "position": [
+            -0.95,
+            -14.0,
+            -1.25
+          ],
+          "size": [
+            1.9,
+            4.0,
+            2.5
+          ],
+          "tile": 1
+        },
+        {
+          "name": "hip_leaf_base",
+          "position": [
+            -3.0,
+            1.0,
+            -2.35
+          ],
+          "size": [
+            6.0,
+            4.0,
+            4.7
+          ],
+          "tile": 0
+        },
+        {
+          "name": "bodice_left_petal",
+          "position": [
+            -2.55,
+            -8.8,
+            -2.75
+          ],
+          "size": [
+            2.35,
+            2.6,
+            0.6
+          ],
+          "tile": 2
+        },
+        {
+          "name": "bodice_right_petal",
+          "position": [
+            0.2,
+            -8.8,
+            -2.75
+          ],
+          "size": [
+            2.35,
+            2.6,
+            0.6
+          ],
+          "tile": 2
+        },
+        {
+          "name": "collar_leaf_trim",
+          "position": [
+            -2.8,
+            -11.0,
+            -2.45
+          ],
+          "size": [
+            5.6,
+            1.0,
+            0.55
+          ],
+          "tile": 3
+        },
+        {
+          "name": "belt_bark",
+          "position": [
+            -2.8,
+            0.8,
+            -2.55
+          ],
+          "size": [
+            5.6,
+            1.1,
+            5.1
+          ],
+          "tile": 4
+        },
+        {
+          "name": "bodice_bloom_center",
+          "position": [
+            -0.27,
+            -7.525,
+            -3.27
+          ],
+          "size": [
+            0.54,
+            0.45,
+            0.54
+          ],
+          "tile": 5
+        },
+        {
+          "name": "bodice_bloom_petal_n",
+          "position": [
+            -0.315,
+            -7.615,
+            -3.72
+          ],
+          "size": [
+            0.63,
+            0.315,
+            0.495
+          ],
+          "tile": 2
+        },
+        {
+          "name": "bodice_bloom_petal_s",
+          "position": [
+            -0.315,
+            -7.615,
+            -2.775
+          ],
+          "size": [
+            0.63,
+            0.315,
+            0.495
+          ],
+          "tile": 6
+        },
+        {
+          "name": "bodice_bloom_petal_w",
+          "position": [
+            -0.72,
+            -7.615,
+            -3.315
+          ],
+          "size": [
+            0.495,
+            0.315,
+            0.63
+          ],
+          "tile": 7
+        },
+        {
+          "name": "bodice_bloom_petal_e",
+          "position": [
+            0.225,
+            -7.615,
+            -3.315
+          ],
+          "size": [
+            0.495,
+            0.315,
+            0.63
+          ],
+          "tile": 2
+        },
+        {
+          "name": "belt_bloom_center",
+          "position": [
+            -0.228,
+            1.21,
+            -3.028
+          ],
+          "size": [
+            0.456,
+            0.38,
+            0.456
+          ],
+          "tile": 5
+        },
+        {
+          "name": "belt_bloom_petal_n",
+          "position": [
+            -0.266,
+            1.134,
+            -3.408
+          ],
+          "size": [
+            0.532,
+            0.266,
+            0.418
+          ],
+          "tile": 2
+        },
+        {
+          "name": "belt_bloom_petal_s",
+          "position": [
+            -0.266,
+            1.134,
+            -2.61
+          ],
+          "size": [
+            0.532,
+            0.266,
+            0.418
+          ],
+          "tile": 6
+        },
+        {
+          "name": "belt_bloom_petal_w",
+          "position": [
+            -0.608,
+            1.134,
+            -3.066
+          ],
+          "size": [
+            0.418,
+            0.266,
+            0.532
+          ],
+          "tile": 7
+        },
+        {
+          "name": "belt_bloom_petal_e",
+          "position": [
+            0.19,
+            1.134,
+            -3.066
+          ],
+          "size": [
+            0.418,
+            0.266,
+            0.532
+          ],
+          "tile": 2
+        },
+        {
+          "name": "skirt_upper_leaf",
+          "position": [
+            -2.8,
+            4.2,
+            -2.4
+          ],
+          "size": [
+            5.6,
+            2.8,
+            4.8
+          ],
+          "tile": 8
+        },
+        {
+          "name": "skirt_flare_leaf",
+          "position": [
+            -3.9,
+            6.8,
+            -3.0
+          ],
+          "size": [
+            7.8,
+            5.0,
+            6.0
+          ],
+          "tile": 0
+        },
+        {
+          "name": "skirt_front_petal_panel",
+          "position": [
+            -1.25,
+            6.0,
+            -3.35
+          ],
+          "size": [
+            2.5,
+            5.7,
+            0.5
+          ],
+          "tile": 2
+        },
+        {
+          "name": "skirt_left_petal_panel",
+          "position": [
+            -3.7,
+            6.6,
+            -3.2
+          ],
+          "size": [
+            0.9,
+            4.2,
+            0.5
+          ],
+          "tile": 7
+        },
+        {
+          "name": "skirt_right_petal_panel",
+          "position": [
+            2.8,
+            6.6,
+            -3.2
+          ],
+          "size": [
+            0.9,
+            4.2,
+            0.5
+          ],
+          "tile": 7
+        },
+        {
+          "name": "skirt_back_leaf_drape",
+          "position": [
+            -2.8,
+            6.2,
+            2.6
+          ],
+          "size": [
+            5.6,
+            5.7,
+            0.9
+          ],
+          "tile": 8
+        }
+      ]
+    },
+    {
+      "name": "head",
+      "pivot": [
+        0.0,
+        -12.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "hair_cap",
+          "position": [
+            -4.0,
+            -5.8,
+            -3.7
+          ],
+          "size": [
+            8.0,
+            2.0,
+            7.4
+          ],
+          "tile": 8
+        },
+        {
+          "name": "temple_lock_right",
+          "position": [
+            -4.15,
+            -3.5,
+            -3.55
+          ],
+          "size": [
+            1.1,
+            5.5,
+            1.35
+          ],
+          "tile": 8
+        },
+        {
+          "name": "temple_lock_left",
+          "position": [
+            3.05,
+            -3.5,
+            -3.55
+          ],
+          "size": [
+            1.1,
+            5.5,
+            1.35
+          ],
+          "tile": 8
+        },
+        {
+          "name": "fringe_right",
+          "position": [
+            -2.8,
+            -4.2,
+            -4.0
+          ],
+          "size": [
+            1.7,
+            1.2,
+            0.7
+          ],
+          "tile": 0
+        },
+        {
+          "name": "fringe_center",
+          "position": [
+            -0.8,
+            -4.7,
+            -4.05
+          ],
+          "size": [
+            1.6,
+            1.0,
+            0.75
+          ],
+          "tile": 0
+        },
+        {
+          "name": "fringe_left",
+          "position": [
+            1.1,
+            -4.2,
+            -4.0
+          ],
+          "size": [
+            1.7,
+            1.2,
+            0.7
+          ],
+          "tile": 0
+        },
+        {
+          "name": "right_vine_0",
+          "position": [
+            -5.12,
+            2.0,
+            1.08
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "right_vine_1",
+          "position": [
+            -5.62,
+            7.0,
+            1.88
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "right_vine_2",
+          "position": [
+            -5.32,
+            12.0,
+            2.68
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "right_vine_3",
+          "position": [
+            -4.62,
+            17.0,
+            3.38
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "right_leaf_tip",
+          "position": [
+            -4.55,
+            21.0,
+            3.5
+          ],
+          "size": [
+            1.1,
+            2.0,
+            1.1
+          ],
+          "tile": 0
+        },
+        {
+          "name": "left_vine_0",
+          "position": [
+            4.48,
+            2.0,
+            1.08
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "left_vine_1",
+          "position": [
+            4.98,
+            7.0,
+            1.88
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "left_vine_2",
+          "position": [
+            4.68,
+            12.0,
+            2.68
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "left_vine_3",
+          "position": [
+            3.98,
+            17.0,
+            3.38
+          ],
+          "size": [
+            0.64,
+            5.0,
+            0.64
+          ],
+          "tile": 3
+        },
+        {
+          "name": "left_leaf_tip",
+          "position": [
+            3.45,
+            21.0,
+            3.5
+          ],
+          "size": [
+            1.1,
+            2.0,
+            1.1
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_0",
+          "position": [
+            -4.8,
+            -5.8,
+            -4.4
+          ],
+          "size": [
+            2.6,
+            0.8,
+            0.9
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_1",
+          "position": [
+            -1.5,
+            -5.8,
+            -4.8
+          ],
+          "size": [
+            3.0,
+            0.8,
+            1.1
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_2",
+          "position": [
+            2.2,
+            -5.8,
+            -4.4
+          ],
+          "size": [
+            2.6,
+            0.8,
+            0.9
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_3",
+          "position": [
+            -5.0,
+            -5.8,
+            -1.5
+          ],
+          "size": [
+            1.0,
+            0.8,
+            2.6
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_4",
+          "position": [
+            4.0,
+            -5.8,
+            -1.5
+          ],
+          "size": [
+            1.0,
+            0.8,
+            2.6
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_5",
+          "position": [
+            -3.2,
+            -5.8,
+            3.0
+          ],
+          "size": [
+            2.2,
+            0.8,
+            1.1
+          ],
+          "tile": 0
+        },
+        {
+          "name": "lily_pad_6",
+          "position": [
+            1.0,
+            -5.8,
+            3.0
+          ],
+          "size": [
+            2.2,
+            0.8,
+            1.1
+          ],
+          "tile": 0
+        },
+        {
+          "name": "crown_bloom_center_center",
+          "position": [
+            -0.36,
+            -6.1,
+            -4.66
+          ],
+          "size": [
+            0.72,
+            0.6,
+            0.72
+          ],
+          "tile": 5
+        },
+        {
+          "name": "crown_bloom_center_petal_n",
+          "position": [
+            -0.42,
+            -6.22,
+            -5.26
+          ],
+          "size": [
+            0.84,
+            0.42,
+            0.66
+          ],
+          "tile": 2
+        },
+        {
+          "name": "crown_bloom_center_petal_s",
+          "position": [
+            -0.42,
+            -6.22,
+            -4.0
+          ],
+          "size": [
+            0.84,
+            0.42,
+            0.66
+          ],
+          "tile": 6
+        },
+        {
+          "name": "crown_bloom_center_petal_w",
+          "position": [
+            -0.96,
+            -6.22,
+            -4.72
+          ],
+          "size": [
+            0.66,
+            0.42,
+            0.84
+          ],
+          "tile": 7
+        },
+        {
+          "name": "crown_bloom_center_petal_e",
+          "position": [
+            0.3,
+            -6.22,
+            -4.72
+          ],
+          "size": [
+            0.66,
+            0.42,
+            0.84
+          ],
+          "tile": 2
+        },
+        {
+          "name": "crown_bloom_right_center",
+          "position": [
+            3.47,
+            -5.975,
+            -3.33
+          ],
+          "size": [
+            0.66,
+            0.55,
+            0.66
+          ],
+          "tile": 5
+        },
+        {
+          "name": "crown_bloom_right_petal_n",
+          "position": [
+            3.415,
+            -6.085,
+            -3.88
+          ],
+          "size": [
+            0.77,
+            0.385,
+            0.605
+          ],
+          "tile": 2
+        },
+        {
+          "name": "crown_bloom_right_petal_s",
+          "position": [
+            3.415,
+            -6.085,
+            -2.725
+          ],
+          "size": [
+            0.77,
+            0.385,
+            0.605
+          ],
+          "tile": 6
+        },
+        {
+          "name": "crown_bloom_right_petal_w",
+          "position": [
+            2.92,
+            -6.085,
+            -3.385
+          ],
+          "size": [
+            0.605,
+            0.385,
+            0.77
+          ],
+          "tile": 7
+        },
+        {
+          "name": "crown_bloom_right_petal_e",
+          "position": [
+            4.075,
+            -6.085,
+            -3.385
+          ],
+          "size": [
+            0.605,
+            0.385,
+            0.77
+          ],
+          "tile": 2
+        },
+        {
+          "name": "crown_bloom_left_center",
+          "position": [
+            -4.13,
+            -5.975,
+            -3.33
+          ],
+          "size": [
+            0.66,
+            0.55,
+            0.66
+          ],
+          "tile": 5
+        },
+        {
+          "name": "crown_bloom_left_petal_n",
+          "position": [
+            -4.185,
+            -6.085,
+            -3.88
+          ],
+          "size": [
+            0.77,
+            0.385,
+            0.605
+          ],
+          "tile": 2
+        },
+        {
+          "name": "crown_bloom_left_petal_s",
+          "position": [
+            -4.185,
+            -6.085,
+            -2.725
+          ],
+          "size": [
+            0.77,
+            0.385,
+            0.605
+          ],
+          "tile": 6
+        },
+        {
+          "name": "crown_bloom_left_petal_w",
+          "position": [
+            -4.68,
+            -6.085,
+            -3.385
+          ],
+          "size": [
+            0.605,
+            0.385,
+            0.77
+          ],
+          "tile": 7
+        },
+        {
+          "name": "crown_bloom_left_petal_e",
+          "position": [
+            -3.525,
+            -6.085,
+            -3.385
+          ],
+          "size": [
+            0.605,
+            0.385,
+            0.77
+          ],
+          "tile": 2
+        },
+        {
+          "name": "face_head",
+          "position": [
+            -3.6,
+            -4.5,
+            -3.2
+          ],
+          "size": [
+            7.2,
+            7.5,
+            6.4
+          ],
+          "tile": 9
+        }
+      ]
+    },
+    {
+      "name": "right",
+      "pivot": [
+        -4.0,
+        -4.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "right_shoulder_leaf",
+          "position": [
+            -1.05,
+            -1.8,
+            -1.8
+          ],
+          "size": [
+            2.3,
+            3.3,
+            3.6
+          ],
+          "tile": 8
+        },
+        {
+          "name": "right_upper_arm",
+          "position": [
+            -0.8,
+            1.0,
+            -1.45
+          ],
+          "size": [
+            1.8,
+            5.5,
+            2.9
+          ],
+          "tile": 0
+        },
+        {
+          "name": "right_forearm",
+          "position": [
+            -0.7,
+            6.0,
+            -1.25
+          ],
+          "size": [
+            1.6,
+            7.0,
+            2.5
+          ],
+          "tile": 0
+        },
+        {
+          "name": "right_bracer",
+          "position": [
+            -1.0,
+            10.8,
+            -1.65
+          ],
+          "size": [
+            2.2,
+            2.0,
+            3.3
+          ],
+          "tile": 4
+        },
+        {
+          "name": "right_hand",
+          "position": [
+            -0.6,
+            12.8,
+            -1.1
+          ],
+          "size": [
+            1.4,
+            2.4,
+            2.2
+          ],
+          "tile": 1
+        },
+        {
+          "name": "right_wrist_vine",
+          "position": [
+            -0.95,
+            10.4,
+            -1.8
+          ],
+          "size": [
+            2.1,
+            0.6,
+            0.6
+          ],
+          "tile": 3
+        }
+      ]
+    },
+    {
+      "name": "left",
+      "pivot": [
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "left_shoulder_leaf",
+          "position": [
+            -1.25,
+            -1.8,
+            -1.8
+          ],
+          "size": [
+            2.3,
+            3.3,
+            3.6
+          ],
+          "tile": 8
+        },
+        {
+          "name": "left_upper_arm",
+          "position": [
+            -1.0,
+            1.0,
+            -1.45
+          ],
+          "size": [
+            1.8,
+            5.5,
+            2.9
+          ],
+          "tile": 0
+        },
+        {
+          "name": "left_forearm",
+          "position": [
+            -0.9,
+            6.0,
+            -1.25
+          ],
+          "size": [
+            1.6,
+            7.0,
+            2.5
+          ],
+          "tile": 0
+        },
+        {
+          "name": "left_bracer",
+          "position": [
+            -1.2,
+            10.8,
+            -1.65
+          ],
+          "size": [
+            2.2,
+            2.0,
+            3.3
+          ],
+          "tile": 4
+        },
+        {
+          "name": "left_hand",
+          "position": [
+            -0.8,
+            12.8,
+            -1.1
+          ],
+          "size": [
+            1.4,
+            2.4,
+            2.2
+          ],
+          "tile": 1
+        },
+        {
+          "name": "left_wrist_vine",
+          "position": [
+            -1.15,
+            10.4,
+            -1.8
+          ],
+          "size": [
+            2.1,
+            0.6,
+            0.6
+          ],
+          "tile": 3
+        }
+      ]
+    },
+    {
+      "name": "right_root",
+      "pivot": [
+        -1.5,
+        11.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "right_leg_leaf",
+          "position": [
+            -0.7,
+            2.4,
+            -1.5
+          ],
+          "size": [
+            1.9,
+            6.3,
+            3.0
+          ],
+          "tile": 0
+        },
+        {
+          "name": "right_knee_guard",
+          "position": [
+            -0.85,
+            3.9,
+            -1.8
+          ],
+          "size": [
+            2.2,
+            1.6,
+            3.6
+          ],
+          "tile": 4
+        },
+        {
+          "name": "right_boot",
+          "position": [
+            -0.95,
+            8.3,
+            -2.8
+          ],
+          "size": [
+            2.4,
+            4.7,
+            4.8
+          ],
+          "tile": 10
+        },
+        {
+          "name": "right_boot_trim",
+          "position": [
+            -1.05,
+            8.3,
+            -3.0
+          ],
+          "size": [
+            2.6,
+            0.8,
+            5.1
+          ],
+          "tile": 11
+        },
+        {
+          "name": "right_ankle_vine",
+          "position": [
+            -0.9,
+            7.4,
+            -1.75
+          ],
+          "size": [
+            2.3,
+            0.6,
+            3.55
+          ],
+          "tile": 3
+        }
+      ]
+    },
+    {
+      "name": "left_root",
+      "pivot": [
+        1.5,
+        11.0,
+        0.0
+      ],
+      "cubes": [
+        {
+          "name": "left_leg_leaf",
+          "position": [
+            -1.2,
+            2.4,
+            -1.5
+          ],
+          "size": [
+            1.9,
+            6.3,
+            3.0
+          ],
+          "tile": 0
+        },
+        {
+          "name": "left_knee_guard",
+          "position": [
+            -1.35,
+            3.9,
+            -1.8
+          ],
+          "size": [
+            2.2,
+            1.6,
+            3.6
+          ],
+          "tile": 4
+        },
+        {
+          "name": "left_boot",
+          "position": [
+            -1.45,
+            8.3,
+            -2.8
+          ],
+          "size": [
+            2.4,
+            4.7,
+            4.8
+          ],
+          "tile": 10
+        },
+        {
+          "name": "left_boot_trim",
+          "position": [
+            -1.55,
+            8.3,
+            -3.0
+          ],
+          "size": [
+            2.6,
+            0.8,
+            5.1
+          ],
+          "tile": 11
+        },
+        {
+          "name": "left_ankle_vine",
+          "position": [
+            -1.4,
+            7.4,
+            -1.75
+          ],
+          "size": [
+            2.3,
+            0.6,
+            3.55
+          ],
+          "tile": 3
+        }
+      ]
+    }
+  ]
+}

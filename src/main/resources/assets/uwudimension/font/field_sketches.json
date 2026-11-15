@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:item/heartwater_locket.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "A"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:item/heartberry.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "B"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:item/moonberry.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "C"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:item/cupid_bow.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "D"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:block/nacre_rose.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "E"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:item/starfruit.png",
+      "height": 15,
+      "ascent": 13,
+      "chars": [
+        "F"
+      ]
+    }
+  ]
+}

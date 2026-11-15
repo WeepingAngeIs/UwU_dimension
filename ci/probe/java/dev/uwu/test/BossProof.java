@@ -98,11 +98,15 @@ public final class BossProof {
             if(System.getenv("UWU_ARSENAL")!=null){
                 reed.player.tickCount=20;
                 net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(reed.player));
-                require(livingMoths(level,center).size()==1,"Walking into generated court did not reveal the boss");
-                System.out.println("BOSS ACCESS PASS normal generated court proximity starts one 500-health guardian");
+                require(livingMoths(level,center).isEmpty(),"Walking into the court started an encounter without consent");
+                System.out.println("BOSS ACCESS PASS walking through the court leaves the bell quiet");
             }
             ring(level,bell,reed.player);
             ring(level,bell,vale.player);
+            require(livingMoths(level,center).isEmpty(), "Readying a party started combat");
+            reed.player.setShiftKeyDown(true);
+            ring(level,bell,reed.player);
+            reed.player.setShiftKeyDown(false);
             var boss=livingMoths(level,center);
             require(boss.size()==1,"Two bell uses must start exactly one encounter");
             moth=boss.getFirst();
@@ -180,7 +184,13 @@ public final class BossProof {
             moth.invulnerableTime=0;
             moth.hurt(level.damageSources().playerAttack(reed.player),800);
             require(!moth.isAlive(),"Defeated moth was still alive");
+            require(MirrorCourt.hasSeal(level,bell,REED) && MirrorCourt.hasSeal(level,bell,VALE),
+                    "Two participating helpers should both earn seals");
+            ring(level,bell,reed.player);
             ring(level,bell,vale.player);
+            vale.player.setShiftKeyDown(true);
+            ring(level,bell,vale.player);
+            vale.player.setShiftKeyDown(false);
             var again=livingMoths(level,center);
             require(again.size()==1 && !again.getFirst().getUUID().equals(moth.getUUID()) && again.getFirst().getHealth()==500,"Court did not restart cleanly");
             if ("152045".equals(System.getenv("UWU_FIELD_SEED"))) {

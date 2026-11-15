@@ -1,9 +1,9 @@
 package dev.uwu.dimension;
 
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -13,27 +13,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 final class HeartwaterLocket extends Item {
+    static final String ANCHOR = "uwudimension_return";
     HeartwaterLocket() { super(new Properties().stacksTo(1).rarity(Rarity.UNCOMMON)); }
 
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player user, InteractionHand hand) {
+    @Override public InteractionResultHolder<ItemStack> use(Level level, Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
         if (!(user instanceof ServerPlayer player)) return InteractionResultHolder.sidedSuccess(stack, true);
-
-        var server = player.server;
-        ServerLevel destination;
-        Vec3 spot;
-        float yaw;
-
         if (ReefLife.isReach(level) && player.isShiftKeyDown()) {
             BlockPos reef = ReefCharts.nearest(player.serverLevel(), player.blockPosition(), 0);
             player.displayClientMessage(Component.literal(reef == null ? "The locket cannot find reef waters nearby."
@@ -41,59 +34,70 @@ final class HeartwaterLocket extends Item {
             player.getCooldowns().addCooldown(this, 80);
             return InteractionResultHolder.success(stack);
         }
+        boolean entering = !ReefLife.isReach(level);
+        var saved = player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+        CompoundTag anchor = saved.getCompound(ANCHOR);
+        ResourceLocation key = ResourceLocation.tryParse(anchor.getString("dimension"));
+        ServerLevel destination = entering ? player.server.getLevel(ReefLife.REACH) :
+                key == null ? null : player.server.getLevel(ResourceKey.create(Registries.DIMENSION, key));
+        boolean spawnFallback = !entering && (destination == null || ReefLife.isReach(destination) || !anchor.contains("feet"));
+        if (spawnFallback) destination = player.server.overworld();
+        if (destination == null) return fail(player, stack);
 
-        if (ReefLife.isReach(level)) {
-            var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-            ResourceLocation origin = ResourceLocation.tryParse(tag.getString("origin"));
-            destination = origin == null ? null : server.getLevel(ResourceKey.create(Registries.DIMENSION, origin));
-            if (destination == null || ReefLife.isReach(destination)) {
-                destination = server.overworld();
-                spot = Vec3.atBottomCenterOf(destination.getSharedSpawnPos());
-            } else {
-                spot = new Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
-            }
-            destination.getChunkAt(BlockPos.containing(spot));
-            AABB body = player.getBoundingBox().move(spot.subtract(player.position()));
-            if (!destination.noCollision(body)) {
-                spot = Vec3.atBottomCenterOf(destination.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING,
-                        BlockPos.containing(spot)));
-            }
-            yaw = tag.getFloat("yaw");
-        } else {
-            destination = server.getLevel(ReefLife.REACH);
-            if (destination == null) return InteractionResultHolder.fail(stack);
-
-            CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-            tag.putString("origin", level.dimension().location().toString());
-            tag.putDouble("x", player.getX());
-            tag.putDouble("y", player.getY());
-            tag.putDouble("z", player.getZ());
-            tag.putFloat("yaw", player.getYRot());
-            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-
-            spot = Vec3.atBottomCenterOf(GroveSites.arrival(destination));
-            yaw = GroveSites.first(destination).turns() * 90F;
+        GroveSites.Site site = entering ? ReachArrival.forTravel(destination) : null;
+        BlockPos requested = entering ? (site.usable() ? site.pos(0,site.entryY()+1,site.lip()-9) : destination.getSharedSpawnPos())
+                : spawnFallback ? destination.getSharedSpawnPos() : BlockPos.of(anchor.getLong("feet"));
+        Optional<BlockPos> found = LocketLanding.nearby(destination, player, requested);
+        boolean sheltered = spawnFallback || (entering && !site.usable());
+        if (found.isEmpty()) {
+            found = LocketLanding.surface(destination, player, requested);
+            sheltered = true;
         }
+        if (found.isEmpty() && !entering) {
+            destination = player.server.overworld();
+            BlockPos spawn = destination.getSharedSpawnPos();
+            found = LocketLanding.nearby(destination, player, spawn);
+            if (found.isEmpty()) found = LocketLanding.surface(destination, player, spawn);
+            sheltered = true;
+        }
+        if (found.isEmpty()) return fail(player, stack);
 
-        destination.getChunkAt(BlockPos.containing(spot));
+        CompoundTag departure = new CompoundTag();
+        if (entering) {
+            departure.putString("dimension", level.dimension().location().toString());
+            departure.putLong("feet", player.blockPosition().asLong());
+            departure.putFloat("yaw", player.getYRot());
+        }
+        Vec3 land = Vec3.atBottomCenterOf(found.get());
         player.stopRiding();
-        player.teleportTo(destination, spot.x, spot.y, spot.z, yaw, 0);
+        player.teleportTo(destination, land.x, land.y, land.z, entering ? site.turns()*90F : anchor.getFloat("yaw"), 0);
+        if (player.serverLevel() != destination) return fail(player, stack);
         player.fallDistance = 0;
         player.setDeltaMovement(Vec3.ZERO);
+        if (sheltered) {
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 100, 3, false, false));
+            player.sendSystemMessage(Component.literal("The locket found sheltered footing. Its ward lasts five seconds."));
+        }
+        if (entering) saved.put(ANCHOR, departure);
+        else saved.remove(ANCHOR);
+        player.getPersistentData().put(Player.PERSISTED_NBT_TAG, saved);
         player.getCooldowns().addCooldown(this, 45);
-        if (destination.dimension().equals(ReefLife.REACH)) {
-            player.displayClientMessage(Component.literal("UwU Dimension  ·  Sakura Reach"), true);
-            BlockPos plaza = BlossomVillage.first(destination, false).plaza();
-            player.displayClientMessage(Component.literal("The Petal village bell is at X " + plaza.getX()
-                    + ", Z " + plaza.getZ() + "."), false);
+        if (entering) {
+            player.displayClientMessage(Component.literal("UwU Dimension · Sakura Reach"), true);
+            if (site.usable()) BlossomVillage.survey(destination, site, false).ifPresent(v -> player.sendSystemMessage(
+                    Component.literal("Visit the Petal village bell at X " + v.plaza().getX() + ", Z " + v.plaza().getZ() + ".")));
+            ReachJournal.arrive(player);
         }
         return InteractionResultHolder.success(stack);
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flags) {
-        lines.add(Component.literal("Use to visit Sakura Reach, then use again to return.")
-                .withStyle(ChatFormatting.LIGHT_PURPLE));
+    private static InteractionResultHolder<ItemStack> fail(ServerPlayer player, ItemStack stack) {
+        player.displayClientMessage(Component.literal("The locket found no safe landing. Try another place or contact a keeper."), false);
+        return InteractionResultHolder.fail(stack);
+    }
+
+    @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flags) {
+        lines.add(Component.literal("Visit Sakura Reach, then return to your own departure point.").withStyle(ChatFormatting.LIGHT_PURPLE));
         lines.add(Component.literal("Sneak-use inside for reef bearings.").withStyle(ChatFormatting.GRAY));
     }
 }

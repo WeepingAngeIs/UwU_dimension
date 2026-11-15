@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "result": {
+    "id": "uwudimension:nightbriar_leggings",
+    "count": 1
+  },
+  "pattern": [
+    "GIG",
+    "IBI",
+    "G G"
+  ],
+  "key": {
+    "G": {
+      "item": "uwudimension:vesper_opal"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:leather"
+    }
+  }
+}

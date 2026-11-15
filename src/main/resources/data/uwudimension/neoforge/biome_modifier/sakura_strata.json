@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "uwudimension:blush_reef",
+    "uwudimension:moonwake_trench",
+    "minecraft:cherry_grove",
+    "uwudimension:ribbon_bluffs",
+    "uwudimension:lantern_fens",
+    "uwudimension:velvet_highlands",
+    "minecraft:lush_caves",
+    "uwudimension:lantern_grotto",
+    "uwudimension:vesper_hollows"
+  ],
+  "features": "uwudimension:sakura_strata",
+  "step": "local_modifications"
+}

@@ -27,7 +27,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class Arsenal {
     public enum Relic {
-        CUPID_BOW("Cupid Bow", 14, 1.4, 65, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights."),
+        CUPID_BOW("Cupid Bow", 14, 1.4, 0, "A pink heart befriends any eligible target for 40 seconds. Left-click while holding the bow to send your charmed allies after the target in your sights."),
         RIPPLE_BOW("Rippleglass Bow", 17, 1.25, 24, "Draw and release. On impact, a ripple marks and slows nearby creatures."),
         RIBBONHARE_SCEPTER("Ribbonhare Scepter", 14, 1.6, 200, "Throw a ribbon scepter onto solid ground to call a pink hare. Its thumps draw monsters."),
         BLOSSOM_GREATSWORD("Blossom Greatsword", 24, 0.85, 44, "Throw the blossom blade for a ranged strike. Fully charged melee hits still scatter petals."),
@@ -85,6 +85,8 @@ public final class Arsenal {
         NeoForge.EVENT_BUS.addListener(HeartMagic::filterTarget);
         NeoForge.EVENT_BUS.addListener(HeartMagic::protectKeeper);
         CupidMinions.register(bus);
+        bus.addListener(CupidRarity::apply);
+        NeoForge.EVENT_BUS.addListener(RelicReturns::recover);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::onThrowImpact);
         NeoForge.EVENT_BUS.addListener(RelicAbilities::beforeAttack);
         RangedRelics.register(bus);
@@ -99,16 +101,27 @@ public final class Arsenal {
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, relic.speed - 4, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
             if (relic == Relic.BLOSSOM_GREATSWORD || relic == Relic.VESPER_SCYTHE)
                 attributes.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(id("bladed_reach"), 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
-            Item.Properties properties = new Item.Properties().durability(1024).rarity(Rarity.RARE).attributes(attributes.build());
+            Item.Properties properties = new Item.Properties().durability(1024).rarity(relic == Relic.CUPID_BOW ? Rarity.EPIC : Rarity.RARE).attributes(attributes.build());
             if (relic.axe()) properties.component(net.minecraft.core.component.DataComponents.TOOL,
                 Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
             return properties;
         }
+        @Override public boolean onEntityItemUpdate(ItemStack stack, net.minecraft.world.entity.item.ItemEntity item) {
+            if (relic == Relic.CUPID_BOW && item.level().isClientSide && (item.tickCount % 4 == 0)) {
+                double phase = item.tickCount * .17;
+                item.level().addParticle(GOLD_SPARK, item.getX() + Math.cos(phase) * .27,
+                        item.getY() + .16, item.getZ() + Math.sin(phase) * .27, 0, .04, 0);
+            }
+            return false;
+        }
+        private static final net.minecraft.core.particles.DustParticleOptions GOLD_SPARK =
+                new net.minecraft.core.particles.DustParticleOptions(new org.joml.Vector3f(1f,.73f,.16f), .72f);
         @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged){return slotChanged||before.getItem()!=after.getItem();}
-        @Override public Component getName(ItemStack stack) { return Component.translatableWithFallback(getDescriptionId(), relic.title); }
+        @Override public Component getName(ItemStack stack) { var name = Component.translatableWithFallback(getDescriptionId(), relic.title);
+            return relic == Relic.CUPID_BOW ? name.withStyle(ChatFormatting.GOLD) : name; }
         @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tips, TooltipFlag flag) {
             tips.add(Component.literal(relic.hint).withStyle(ChatFormatting.LIGHT_PURPLE));
-            if (relic.throwable()) tips.add(Component.literal("Innate Swift Loyalty III • returns to your hand")
+            if (relic.throwable()) tips.add(Component.literal("Innate Swift Loyalty III â€¢ returns to your hand")
                     .withStyle(ChatFormatting.AQUA));
         }
         @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -149,7 +162,7 @@ public final class Arsenal {
             float draw = BowItem.getPowerForTime(getUseDuration(stack, user) - left);
             if (draw < 0.15F) return;
             HeartArrow.fire(server, player, relic, draw);
-            player.getCooldowns().addCooldown(this, relic.cooldown);
+            if (relic.cooldown > 0) player.getCooldowns().addCooldown(this, relic.cooldown);
             stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
         }
         @Override public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {

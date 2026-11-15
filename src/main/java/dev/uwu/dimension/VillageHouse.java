@@ -83,6 +83,12 @@ final class VillageHouse {
             if(b.y()==1&&(Math.abs(b.x())>width||Math.abs(b.z())>depth)
                     && (state.is(net.minecraft.tags.BlockTags.LOGS)||state.is(Blocks.STONE_BRICKS)))
                 BlossomVillage.floor(v,x,h.floor(),z,Blocks.STONE_BRICKS);
+            // Small lantern-lit windows framed by the original posts and plaster.
+            if (state.is(Blocks.WHITE_CONCRETE) && (b.y()==2 || b.y()==3)
+                    && (Math.abs(b.x())==width && Math.abs(b.z())<=1
+                            || Math.abs(b.z())==depth && Math.abs(b.x())==2)) {
+                state=(dusk ? Blocks.PURPLE_STAINED_GLASS : Blocks.PINK_STAINED_GLASS).defaultBlockState();
+            }
             if(state.is(Blocks.PINK_CONCRETE)){
                 if(b.x()==0||b.z()==0)state=PinkRoofTiles.tile(dusk).defaultBlockState();
                 else if((b.y()+(dusk?1:0))%4==0)state=Blocks.PINK_TERRACOTTA.defaultBlockState();
