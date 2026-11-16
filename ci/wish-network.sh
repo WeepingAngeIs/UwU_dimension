@@ -58,6 +58,7 @@ done
 archer_done=0
 witness_done=0
 while [[ "$archer_done" = 0 || "$witness_done" = 0 ]]; do
+  if grep -q 'Encountered an unexpected exception' "$world/server.log"; then tail -100 "$world/server.log"; exit 1; fi
   if ! kill -0 "$server_pid" 2>/dev/null; then tail -120 "$world/server.log"; exit 1; fi
   if [[ "$archer_done" = 0 ]] && ! kill -0 "$archer_pid" 2>/dev/null; then wait "$archer_pid"; archer_done=1; fi
   if [[ "$witness_done" = 0 ]] && ! kill -0 "$witness_pid" 2>/dev/null; then wait "$witness_pid"; witness_done=1; fi

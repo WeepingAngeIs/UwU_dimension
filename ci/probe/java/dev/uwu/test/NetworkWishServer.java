@@ -124,7 +124,9 @@ public final class NetworkWishServer {
             arrow(witness,()->resetWitness(GameType.SPECTATOR),()->check(!charmed(witness),"spectator player charmed"));
             arrow(witness,()->{resetWitness(GameType.SURVIVAL);server.setPvpAllowed(false);health=witness.getHealth();},()->check(!charmed(witness)&&witness.getHealth()==health,"PvP-disabled player affected"));
             arrow(witness,()->{server.setPvpAllowed(true);refresh();},()->check(charmed(witness),"PvP-enabled player charm"));
-            arrow(cow,null,()->check(charmed(cow),"cow for pending logout wish"));
+            // Earlier following/birth scenes can leave a player or newborn in the old shot lane.
+            // Reset only this fixture's position; the genuine client still has to aim and hit it.
+            arrow(cow,()->cow.moveTo(-5.5,113,4.5,0,0),()->check(charmed(cow),"cow for pending logout wish"));
             select(witness,"First wish target",null);
             action("witness","logout",null,"",null,null);
             ready=true;System.out.println("NETWORK WISH READY two real clients; no direct select/charm calls");

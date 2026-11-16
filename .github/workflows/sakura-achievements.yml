@@ -51,6 +51,7 @@ jobs:
           path: |
             build/libs/*.jar
             build/wish-network/server.log
+            build/wish-network/crash-reports
             build/wish-network/archer.log
             build/wish-network/witness.log
             build/wish-network/sync
