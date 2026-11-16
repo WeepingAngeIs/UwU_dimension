@@ -94,7 +94,7 @@ public final class RangedRelicRenderer {
         }
         private static boolean tumbles(RelicFlight e) {
             var counter=CounterArsenal.entry(e.counter());
-            if(counter!=null)return java.util.Set.of("bow","twinblade","greataxe").contains(counter.shape());
+            if(counter!=null)return java.util.Set.of("bow","chakram","axe","scythe").contains(counter.shape());
             return switch(e.relic()) {
                 case BLOSSOM_GREATSWORD,BELLHEART_AXE,LOCKKEEPER_AXE,VESPER_SCYTHE -> true;
                 default -> false;
