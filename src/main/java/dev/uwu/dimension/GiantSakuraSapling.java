@@ -26,7 +26,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-            tips.add(Component.literal("One sapling grows Anya's finished giant sakura.").withStyle(ChatFormatting.GRAY));
+/** One sapling grows the same authored sakura as the village landmark. */
 public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> {
     private static final ThreadLocal<net.minecraft.server.level.ServerPlayer> GARDENER=new ThreadLocal<>();
     private static final DeferredRegister<Feature<?>> FEATURES=DeferredRegister.create(Registries.FEATURE,"uwudimension");

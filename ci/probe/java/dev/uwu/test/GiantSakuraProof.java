@@ -164,7 +164,7 @@ final class GiantSakuraProof {
             check(level.getBlockState(origin).is(Blocks.CHERRY_WOOD),"actual bone meal did not grow tree");
             connectivity(level,origin,"bonemeal");clearTree(level,origin);plant(level,origin);
             // Wait for the lighting engine to clear the previous canopy's shadow.
-            level.setBlockAndUpdate(origin.offset(-2,0,0),Blocks.GLOWSTONE.defaultBlockState());
+            level.setBlockAndUpdate(origin.offset(3,0,0),Blocks.GLOWSTONE.defaultBlockState());
             deadline=level.getGameTime()+30;stage=2;return false;
         }
         if(stage==2){
