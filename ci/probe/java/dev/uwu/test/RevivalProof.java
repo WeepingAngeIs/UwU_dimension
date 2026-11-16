@@ -23,11 +23,21 @@ public final class RevivalProof {
             int before=field.getInt(p);field.setInt(p,0);return before;
         }catch(ReflectiveOperationException e){throw new IllegalStateException("Cannot inspect fake player spawn immunity",e);}
     }
+    private static boolean lethal(ServerPlayer player) {
+        // Revival is the subject here. A rolled longsword/claymore deflect can otherwise
+        // reject the hit in Simply Swords' ServerPlayer HEAD injection before damage events.
+        // Keep the real weapon/components and native totem/revival path; suppress only
+        // unrelated implicit procs during this one damage call, not revival or its cooldown.
+        boolean[] accepted={false};
+        net.sweenus.simplyswords.api.WeaponImplicitRegistry.runSuppressed(
+                ()->accepted[0]=player.hurt(player.damageSources().generic(),2000));
+        return accepted[0];
+    }
     static void begin(ServerLevel level,ServerPlayer attacker){
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST,true,
             net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent.class,event->{
                 if(samples.stream().anyMatch(s->s.actor()==event.getEntity()))
-                    System.out.println("REVIVAL INCOMING canceled="+event.isCanceled()+" amount="+event.getAmount()+" source="+event.getSource().getMsgId());
+                    System.out.println("REVIVAL INCOMING implicitDeflectSuppressed=true canceled="+event.isCanceled()+" amount="+event.getAmount()+" source="+event.getSource().getMsgId());
             });
         started=level.getGameTime();int i=0;
         for(String id:List.of("waxweaver","wickpiercer"))for(boolean late:new boolean[]{true,false}){
@@ -35,6 +45,8 @@ public final class RevivalProof {
             p.moveTo(3.5,level.getMaxBuildHeight()-23,12+i*2,0,0);p.setNoGravity(true);level.addNewPlayer(p);
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);p.setHealth(1000);
             var stack=AwakeningApi.initializeFullyAwakened(new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("simplyswords:"+id))));
+            System.out.println("REVIVAL FIXTURE weapon="+id+" implicit="+
+                    net.sweenus.simplyswords.api.WeaponImplicitRegistry.getOrCreateWeaponImplicit(stack));
             p.setItemInHand(InteractionHand.MAIN_HAND,stack);
             require(((RevivalWeapon)stack.getItem()).canRevive(p,stack,p.damageSources().generic()),"Awakened baseline revival unavailable: "+id);
             CounterEffects.hit(level,attacker,p,CounterArsenal.entry("counter_"+id));
@@ -49,7 +61,7 @@ public final class RevivalProof {
             for(var sample:samples)if(sample.late()){
                 var p=sample.actor();require(!RevivalCooldownManager.isCoolingDown(level,p,sample.stack()),"Shortened cooldown did not expire");
                 require(!((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Late mark lost revival seal");
-                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;float prior=p.getHealth();boolean accepted=p.hurt(p.damageSources().generic(),2000);
+                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;float prior=p.getHealth();boolean accepted=lethal(p);
                 require(!p.isAlive(),"Sealed lethal hit revived at tick159: item="+BuiltInRegistries.ITEM.getKey(sample.stack().getItem())
                         +" previousHealth="+prior+" health="+p.getHealth()+" accepted="+accepted+" absorption="+p.getAbsorptionAmount()
                         +" armor="+p.getArmorValue()+" invulnerable="+p.isInvulnerable()+" spectator="+p.isSpectator()
@@ -65,7 +77,7 @@ public final class RevivalProof {
             require(checkedLate,"Missed late-seal tick");
             for(var sample:samples)if(!sample.late()){
                 var p=sample.actor();require(((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Expired seal still blocked revival");
-                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;boolean accepted=p.hurt(p.damageSources().generic(),2000);
+                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;boolean accepted=lethal(p);
                 require(p.isAlive()&&p.getHealth()>0,"Unsealed ready weapon did not revive after lethal hit");
                 require(accepted,"Unsealed lethal damage was rejected before reaching the native revival path");
                 require(!((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Native revival did not set its item-specific cooldown");

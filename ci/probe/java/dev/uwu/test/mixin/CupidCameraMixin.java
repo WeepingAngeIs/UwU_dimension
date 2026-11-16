@@ -17,7 +17,8 @@ public abstract class CupidCameraMixin {
     @Invoker("setRotation") protected abstract void uwu$rotation(float yaw,float pitch);
     @Inject(method="setup",at=@At("RETURN"))
     private void photo(BlockGetter level,Entity viewer,boolean third,boolean reversed,float partial,CallbackInfo ci) {
-        var lens=RelicPortraits.flightLens(partial);
+        var lens=dev.uwu.test.LauncherCamera.lens(partial);
+        if(lens==null)lens=RelicPortraits.flightLens(partial);
         if(lens==null)return;
         var d=lens.aim().subtract(lens.eye());
         uwu$position(lens.eye());

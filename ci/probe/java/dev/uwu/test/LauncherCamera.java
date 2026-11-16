@@ -33,6 +33,14 @@ public final class LauncherCamera {
     private static boolean captured;
     private static boolean awaitingRecoil;
     private LauncherCamera() {}
+    /** Move the evidence camera only: keep the actual player, arm and item transforms. */
+    public static RelicPortraits.Lens lens(float partial) {
+        if(!"launcher".equals(System.getenv("UWU_VISIT")) || shot%2==0
+                || (!state.equals("armed")&&!state.equals("firing")))return null;
+        var player=Minecraft.getInstance().player;if(player==null)return null;
+        var at=player.getPosition(partial);
+        return new RelicPortraits.Lens(at.add(2,1.5,1.5),at.add(0,1,.4));
+    }
     @SubscribeEvent public static void tick(ClientTickEvent.Post event) {
         if(!"launcher".equals(System.getenv("UWU_VISIT")))return;
         var mc=Minecraft.getInstance();
