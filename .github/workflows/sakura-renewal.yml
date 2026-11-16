@@ -1,7 +1,7 @@
 name: Sakura Reach renewal
 on:
   push:
-    branches: [feature/sakura-renewal, feature/sakura-art-implementation, feature/sakura-roster-art, feature/sakura-glitch-guardian]
+    branches: [feature/sakura-renewal, feature/sakura-art-implementation, feature/sakura-roster-art, feature/sakura-glitch-guardian, feature/sakura-coding-followup]
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,10 +23,11 @@ jobs:
           cache-read-only: false
       - run: ./gradlew build --stacktrace
       - run: python3 ci/renewal-assets.py build/libs/UwU-Dimension-*.jar
+      - run: python3 ci/anya-tree-contract.py build/libs/UwU-Dimension-*.jar
       - run: python3 ci/moonveil-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: UwU-Dimension-1.5.0-beta.6-dev
+          name: UwU-Dimension-1.5.0-beta.7-dev
           path: build/libs/*.jar
           if-no-files-found: error
 

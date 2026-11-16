@@ -27,34 +27,30 @@ final class GiantSakuraNaturalProof {
             var center=tree.pos(0,0,0);
             for(int cx=(center.getX()-19)>>4;cx<=(center.getX()+19)>>4;cx++)
                 for(int cz=(center.getZ()-19)>>4;cz<=(center.getZ()+19)>>4;cz++)level.getChunk(cx,cz);
-            if(level.getBlockState(tree.pos(0,0,0)).is(Blocks.CHERRY_LOG))return tree;
+            if(level.getBlockState(tree.pos(0,0,0)).is(Blocks.CHERRY_WOOD))return tree;
         }
         throw new AssertionError("No generated giant tree found at first two eligible settlements");
     }
     static void run(ServerLevel level)throws Exception {
-        var tree=find(level);Set<BlockPos> actualLogs=new HashSet<>();int leaves=0;
-        for(var entry:GiantSakuraTree.plan(tree.height(),level.getSeed()^tree.x()*31L^tree.z()).entrySet()){
-            var delta=entry.getKey();var world=tree.pos(delta.getX(),delta.getY(),delta.getZ());
-            var actual=level.getBlockState(world);
-            if(entry.getValue().is(Blocks.CHERRY_LOG)){
-                check(actual.is(Blocks.CHERRY_LOG),"missing actual trunk/branch at "+world);
-                actualLogs.add(world);
-            }else if(actual.is(Blocks.CHERRY_LEAVES))leaves++;
+        var tree=find(level);int wood=0,leaves=0;
+        for(var entry:GiantSakuraTree.plan(0,0).entrySet()) {
+            var delta=entry.getKey();var at=tree.pos(delta.getX(),delta.getY(),delta.getZ());
+            var expected=entry.getValue();
+            if(expected.hasProperty(net.minecraft.world.level.block.RotatedPillarBlock.AXIS)) {
+                var axis=expected.getValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS);
+                if(axis!=Direction.Axis.Y) {
+                    var origin=tree.pos(0,0,0);
+                    var next=tree.pos(axis==Direction.Axis.X?1:0,0,axis==Direction.Axis.Z?1:0);
+                    expected=expected.setValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS,
+                            next.getX()!=origin.getX()?Direction.Axis.X:Direction.Axis.Z);
+                }
+            }
+            check(level.getBlockState(at).equals(expected),"authored blockstate mismatch at "+at);
+            if(expected.is(Blocks.CHERRY_LEAVES))leaves++;else wood++;
         }
-        for(int y=0;y<17;y++)for(int x=0;x<2;x++)for(int z=0;z<2;z++)
-            check(level.getBlockState(tree.pos(x,y,z)).is(Blocks.CHERRY_LOG),"missing 2x2 core at "+tree.pos(x,y,z));
-        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
-            var base=tree.pos(x,0,z);
-            check(level.getBlockState(base).is(Blocks.CHERRY_LOG),"missing flared base at "+base);
-            check(level.getBlockState(base.below()).is(net.minecraft.tags.BlockTags.DIRT),"unsupported base at "+base);
-        }
-        Set<BlockPos> reached=new HashSet<>();ArrayDeque<BlockPos> q=new ArrayDeque<>();
-        q.add(tree.pos(0,0,0));reached.add(tree.pos(0,0,0));
-        while(!q.isEmpty()){
-            var here=q.removeFirst();
-            for(var dir:Direction.values()){var next=here.relative(dir);if(actualLogs.contains(next)&&reached.add(next))q.add(next);}
-        }
-        check(reached.size()==actualLogs.size()&&leaves>300,"disconnected trunk/branches or sparse canopy");
-        System.out.println("GIANT SAKURA NATURAL PASS base="+tree.pos(0,0,0)+" height="+tree.height()+" logs="+actualLogs.size()+" leaves="+leaves);
+        for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)
+            check(level.getBlockState(tree.pos(x,0,z).below()).is(net.minecraft.tags.BlockTags.DIRT),"unsupported authored trunk base");
+        check(wood==345&&leaves==4681,"authored material count");
+        System.out.println("GIANT SAKURA NATURAL PASS base="+tree.pos(0,0,0)+" height=38 wood="+wood+" leaves="+leaves);
     }
 }

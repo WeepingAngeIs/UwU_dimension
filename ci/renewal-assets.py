@@ -175,8 +175,8 @@ def bow_transforms(parent):
     # Effective original transforms including vanilla item/bow and item/generated defaults.
     assert "parent" not in parent and not parent.get("elements") and parent["gui_light"]=="front"
     expected = {
-        "firstperson_righthand": ([0,-46,29],[-1.25,4,-.85],[.54,.54,.28]),
-        "firstperson_lefthand": ([0,46,-29],[-1.25,4,-.85],[.54,.54,.28]),
+        "firstperson_righthand": ([0,-90,29],[-1.25,4,-.85],[.54,.54,.28]),
+        "firstperson_lefthand": ([0,90,-29],[-1.25,4,-.85],[.54,.54,.28]),
         "thirdperson_righthand": ([-80,252,-40],[-1,-2,2.5],[.9,.9,.9]),
         "thirdperson_lefthand": ([-80,-272,40],[-1,-2,2.5],[.9,.9,.9]),
         "ground": ([0,0,0],[0,2,0],[.5,.5,.5]),
@@ -234,7 +234,7 @@ def workshop_resources(jar, art, read):
     chest=read("data/uwudimension/loot_table/chests/mirror_court.json")
     names=[entry["name"].split(":",1)[1] for pool in chest["pools"] for entry in pool["entries"]
            if entry.get("name","").startswith("uwudimension:counter_")]
-    assert len(names)==32 and len(set(names))==32, "Expected 32 direct counter sprites"
+    assert len(names)==29 and len(set(names))==29, "Expected 29 direct counter sprites"
     names += "blossom_greatsword ribbonhare_scepter bellheart_axe lockkeeper_axe vesper_scythe axolotl_whip frost_whip rift_whip satin_whip rose_dagger lantern_spear tidelace_trident blue_hour_wand ripple_bow glitch_bow".split()
     images={bytes(rgba_pixels(jar.read(art+"textures/item/"+name+".png"),32)) for name in names}
     assert len(images)==len(names), "Repeated directly obtainable weapon artwork"
@@ -299,7 +299,7 @@ def check_jar(jar):
     assert not any(p.startswith("dev/uwu/test/") for p in paths)
     assert not any(p.startswith("data/minecraft/worldgen/biome/") for p in paths)
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
-    assert meta["mods"][0]["version"] == "1.5.0-beta.6-dev"
+    assert meta["mods"][0]["version"] == "1.5.0-beta.7-dev"
     locale = read(art + "lang/en_us.json")
     understory(jar, art, data, read, locale)
     workshop_resources(jar, art, read)

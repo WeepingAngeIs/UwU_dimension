@@ -84,10 +84,21 @@ public final class RangedRelicRenderer {
                 float flightPitch=e.flightPitch(partial);
                 poses.mulPose(Axis.YP.rotationDegrees(flightYaw-90.0F));
                 poses.mulPose(Axis.ZP.rotationDegrees(flightPitch-45.0F));
+                // Axes and ring blades tumble in their vertical flight plane like a wheel.
+                // Spears, tridents and daggers retain point-first alignment; embeds stay still.
+                if(!e.landed() && tumbles(e))poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*36F));
                 poses.scale(1.8F,1.8F,1.8F);
                 itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,15728880,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }
             poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
+        }
+        private static boolean tumbles(RelicFlight e) {
+            var counter=CounterArsenal.entry(e.counter());
+            if(counter!=null)return java.util.Set.of("bow","twinblade","greataxe").contains(counter.shape());
+            return switch(e.relic()) {
+                case BLOSSOM_GREATSWORD,BELLHEART_AXE,LOCKKEEPER_AXE,VESPER_SCYTHE -> true;
+                default -> false;
+            };
         }
         private static void heart(VertexConsumer consumer,PoseStack poses,float size,int tint){
             float half=size*.5F;

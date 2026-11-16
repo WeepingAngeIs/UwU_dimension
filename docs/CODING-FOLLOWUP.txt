@@ -1,0 +1,19 @@
+Sakura coding follow-up / 1.5.0-beta.7-dev
+
+This phase uses existing pixels, geometry and audio only. Never install into existing profiles or modify saved worlds as part of this work.
+
+Tree: Anya's actual 34x38x30, 5026-block export is preserved in docs/anya-finished-tree, including original NBT and extracted blockstates. Runtime positions are identical after Y+60 translation. Exactly 46 exposed cut-log blocks become cherry_wood with the original axis. Existing 62 wood and all 4681 leaves are retained. No roots or shape invented. One sapling requires 5x5 soil. Generation affects new eligible terrain only. Growth checks loaded chunks, height, border, all destination blocks and OpenPAC access over the complete crown. Without a gardener (random ticks/dispenser), claimed land must permit outsider access; claim owners may use bone meal. Native growth-feature and bonemeal cancellations remain effective. No saved ownership metadata is added.
+
+Weapons: all 133 counter registrations and all 148 Glitch form ordinals remain stable. Fifteen bow-shaped counter forms are excluded from new creative/loot/retuning/random Glitch selection. Existing saved stacks and selected forms remain usable, including same-form retuning. No vanilla administrative /give restriction is imposed. Cupid, Ripple and Glitch remain offered. Four loot tables keep their combined counter weight 123.
+
+Poses: Cupid first-person yaw restored to vanilla draw-compatible orientation. Ripple drawn models correct only first-person local orientation (their arrow artwork points ninety degrees away from vanilla). GUI, held-rest and third-person Ripple displays are retained. Launcher first/third-person transforms and recoil variants align its muzzle; use consumes without vanilla SUCCESS arm swing. Existing vanilla crossbow/chime sounds provide firing feedback. No new sound file. Ring blades/axes/scythe tumble in a vertical flight plane; embedded items remain still, spears/tridents/daggers retain point-first alignment. Existing loyalty custody/gravity unchanged.
+
+ART/AUDIO CHECKPOINT -- WAIT FOR USER'S ASTRA ULTRA SWITCH
+- One original cute pink circular chakram with depth through its middle, not two rings painted on one sprite. Existing animation uses current legacy geometry until then.
+- Large scythe silhouette and over-shoulder stance. Native scythe currently inherits minecraft:item/handheld; its actual tool component is a hoe. No dedicated native Better Combat weapon-attributes resource was found. Glitch fallback uses bettercombat:scythe. Preserve harvesting and optional Figura/Better Combat compatibility; do not add a global player pose override.
+- Distinct original gurgly/corrupted Petal and Dusk zombie villager ambient/hurt/death recordings. KeeperZombieVillager currently inherits vanilla ZombieVillager sounds; normal Keeper uses People.PETAL_VOICE or DUSK_VOICE (three existing recordings per faction) for ambient/trade/hurt. Preserve normal villagers and defer sound file creation/event replacement to art/audio phase.
+- Original gunfire-like heart chime; current launcher reuses vanilla sounds as interim feedback.
+- Review axe and GUI orientation individually, never globally flip textures. Daggers/tridents already correct.
+- Supplied Library reference IDs were not retrieved as pixels. No claim of matching those screenshots.
+
+Verification is performed on GitHub-hosted runners. See final delivery evidence for exact commit, results and actual render review. Passing a capture workflow proves rendering and model selection, not artistic approval or a complete live modpack/shader/Figura test.

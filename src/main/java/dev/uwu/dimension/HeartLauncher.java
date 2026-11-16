@@ -79,13 +79,18 @@ final class HeartLauncher {
                 projectile.setPos(player.getX(), player.getEyeY() - .12, player.getZ());
                 projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 2.0F, 0);
                 if (!server.addFreshEntity(projectile)) return InteractionResultHolder.fail(held);
+                server.playSound(null,player.blockPosition(),net.minecraft.sounds.SoundEvents.CROSSBOW_SHOOT,
+                        net.minecraft.sounds.SoundSource.PLAYERS,1.2F,1.3F);
+                server.playSound(null,player.blockPosition(),net.minecraft.sounds.SoundEvents.AMETHYST_BLOCK_CHIME,
+                        net.minecraft.sounds.SoundSource.PLAYERS,.9F,1.5F);
                 Vec3 recoil = player.getLookAngle().multiply(1, 0, 1).normalize().scale(-.18);
                 player.push(recoil.x, 0, recoil.z);
                 player.hurtMarked = true;
                 held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
                 player.getCooldowns().addCooldown(this, 12);
             }
-            return InteractionResultHolder.sidedSuccess(held, level.isClientSide);
+            // Consume without SUCCESS: vanilla SUCCESS triggers the arm attack/throw swing.
+            return InteractionResultHolder.consume(held);
         }
         @Override public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity user) {
             if (!level.isClientSide && state.getDestroySpeed(level, pos) != 0)

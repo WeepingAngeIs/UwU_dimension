@@ -46,8 +46,10 @@ public final class CounterArsenal {
     public static Entry entry(String id){return ROSTER.stream().filter(e->e.id().equals(id)).findFirst().orElse(null);}
     /** Legacy counters remain registered so saved stacks and their exact matching wards keep working. */
     public static boolean active(Entry entry) {
-        return entry != null && DIRECT_FORMS.contains(entry.id());
+        return selectable(entry) && DIRECT_FORMS.contains(entry.id());
     }
+    /** Retired bow-like counters remain registered for saved stacks only. */
+    public static boolean selectable(Entry entry) { return entry != null && !entry.shape().equals("bow"); }
     static void register(IEventBus bus){
         for(Entry e:ROSTER)ITEMS.put(e.id(),REGISTRY.register(e.id(),()->new CounterItem(e)));
         REGISTRY.register(bus);CounterEffects.register(bus);CounterRetuning.register();

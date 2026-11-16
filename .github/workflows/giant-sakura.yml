@@ -1,5 +1,7 @@
 name: Giant Sakura growth and landmark
 on:
+  push:
+    branches: [feature/sakura-coding-followup]
   workflow_dispatch:
 permissions:
   contents: read

@@ -1,7 +1,7 @@
 name: Sakura weapon roster evidence
 on:
   push:
-    branches: [feature/sakura-roster-art, feature/sakura-glitch-guardian]
+    branches: [feature/sakura-roster-art, feature/sakura-glitch-guardian, feature/sakura-coding-followup]
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,7 +21,7 @@ jobs:
       - run: |
           grep -F 'UWU LEGACY ROSTER PASS' build/counter-server/counter.log
           grep -F 'UWU ROSTER ACQUISITION PASS' build/counter-server/counter.log
-          grep -F 'UWU RETUNING PASS 133 targets in both hands' build/counter-server/counter.log
+          grep -F 'UWU RETUNING PASS 118 selectable targets and 15 retired bows in both hands' build/counter-server/counter.log
           grep -F 'COUNTER ROSTER PASS 133 normal casts' build/counter-server/counter.log
           grep -F 'GLITCH FORM PASS saved index' build/counter-server/counter.log
       - uses: actions/upload-artifact@v4
@@ -68,10 +68,10 @@ jobs:
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
           timeout 25m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee roster-gallery.log
-          grep -F 'UWU ROSTER CLIENT PASSED items=163 pages=11' roster-gallery.log
-          test "$(find run/screenshots -name 'roster-gallery-*.png' | wc -l)" -eq 11
+          grep -F 'UWU ROSTER CLIENT PASSED items=148 pages=10' roster-gallery.log
+          test "$(find run/screenshots -name 'roster-gallery-*.png' | wc -l)" -eq 10
           grep 'ROSTER GALLERY ITEM ' roster-gallery.log > roster-manifest.txt
-          test "$(wc -l < roster-manifest.txt)" -eq 163
+          test "$(wc -l < roster-manifest.txt)" -eq 148
       - uses: actions/upload-artifact@v4
         if: always()
         with:

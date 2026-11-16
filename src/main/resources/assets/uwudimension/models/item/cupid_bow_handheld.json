@@ -5,7 +5,7 @@
     "firstperson_righthand": {
       "rotation": [
         0,
-        -46,
+        -90,
         29
       ],
       "translation": [
@@ -22,7 +22,7 @@
     "firstperson_lefthand": {
       "rotation": [
         0,
-        46,
+        90,
         -29
       ],
       "translation": [

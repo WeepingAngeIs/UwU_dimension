@@ -1,0 +1,2 @@
+Anya finished tree: exact saved-world extraction. Baseline NBT SHA256 cf3eeb543e027a6740bc15667b6965a85c5491b1374addcee908fbd9f0c39c09.
+Runtime coordinates preserve X/Z and translate source Y by +60; sapling anchor corresponds to exported trunk offset (16,0,15). No blocks added or removed. Logs whose end neighbors are not cherry log/wood become all-bark cherry wood with their axis retained. Exact substitutions are listed separately. No random roots are added. The saved tree has a 5x5 base; growth requires supported flat soil under it.

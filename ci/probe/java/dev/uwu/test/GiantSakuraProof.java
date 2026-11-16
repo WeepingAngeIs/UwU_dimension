@@ -38,7 +38,7 @@ final class GiantSakuraProof {
         return true;
     }
     private static void plant(ServerLevel level,BlockPos p){
-        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(p.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
+        for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)level.setBlockAndUpdate(p.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
         level.setBlockAndUpdate(p,GiantSakuraSapling.SAPLING.get().defaultBlockState().setValue(SaplingBlock.STAGE,1));
     }
     private static void bonemeal(ServerLevel level,BlockPos p,int attempts){
@@ -62,7 +62,7 @@ final class GiantSakuraProof {
             var stack=new ItemStack(Items.CHERRY_SAPLING);visitor.getInventory().setItem(0,stack);
             CriteriaTriggers.INVENTORY_CHANGED.trigger(visitor,visitor.getInventory(),stack);
             check(visitor.getRecipeBook().contains(id),"inventory criterion did not unlock recipe book");
-            for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(origin.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
+            for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)level.setBlockAndUpdate(origin.offset(x,-1,z),Blocks.DIRT.defaultBlockState());
             visitor.moveTo(origin.getX()+3.5,origin.getY(),origin.getZ()+.5,0,0);
             var sapling=new ItemStack(GiantSakuraSapling.SAPLING.get());
             visitor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,sapling);
@@ -97,37 +97,24 @@ final class GiantSakuraProof {
         BlockPos high=origin.atY(level.getMaxBuildHeight()-1);plant(level,high);
         bonemeal(level,high,35);originalSapling(level,high,"build-height refusal");
         level.setBlockAndUpdate(high,Blocks.AIR.defaultBlockState());
-        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++)level.setBlockAndUpdate(high.offset(x,-1,z),Blocks.AIR.defaultBlockState());
+        for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)level.setBlockAndUpdate(high.offset(x,-1,z),Blocks.AIR.defaultBlockState());
     }
     private static void connectivity(ServerLevel level,BlockPos p,String label){
-        for(int y=0;y<17;y++)for(int x=0;x<2;x++)for(int z=0;z<2;z++)
-            check(level.getBlockState(p.offset(x,y,z)).is(Blocks.CHERRY_LOG),label+" missing 2x2 core y="+y);
-        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
-            check(level.getBlockState(p.offset(x,0,z)).is(Blocks.CHERRY_LOG),label+" missing flared base");
-            check(level.getBlockState(p.offset(x,-1,z)).is(net.minecraft.tags.BlockTags.DIRT),label+" unsupported base");
+        var plan=GiantSakuraTree.plan(0,0);
+        check(plan.size()==5026,label+" authored block count");
+        int logs=0,leaves=0;
+        for(var entry:plan.entrySet()) {
+            var at=p.offset(entry.getKey());
+            check(level.getBlockState(at).equals(entry.getValue()),label+" changed blockstate at "+at);
+            if(entry.getValue().is(Blocks.CHERRY_LEAVES))leaves++;else logs++;
         }
-        Set<BlockPos> logs=new HashSet<>();int leaves=0;
-        for(int x=-17;x<=17;x++)for(int z=-17;z<=17;z++)for(int y=0;y<=42;y++){
-            var at=p.offset(x,y,z);var state=level.getBlockState(at);
-            if(state.is(Blocks.CHERRY_LOG))logs.add(at);
-            if(state.is(Blocks.CHERRY_LEAVES))leaves++;
-        }
-        check(logs.size()>=90&&leaves>300,label+" sparse crown/logs "+logs.size()+"/"+leaves);
-        Set<BlockPos> reached=new HashSet<>();ArrayDeque<BlockPos> queue=new ArrayDeque<>();queue.add(p);reached.add(p);
-        while(!queue.isEmpty()){
-            var here=queue.removeFirst();
-            for(Direction dir:Direction.values()){
-                BlockPos next=here.relative(dir);
-                if(logs.contains(next)&&reached.add(next))queue.add(next);
-            }
-        }
-        check(reached.size()==logs.size(),label+" disconnected branches "+reached.size()+"/"+logs.size());
-        System.out.println("GIANT SAKURA CONNECTIVITY PASS "+label+" logs="+logs.size()+" leaves="+leaves);
+        check(logs==345&&leaves==4681,label+" authored materials");
+        System.out.println("GIANT SAKURA EXACT PASS "+label+" wood="+logs+" leaves="+leaves);
     }
     private static void clearTree(ServerLevel level,BlockPos p){
         for(int x=-17;x<=17;x++)for(int z=-17;z<=17;z++)for(int y=0;y<=42;y++){
             var at=p.offset(x,y,z);var s=level.getBlockState(at);
-            if(s.is(Blocks.CHERRY_LOG)||s.is(Blocks.CHERRY_LEAVES))level.setBlock(at,Blocks.AIR.defaultBlockState(),2);
+            if(s.is(Blocks.CHERRY_LOG)||s.is(Blocks.CHERRY_WOOD)||s.is(Blocks.CHERRY_LEAVES))level.setBlock(at,Blocks.AIR.defaultBlockState(),2);
         }
     }
     private static void unloaded(ServerLevel level){
@@ -140,6 +127,32 @@ final class GiantSakuraProof {
         bonemeal(level,p,20);originalSapling(level,p,"unloaded footprint");
         check(!level.hasChunkAt(missing),"sapling forced an unloaded neighbor chunk");
     }
+    private static void claims(ServerLevel level)throws Exception {
+        check(net.neoforged.fml.ModList.get().isLoaded("openpartiesandclaims"),"claim proof dependency absent");
+        var apiType=Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
+        var api=apiType.getMethod("get",net.minecraft.server.MinecraftServer.class).invoke(null,level.getServer());
+        var manager=apiType.getMethod("getServerClaimsManager").invoke(api);
+        var type=Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI");
+        var claim=type.getMethod("claim",ResourceLocation.class,UUID.class,int.class,int.class,int.class,boolean.class);
+        var unclaim=type.getMethod("unclaim",ResourceLocation.class,int.class,int.class);
+        var owner=CounterProof.player(level,new GameProfile(UUID.fromString("a2d63438-804b-4cc6-842a-f4dc9874a204"),"TreeClaimOwner"));
+        var stranger=CounterProof.player(level,new GameProfile(UUID.fromString("c8028547-6fe3-4d12-9ab8-8b1adfd0ab40"),"TreeStranger"));
+        // The sapling is unclaimed in chunk 0,0; only its distant crown enters chunk 1,0.
+        check(type.getMethod("get",ResourceLocation.class,int.class,int.class).invoke(manager,level.dimension().location(),1,0)==null,"fixture chunk already claimed");
+        clearTree(level,origin);plant(level,origin);
+        try {
+            check(claim.invoke(manager,level.dimension().location(),owner.getUUID(),0,1,0,false)!=null,"claim creation failed");
+            for(int i=0;i<40;i++)BoneMealItem.applyBonemeal(new ItemStack(Items.BONE_MEAL,64),level,origin,stranger);
+            originalSapling(level,origin,"stranger across crown claim");
+            bonemeal(level,origin,40);originalSapling(level,origin,"unattributed across crown claim");
+            for(int i=0;i<500;i++)level.getBlockState(origin).randomTick(level,origin,RandomSource.create(i));
+            originalSapling(level,origin,"random growth across crown claim");
+            for(int i=0;i<100&&level.getBlockState(origin).is(GiantSakuraSapling.SAPLING.get());i++)
+                BoneMealItem.applyBonemeal(new ItemStack(Items.BONE_MEAL,64),level,origin,owner);
+            connectivity(level,origin,"claim owner");
+            System.out.println("GIANT SAKURA OPAC PASS full crown denies stranger/random/dispenser and allows owner bonemeal");
+        } finally {unclaim.invoke(manager,level.dimension().location(),1,0);owner.discard();stranger.discard();}
+    }
     static boolean tick(ServerLevel level)throws Exception {
         if(stage==0){
             origin=new BlockPos(8,level.getMaxBuildHeight()-46,8);force(level,origin);
@@ -148,7 +161,7 @@ final class GiantSakuraProof {
         if(stage==1){
             if(!loaded(level,origin)){check(level.getGameTime()<deadline,"test chunks did not load");return false;}
             recipe(level);preserved(level);bonemeal(level,origin,100);
-            check(level.getBlockState(origin).is(Blocks.CHERRY_LOG),"actual bone meal did not grow tree");
+            check(level.getBlockState(origin).is(Blocks.CHERRY_WOOD),"actual bone meal did not grow tree");
             connectivity(level,origin,"bonemeal");clearTree(level,origin);plant(level,origin);
             // Wait for the lighting engine to clear the previous canopy's shadow.
             level.setBlockAndUpdate(origin.offset(-2,0,0),Blocks.GLOWSTONE.defaultBlockState());
@@ -161,8 +174,8 @@ final class GiantSakuraProof {
             var random=RandomSource.create(12345);
             for(int i=0;i<5000&&level.getBlockState(origin).is(GiantSakuraSapling.SAPLING.get());i++)
                 level.getBlockState(origin).randomTick(level,origin,random);
-            check(level.getBlockState(origin).is(Blocks.CHERRY_LOG),"random tick did not grow tree");
-            connectivity(level,origin,"random tick");unloaded(level);
+            check(level.getBlockState(origin).is(Blocks.CHERRY_WOOD),"random tick did not grow tree");
+            connectivity(level,origin,"random tick");claims(level);unloaded(level);
             System.out.println("GIANT SAKURA SAPLING PASS recipe-book/craft, drops, bonemeal/random, blockers, support, border, height and unloaded chunks");
             stage=3;return false;
         }

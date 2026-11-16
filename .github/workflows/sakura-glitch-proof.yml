@@ -1,7 +1,7 @@
 name: Sakura Glitch lifecycle
 on:
   push:
-    branches: [feature/sakura-glitch-guardian]
+    branches: [feature/sakura-glitch-guardian, feature/sakura-coding-followup]
   workflow_dispatch:
 permissions:
   contents: read

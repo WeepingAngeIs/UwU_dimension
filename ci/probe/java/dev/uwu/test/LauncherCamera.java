@@ -62,35 +62,43 @@ public final class LauncherCamera {
         }
         if(state.equals("wait") && ticks>100) {state="armed";ticks=0;return;}
         if(state.equals("armed") && ticks==1)
-            mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
+            mc.options.setCameraType(shot%2==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
         if(state.equals("armed") && ticks==20) {
-            String frame=shot==0?"launcher-first-rest":"launcher-third-rest";
+            String frame="launcher-"+(shot%2==0?"first":"third")+"-rest"+(shot>=2?"-left":"");
             Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
         }
         if(state.equals("armed") && ticks>30) {
-            mc.options.setCameraType(shot==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
+            mc.options.setCameraType(shot%2==0?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_FRONT);
             mc.options.hideGui=false;
             mc.player.setYRot(0);mc.player.setXRot(0);
             captured=false;awaitingRecoil=false;state="firing";ticks=0;
-            mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);return;
+            mc.gameMode.useItem(mc.player,shot>=2?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND);return;
         }
         if(state.equals("firing")) {
-            var stack=mc.player.getMainHandItem();
+            var stack=mc.player.getItemInHand(shot>=2?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND);
             if(mc.player.getCooldowns().getCooldownPercent(stack.getItem(),0)>0) awaitingRecoil=true;
             if(ticks>70) {
                 if(!captured)throw new AssertionError("Launcher cooldown not observed in view "+shot);
                 shot++;
-                if(shot==2) {state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());}
-                else {state="armed";ticks=0;}
+                if(shot==4) {state="closed";mc.level.disconnect();mc.disconnect(new TitleScreen());}
+                else {
+                    state="armed";ticks=0;
+                    if(shot==2)server.execute(()->{
+                        var p=server.getPlayerList().getPlayer(id);
+                        p.setItemInHand(InteractionHand.OFF_HAND,p.getMainHandItem().copy());
+                        p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);p.containerMenu.broadcastChanges();
+                    });
+                }
             }
         }
     }
     @SubscribeEvent public static void rendered(RenderGuiEvent.Post event) {
         if(!"launcher".equals(System.getenv("UWU_VISIT")) || !state.equals("firing") || captured || !awaitingRecoil) return;
         var mc=Minecraft.getInstance();
-        if(mc.player==null || mc.player.getCooldowns().getCooldownPercent(mc.player.getMainHandItem().getItem(),0)<=0) return;
+        if(mc.player==null || mc.player.getCooldowns().getCooldownPercent(mc.player.getItemInHand(shot>=2?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND).getItem(),0)<=0) return;
         captured=true;
-        String frame=shot==0?"launcher-first-recoil":"launcher-third-recoil";
+        if(mc.player.swinging)throw new AssertionError("Launcher firing triggered an arm swing");
+        String frame="launcher-"+(shot%2==0?"first":"third")+"-recoil"+(shot>=2?"-left":"");
         Screenshot.grab(mc.gameDirectory,frame+".png",mc.getMainRenderTarget(),m->System.out.println(m.getString()));
         System.out.println("LAUNCHER RECOIL FRAME PASS "+frame);
     }

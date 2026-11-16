@@ -54,7 +54,7 @@ public final class RosterCamera {
         add("bell_hammer",true);
         for(String material:List.of("silver","roseglass","vesper_opal"))
             for(String kind:List.of("pickaxe","axe","shovel","hoe"))add(material+"_"+kind,true);
-        for(var entry:CounterArsenal.ROSTER)add(entry.id(),CounterArsenal.active(entry));
+        for(var entry:CounterArsenal.ROSTER)if(CounterArsenal.selectable(entry))add(entry.id(),CounterArsenal.active(entry));
         if(ITEMS.size()<20)throw new AssertionError("Unexpectedly small gallery: "+ITEMS.size());
     }
     @SubscribeEvent public static void tick(ClientTickEvent.Post event) {

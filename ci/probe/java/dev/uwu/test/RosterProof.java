@@ -71,10 +71,10 @@ final class RosterProof {
     private static void acquisition() throws Exception {
         Set<String> direct=new HashSet<>(),allMechanics=new HashSet<>(),directMechanics=new HashSet<>();
         for(var e:CounterArsenal.ROSTER) {
-            allMechanics.add(mechanics(e));
+            if(CounterArsenal.selectable(e))allMechanics.add(mechanics(e));
             if(CounterArsenal.active(e)){require(direct.add(e.id()),"Duplicate direct counter "+e.id());directMechanics.add(mechanics(e));}
         }
-        require(direct.size()==32,"Wrong direct counter count: "+direct.size());
+        require(direct.size()==29,"Wrong direct counter count: "+direct.size());
         require(directMechanics.equals(allMechanics),"A unique school/shape/theme/runic combination is absent from direct acquisition");
         for(String name:List.of("rose_bathhouse","inverted_shrine","tide_archive","mirror_court")) {
             var stream=CounterArsenal.class.getResourceAsStream("/data/uwudimension/loot_table/chests/"+name+".json");
@@ -94,7 +94,7 @@ final class RosterProof {
             require(found.equals(direct),"Loot/direct counter mismatch "+name);
             require(weight==123,"Counter loot weight changed "+name+" "+weight);
         }
-        System.out.println("UWU ROSTER ACQUISITION PASS 32 direct, complete ability families and duplicate-free weighted loot in four tables");
+        System.out.println("UWU ROSTER ACQUISITION PASS 29 direct, complete ability families and duplicate-free weighted loot in four tables");
     }
     private static void retuning(ServerPlayer player) {
         for(int i=0;i<player.getInventory().getContainerSize();i++)player.getInventory().setItem(i,new ItemStack(Items.COBBLESTONE,64));
@@ -113,6 +113,12 @@ final class RosterProof {
             var expectedAttributes=start.get(DataComponents.ATTRIBUTE_MODIFIERS);
             CustomData.update(DataComponents.CUSTOM_DATA,start,tag->tag.putString("roster_test","preserved"));
             for(var entry:CounterArsenal.ROSTER) {
+                if(!CounterArsenal.selectable(entry)) {
+                    var before=player.getItemInHand(hand).copy();
+                    require(!CounterRetuning.retune(player,entry.id()),"Retired bow accepted "+entry.id());
+                    require(ItemStack.isSameItemSameComponents(before,player.getItemInHand(hand)),"Retired bow attempt mutated stack");
+                    continue;
+                }
                 require(CounterRetuning.retune(player,entry.id()),"Cannot retune "+hand+" to "+entry.id());
                 var actual=player.getItemInHand(hand);
                 require(actual.is(CounterArsenal.ITEMS.get(entry.id()).get()),"Wrong retuned ID "+entry.id());
@@ -138,7 +144,7 @@ final class RosterProof {
             require(ItemStack.isSameItemSameComponents(before,player.getItemInHand(hand)),"Blocked retune mutated stack");
         }
         player.getInventory().clearContent();
-        System.out.println("UWU RETUNING PASS 133 targets in both hands, full inventory, stack data, invalid IDs and both cooldowns");
+        System.out.println("UWU RETUNING PASS 118 selectable targets and 15 retired bows in both hands, full inventory, stack data, invalid IDs and both cooldowns");
     }
     /** Runs after a real server restart, as required by the world-restart policy setting. */
     static void policy(ServerPlayer player) {

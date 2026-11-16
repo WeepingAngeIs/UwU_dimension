@@ -1,0 +1,53 @@
+name: Sakura coding pose evidence
+on:
+  push:
+    branches: [feature/sakura-coding-followup]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sakura-coding-views-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  poses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        visit: [bow-poses, launcher]
+    env:
+      UWU_VISIT: ${{ matrix.visit }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Photograph actual vanilla held/use pipeline
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config
+          printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:4\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx4G
+          timeout 30m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee coding-poses.log
+          if [ "$UWU_VISIT" = bow-poses ]; then
+            grep -F 'BOW POSE MATRIX PASS 48' coding-poses.log
+            test "$(find run/screenshots -name 'pose-*.png' | wc -l)" -eq 48
+          else
+            grep -F 'LAUNCHER CLIENT VIEWS PASS' coding-poses.log
+            for view in first third; do
+              for state in rest recoil; do test -s "run/screenshots/launcher-$view-$state.png"; done
+            done
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coding-poses-${{ matrix.visit }}
+          path: |
+            run/screenshots/*.png
+            coding-poses.log
+            run/logs/latest.log
+            run/crash-reports

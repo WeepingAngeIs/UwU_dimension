@@ -26,8 +26,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** One sapling grows the same giant 2x2-trunk sakura as the village landmark. */
+            tips.add(Component.literal("One sapling grows Anya's finished giant sakura.").withStyle(ChatFormatting.GRAY));
 public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> {
+    private static final ThreadLocal<net.minecraft.server.level.ServerPlayer> GARDENER=new ThreadLocal<>();
     private static final DeferredRegister<Feature<?>> FEATURES=DeferredRegister.create(Registries.FEATURE,"uwudimension");
     private static final DeferredRegister.Blocks BLOCKS=DeferredRegister.createBlocks("uwudimension");
     private static final DeferredRegister.Items ITEMS=DeferredRegister.createItems("uwudimension");
@@ -37,8 +38,8 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
     static { FEATURES.register("giant_sakura_tree",GiantSakuraSapling::new); }
     private static final java.util.function.Supplier<Item> ITEM=ITEMS.register("giant_sakura_sapling",()->new BlockItem(SAPLING.get(),new Item.Properties()) {
         @Override public void appendHoverText(ItemStack stack,Item.TooltipContext context,List<Component> tips,TooltipFlag flag) {
-            tips.add(Component.literal("One sapling grows a giant 2×2-trunk sakura.").withStyle(ChatFormatting.GRAY));
-            tips.add(Component.literal("Needs 4×4 flat soil, open space, and loaded chunks.").withStyle(ChatFormatting.GRAY));
+            tips.add(Component.literal("One sapling grows Anya's finished giant sakura.").withStyle(ChatFormatting.GRAY));
+            tips.add(Component.literal("Needs 5x5 flat soil, open space, and loaded chunks.").withStyle(ChatFormatting.GRAY));
         }
     });
     public GiantSakuraSapling(){super(NoneFeatureConfiguration.CODEC);}
@@ -58,6 +59,26 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
     public static void register(IEventBus bus){
         FEATURES.register(bus);BLOCKS.register(bus);ITEMS.register(bus);
         bus.addListener((BuildCreativeModeTabContentsEvent e)->{if(e.getTabKey()==CreativeModeTabs.NATURAL_BLOCKS)e.accept(ITEM.get());});
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                net.neoforged.bus.api.EventPriority.LOWEST,false,GiantSakuraSapling::bonemeal);
+    }
+
+    private static void bonemeal(net.neoforged.neoforge.event.entity.player.BonemealEvent event) {
+        if(!(event.getLevel() instanceof net.minecraft.server.level.ServerLevel level)
+                || !event.getState().is(SAPLING.get()) || !event.isValidBonemealTarget())return;
+        // Scope the actual gardener to this synchronous growth only, never retain an owner/player.
+        var prior=GARDENER.get();
+        try {
+            if(event.getPlayer() instanceof net.minecraft.server.level.ServerPlayer player)GARDENER.set(player);
+            else GARDENER.remove();
+            var block=(net.minecraft.world.level.block.BonemealableBlock)event.getState().getBlock();
+            if(block.isBonemealSuccess(level,level.random,event.getPos(),event.getState()))
+                block.performBonemeal(level,level.random,event.getPos(),event.getState());
+            event.getStack().shrink(1);
+            event.setSuccessful(true);
+        } finally {
+            if(prior==null)GARDENER.remove();else GARDENER.set(prior);
+        }
     }
 
     @Override public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
@@ -70,7 +91,9 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
             if(level.isOutsideBuildHeight(at) || !server.getWorldBorder().isWithinBounds(at))return false;
             if(checkedChunks.add(net.minecraft.world.level.ChunkPos.asLong(at)) && !server.hasChunkAt(at))return false;
         }
-        for(int x=-1;x<=2;x++)for(int z=-1;z<=2;z++){
+        // Check the complete crown as well as the trunk before touching any block.
+        for(var delta:plan.keySet())if(!SakuraAccess.mayGrow(server,GARDENER.get(),origin.offset(delta)))return false;
+        for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++){
             var soil=origin.offset(x,-1,z);var state=level.getBlockState(soil);
             if(!state.is(BlockTags.DIRT) || !state.isFaceSturdy(level,soil,Direction.UP))return false;
         }

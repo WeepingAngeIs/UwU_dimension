@@ -1,0 +1,32 @@
+{
+  "source": "Verified snapshot of Anya edited workshop world, not reconstruction",
+  "boundsMin": [
+    -16,
+    -60,
+    -15
+  ],
+  "boundsMax": [
+    17,
+    -23,
+    14
+  ],
+  "size": [
+    34,
+    38,
+    30
+  ],
+  "blocks": 5026,
+  "paletteStates": 13,
+  "counts": {
+    "minecraft:cherry_wood": 62,
+    "minecraft:cherry_log": 283,
+    "minecraft:cherry_leaves": 4681
+  },
+  "sha256": "cf3eeb543e027a6740bc15667b6965a85c5491b1374addcee908fbd9f0c39c09",
+  "integrationStatus": "Not integrated; no original world modification",
+  "placementOriginToTrunkBase": [
+    16,
+    0,
+    15
+  ]
+}

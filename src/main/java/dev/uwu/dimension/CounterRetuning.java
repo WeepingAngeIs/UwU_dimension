@@ -28,7 +28,7 @@ public final class CounterRetuning {
                     .then(Commands.argument("number", IntegerArgumentType.integer(1))
                         .executes(ctx -> list(ctx.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(ctx, "number")))))
                 .then(Commands.argument("form", StringArgumentType.word())
-                    .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(CounterArsenal.ROSTER.stream().map(CounterArsenal.Entry::id), builder))
+                    .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(CounterArsenal.ROSTER.stream().filter(CounterArsenal::selectable).map(CounterArsenal.Entry::id), builder))
                     .executes(ctx -> retune(ctx.getSource().getPlayerOrException(), StringArgumentType.getString(ctx, "form")) ? 1 : 0))));
     }
 
@@ -43,15 +43,16 @@ public final class CounterRetuning {
             player.sendSystemMessage(Component.literal("Hold a counter weapon to choose its target.").withStyle(ChatFormatting.RED));
             return 0;
         }
-        int pages = (CounterArsenal.ROSTER.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+        var choices = CounterArsenal.ROSTER.stream().filter(CounterArsenal::selectable).toList();
+        int pages = (choices.size() + PAGE_SIZE - 1) / PAGE_SIZE;
         if (page > pages) {
             player.sendSystemMessage(Component.literal("Choose a page from 1 to " + pages + ".").withStyle(ChatFormatting.RED));
             return 0;
         }
         player.sendSystemMessage(Component.literal("Counter targets (" + page + "/" + pages + ") — click a name to retune:").withStyle(ChatFormatting.LIGHT_PURPLE));
         int start = (page - 1) * PAGE_SIZE;
-        for (int i = start; i < Math.min(start + PAGE_SIZE, CounterArsenal.ROSTER.size()); i++) {
-            var entry = CounterArsenal.ROSTER.get(i);
+        for (int i = start; i < Math.min(start + PAGE_SIZE, choices.size()); i++) {
+            var entry = choices.get(i);
             player.sendSystemMessage(Component.literal("• " + entry.name() + " — answers " + entry.sourceName())
                 .withStyle(style -> style.withColor(ChatFormatting.AQUA)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sakura counter " + entry.id()))));
@@ -78,6 +79,10 @@ public final class CounterRetuning {
         if (current.getItem() == target) {
             player.sendSystemMessage(Component.literal("Already tuned to " + entry.sourceName() + "."));
             return true;
+        }
+        if (!CounterArsenal.selectable(entry)) {
+            player.sendSystemMessage(Component.literal("This legacy bow form is retired from new acquisition."));
+            return false;
         }
         // A different exact item ID is a new acquisition even though it replaces an owned stack.
         // Match the server policy's documented operator/creative exception.
