@@ -28,7 +28,7 @@ public final class NetworkWishServer {
     private static final List<EntityType<?>> babies=new ArrayList<>();
     private static boolean ready,issued,finished,logic;
     private static int index,afterLogout;
-    private static long cue=-1,started;
+    private static long cue=-1,started,issuedAt;
     private static ServerPlayer archer,witness;
     private static Animal cow,second,sheep;
     private static MinecraftServer host;
@@ -57,6 +57,16 @@ public final class NetworkWishServer {
     private static void resetWitness(GameType type){
         // A real mode switch makes the production minion tick release prior charm.
         witness.setGameMode(type);witness.teleportTo(host.overworld(),.5,113,5.5,180,0);
+    }
+    private static void clearFixtureCharm(LivingEntity e)throws Exception {
+        if(!e.getPersistentData().hasUUID(OWNER))return;
+        if(e instanceof ServerPlayer p){
+            var method=Class.forName("dev.uwu.dimension.CupidMinions").getDeclaredMethod("release",ServerPlayer.class);
+            method.setAccessible(true);method.invoke(null,p);
+        }else{
+            e.removeTag(OWNER);e.getPersistentData().remove(OWNER);e.getPersistentData().remove(END);
+            e.getPersistentData().remove("uwu.pastel_cupid");
+        }
     }
     static void tick(MinecraftServer server)throws Exception {
         if(!ACTIVE||finished)return;
@@ -126,14 +136,18 @@ public final class NetworkWishServer {
         }
         var current=actions.get(index);
         if(!issued){
-            run(current.before);var p=new Properties();p.setProperty("id",Integer.toString(index));p.setProperty("role",current.role);p.setProperty("action",current.kind);
+            run(current.before);
+            // Separate scenarios start uncharmed. Only real arrows establish the charm being asserted.
+            if(current.kind.equals("shoot"))clearFixtureCharm(current.target);
+            var p=new Properties();p.setProperty("id",Integer.toString(index));p.setProperty("role",current.role);p.setProperty("action",current.kind);
             p.setProperty("target",Integer.toString(current.target==null?-1:current.target.getId()));p.setProperty("expect",current.expect);
             p.setProperty("binding",index==19||index==20?"shift":"ctrl");
             if(current.kind.equals("command"))p.setProperty("command",current.role.equals("witness")&&index<20?"sakura cupid witness on":"sakura cupid help");
             Path temp=SYNC.resolve("task.tmp");Files.createDirectories(SYNC);try(var writer=Files.newBufferedWriter(temp)){p.store(writer,"Disposable native-input test");}
-            Files.move(temp,SYNC.resolve("task.properties"),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);issued=true;
+            Files.move(temp,SYNC.resolve("task.properties"),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);issued=true;issuedAt=System.nanoTime();
             System.out.println("NETWORK WISH ACTION "+index+" "+current.kind);return;
         }
+        check(System.nanoTime()-issuedAt<120_000_000_000L,"physical action did not complete: "+index+" "+current.kind);
         if(Files.exists(SYNC.resolve("done-"+index))){run(current.verify);System.out.println("NETWORK WISH STEP PASS "+index+" "+current.kind);index++;issued=false;}
     }
     @SubscribeEvent public static void birth(EntityJoinLevelEvent e){

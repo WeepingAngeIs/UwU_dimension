@@ -26,7 +26,7 @@ public final class NetworkWishClient {
     private static final List<String> messages=new ArrayList<>();
     private static Robot robot;
     private static boolean connecting,finished;
-    private static long start;
+    private static long start,actionStarted;
     private static int serial=-1,done=-1,ticks;
     private static Properties task;
     public static void message(String text){if(ACTIVE){messages.add(text);System.out.println("WISH CLIENT MESSAGE "+ROLE+" "+text);}}
@@ -52,11 +52,12 @@ public final class NetworkWishClient {
         if(!ROLE.equals(next.getProperty("role")))return;
         int id=Integer.parseInt(next.getProperty("id"));if(id==done)return;
         if(id!=serial){
-            release();serial=id;ticks=0;task=next;messages.clear();
+            release();serial=id;ticks=0;task=next;messages.clear();actionStarted=System.nanoTime();
             String name=task.getProperty("binding","ctrl").equals("shift")?"key.keyboard.left.shift":"key.keyboard.left.control";
             mc.options.keyShift.setKey(com.mojang.blaze3d.platform.InputConstants.getKey(name));
             net.minecraft.client.KeyMapping.resetMapping();
         }
+        check(System.nanoTime()-actionStarted<100_000_000_000L,"action stalled "+serial);
         Entity target=mc.level.getEntity(Integer.parseInt(task.getProperty("target","-1")));
         String action=task.getProperty("action");
         if(target!=null){
