@@ -51,8 +51,12 @@ public final class NetworkWishClient {
         var next=new Properties();try(var reader=Files.newBufferedReader(file)){next.load(reader);}
         if(!ROLE.equals(next.getProperty("role")))return;
         int id=Integer.parseInt(next.getProperty("id"));if(id==done)return;
-        if(id!=serial){release();serial=id;ticks=0;task=next;messages.clear();}
-        ticks++;
+        if(id!=serial){
+            release();serial=id;ticks=0;task=next;messages.clear();
+            String name=task.getProperty("binding","ctrl").equals("shift")?"key.keyboard.left.shift":"key.keyboard.left.control";
+            mc.options.keyShift.setKey(com.mojang.blaze3d.platform.InputConstants.getKey(name));
+            net.minecraft.client.KeyMapping.resetMapping();
+        }
         Entity target=mc.level.getEntity(Integer.parseInt(task.getProperty("target","-1")));
         String action=task.getProperty("action");
         if(target!=null){
@@ -60,6 +64,7 @@ public final class NetworkWishClient {
             mc.player.setYRot((float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90));
             mc.player.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z))));
         }else if(!action.equals("command")&&!action.equals("logout"))return;
+        ticks++;
         int crouchKey=task.getProperty("binding","ctrl").equals("shift")?KeyEvent.VK_SHIFT:KeyEvent.VK_CONTROL;
         if(action.equals("shoot")){
             if(ticks==8)robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);

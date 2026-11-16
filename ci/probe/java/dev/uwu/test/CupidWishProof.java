@@ -106,6 +106,15 @@ final class CupidWishProof {
         visitor.getPersistentData().remove(REST);
         var last=mob(EntityType.SHEEP,0);pair(last,visitor);settle();check(babies()==6 && last.getAge()==6000,"creature then player");
         fresh();visitor.getPersistentData().remove(REST);charm(visitor);
+        var handA=mob(EntityType.COW,0);var handB=mob(EntityType.COW,1);
+        pair(handA,handB);
+        var bow=archer.getMainHandItem();archer.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        archer.setItemInHand(InteractionHand.OFF_HAND,bow);settle();
+        check(babies()==6,"offhand-only bow completed a pending mainhand wish");
+        archer.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);archer.setItemInHand(InteractionHand.MAIN_HAND,bow);
+        int permission=AcquisitionPolicy.CUPID_WISH_PERMISSION.get();
+        try{AcquisitionPolicy.CUPID_WISH_PERMISSION.set(4);pair(handA,handB);settle();check(babies()==6,"permission gate bypassed");}
+        finally{AcquisitionPolicy.CUPID_WISH_PERMISSION.set(permission);click(archer,null);}
         try(var third=new ChestProof.Visitor(level,origin,"Willow",UUID.randomUUID())){
             level.addNewPlayer(third.player);
             try {
