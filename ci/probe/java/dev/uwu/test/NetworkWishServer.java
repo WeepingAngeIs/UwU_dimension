@@ -94,6 +94,15 @@ public final class NetworkWishServer {
             arrow(sheep,null,()->check(charmed(sheep),"sheep charm before reversed pair"));
             select(sheep,"First wish target",null);select(witness,"Two hearts answered",()->births(4,EntityType.SHEEP));
             action("witness","command",null,"Cupid Bow:",null,null);
+            var foe=EntityType.HUSK.create(server.overworld());check(foe!=null,"missing minion target");
+            foe.setNoAi(true);foe.setPersistenceRequired();foe.moveTo(.5,113,7.5,180,0);
+            check(server.overworld().addFreshEntity(foe),"minion foe insertion");
+            action("archer","attack",foe,"Your charmed allies are targeting",null,()->{
+                check(witness.getPersistentData().hasUUID("uwudimension.cupid_target")
+                    &&witness.getPersistentData().getUUID("uwudimension.cupid_target").equals(foe.getUUID()),"remote player did not receive attack designation");
+                check(foe.getLastHurtByMob()==witness,"remote player minion failed to attack designated foe");
+                System.out.println("NETWORK WISH PLAYER MINION ATTACK PASS real owner click, remote movement and actual hit");foe.discard();
+            });
             arrow(witness,()->resetWitness(GameType.CREATIVE),()->check(!charmed(witness),"creative player charmed"));
             arrow(witness,()->resetWitness(GameType.SPECTATOR),()->check(!charmed(witness),"spectator player charmed"));
             arrow(witness,()->{resetWitness(GameType.SURVIVAL);server.setPvpAllowed(false);health=witness.getHealth();},()->check(!charmed(witness)&&witness.getHealth()==health,"PvP-disabled player affected"));

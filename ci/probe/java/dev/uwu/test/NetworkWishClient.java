@@ -76,6 +76,9 @@ public final class NetworkWishClient {
             if(ticks==18)robot.keyRelease(crouchKey);
         }else if(action.equals("rapid")){
             if(ticks>=10&&ticks<34){if(ticks%2==0)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);else robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);}
+        }else if(action.equals("attack")){
+            if(ticks==10)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            if(ticks==12)robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
         }else if(action.equals("hold")){
             if(ticks==8)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
             if(ticks==44)robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
