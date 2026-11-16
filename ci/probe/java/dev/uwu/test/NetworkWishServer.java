@@ -68,6 +68,16 @@ public final class NetworkWishServer {
             e.getPersistentData().remove("uwu.pastel_cupid");
         }
     }
+    private static void shotLane(LivingEntity target){
+        // Independent physical-arrow scenes must not shoot through followers or earlier newborns.
+        // Setup changes positions only; actual clients still draw/release and the real arrow must hit.
+        for(var animal:List.of(cow,second,sheep))
+            animal.moveTo(animal==target?-3.5:3.5,113,animal==second?7:5.5,180,0);
+        witness.teleportTo(host.overworld(),target==witness?.5:2.5,113,target==witness?5.5:4.5,180,0);
+        for(var animal:host.overworld().getEntitiesOfClass(Animal.class,
+                new net.minecraft.world.phys.AABB(-10,112,-5,11,120,19),Animal::isBaby))
+            animal.moveTo(8.5,113,12.5,0,0);
+    }
     static void tick(MinecraftServer server)throws Exception {
         if(!ACTIVE||finished)return;
         if(!ready){
@@ -124,9 +134,7 @@ public final class NetworkWishServer {
             arrow(witness,()->resetWitness(GameType.SPECTATOR),()->check(!charmed(witness),"spectator player charmed"));
             arrow(witness,()->{resetWitness(GameType.SURVIVAL);server.setPvpAllowed(false);health=witness.getHealth();},()->check(!charmed(witness)&&witness.getHealth()==health,"PvP-disabled player affected"));
             arrow(witness,()->{server.setPvpAllowed(true);refresh();},()->check(charmed(witness),"PvP-enabled player charm"));
-            // Earlier following/birth scenes can leave a player or newborn in the old shot lane.
-            // Reset only this fixture's position; the genuine client still has to aim and hit it.
-            arrow(cow,()->cow.moveTo(-5.5,113,4.5,0,0),()->check(charmed(cow),"cow for pending logout wish"));
+            arrow(cow,null,()->check(charmed(cow),"cow for pending logout wish"));
             select(witness,"First wish target",null);
             action("witness","logout",null,"",null,null);
             ready=true;System.out.println("NETWORK WISH READY two real clients; no direct select/charm calls");
@@ -147,7 +155,7 @@ public final class NetworkWishServer {
         if(!issued){
             run(current.before);
             // Separate scenarios start uncharmed. Only real arrows establish the charm being asserted.
-            if(current.kind.equals("shoot"))clearFixtureCharm(current.target);
+            if(current.kind.equals("shoot")){clearFixtureCharm(current.target);shotLane(current.target);}
             var p=new Properties();p.setProperty("id",Integer.toString(index));p.setProperty("role",current.role);p.setProperty("action",current.kind);
             p.setProperty("target",Integer.toString(current.target==null?-1:current.target.getId()));p.setProperty("expect",current.expect);
             if(current.target!=null){var center=current.target.getBoundingBox().getCenter();
