@@ -75,10 +75,12 @@ final class NetworkGlitchServer {
             var level=server.overworld();
             shooter.teleportTo(level,.5,FLOOR+1,.5,0,0);
             victim.teleportTo(level,.5,FLOOR+1,4.5,180,0);
-            ItemStack stack=shooter.getMainHandItem();
+            ItemStack stack=shooter.getMainHandItem().copy();
             int index=GlitchBow.FORMS.indexOf("cupid_bow");
+            if(index<0)throw new AssertionError("Missing Cupid form");
             CustomData.update(DataComponents.CUSTOM_DATA,stack,n->n.putInt("uwu_form",index));
-            shooter.containerMenu.broadcastChanges();cupidReady=true;signal("cupid-ready");
+            shooter.setItemInHand(InteractionHand.MAIN_HAND,stack);
+            shooter.getInventory().setChanged();shooter.containerMenu.broadcastFullState();cupidReady=true;signal("cupid-ready");
             System.out.println("NETWORK GLITCH CUPID READY two real clients");
         }
         if(cupidReady&&!charmed){

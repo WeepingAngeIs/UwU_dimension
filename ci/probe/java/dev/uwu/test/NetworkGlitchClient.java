@@ -28,7 +28,7 @@ public final class NetworkGlitchClient {
     private static final String ROLE=System.getenv().getOrDefault("GLITCH_ROLE","");
     private static final Path SYNC=Path.of(System.getenv().getOrDefault("GLITCH_SYNC_DIR","."));
     private static boolean connecting,shot,sawFlight,finished,cupidStarted,cupidReleased;
-    private static int cupidDrawTicks;
+    private static int cupidDrawTicks,cupidWaitTicks;
     private static String capture;
     private static long start;
 
@@ -74,6 +74,10 @@ public final class NetworkGlitchClient {
         if(mc.level==null||mc.player==null||mc.gameMode==null||mc.screen!=null)return;
         check(mc.getSingleplayerServer()==null&&!mc.isLocalServer(),"must use a real remote server");
         if(ROLE.equals("shooter")){
+            if(Files.exists(SYNC.resolve("cupid-ready.seen"))&&!cupidReleased&&++cupidWaitTicks%200==1){
+                ItemStack held=mc.player.getMainHandItem();
+                System.out.println("NETWORK GLITCH CUPID CLIENT state form="+(held.is(UwUDimension.GLITCH.get())?GlitchBow.form(held):held.getItem())+" started="+cupidStarted+" using="+mc.player.isUsingItem()+" drawTicks="+cupidDrawTicks);
+            }
             if(!shot&&Files.exists(SYNC.resolve("held.seen"))&&mc.player.getMainHandItem().is(UwUDimension.GLITCH.get())
                     &&GlitchBow.form(mc.player.getMainHandItem()).equals(NetworkGlitchServer.FORM)){
                 shot=true;mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
@@ -82,6 +86,7 @@ public final class NetworkGlitchClient {
             if(!cupidStarted&&Files.exists(SYNC.resolve("cupid-ready.seen"))&&mc.player.getMainHandItem().is(UwUDimension.GLITCH.get())
                     &&GlitchBow.form(mc.player.getMainHandItem()).equals("cupid_bow")){
                 cupidStarted=true;mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
+                System.out.println("NETWORK GLITCH SHOOTER started Cupid draw");
             }
             if(cupidStarted&&!cupidReleased&&mc.player.isUsingItem()&&++cupidDrawTicks>=55){
                 cupidReleased=true;mc.gameMode.releaseUsingItem(mc.player);
