@@ -71,9 +71,11 @@ public final class NetworkWishServer {
     private static void shotLane(LivingEntity target){
         // Independent physical-arrow scenes must not shoot through followers or earlier newborns.
         // Setup changes positions only; actual clients still draw/release and the real arrow must hit.
-        for(var animal:List.of(cow,second,sheep))
-            animal.moveTo(animal==target?-3.5:3.5,113,animal==second?7:5.5,180,0);
-        witness.teleportTo(host.overworld(),target==witness?.5:2.5,113,target==witness?5.5:4.5,180,0);
+        // Keep non-targets distinct too: later wish selections still use the real line of sight.
+        cow.moveTo(cow==target?-3.5:2.5,113,cow==target?5.5:4.5,180,0);
+        second.moveTo(second==target?-3.5:3.5,113,5.5,180,0);
+        sheep.moveTo(sheep==target?-3.5:1.5,113,sheep==target?5.5:7.5,180,0);
+        witness.teleportTo(host.overworld(),.5,113,target==witness?5.5:4.5,180,0);
         for(var animal:host.overworld().getEntitiesOfClass(Animal.class,
                 new net.minecraft.world.phys.AABB(-10,112,-5,11,120,19),Animal::isBaby))
             animal.moveTo(8.5,113,12.5,0,0);
