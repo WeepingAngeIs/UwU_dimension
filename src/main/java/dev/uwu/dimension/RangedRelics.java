@@ -72,7 +72,9 @@ public final class RangedRelics {
         switch(relic) {
             case FROST_WHIP -> {
                 target.setTicksFrozen(160);
-                target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,60,10));
+                if(abilitySource!=null)GlitchCompletions.track(abilitySource,target,"freeze",160);
+                if(GlitchCompletions.applyEffect(target,new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,60,10)) && abilitySource!=null)
+                    GlitchCompletions.track(abilitySource,target,"slow",60);
             }
             case RIFT_WHIP -> {
                 CompoundTag n=player.getPersistentData();n.putUUID("uwu.rift_target",target.getUUID());
@@ -86,7 +88,8 @@ public final class RangedRelics {
             }
             case LOCKKEEPER_AXE -> { Vec3 push=player.getLookAngle().scale(1.5);target.push(push.x,.3,push.z);target.hurtMarked=true; }
             case VESPER_SCYTHE -> player.heal(2);
-            default -> target.addEffect(new MobEffectInstance(MobEffects.GLOWING,100));
+            default -> {if(GlitchCompletions.applyEffect(target,new MobEffectInstance(MobEffects.GLOWING,100)) && abilitySource!=null)
+                GlitchCompletions.track(abilitySource,target,"glow",100);}
         }
         return true;
     }

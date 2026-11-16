@@ -26,6 +26,9 @@ import net.minecraft.world.phys.Vec3;
 final class GlitchLifecycleProof {
     private static ServerPlayer player;
     private static Husk frozenTarget;
+    private static Husk rippleFirst,rippleSecond,rippleThird;
+    private static UUID unloadedRecipient;
+    private static final int DISTANT_CHUNK_X=12;
     private static GlitchBow item;
     private static RelicFlight flight;
     private static HeartArrow arrow;
@@ -117,11 +120,36 @@ final class GlitchLifecycleProof {
         recovered.discard();
         System.out.println("GLITCH RECOVERY PASS saved owner and flight, dimension change, pending form and stale-flight deduplication");
     }
+    private static void cupidLogout(ServerLevel level){
+        startForm("cupid_bow",InteractionHand.MAIN_HAND);
+        player.setYRot(0);player.setYHeadRot(0);player.yHeadRotO=0;player.setXRot(0);
+        var victim=CounterProof.player(level,new GameProfile(UUID.fromString("c719e828-f310-44fa-95d5-41fef4a9da44"),"CupidLogoutVictim"));
+        victim.moveTo(player.getX(),player.getY(),player.getZ()+3,180,0);victim.setNoGravity(true);level.addNewPlayer(victim);
+        try{
+            check(player.canHarmPlayer(victim),"Cupid logout fixture has PvP disabled");
+            item.use(level,player,InteractionHand.MAIN_HAND);item.releaseUsing(current,level,player,71980);player.stopUsingItem();
+            var arrows=level.getEntitiesOfClass(HeartArrow.class,player.getBoundingBox().inflate(4),a->a.getOwner()==player);
+            check(arrows.size()==1,"Cupid logout shot missing");
+            var shot=arrows.getFirst();
+            for(int t=0;t<8&&shot.isAlive();t++){shot.tickCount++;shot.tick();}
+            check(victim.getTags().contains("uwudimension.charm_owner"),"actual Cupid arrow did not charm the player");
+            item.inventoryTick(current,level,player,player.getInventory().selected,true);
+            check(stillForm(current),"Cupid advanced while player charm was active");
+            // Post the same event NeoForge emits during player logout; the two-client
+            // integration separately checks real packet-driven visual synchronization.
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(victim));
+            check(!victim.getTags().contains("uwudimension.charm_owner"),"logout did not release player charm");
+            item.inventoryTick(current,level,player,player.getInventory().selected,true);
+            check(!stillForm(current),"Cupid stayed pending after charmed player logout released the effect");
+            System.out.println("GLITCH CUPID LOGOUT PASS actual player charm and NeoForge logout event release");
+        }finally{victim.discard();}
+    }
     static boolean tick(ServerLevel level)throws Exception {
         // Probe visitors are not in the server player list, whose network loop
         // normally calls doTick; drive that real inventory/cooldown path once per tick.
         if(player!=null&&player.isAlive())player.doTick();
         if(stage==0){
+            level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack(),"gamerule doMobSpawning false");
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,true);
             BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
             for(int x=-5;x<=5;x++)for(int z=-6;z<=9;z++){
@@ -249,6 +277,68 @@ final class GlitchLifecycleProof {
         if(stage==8){
             if(stillForm(current)){check(level.getGameTime()<deadline,"fishing form did not advance after reel");return false;}
             System.out.println("GLITCH FISHING PASS retained form while cast, reel then advance");
+            // Two real splash recipients; the second is later actually unloaded.
+            rippleFirst=EntityType.HUSK.create(level);rippleSecond=EntityType.HUSK.create(level);rippleThird=EntityType.HUSK.create(level);
+            check(rippleFirst!=null&&rippleSecond!=null&&rippleThird!=null,"missing Ripple recipients");
+            rippleFirst.moveTo(player.getX()-2,player.getY(),player.getZ()+6,0,0);
+            rippleSecond.moveTo(player.getX()+2,player.getY(),player.getZ()+6,0,0);
+            rippleThird.moveTo(player.getX()+3,player.getY(),player.getZ()+5,0,0);
+            rippleThird.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,-1,1));
+            rippleThird.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,-1,10));
+            for(var mob:java.util.List.of(rippleFirst,rippleSecond,rippleThird)){
+                mob.setNoAi(true);mob.setNoGravity(true);mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);mob.setHealth(200);
+                check(level.addFreshEntity(mob),"could not add Ripple recipient");
+            }
+            player.setYRot(0);player.setYHeadRot(0);player.yHeadRotO=0;player.setXRot(0);
+            startForm("ripple_bow",InteractionHand.MAIN_HAND);
+            item.use(level,player,InteractionHand.MAIN_HAND);item.releaseUsing(current,level,player,71980);player.stopUsingItem();
+            deadline=level.getGameTime()+100;stage=9;return false;
+        }
+        if(stage==9){
+            if(!rippleFirst.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING)||!rippleSecond.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING)){
+                check(level.getGameTime()<deadline,"Ripple did not apply its real effect to both recipients");return false;
+            }
+            check(stillForm(current),"Ripple advanced while both affected targets were loaded");
+            // Extend one existing effect to make its active state observable even
+            // if server chunk unloading takes several seconds; no mod logic is mocked.
+            rippleSecond.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,1200));
+            unloadedRecipient=rippleSecond.getUUID();
+            level.setChunkForced(DISTANT_CHUNK_X,0,true);level.getChunk(DISTANT_CHUNK_X,0);
+            rippleSecond.teleportTo(DISTANT_CHUNK_X*16+.5,player.getY(),.5);
+            deadline=level.getGameTime()+15;stage=10;return false;
+        }
+        if(stage==10){
+            check(stillForm(current),"Ripple advanced while recipients were active");
+            if(level.getGameTime()<deadline)return false;
+            check(level.getEntity(unloadedRecipient)!=null,"recipient unexpectedly disappeared before unforce");
+            level.setChunkForced(DISTANT_CHUNK_X,0,false);
+            deadline=level.getGameTime()+1200;stage=11;return false;
+        }
+        if(stage==11){
+            check(stillForm(current),"Ripple advanced while a recipient was still tracked");
+            if(level.getEntity(unloadedRecipient)!=null){check(level.getGameTime()<deadline,"distant recipient chunk did not unload");return false;}
+            deadline=level.getGameTime()+180;stage=12;return false;
+        }
+        if(stage==12){
+            check(stillForm(current),"unloaded recipient caused premature Ripple form switch");
+            if(level.getGameTime()<deadline)return false;
+            check(!rippleFirst.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING),"first recipient's effect did not expire naturally");
+            level.setChunkForced(DISTANT_CHUNK_X,0,true);level.getChunk(DISTANT_CHUNK_X,0);
+            deadline=level.getGameTime()+200;stage=13;return false;
+        }
+        if(stage==13){
+            var found=level.getEntity(unloadedRecipient);
+            if(!(found instanceof Husk mob)){check(level.getGameTime()<deadline,"unloaded Ripple recipient did not reload");return false;}
+            check(mob.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING),"reloaded recipient lost the active effect");
+            check(stillForm(current),"Ripple advanced while reloaded recipient was affected");
+            mob.discard();deadline=level.getGameTime()+40;stage=14;return false;
+        }
+        if(stage==14){
+            if(stillForm(current)){check(level.getGameTime()<deadline,"Ripple did not advance after confirmed recipient removal");return false;}
+            check(rippleThird.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING)&&rippleThird.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN),"preexisting permanent effects unexpectedly disappeared");
+            level.setChunkForced(DISTANT_CHUNK_X,0,false);rippleFirst.discard();rippleThird.discard();
+            System.out.println("GLITCH RECIPIENT PASS multiple Ripple victims, real chunk unload/reload, active effect, confirmed removal and unrelated permanent effects");
+            cupidLogout(level);
             recovery(level);
             System.out.println("UWU GLITCH LIFECYCLE PASS real melee, Twin Chakram, projectile custody, saved data, cooldown, bow, whip, offhand, fishing and offline recovery");
             return true;

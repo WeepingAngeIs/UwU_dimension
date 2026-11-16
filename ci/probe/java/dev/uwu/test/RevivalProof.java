@@ -38,8 +38,11 @@ public final class RevivalProof {
             for(var sample:samples)if(sample.late()){
                 var p=sample.actor();require(!RevivalCooldownManager.isCoolingDown(level,p,sample.stack()),"Shortened cooldown did not expire");
                 require(!((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Late mark lost revival seal");
-                p.invulnerableTime=0;p.hurt(p.damageSources().generic(),2000);
-                require(!p.isAlive(),"Sealed lethal hit revived at tick159");
+                p.invulnerableTime=0;float prior=p.getHealth();boolean accepted=p.hurt(p.damageSources().generic(),2000);
+                require(!p.isAlive(),"Sealed lethal hit revived at tick159: item="+BuiltInRegistries.ITEM.getKey(sample.stack().getItem())
+                        +" previousHealth="+prior+" health="+p.getHealth()+" accepted="+accepted+" absorption="+p.getAbsorptionAmount()
+                        +" armor="+p.getArmorValue()+" invulnerable="+p.isInvulnerable()+" spectator="+p.isSpectator()
+                        +" effects="+p.getActiveEffects()+" cooldown="+RevivalCooldownManager.isCoolingDown(level,p,sample.stack()));
             }
             checkedLate=true;
         }

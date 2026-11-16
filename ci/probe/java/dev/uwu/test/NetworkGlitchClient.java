@@ -27,7 +27,8 @@ public final class NetworkGlitchClient {
     private static final boolean ACTIVE=NetworkGlitchServer.SESSION.equals(System.getenv("UWU_VISIT"));
     private static final String ROLE=System.getenv().getOrDefault("GLITCH_ROLE","");
     private static final Path SYNC=Path.of(System.getenv().getOrDefault("GLITCH_SYNC_DIR","."));
-    private static boolean connecting,shot,sawFlight,finished;
+    private static boolean connecting,shot,sawFlight,finished,cupidStarted,cupidReleased;
+    private static int cupidDrawTicks;
     private static String capture;
     private static long start;
 
@@ -37,7 +38,13 @@ public final class NetworkGlitchClient {
         check(!nativeStack.isEmpty(),label+" has no corresponding form");
         var actual=mc.getItemRenderer().getModel(stack,mc.level,holder,0);
         var expected=mc.getItemRenderer().getModel(nativeStack,mc.level,holder,0);
-        check(actual==expected,label+" selected a different baked model from the real form");
+        var a=actual.getQuads(null,null,net.minecraft.util.RandomSource.create(42));
+        var b=expected.getQuads(null,null,net.minecraft.util.RandomSource.create(42));
+        var aTextures=a.stream().map(q->q.getSprite().contents().name().toString()).sorted().toList();
+        var bTextures=b.stream().map(q->q.getSprite().contents().name().toString()).sorted().toList();
+        System.out.println("NETWORK GLITCH MODEL "+label+" identity="+(actual==expected)+" actual="+aTextures+" expected="+bTextures);
+        check(!a.isEmpty()&&a.size()==b.size()&&aTextures.equals(bTextures),label+" selected different baked textures from the real form");
+        for(int i=0;i<a.size();i++)check(java.util.Arrays.equals(a.get(i).getVertices(),b.get(i).getVertices()),label+" selected different baked geometry at quad "+i);
     }
 
     @SubscribeEvent public static void render(RenderFrameEvent.Post event)throws IOException{
@@ -72,7 +79,15 @@ public final class NetworkGlitchClient {
                 shot=true;mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
                 System.out.println("NETWORK GLITCH SHOOTER used selected Twin Chakram through normal client interaction");
             }
-            if(Files.exists(SYNC.resolve("changed.seen"))){finished=true;System.out.println("NETWORK GLITCH SHOOTER PASS");mc.stop();}
+            if(!cupidStarted&&Files.exists(SYNC.resolve("cupid-ready.seen"))&&mc.player.getMainHandItem().is(UwUDimension.GLITCH.get())
+                    &&GlitchBow.form(mc.player.getMainHandItem()).equals("cupid_bow")){
+                cupidStarted=true;mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
+            }
+            if(cupidStarted&&!cupidReleased&&mc.player.isUsingItem()&&++cupidDrawTicks>=55){
+                cupidReleased=true;mc.gameMode.releaseUsingItem(mc.player);
+                System.out.println("NETWORK GLITCH SHOOTER fired real Cupid form at remote observer");
+            }
+            if(Files.exists(SYNC.resolve("logout-pass.seen"))){finished=true;System.out.println("NETWORK GLITCH SHOOTER PASS");mc.stop();}
             return;
         }
         check(ROLE.equals("observer"),"unknown role");
@@ -89,11 +104,15 @@ public final class NetworkGlitchClient {
             modelMatches(mc,flight.getItem(),null,"remote in-flight Twin Chakram");
             if(!Files.exists(SYNC.resolve("flight.seen"))&&capture==null){capture="flight";sawFlight=true;return;}
         }
-        if(sawFlight&&Files.exists(SYNC.resolve("flight.seen"))&&held.is(UwUDimension.GLITCH.get())
+        if(sawFlight&&!Files.exists(SYNC.resolve("changed.seen"))&&Files.exists(SYNC.resolve("flight.seen"))&&held.is(UwUDimension.GLITCH.get())
                 &&!GlitchBow.form(held).equals(NetworkGlitchServer.FORM)&&capture==null){
             modelMatches(mc,held,remote,"remote changed form");capture="changed";
             System.out.println("NETWORK GLITCH OBSERVER PASS remote held, physical projectile, and changed form="+GlitchBow.form(held));
         }
-        if(Files.exists(SYNC.resolve("changed.seen"))){finished=true;mc.stop();}
+        if(Files.exists(SYNC.resolve("charm.seen"))){
+            check(mc.getConnection()!=null,"missing actual client connection during logout");
+            System.out.println("NETWORK GLITCH OBSERVER LOGOUT real client disconnect after charm");
+            finished=true;mc.getConnection().getConnection().disconnect(net.minecraft.network.chat.Component.literal("Glitch logout test"));mc.stop();
+        }
     }
 }

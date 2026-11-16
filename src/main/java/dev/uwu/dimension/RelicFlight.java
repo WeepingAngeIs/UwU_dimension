@@ -380,31 +380,29 @@ public final class RelicFlight extends ThrowableItemProjectile {
             if (counter().isEmpty()) {
                 boolean applied=RangedRelics.strike(server, player, target, relic(), impact,this);
                 if(applied && (switch(relic()){case RIBBONHARE_SCEPTER,BLOSSOM_GREATSWORD,ROSE_DAGGER,LANTERN_SPEAR -> true;default -> false;})){
-                    effectTicks=100;GlitchCompletions.track(this,target,"glow");
+                    effectTicks=100;
                 }
             } else {
                 var entry=CounterArsenal.entry(counter());
                 if(entry!=null && CounterEffects.holds(target,entry.target()))effectTicks=160;
                 else if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))effectTicks=14;
-                CounterEffects.hit(server, player, target, entry, impact);
+                CounterEffects.hit(server, player, target, entry, impact,this);
+                if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))GlitchCompletions.track(this,target,"echo");
                 if(entry!=null && CounterEffects.holds(target,entry.target())){
                     GlitchCompletions.track(this,target,"counter_mark");
-                    if(entry.school().equals("STAGGER")||entry.school().equals("GUARD"))GlitchCompletions.track(this,target,"slow");
                 }
             }
             if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && summonHare(server, player, target.blockPosition()))
                 effectTicks=Math.max(effectTicks,160);
             if (relic() == Arsenal.Relic.VESPER_SCYTHE) {
                 switch (element()) {
-                    case 1 -> target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 60, 2));
-                    case 2 -> target.igniteForSeconds(3);
+                    case 1 -> {if(GlitchCompletions.applyEffect(target,new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,60,2)))GlitchCompletions.track(this,target,"slow",60);}
+                    case 2 -> {target.igniteForSeconds(3);GlitchCompletions.track(this,target,"fire",60);}
                     case 3 -> { target.setDeltaMovement(target.getDeltaMovement().add(0, .45, 0)); target.hurtMarked = true; }
                     default -> player.heal(1);
                 }
                 if(element()==1||element()==2)effectTicks=Math.max(effectTicks,60);
-                if(element()==1)GlitchCompletions.track(this,target,"slow");
-                if(element()==2)GlitchCompletions.track(this,target,"fire");
             }
             if(getPersistentData().hasUUID("uwu.glitch_token"))getPersistentData().putInt("uwu.glitch_effect_ticks",effectTicks);
             RelicReturns.deferGlitch(player,this,effectTicks);

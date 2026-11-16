@@ -72,10 +72,10 @@ public final class HeartArrow extends Arrow {
         // An archer's tame companion is normally friendly. Mark it gently for a wish without a damage path.
         if (!ripple && player instanceof net.minecraft.server.level.ServerPlayer owner && hit.getEntity() instanceof TamableAnimal pet
                 && pet.isOwnedBy(owner) && CupidWishes.enabled(owner)) {
-            if(HeartMagic.charm(server,owner,pet,true)) {glitchEffect(800);GlitchCompletions.track(this,pet,"charm");}
+            if(HeartMagic.charm(server,owner,pet,true)) GlitchCompletions.track(this,pet,"charm");
         } else if (hit.getEntity() instanceof LivingEntity creature && !HeartMagic.friendly(player, creature)) {
             boolean charmed = !ripple && HeartMagic.charm(server, player, creature, true);
-            if(charmed){glitchEffect(800);GlitchCompletions.track(this,creature,"charm");}
+            if(charmed)GlitchCompletions.track(this,creature,"charm");
             if (!charmed && (!(creature instanceof Player other) || player.canHarmPlayer(other)))
                 creature.hurt(damageSources().arrow(this, player), (ripple ? Arsenal.Relic.RIPPLE_BOW.damage : Arsenal.Relic.CUPID_BOW.damage) * getPersistentData().getFloat("strength"));
         }
@@ -104,17 +104,11 @@ public final class HeartArrow extends Arrow {
         if (!rippleBow()) return;
         RelicAbilities.ring(level, spot, 3.5, ParticleTypes.GLOW);
         for (LivingEntity mob : level.getEntitiesOfClass(Mob.class, new AABB(spot, spot).inflate(3.5), m -> !HeartMagic.friendly(player, m))) {
-            glitchEffect(140);
-            mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 140));
-            mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 75, 1));
-            GlitchCompletions.track(this,mob,"glow");GlitchCompletions.track(this,mob,"slow");
+            if(GlitchCompletions.applyEffect(mob,new MobEffectInstance(MobEffects.GLOWING,140)))GlitchCompletions.track(this,mob,"glow",140);
+            if(GlitchCompletions.applyEffect(mob,new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,75,1)))GlitchCompletions.track(this,mob,"slow",75);
         }
     }
 
-    private void glitchEffect(int ticks) {
-        if(getPersistentData().hasUUID("uwu.glitch_token"))
-            getPersistentData().putInt("uwu.glitch_effect_ticks",Math.max(ticks,getPersistentData().getInt("uwu.glitch_effect_ticks")));
-    }
 
     @Override public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);

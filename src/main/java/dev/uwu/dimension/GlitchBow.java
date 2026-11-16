@@ -65,6 +65,10 @@ public final class GlitchBow extends Item {
         identity(stack);
         CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.putBoolean("uwu_glitch_pending",true);n.putLong("uwu_glitch_ready",level.getServer().overworld().getGameTime()+ticks);n.remove("uwu_glitch_fishing");n.remove("uwu_glitch_fish_owner");n.remove("uwu_glitch_fish_hook");if(token!=null)n.putUUID("uwu_glitch_token",token);else n.remove("uwu_glitch_token");});
     }
+    static void trackWard(ServerLevel level,ItemStack stack,Player player,boolean resistanceApplied){
+        GlitchCompletions.track(level,stack,player,"counter_ward");
+        if(resistanceApplied)GlitchCompletions.track(level,stack,player,"fire_resistance",160);
+    }
     private static void cancel(ItemStack stack){CustomData.update(DataComponents.CUSTOM_DATA,stack,n->{n.remove("uwu_glitch_pending");n.remove("uwu_glitch_ready");n.remove("uwu_glitch_token");n.remove("uwu_glitch_fishing");n.remove("uwu_glitch_fish_owner");n.remove("uwu_glitch_fish_hook");});}
     @Override public void inventoryTick(ItemStack stack,Level world,Entity entity,int slot,boolean selected){
         if(!(world instanceof ServerLevel level))return;
@@ -144,14 +148,14 @@ public final class GlitchBow extends Item {
         // form through that active ability even though its item cooldown is shorter.
         int formDuration=c!=null?Math.max(160,cooldown):cooldown;
         if(c!=null){
-            CounterEffects.ward(level,p,c);
+            boolean resistance=CounterEffects.wardTracked(level,p,c);
             if(c.shape().equals("whip")){
                 UUID token=UUID.randomUUID(),id=identity(s);var lash=RibbonLash.castCounter(level,p,c);
                 if(lash==null)return InteractionResultHolder.fail(s);
                 lash.getPersistentData().putUUID("uwu.glitch_id",id);lash.getPersistentData().putUUID("uwu.glitch_token",token);
-                begin(s,level,Math.max(12,formDuration),token);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
+                begin(s,level,Math.max(12,formDuration),token);trackWard(level,s,p,resistance);s.hurtAndBreak(1,p,LivingEntity.getSlotForHand(hand));
             }
-            else{begin(s,level,formDuration,UUID.randomUUID());if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
+            else{begin(s,level,formDuration,UUID.randomUUID());trackWard(level,s,p,resistance);if(!RelicFlight.castGlitchWeapon(level,p,hand,null,c)){cancel(s);return InteractionResultHolder.fail(s);}}
         }else if(RangedRelics.isWhip(r) && !(r==Arsenal.Relic.RIFT_WHIP && p.isShiftKeyDown())){
             UUID token=UUID.randomUUID(),id=identity(s);var lash=RibbonLash.cast(level,p,r);
             if(lash==null)return InteractionResultHolder.fail(s);
@@ -180,10 +184,11 @@ public final class GlitchBow extends Item {
         var c=counter(stack);var r=relic(stack);InteractionHand hand=p.getUsedItemHand();
         if(c!=null&&c.shape().equals("scythe")||r==Arsenal.Relic.VESPER_SCYTHE){
             if(72000-left<12||p.getPersistentData().getLong("uwu.scythe_flight")>level.getGameTime())return;
-            if(c!=null)CounterEffects.ward(level,p,c);
+            boolean resistance=c!=null && CounterEffects.wardTracked(level,p,c);
             // The real scythe item cooldown is 60 ticks; counter scythes also
             // retain their form through the matching 160-tick ward.
             begin(stack,level,c!=null?160:60,UUID.randomUUID());
+            if(c!=null)trackWard(level,stack,p,resistance);
             if(RelicFlight.castGlitchWeapon(level,p,hand,r,c))p.getCooldowns().addCooldown(this,60);else cancel(stack);
             return;
         }

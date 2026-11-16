@@ -52,7 +52,6 @@ public final class RibbonLash extends Entity {
             if(tickCount==5&&victim!=null&&s.getEntity(victim) instanceof LivingEntity target&&p.distanceToSqr(target)<289&&p.hasLineOfSight(target)){
                 if(counter().isEmpty()) {
                     if(RangedRelics.strike(s,p,target,relic(),p.position(),this) && getPersistentData().hasUUID("uwu.glitch_token")) {
-                        if(relic()==Arsenal.Relic.FROST_WHIP){GlitchCompletions.track(this,target,"freeze");GlitchCompletions.track(this,target,"slow");}
                         if(relic()==Arsenal.Relic.RIFT_WHIP)GlitchCompletions.track(this,p,"rift_mark");
                         int effect=switch(relic()){case RIFT_WHIP -> 160;default -> 0;};
                         getPersistentData().putInt("uwu.glitch_effect_ticks",effect);
@@ -61,10 +60,9 @@ public final class RibbonLash extends Entity {
                     var entry=CounterArsenal.entry(counter());
                     if(entry!=null && CounterEffects.holds(target,entry.target()) && getPersistentData().hasUUID("uwu.glitch_token"))
                         getPersistentData().putInt("uwu.glitch_effect_ticks",160);
-                    CounterEffects.hit(s,p,target,entry);
+                    CounterEffects.hit(s,p,target,entry,p.position(),this);
+                    if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))GlitchCompletions.track(this,target,"echo");
                     if(entry!=null && CounterEffects.holds(target,entry.target()))GlitchCompletions.track(this,target,"counter_mark");
-                    if(entry!=null && CounterEffects.holds(target,entry.target()) && (entry.school().equals("STAGGER")||entry.school().equals("GUARD")))
-                        GlitchCompletions.track(this,target,"slow");
                 }
                 HeartCombatGlow.burst(s,target.position().add(0,target.getBbHeight()*.5,0),1.1,relic()==Arsenal.Relic.FROST_WHIP?1:0);
             }

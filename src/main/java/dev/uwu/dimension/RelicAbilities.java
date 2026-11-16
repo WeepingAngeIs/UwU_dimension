@@ -74,9 +74,8 @@ final class RelicAbilities {
                     foe.hurt(player.damageSources().playerAttack(player), relic.damage);
                     if (whip) pushToward(foe, player.position(), 1.55);
                     else {
-                        foe.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 2));
-                        foe.addEffect(new MobEffectInstance(MobEffects.GLOWING, 140));
-                        if(glitchStack.getItem() instanceof GlitchBow){GlitchCompletions.track(level,glitchStack,foe,"slow");GlitchCompletions.track(level,glitchStack,foe,"glow");}
+                        if(GlitchCompletions.applyEffect(foe,new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,80,2)))GlitchCompletions.track(level,glitchStack,foe,"slow",80);
+                        if(GlitchCompletions.applyEffect(foe,new MobEffectInstance(MobEffects.GLOWING,140)))GlitchCompletions.track(level,glitchStack,foe,"glow",140);
                     }
                 }
                 line(level, start, end, whip ? ParticleTypes.CHERRY_LEAVES : ParticleTypes.GLOW);

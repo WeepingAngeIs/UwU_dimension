@@ -19,8 +19,9 @@ public final class ScytheInput {
             if(p.getPersistentData().getLong("uwu.scythe_flight")>level.getGameTime())return;
             if(glitch){
                 if(stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getBoolean("uwu_glitch_pending"))return;
-                if(counter!=null)CounterEffects.ward(level,p,counter);
+                boolean resistance=counter!=null&&CounterEffects.wardTracked(level,p,counter);
                 if(!RelicFlight.castGlitchWave(level,p,stack,counter))return;
+                if(counter!=null)GlitchBow.trackWard(level,stack,p,resistance);
             }
             else if(counter==null)RelicFlight.cast(level,p,Arsenal.Relic.VESPER_SCYTHE,true);
             else {CounterEffects.ward(level,p,counter);RelicFlight.castCounter(level,p,counter,true);}

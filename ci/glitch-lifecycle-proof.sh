@@ -16,5 +16,7 @@ grep -F 'GLITCH BOW PASS' glitch-lifecycle.log
 grep -F 'GLITCH WHIP PASS' glitch-lifecycle.log
 grep -F 'GLITCH OFFHAND PASS' glitch-lifecycle.log
 grep -F 'GLITCH FISHING PASS' glitch-lifecycle.log
+grep -F 'GLITCH RECIPIENT PASS' glitch-lifecycle.log
+grep -F 'GLITCH CUPID LOGOUT PASS' glitch-lifecycle.log
 grep -F 'GLITCH RECOVERY PASS' glitch-lifecycle.log
 grep -F 'UWU GLITCH LIFECYCLE PASS' glitch-lifecycle.log

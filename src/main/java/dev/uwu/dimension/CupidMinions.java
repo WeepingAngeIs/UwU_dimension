@@ -234,6 +234,7 @@ final class CupidMinions {
     }
 
     private static void release(ServerPlayer player) {
+        GlitchCompletions.resolved(player.serverLevel(),player,"charm");
         player.removeTag(HeartMagic.OWNER);
         var data = player.getPersistentData();
         data.remove(HeartMagic.OWNER);

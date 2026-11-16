@@ -39,10 +39,13 @@ public final class CounterEffects {
         case "STAGGER"->"Slow the matching heavy weapon's recovery and step outside its reach.";
         default->"Create ranged separation with a strong push and a protective matching ward.";
     };}
-    public static void ward(ServerLevel level,Player p,CounterArsenal.Entry e){
+    public static void ward(ServerLevel level,Player p,CounterArsenal.Entry e){wardTracked(level,p,e);}
+    static boolean wardTracked(ServerLevel level,Player p,CounterArsenal.Entry e){
         var n=p.getPersistentData();n.putString(WARD,e.id());n.putLong(UNTIL,level.getGameTime()+160);
-        if(e.school().equals("QUENCH")){net.sweenus.simplyswords.world.Phase5FlamewindManager.remove(level,p.getUUID());net.sweenus.simplyswords.world.FlamewindVisualManager.removeSeed(level,p);p.clearFire();p.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,160));}
+        boolean resistance=false;
+        if(e.school().equals("QUENCH")){net.sweenus.simplyswords.world.Phase5FlamewindManager.remove(level,p.getUUID());net.sweenus.simplyswords.world.FlamewindVisualManager.removeSeed(level,p);p.clearFire();resistance=GlitchCompletions.applyEffect(p,new MobEffectInstance(MobEffects.FIRE_RESISTANCE,160));}
         if(e.school().equals("CLEANSE")||e.runic()||e.school().equals("SEVER"))cleanse(p);
+        return resistance;
     }
     public static CounterArsenal.Entry active(LivingEntity p){
         var n=p.getPersistentData();return n.getLong(UNTIL)>p.level().getGameTime()?CounterArsenal.entry(n.getString(WARD)):null;
@@ -56,6 +59,9 @@ public final class CounterEffects {
         hit(level, owner, target, e, owner.position());
     }
     public static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition){
+        hit(level,owner,target,e,attackPosition,null);
+    }
+    static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition,Entity abilitySource){
         if(e==null||!RangedRelics.enemy(owner,target))return;
         if(holds(target,e.target())){
             SimplyCounterHooks.interrupt(level,target,e);
@@ -63,7 +69,8 @@ public final class CounterEffects {
             n.putDouble("uwu.anchor_x",target.getX());n.putDouble("uwu.anchor_y",target.getY());n.putDouble("uwu.anchor_z",target.getZ());
             if(e.school().equals("SHATTER"))target.setAbsorptionAmount(0);
             if(e.school().equals("REAP"))for(var fx:List.copyOf(target.getActiveEffects()))if(fx.getEffect().value().isBeneficial())target.removeEffect(fx.getEffect());
-            if(e.school().equals("STAGGER")||e.school().equals("GUARD"))target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,80,2));
+            if((e.school().equals("STAGGER")||e.school().equals("GUARD")) && GlitchCompletions.applyEffect(target,new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,80,2)) && abilitySource!=null)
+                GlitchCompletions.track(abilitySource,target,"slow",80);
             if(e.school().equals("SPACE")||e.school().equals("STAGGER")){
                 Vec3 push=target.position().subtract(owner.position()).multiply(1,0,1).normalize().scale(1.4);target.push(push.x,.2,push.z);target.hurtMarked=true;
             }
