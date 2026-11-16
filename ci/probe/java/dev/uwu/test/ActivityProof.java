@@ -52,7 +52,7 @@ final class ActivityProof {
     }
     private static void biome(ServerLevel level,String name){
         var key=ResourceKey.create(Registries.BIOME,id(name));var biome=level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(key);
-        level.getChunk(0,0).fillBiomesFromNoise((x,y,z)->biome,level.getChunkSource().randomState().sampler());
+        level.getChunk(0,0).fillBiomesFromNoise((x,y,z,sampler)->biome,level.getChunkSource().randomState().sampler());
     }
     private static void legacy(ServerPlayer p)throws Exception{
         Path old=Path.of("activity-old-progress.json");if(!Files.exists(old))return;
