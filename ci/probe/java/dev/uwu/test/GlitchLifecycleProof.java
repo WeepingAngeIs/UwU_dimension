@@ -28,6 +28,7 @@ final class GlitchLifecycleProof {
     private static Husk frozenTarget;
     private static Husk rippleFirst,rippleSecond,rippleThird;
     private static UUID unloadedRecipient;
+    private static UUID pausedRecipient;
     private static final int DISTANT_CHUNK_X=12;
     private static GlitchBow item;
     private static RelicFlight flight;
@@ -39,6 +40,10 @@ final class GlitchLifecycleProof {
     private static Object enchantments;
     private static boolean caught, offhandWardWaited, frozenObserved;
     private static long whipStarted;
+
+    private static void pauseRecipient(net.neoforged.neoforge.event.tick.EntityTickEvent.Pre event){
+        if(pausedRecipient!=null&&pausedRecipient.equals(event.getEntity().getUUID()))event.setCanceled(true);
+    }
 
     private static void check(boolean ok,String text){if(!ok)throw new AssertionError("Glitch lifecycle: "+text);}
     private static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
@@ -149,6 +154,7 @@ final class GlitchLifecycleProof {
         // normally calls doTick; drive that real inventory/cooldown path once per tick.
         if(player!=null&&player.isAlive())player.doTick();
         if(stage==0){
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(GlitchLifecycleProof::pauseRecipient);
             level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack(),"gamerule doMobSpawning false");
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,true);
             BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
@@ -286,7 +292,7 @@ final class GlitchLifecycleProof {
             rippleThird.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,-1,1));
             rippleThird.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,-1,10));
             for(var mob:java.util.List.of(rippleFirst,rippleSecond,rippleThird)){
-                mob.setNoAi(true);mob.setNoGravity(true);mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);mob.setHealth(200);
+                mob.setNoAi(true);mob.setNoGravity(true);mob.setPersistenceRequired();mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);mob.setHealth(200);
                 check(level.addFreshEntity(mob),"could not add Ripple recipient");
             }
             player.setYRot(0);player.setYHeadRot(0);player.yHeadRotO=0;player.setXRot(0);
@@ -299,9 +305,9 @@ final class GlitchLifecycleProof {
                 check(level.getGameTime()<deadline,"Ripple did not apply its real effect to both recipients");return false;
             }
             check(stillForm(current),"Ripple advanced while both affected targets were loaded");
-            // Extend one existing effect to make its active state observable even
-            // if server chunk unloading takes several seconds; no mod logic is mocked.
-            rippleSecond.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,1200));
+            // Pause this fixture's entity ticks while the real distant chunk unloads,
+            // preserving the original action's effect and its own loaded-tick budget.
+            pausedRecipient=rippleSecond.getUUID();
             unloadedRecipient=rippleSecond.getUUID();
             level.setChunkForced(DISTANT_CHUNK_X,0,true);level.getChunk(DISTANT_CHUNK_X,0);
             rippleSecond.teleportTo(DISTANT_CHUNK_X*16+.5,player.getY(),.5);
@@ -329,6 +335,7 @@ final class GlitchLifecycleProof {
         if(stage==13){
             var found=level.getEntity(unloadedRecipient);
             if(!(found instanceof Husk mob)){check(level.getGameTime()<deadline,"unloaded Ripple recipient did not reload");return false;}
+            pausedRecipient=null;
             check(mob.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING),"reloaded recipient lost the active effect");
             check(stillForm(current),"Ripple advanced while reloaded recipient was affected");
             mob.discard();deadline=level.getGameTime()+40;stage=14;return false;
