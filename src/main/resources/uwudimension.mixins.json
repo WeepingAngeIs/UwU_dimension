@@ -6,6 +6,7 @@
   "mixins": [
     "DaggerAttackMixin",
     "GlitchBetterCombatMixin",
+    "GlitchBetterCombatAttributesMixin",
     "SakuraPaletteMixin",
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",

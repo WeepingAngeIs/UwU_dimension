@@ -82,6 +82,7 @@ public final class BetterCombatDaggerProof {
                 net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,mimic,n->n.putInt("uwu_form",index));
                 daggerStacks.add(mimic);
             }
+            float[] nativeFront=new float[2];int weaponNumber=0;
             for (var dagger : daggerStacks) {
                 var daggerItem=dagger.getItem();
                 player.setItemInHand(InteractionHand.OFF_HAND, dagger);
@@ -115,6 +116,11 @@ public final class BetterCombatDaggerProof {
 
                 float front = strike(level, player, target, dispatch, packet, ticker, 180, 100, false);
                 float rear = strike(level, player, target, dispatch, packet, ticker, 0, 100, false);
+                if(weaponNumber<2)nativeFront[weaponNumber]=front;
+                else if(Math.abs(front-nativeFront[weaponNumber-2])>.1F)
+                    throw new AssertionError("Glitch offhand form damage did not match native weapon: expected="
+                            +nativeFront[weaponNumber-2]+" actual="+front+" form="+GlitchBow.form(dagger));
+                weaponNumber++;
                 if (front <= 0 || Math.abs(rear - front * 2) > .1F)
                     throw new AssertionError("Better Combat offhand front/rear damage " + front + "/" + rear);
                 for (double side : new double[]{-1, 1}) {

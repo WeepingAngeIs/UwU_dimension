@@ -207,9 +207,10 @@ final class GlitchLifecycleProof {
         if(stage==5){
             if(frozenTarget.getTicksFrozen()>0)frozenObserved=true;
             if(player.getCooldowns().isOnCooldown(item))check(stillForm(current),"whip advanced during cooldown");
-            if(frozenObserved&&level.getGameTime()-whipStarted<160)check(stillForm(current),"whip advanced before its freezing effect ended");
+            if(frozenTarget.getTicksFrozen()>0||frozenTarget.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN))
+                check(stillForm(current),"whip advanced before its real freezing or slowing effect ended");
             if(stillForm(current)){check(level.getGameTime()<deadline,"whip did not advance after cooldown");return false;}
-            check(frozenObserved&&level.getGameTime()-whipStarted>=160,"Frost hit/effect lifetime was not observed");
+            check(frozenObserved&&frozenTarget.getTicksFrozen()==0&&!frozenTarget.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN),"Frost hit/effect lifetime was not observed");
             frozenTarget.discard();
             System.out.println("GLITCH WHIP PASS selected Snowkiss lash, actual hit and full freeze-effect lifetime");
             startForm("counter_iron_greataxe",InteractionHand.OFF_HAND);

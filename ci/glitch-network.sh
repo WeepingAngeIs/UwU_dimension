@@ -11,6 +11,8 @@ cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2,simplys
 for role in shooter observer; do
   git archive HEAD | tar -x -C "$world/$role"
   cp -a libs "$world/$role/libs"
+  mkdir -p "$world/$role/build/probe-compile"
+  cp "$root/build/probe-compile/kotlin-stdlib.jar" "$world/$role/build/probe-compile/"
   mkdir -p "$world/$role/run-$role/config"
   printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:4\nsimulationDistance:4\npauseOnLostFocus:false\n' > "$world/$role/run-$role/options.txt"
   printf 'earlyWindowControl = false\n' > "$world/$role/run-$role/config/fml.toml"
