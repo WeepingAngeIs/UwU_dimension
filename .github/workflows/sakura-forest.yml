@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
           bash ci/get-mods.sh
           mkdir -p run/config
-          printf 'particles:2\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'particles:2\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:5\nmaxFps:15\nenableVsync:false\npauseOnLostFocus:false\n' > run/options.txt
           printf 'earlyWindowControl = false\n' > run/config/fml.toml
           export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS="-Xmx5G -Duwu.forestDiagnostics=true"
           timeout 30m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee forest-client.log

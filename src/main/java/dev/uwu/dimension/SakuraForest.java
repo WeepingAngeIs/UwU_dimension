@@ -137,7 +137,18 @@ public final class SakuraForest {
     private static boolean replaceable(BlockState state){
         return state.isAir()||state.is(net.minecraft.tags.BlockTags.REPLACEABLE_BY_TREES)||state.is(net.minecraft.tags.BlockTags.LEAVES)||state.is(Blocks.CHERRY_LOG)||state.is(Blocks.CHERRY_WOOD)
                 ||state.is(Blocks.PINK_PETALS)||state.is(Blocks.SHORT_GRASS)||state.is(Blocks.TALL_GRASS)||state.is(Blocks.FERN)||state.is(Blocks.LARGE_FERN)
-                ||state.getBlock() instanceof FlowerBlock||state.getBlock() instanceof DimensionCropBlock||Understory.isVegetation(state);
+                ||state.getBlock() instanceof FlowerBlock||state.getBlock() instanceof DimensionCropBlock||Understory.isVegetation(state)||wildCobblemonPlant(state);
+    }
+    private static boolean flag(BlockState state,String name,boolean expected){
+        var property=state.getBlock().getStateDefinition().getProperty(name);
+        return property!=null&&Boolean.valueOf(expected).equals(state.getValue(property));
+    }
+    /** Only naturally generated mint/berries in the fresh generating chunk may yield to a tree. */
+    private static boolean wildCobblemonPlant(BlockState state){
+        var id=net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock());
+        if(!id.getNamespace().equals("cobblemon"))return false;
+        return id.getPath().endsWith("_mint")&&flag(state,"is_wild",true)
+                ||id.getPath().endsWith("_berry")&&flag(state,"generated",true)&&flag(state,"rooted",false);
     }
     public static void decorate(ServerLevel level,ChunkAccess chunk){
         if(!level.dimension().equals(ReefLife.REACH))return;
@@ -149,7 +160,7 @@ public final class SakuraForest {
             for(var entry:shape.entrySet()){
                 var p=entry.getKey().offset(tree.x,tree.y,tree.z);if(!own.equals(new net.minecraft.world.level.ChunkPos(p)))continue;
                 var old=chunk.getBlockState(p);
-                if(old.hasBlockEntity()||!old.getFluidState().isEmpty()||!replaceable(old)){
+                if(old.hasBlockEntity()&&!wildCobblemonPlant(old)||!old.getFluidState().isEmpty()||!replaceable(old)){
                     if(Boolean.getBoolean("uwu.forestDiagnostics"))com.mojang.logging.LogUtils.getLogger().info("FOREST BLOCKER root={},{} at={} existing={} wanted={}",tree.x,tree.z,p,old,entry.getValue());
                     safe=false;break;
                 }
@@ -160,6 +171,8 @@ public final class SakuraForest {
                 var old=chunk.getBlockState(p);var state=entry.getValue();
                 // Crowns can merge; a neighboring authored branch always keeps priority over a leaf.
                 if(state.is(Blocks.CHERRY_LEAVES)&&(old.is(Blocks.CHERRY_LOG)||old.is(Blocks.CHERRY_WOOD)))continue;
+                // Natural berry bushes carry a block entity; do not leave its NBT under the wood.
+                if(old.hasBlockEntity())chunk.removeBlockEntity(p);
                 chunk.setBlockState(p,state,false);
             }
             // Only the authorized short roots vary: bridge at most three blocks to real soil.
@@ -168,7 +181,11 @@ public final class SakuraForest {
                 int ground=GroveSites.height(level,x,z);
                 for(int y=ground+1;y<tree.y;y++){
                     var p=new BlockPos(x,y,z);var old=chunk.getBlockState(p);
-                    if(replaceable(old)&&old.getFluidState().isEmpty())chunk.setBlockState(p,Blocks.CHERRY_WOOD.defaultBlockState(),false);
+                    if(replaceable(old)&&old.getFluidState().isEmpty()){
+                        if(old.hasBlockEntity()&&!wildCobblemonPlant(old))continue;
+                        if(old.hasBlockEntity())chunk.removeBlockEntity(p);
+                        chunk.setBlockState(p,Blocks.CHERRY_WOOD.defaultBlockState(),false);
+                    }
                 }
             }
         }
