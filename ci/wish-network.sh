@@ -15,11 +15,13 @@ root="$(pwd)"
 world="$root/build/wish-network"
 export WISH_SYNC_DIR="$world/sync"
 mkdir -p "$world/mods" "$WISH_SYNC_DIR" "$world/archer" "$world/witness"
+python ci/wish-natives.py "$world/natives"
 cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2,simplyswords,fzzy_config,architectury,simplytooltips,opac}.jar build/libs/*.jar build/expedition/*.jar "$world/mods/"
 if [[ "$WISH_COMBAT" = bettercombat ]]; then cp libs/{bettercombat,playeranimator,cloth-config}.jar "$world/mods/"; fi
 for role in archer witness; do
   git archive HEAD | tar -x -C "$world/$role"
   cp -a libs "$world/$role/libs"
+  cp -a "$world/natives" "$world/$role/natives"
   mkdir -p "$world/$role/build/probe-compile" "$world/$role/run-$role/config"
   cp build/probe-compile/kotlin-stdlib.jar "$world/$role/build/probe-compile/"
   printf 'version:3955\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:3\nsimulationDistance:5\nmaxFps:20\nenableVsync:false\npauseOnLostFocus:false\nkey_key.sneak:key.keyboard.left.control\n' > "$world/$role/run-$role/options.txt"
@@ -47,7 +49,8 @@ fi
 for role in witness archer; do
   (
     cd "$world/$role"
-    export WISH_ROLE="$role" LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx2000m
+    export WISH_ROLE="$role" LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
+    export JAVA_TOOL_OPTIONS="-Xmx2000m -Dorg.lwjgl.librarypath=$world/$role/natives -Dorg.lwjgl.system.SharedLibraryExtractPath=$world/$role/native-extract"
     timeout 24m xvfb-run -a -s '-screen 0 854x480x24' ./gradlew --no-daemon -I ci/wish-network.init.gradle -PfieldCamera runClient > "$world/$role.log" 2>&1
   ) &
   if [[ "$role" = archer ]]; then archer_pid=$!; else witness_pid=$!; fi
