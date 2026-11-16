@@ -85,11 +85,11 @@ public final class NetworkGlitchClient {
             }
             if(!cupidStarted&&Files.exists(SYNC.resolve("cupid-ready.seen"))&&mc.player.getMainHandItem().is(UwUDimension.GLITCH.get())
                     &&GlitchBow.form(mc.player.getMainHandItem()).equals("cupid_bow")){
-                cupidStarted=true;mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
+                cupidStarted=true;mc.options.keyUse.setDown(true);mc.gameMode.useItem(mc.player,InteractionHand.MAIN_HAND);
                 System.out.println("NETWORK GLITCH SHOOTER started Cupid draw");
             }
             if(cupidStarted&&!cupidReleased&&mc.player.isUsingItem()&&++cupidDrawTicks>=55){
-                cupidReleased=true;mc.gameMode.releaseUsingItem(mc.player);
+                cupidReleased=true;mc.options.keyUse.setDown(false);mc.gameMode.releaseUsingItem(mc.player);
                 System.out.println("NETWORK GLITCH SHOOTER fired real Cupid form at remote observer");
             }
             if(Files.exists(SYNC.resolve("logout-pass.seen"))){finished=true;System.out.println("NETWORK GLITCH SHOOTER PASS");mc.stop();}
