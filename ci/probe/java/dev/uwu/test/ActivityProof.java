@@ -111,6 +111,7 @@ final class ActivityProof {
                     for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))a.setItemSlot(slot,ItemStack.EMPTY);
                 }
                 inventory(a,"roseglass_prism","vesper_opal","giant_sakura_sapling","cupid_bow");
+                for(String path:List.of("wardrobe/petalweave_gem","wardrobe/nightbriar_gem","garden/sapling","cupid/bow"))expect(a,path,true,"native inventory acquisition");
                 expect(a,"garden/giant",false,"sapling acquisition is not growth");expect(a,"cupid/charm",false,"bow acquisition is not charm");
                 for(var faction:List.of("petal","dusk")){
                     var merchant=(AbstractVillager)BuiltInRegistries.ENTITY_TYPE.get(id(faction+"_keeper")).create(level);
@@ -151,6 +152,9 @@ final class ActivityProof {
         level.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());
         p.setItemInHand(InteractionHand.MAIN_HAND,item("heart_neon_lantern"));p.gameMode.useItemOn(p,level,p.getMainHandItem(),InteractionHand.MAIN_HAND,hit);expect(p,"utility/lantern_placed",true,"actual lantern placement");
         expect(p,"utility/lantern_crafted",false,"placing is not crafting");CriteriaTriggers.RECIPE_CRAFTED.trigger(p,id("heart_neon_lantern_from_silver"),List.of());expect(p,"utility/lantern_crafted",true,"alternative silver recipe");
+        expect(p,"utility/dusk_lantern",false,"pink lantern is not dusk lantern");
+        level.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());p.setItemInHand(InteractionHand.MAIN_HAND,item("dusk_heart_lantern"));
+        check(p.gameMode.useItemOn(p,level,p.getMainHandItem(),InteractionHand.MAIN_HAND,hit).consumesAction(),"native dusk lantern placement");expect(p,"utility/dusk_lantern",true,"actual dusk lantern placement");
     }
     private static void commons(ServerPlayer a,ServerPlayer b){
         var v=BlossomVillage.first(a.serverLevel(),false);var bell=v.site().pos(v.x()+2,v.y()+1,v.z()-2);var level=a.serverLevel();

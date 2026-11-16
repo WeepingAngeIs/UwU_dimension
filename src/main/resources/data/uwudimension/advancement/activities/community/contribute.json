@@ -2,7 +2,7 @@
   "parent": "uwudimension:activities/community/petal_trade",
   "display": {
     "icon": {
-      "id": "uwudimension:petal_house_standard"
+      "id": "uwudimension:heart_neon_lantern"
     },
     "title": {
       "translate": "advancements.uwudimension.activities.community/contribute.title"

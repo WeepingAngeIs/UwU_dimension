@@ -72,7 +72,7 @@ for faction,gem,title in [('petalweave','roseglass_prism','My Emotional Support 
 add('community/petal_trade','Retail Therapy: Petal Edition','Complete a trade with a Petal Keeper.','roseglass_prism',None,trade('petal'))
 add('community/dusk_trade','Retail Therapy: After Dark','Complete a trade with a Dusk Keeper.','vesper_opal','community/petal_trade',trade('dusk'))
 add('community/both_trades','Diplomacy With Receipts','Complete at least one trade with each Keeper faction.','keeper_figurine','community/petal_trade',{'petal':trade('petal'),'dusk':trade('dusk')},'goal')
-add('community/contribute','The Group Project Enjoyer','Contribute supplies to a native village commons project at its bell.','petal_house_standard','community/petal_trade','event')
+add('community/contribute','The Group Project Enjoyer','Contribute supplies to a native village commons project at its bell.','heart_neon_lantern','community/petal_trade','event')
 add('community/keepsake','Certified Community Bean','Collect an earned commons project keepsake as a contributor.','keeper_figurine','community/contribute','event','goal')
 add('community/court','Court Adjourned, Sparkles Pending','Earn your own Mirror Court victory seal as a contributing participant.','vesper_opal','community/both_trades','event','challenge')
 
