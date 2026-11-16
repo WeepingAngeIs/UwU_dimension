@@ -22,7 +22,7 @@ for role in archer witness; do
   cp -a libs "$world/$role/libs"
   mkdir -p "$world/$role/build/probe-compile" "$world/$role/run-$role/config"
   cp build/probe-compile/kotlin-stdlib.jar "$world/$role/build/probe-compile/"
-  printf 'onboardAccessibility:false\ntutorialStep:none\nrenderDistance:3\nsimulationDistance:5\nmaxFps:20\nenableVsync:false\npauseOnLostFocus:false\nkey_key.sneak:key.keyboard.left.control\n' > "$world/$role/run-$role/options.txt"
+  printf 'version:3955\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:3\nsimulationDistance:5\nmaxFps:20\nenableVsync:false\npauseOnLostFocus:false\nkey_key.sneak:key.keyboard.left.control\n' > "$world/$role/run-$role/options.txt"
   printf 'earlyWindowControl = false\n' > "$world/$role/run-$role/config/fml.toml"
 done
 cd "$world"
