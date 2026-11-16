@@ -157,6 +157,9 @@ final class GlitchLifecycleProof {
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(GlitchLifecycleProof::pauseRecipient);
             level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack(),"gamerule doMobSpawning false");
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,true);
+            // Keep the destination loaded throughout the earlier cases so its
+            // entity-ticking section is ready before we teleport the recipient.
+            level.setChunkForced(DISTANT_CHUNK_X,0,true);level.getChunk(DISTANT_CHUNK_X,0);
             BlockPos base=new BlockPos(0,level.getMaxBuildHeight()-24,0);
             for(int x=-5;x<=5;x++)for(int z=-6;z<=9;z++){
                 level.setBlockAndUpdate(base.offset(x,-1,z),Blocks.STONE.defaultBlockState());
@@ -316,7 +319,7 @@ final class GlitchLifecycleProof {
         if(stage==10){
             check(stillForm(current),"Ripple advanced while recipients were active");
             if(level.getGameTime()<deadline)return false;
-            check(level.getEntity(unloadedRecipient)!=null,"recipient unexpectedly disappeared before unforce");
+            check(level.getEntity(unloadedRecipient)!=null,"recipient unexpectedly disappeared before unforce: removed="+rippleSecond.isRemoved()+" reason="+rippleSecond.getRemovalReason()+" position="+rippleSecond.position()+" chunkLoaded="+level.hasChunk(DISTANT_CHUNK_X,0));
             level.setChunkForced(DISTANT_CHUNK_X,0,false);
             deadline=level.getGameTime()+1200;stage=11;return false;
         }
