@@ -28,13 +28,14 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class FieldCamera {
     private static final long SEED=Long.parseLong(System.getenv().getOrDefault("UWU_FIELD_SEED","152045"));
+    private static final boolean FOREST="forest".equals(System.getenv("UWU_VISIT"));
     private static final boolean GIANT="giant-sakura".equals(System.getenv("UWU_VISIT"));
-    private static final boolean ENVIRONMENT="environment".equals(System.getenv("UWU_VISIT")) || GIANT;
+    private static final boolean ENVIRONMENT="environment".equals(System.getenv("UWU_VISIT")) || GIANT || FOREST;
     private static final boolean RENEWAL="renewal".equals(System.getenv("UWU_VISIT")) || ENVIRONMENT;
     private static final boolean SEA="sea".equals(System.getenv("UWU_VISIT"));
     private static final boolean VILLAGE="village".equals(System.getenv("UWU_VISIT"));
     private static final boolean FURNISHINGS="furnishing".equals(System.getenv("UWU_VISIT"));
-    private static final String[] TOUR=GIANT?new String[]{"giant-sakura-front","giant-sakura-side","giant-sakura-base","giant-sakura-canopy"}:ENVIRONMENT?new String[]{"spring-surface","spring-overlay","snow-petal","snow-dusk","giant-sakura"}:RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine","treehouse-petal-exterior","treehouse-petal-interior","treehouse-dusk-exterior","treehouse-dusk-interior","petal-understory","dusk-understory"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
+    private static final String[] TOUR=FOREST?new String[]{"forest-canopy","forest-understory","forest-edge"}:GIANT?new String[]{"giant-sakura-front","giant-sakura-side","giant-sakura-base","giant-sakura-canopy"}:ENVIRONMENT?new String[]{"spring-surface","spring-overlay","snow-petal","snow-dusk","giant-sakura"}:RENEWAL?new String[]{"arrival","armor-gallery","village","female-guardian","owl-guardians","owl-guardian-family","owl-expression","owl-keepers","cupid-gallery","cupid-angles","blush-reef","roseglass-cavern","moonwake-trench","sakura-night","mirror-court","mistgrass-shore","rainbow-riverbed","crop-growth","crop-detail","lantern-front","lantern-side","relic-rack","pantry-gallery","architecture-petal-joinery","architecture-dusk-joinery","architecture-entrance","architecture-bathhouse","architecture-archive","architecture-court","architecture-shrine","treehouse-petal-exterior","treehouse-petal-interior","treehouse-dusk-exterior","treehouse-dusk-interior","petal-understory","dusk-understory"}:FURNISHINGS?new String[]{"petal-tea-room","pastel-glass-windows","pink-glass-skylight","dusk-reading-room","bathhouse-bench","archive-study"}:
             SEA ? (SEED==152045?new String[]{"blush-reef","ribbon-dolphin","outer-reef","grove-water"}:new String[]{"blush-reef","outer-reef","grove-water"}) :
             VILLAGE?new String[]{"village","keeper-family","heart-floor","village-hillside","dusk-village"}:
             SEED==152045?new String[]{"arrival","offsite-terrain","mirror-court"}:
@@ -57,6 +58,7 @@ public final class FieldCamera {
     private static Vec3 point(BlockPos p){return Vec3.atCenterOf(p);}
     private static SeaWatch.View frame(String name,Vec3 eye,Vec3 subject){return new SeaWatch.View(eye,subject,name,false);}
     private static SeaWatch.View viewFor(ServerPlayer p,String name){
+        if(FOREST)return ForestCamera.frame(p,name);
         if(GIANT)return GiantSakuraCamera.frame(p,name);
         if(ENVIRONMENT)return EnvironmentCamera.frame(p,name);
         if(FURNISHINGS)return FurnishingCamera.view(p,name);

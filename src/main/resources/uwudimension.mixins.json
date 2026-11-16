@@ -20,7 +20,10 @@
     "GuardianCreeperSwellMixin",
     "AcquisitionRecipeMixin",
     "AcquisitionLootMixin",
-    "AcquisitionTradeMixin"
+    "AcquisitionTradeMixin",
+    "SakuraForestTreeMixin",
+    "SakuraForestTreeWriteMixin",
+    "SakuraForestSaplingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

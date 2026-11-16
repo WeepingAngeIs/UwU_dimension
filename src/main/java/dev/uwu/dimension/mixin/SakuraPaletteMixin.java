@@ -12,6 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChunkStatusTasks.class)
 public abstract class SakuraPaletteMixin {
+    @Inject(method="generateFeatures",at=@At("RETURN"))
+    private static void uwu$authoredForest(WorldGenContext context,ChunkStep step,StaticCache2D<?> cache,ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> ci){
+        dev.uwu.dimension.SakuraForest.decorate(context.level(),chunk);
+    }
     @Inject(method="generateSpawn",at=@At("HEAD"))
     private static void uwu$colorFreshTerrain(WorldGenContext context,ChunkStep step,StaticCache2D<?> cache,ChunkAccess chunk,
                                              CallbackInfoReturnable<CompletableFuture<ChunkAccess>> ci) {

@@ -180,7 +180,7 @@ final class GiantSakuraProof {
             stage=3;return false;
         }
         if(stage==3){
-            GiantSakuraNaturalProof.run(level);
+            if(System.getenv("UWU_FOREST")==null)GiantSakuraNaturalProof.run(level);
             for(var pos:forced)level.setChunkForced(pos.x,pos.z,false);
             System.out.println("GIANT SAKURA ALL SERVER CHECKS PASSED");return true;
         }

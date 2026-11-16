@@ -1,0 +1,66 @@
+name: Authored Sakura forest
+on:
+  push:
+    branches: [feature/sakura-authored-forest]
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: sakura-forest-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: {seed: ['152045', '4372191', '918273645']}
+    env: {UWU_FIELD_SEED: '${{ matrix.seed }}'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/forest-proof.sh
+      - run: python3 ci/renewal-assets.py build/libs/UwU-Dimension-*.jar && python3 ci/anya-tree-contract.py build/libs/UwU-Dimension-*.jar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forest-server-${{ matrix.seed }}
+          path: |
+            build/libs/*.jar
+            build/forest-server/forest.log
+            build/forest-server/logs/latest.log
+            build/forest-server/crash-reports
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: {seed: ['152045', '4372191']}
+    env: {UWU_VISIT: forest, UWU_FIELD_SEED: '${{ matrix.seed }}'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+      - name: Capture actual generated canopy and understory
+        run: |
+          set -euo pipefail
+          bash ci/get-mods.sh
+          mkdir -p run/config
+          printf 'particles:2\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:8\nsimulationDistance:4\npauseOnLostFocus:false\n' > run/options.txt
+          printf 'earlyWindowControl = false\n' > run/config/fml.toml
+          export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null JAVA_TOOL_OPTIONS=-Xmx5G
+          timeout 30m xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew -PfieldCamera runClient | tee forest-client.log
+          grep -F 'SAKURA REACH CLIENT ROUND TRIP PASSED' forest-client.log
+          for view in canopy understory edge; do test -s "run/screenshots/forest-$view.png"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forest-visual-${{ matrix.seed }}
+          path: |
+            run/screenshots/forest-*.png
+            forest-client.log
+            run/logs/latest.log
+            run/crash-reports

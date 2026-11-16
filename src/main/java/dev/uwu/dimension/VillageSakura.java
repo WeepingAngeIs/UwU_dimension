@@ -77,6 +77,7 @@ final class VillageSakura {
 
     private static void build(HeartwaterFeature.Valley v, Plot p) {
         if (!v.overlaps(p.x-RADIUS,p.z-RADIUS,p.x+RADIUS,p.z+RADIUS)) return;
+        if(SakuraForest.target(v.level.getLevel(),v.wx(p.x,p.z),v.wz(p.x,p.z)))return;
         var plan=GiantSakuraTree.plan(p.trunk,v.seed ^ p.x*31L ^ p.z);
         for(var entry:plan.entrySet()){
             var at=entry.getKey();var state=entry.getValue();

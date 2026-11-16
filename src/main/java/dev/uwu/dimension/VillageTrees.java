@@ -43,7 +43,7 @@ final class VillageTrees {
             for(int dx=0;dx<16;dx++)for(int dz=0;dz<16;dz++)for(int dy=0;dy<16;dy++){
                 if(!section.getBlockState(dx,dy,dz).is(Blocks.CHERRY_LOG))continue;
                 var at=new BlockPos(pos.getMinBlockX()+dx,baseY+dy,pos.getMinBlockZ()+dz);
-                if(!seen.contains(at))rootComponent(level,chunk,at,seen);
+                if(!SakuraForest.target(level,at)&&!seen.contains(at))rootComponent(level,chunk,at,seen);
             }
         }
     }
@@ -69,7 +69,7 @@ final class VillageTrees {
                 if(seen.contains(next))continue;
                 var state=read(level,chunk,next);
                 if(state==null){complete=false;continue;} // unreadable terrain may carry the real trunk
-                if(state.is(Blocks.CHERRY_LOG)){seen.add(next);queue.add(next);}
+                if(state.is(Blocks.CHERRY_LOG)&&!SakuraForest.target(level,next)){seen.add(next);queue.add(next);}
             }
         }
         if(!complete||supported)return;

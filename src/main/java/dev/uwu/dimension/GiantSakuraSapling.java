@@ -58,6 +58,8 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
     }
     public static void register(IEventBus bus){
         FEATURES.register(bus);BLOCKS.register(bus);ITEMS.register(bus);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(SakuraForest::bonemeal);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(SakuraForest::growth);
         bus.addListener((BuildCreativeModeTabContentsEvent e)->{if(e.getTabKey()==CreativeModeTabs.NATURAL_BLOCKS)e.accept(ITEM.get());});
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
                 net.neoforged.bus.api.EventPriority.LOWEST,false,GiantSakuraSapling::bonemeal);

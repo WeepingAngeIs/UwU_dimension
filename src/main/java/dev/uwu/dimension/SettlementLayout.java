@@ -33,6 +33,8 @@ public final class SettlementLayout extends SavedData {
     private boolean villageSakuraSnapshot;
     private final Map<Long,Integer> legacySites=new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> oldCells=new HashSet<>();
+    private final Map<Long,BitSet> beforeSakuraForest=new HashMap<>();
+    private boolean forestSnapshot;
     private int distance;
 
     static void load(LevelEvent.Load event) {
@@ -56,6 +58,7 @@ public final class SettlementLayout extends SavedData {
             data.villageSakuraSnapshot=true;
             data.setDirty();
         }
+        if(!data.forestSnapshot){indexPrevious(regions,data.beforeSakuraForest);data.forestSnapshot=true;data.setDirty();}
         data.previous.forEach((key,bits)->{
             var region=new ChunkPos(key);
             for(int i=bits.nextSetBit(0);i>=0;i=bits.nextSetBit(i+1)){
@@ -96,6 +99,9 @@ public final class SettlementLayout extends SavedData {
     }
     static boolean untouchedForVillageSakura(ServerLevel level,int x1,int z1,int x2,int z2) {
         return untouched(active(level).beforeVillageSakura,x1,z1,x2,z2);
+    }
+    static boolean untouchedForForest(ServerLevel level,int x1,int z1,int x2,int z2){
+        return untouched(active(level).beforeSakuraForest,x1,z1,x2,z2);
     }
     private static boolean untouched(Map<Long,BitSet> snapshot,int x1,int z1,int x2,int z2) {
         for(int x=x1>>4;x<=(x2>>4);x++)for(int z=z1>>4;z<=(z2>>4);z++){
@@ -178,6 +184,9 @@ public final class SettlementLayout extends SavedData {
         data.villageSakuraSnapshot=tag.getBoolean("VillageSakuraSnapshot");
         var sakura=tag.getCompound("BeforeVillageSakura");
         for(String key:sakura.getAllKeys())data.beforeVillageSakura.put(Long.parseLong(key),BitSet.valueOf(sakura.getLongArray(key)));
+        data.forestSnapshot=tag.getBoolean("SakuraForestSnapshot");
+        var forest=tag.getCompound("BeforeSakuraForest");
+        for(String key:forest.getAllKeys())data.beforeSakuraForest.put(Long.parseLong(key),BitSet.valueOf(forest.getLongArray(key)));
         return data;
     }
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries){
@@ -193,6 +202,8 @@ public final class SettlementLayout extends SavedData {
         var sakura=new CompoundTag();
         beforeVillageSakura.forEach((key,bits)->sakura.putLongArray(Long.toString(key),bits.toLongArray()));
         tag.put("BeforeVillageSakura",sakura);
+        tag.putBoolean("SakuraForestSnapshot",forestSnapshot);
+        var forest=new CompoundTag();beforeSakuraForest.forEach((key,bits)->forest.putLongArray(Long.toString(key),bits.toLongArray()));tag.put("BeforeSakuraForest",forest);
         return tag;
     }
 }
