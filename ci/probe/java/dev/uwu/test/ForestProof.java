@@ -53,10 +53,14 @@ public final class ForestProof {
                 var p=new BlockPos(x,y,z);var actual=level.getBlockState(p);
                 if(actual.is(net.minecraft.tags.BlockTags.LOGS)||actual.is(net.minecraft.tags.BlockTags.LEAVES)){
                     var wanted=expected.get(p);check(wanted!=null,"unplanned tree block "+p+" "+actual);
-                    check(actual.getBlock()==wanted.getBlock(),"wrong authored material at "+p);
+                    check(actual.getBlock()==wanted.getBlock(),"wrong authored material at "+p+" actual="+actual+" wanted="+wanted);
                     if(actual.is(Blocks.CHERRY_LEAVES)){leaves++;crown.add(ChunkPos.asLong(x,z));leafBlocks.add(p);}else logs++;
                 }
             }
+        }
+        for(var entry:expected.entrySet()){
+            var p=entry.getKey();if(p.getX()<minX||p.getX()>maxX||p.getZ()<minZ||p.getZ()>maxZ)continue;
+            check(level.getBlockState(p).getBlock()==entry.getValue().getBlock(),"incomplete authored tree union at "+p);
         }
         check(logs>500&&leaves>10_000,"sparse forest "+logs+"/"+leaves);
         // Canopies must connect horizontally in the real world, not only overlap in a plan.
@@ -104,7 +108,9 @@ public final class ForestProof {
             level.getChunk(cx,cz);
             check(!level.getBlockState(pos).is(Blocks.CHERRY_WOOD)&&!level.getBlockState(pos).is(Blocks.CHERRY_LOG),"worldgen tree entered a protected claim");
         } finally {type.getMethod("unclaim",net.minecraft.resources.ResourceLocation.class,int.class,int.class).invoke(manager,level.dimension().location(),cx,cz);}
-        level.getChunk(cx,cz);
+        check(SakuraForest.tree(level,Math.floorDiv(tree.x()+2,SakuraForest.STEP_X),Math.floorDiv(tree.z()+2,SakuraForest.STEP_Z)).isEmpty(),"rejected tree was offered again after unclaim");
+        for(int x=(tree.x()-17)>>4;x<=(tree.x()+17)>>4;x++)for(int z=(tree.z()-17)>>4;z<=(tree.z()+17)>>4;z++)level.getChunk(x,z);
+        java.nio.file.Files.writeString(java.nio.file.Path.of("forest-rejected-root.txt"),tree.x()+","+tree.y()+","+tree.z());
         check(!level.getBlockState(pos).is(Blocks.CHERRY_WOOD)&&!level.getBlockState(pos).is(Blocks.CHERRY_LOG),"unclaim caused retrogen");
         System.out.println("FOREST CLAIMGEN PASS claimed new terrain refuses tree, unclaim does not rewrite it");
     }
@@ -122,6 +128,13 @@ public final class ForestProof {
             check(feature!=null,"missing configured tree "+key);
             check(!feature.place(level,level.getChunkSource().getGenerator(),RandomSource.create(5),at),"configured tree bypassed forest policy "+key);
         }
+        int modTrees=0;
+        for(var entry:level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).entrySet()){
+            if(!entry.getKey().location().getNamespace().equals("cobblemon")||!SakuraForest.foreignFeature(entry.getValue().feature()))continue;
+            check(!entry.getValue().place(level,level.getChunkSource().getGenerator(),RandomSource.create(6),at),"Cobblemon tree bypassed theme "+entry.getKey());modTrees++;
+        }
+        check(modTrees>0,"Cobblemon tree generators were not tested");
+        System.out.println("FOREST COBBLEMON GENERATORS PASS "+modTrees);
         // An ordinary tree still grows through the same production path in another biome.
         BlockPos outside=null;
         for(int r=64;r<=2048&&outside==null;r+=32)for(int sign:new int[]{-1,1})if(!SakuraForest.target(level,cluster.x()+r*sign,cluster.z())){outside=at.offset(r*sign,0,0);break;}

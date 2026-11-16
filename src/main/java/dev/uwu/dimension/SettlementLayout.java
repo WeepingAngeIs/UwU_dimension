@@ -35,6 +35,7 @@ public final class SettlementLayout extends SavedData {
     private final Set<Long> oldCells=new HashSet<>();
     private final Map<Long,BitSet> beforeSakuraForest=new HashMap<>();
     private boolean forestSnapshot;
+    private final Set<Long> rejectedForest=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private int distance;
 
     static void load(LevelEvent.Load event) {
@@ -99,6 +100,11 @@ public final class SettlementLayout extends SavedData {
     }
     static boolean untouchedForVillageSakura(ServerLevel level,int x1,int z1,int x2,int z2) {
         return untouched(active(level).beforeVillageSakura,x1,z1,x2,z2);
+    }
+    static boolean rejectedForest(ServerLevel level,int x,int z){return active(level).rejectedForest.contains(ChunkPos.asLong(x,z));}
+    static void rejectForest(ServerLevel level,int x,int z){
+        var data=active(level);
+        if(data.rejectedForest.add(ChunkPos.asLong(x,z)))level.getServer().execute(()->data.setDirty());
     }
     static boolean untouchedForForest(ServerLevel level,int x1,int z1,int x2,int z2){
         return untouched(active(level).beforeSakuraForest,x1,z1,x2,z2);
@@ -184,6 +190,7 @@ public final class SettlementLayout extends SavedData {
         data.villageSakuraSnapshot=tag.getBoolean("VillageSakuraSnapshot");
         var sakura=tag.getCompound("BeforeVillageSakura");
         for(String key:sakura.getAllKeys())data.beforeVillageSakura.put(Long.parseLong(key),BitSet.valueOf(sakura.getLongArray(key)));
+        for(long key:tag.getLongArray("RejectedSakuraForest"))data.rejectedForest.add(key);
         data.forestSnapshot=tag.getBoolean("SakuraForestSnapshot");
         var forest=tag.getCompound("BeforeSakuraForest");
         for(String key:forest.getAllKeys())data.beforeSakuraForest.put(Long.parseLong(key),BitSet.valueOf(forest.getLongArray(key)));
@@ -202,6 +209,7 @@ public final class SettlementLayout extends SavedData {
         var sakura=new CompoundTag();
         beforeVillageSakura.forEach((key,bits)->sakura.putLongArray(Long.toString(key),bits.toLongArray()));
         tag.put("BeforeVillageSakura",sakura);
+        tag.putLongArray("RejectedSakuraForest",rejectedForest.stream().mapToLong(Long::longValue).toArray());
         tag.putBoolean("SakuraForestSnapshot",forestSnapshot);
         var forest=new CompoundTag();beforeSakuraForest.forEach((key,bits)->forest.putLongArray(Long.toString(key),bits.toLongArray()));tag.put("BeforeSakuraForest",forest);
         return tag;

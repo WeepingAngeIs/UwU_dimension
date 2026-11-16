@@ -15,6 +15,8 @@ public final class SakuraForest {
     private SakuraForest(){}
     public static final int STEP_X=21,STEP_Z=21,RADIUS=17;
     private static final Map<ServerLevel,Map<Long,Optional<Tree>>> CACHE=new WeakHashMap<>();
+    private static final Map<ServerLevel,Map<Long,Boolean>> BIOMES=new WeakHashMap<>();
+    private static synchronized Map<Long,Boolean> biomes(ServerLevel level){return BIOMES.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
     private static final ThreadLocal<Boolean> FOREIGN=ThreadLocal.withInitial(()->false);
     public record Tree(int x,int y,int z,int turns){}
     private static final class Shapes {
@@ -42,8 +44,12 @@ public final class SakuraForest {
     public static boolean target(ServerLevel level,int x,int z){
         if(!level.dimension().equals(ReefLife.REACH))return false;
         int y=GroveSites.height(level,x,z)+1;
-        var source=level.getChunkSource();
-        return source.getGenerator().getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x),QuartPos.fromBlock(y),QuartPos.fromBlock(z),source.randomState().sampler()).is(Biomes.CHERRY_GROVE);
+        int qx=QuartPos.fromBlock(x),qy=QuartPos.fromBlock(y),qz=QuartPos.fromBlock(z);
+        var map=biomes(level);if(map.size()>32768)map.clear();
+        return map.computeIfAbsent(BlockPos.asLong(qx,qy,qz),key->{
+            var source=level.getChunkSource();
+            return source.getGenerator().getBiomeSource().getNoiseBiome(qx,qy,qz,source.randomState().sampler()).is(Biomes.CHERRY_GROVE);
+        });
     }
     public static boolean target(ServerLevel level,BlockPos p){return target(level,p.getX(),p.getZ());}
     public static boolean target(WorldGenLevel level,BlockPos p){return target(level.getLevel(),p.getX(),p.getZ());}
@@ -72,7 +78,8 @@ public final class SakuraForest {
     }
     public static Optional<Tree> tree(ServerLevel level,int cellX,int cellZ){
         var map=cache(level);if(map.size()>4096)map.clear();
-        return map.computeIfAbsent(net.minecraft.world.level.ChunkPos.asLong(cellX,cellZ),key->survey(level,cellX,cellZ));
+        return map.computeIfAbsent(net.minecraft.world.level.ChunkPos.asLong(cellX,cellZ),key->survey(level,cellX,cellZ))
+                .filter(tree->!SettlementLayout.rejectedForest(level,tree.x(),tree.z()));
     }
     private static Optional<Tree> survey(ServerLevel level,int cx,int cz){
         int hash=HeartwaterFeature.Valley.mix(cx,cz,level.getSeed());
@@ -92,7 +99,9 @@ public final class SakuraForest {
             if(h<64||h>high+8||!target(level,x+dx,z+dz))return Optional.empty();
         }
         if(reserved(level,x,z))return Optional.empty();
-        return Optional.of(new Tree(x,high+1,z,(hash>>>8)&3));
+        var tree=new Tree(x,high+1,z,(hash>>>8)&3);
+        for(var at:shape(tree).keySet())if(GroveSites.height(level,x+at.getX(),z+at.getZ())>=tree.y()+at.getY())return Optional.empty();
+        return Optional.of(tree);
     }
     private static boolean reserved(ServerLevel level,int x,int z){
         var site=GroveSites.site(level,Math.floorDiv(x+GroveSites.SPACING/2,GroveSites.SPACING),Math.floorDiv(z+GroveSites.SPACING/2,GroveSites.SPACING));
@@ -135,14 +144,14 @@ public final class SakuraForest {
         var own=chunk.getPos();
         for(var tree:trees(level,own)){
             var shape=shape(tree);
-            if(!open(level,tree))continue;
+            if(!open(level,tree)){SettlementLayout.rejectForest(level,tree.x(),tree.z());continue;}
             boolean safe=true;
             for(var entry:shape.entrySet()){
                 var p=entry.getKey().offset(tree.x,tree.y,tree.z);if(!own.equals(new net.minecraft.world.level.ChunkPos(p)))continue;
                 var old=chunk.getBlockState(p);
                 if(old.hasBlockEntity()||!old.getFluidState().isEmpty()||!replaceable(old)){safe=false;break;}
             }
-            if(!safe)continue;
+            if(!safe){SettlementLayout.rejectForest(level,tree.x(),tree.z());continue;}
             for(var entry:shape.entrySet()){
                 var p=entry.getKey().offset(tree.x,tree.y,tree.z);if(!own.equals(new net.minecraft.world.level.ChunkPos(p)))continue;
                 var old=chunk.getBlockState(p);var state=entry.getValue();

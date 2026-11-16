@@ -35,6 +35,7 @@ jobs:
             build/libs/*.jar
             build/forest-server/forest.log
             build/forest-server/baseline.log
+            build/forest-server/restart.log
             build/forest-server/logs/latest.log
             build/forest-server/crash-reports
   visual:

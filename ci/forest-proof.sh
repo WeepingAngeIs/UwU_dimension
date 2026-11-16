@@ -32,3 +32,5 @@ grep -F 'FOREST SAPLING PASS' forest.log
 grep -F 'FOREST 3D CANOPY PASS' forest.log
 grep -F 'FOREST CLAIMGEN PASS' forest.log
 grep -F 'GIANT SAKURA OPAC PASS' forest.log
+UWU_FOREST_RESTART=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee restart.log
+grep -F 'FOREST REJECTION RESTART PASS' restart.log
