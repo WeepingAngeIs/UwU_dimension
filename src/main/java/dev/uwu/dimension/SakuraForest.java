@@ -15,8 +15,8 @@ public final class SakuraForest {
     private SakuraForest(){}
     public static final int STEP_X=21,STEP_Z=21,RADIUS=17;
     private static final Map<ServerLevel,Map<Long,Optional<Tree>>> CACHE=new WeakHashMap<>();
-    private static final Map<ServerLevel,Map<Long,Boolean>> BIOMES=new WeakHashMap<>();
-    private static synchronized Map<Long,Boolean> biomes(ServerLevel level){return BIOMES.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
+    private static final Map<ServerLevel,Map<Long,net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome>>> BIOMES=new WeakHashMap<>();
+    private static synchronized Map<Long,net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome>> biomes(ServerLevel level){return BIOMES.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
     private static final ThreadLocal<Boolean> FOREIGN=ThreadLocal.withInitial(()->false);
     public record Tree(int x,int y,int z,int turns){}
     private static final class Shapes {
@@ -44,12 +44,12 @@ public final class SakuraForest {
     public static boolean target(ServerLevel level,int x,int z){
         if(!level.dimension().equals(ReefLife.REACH))return false;
         int y=GroveSites.height(level,x,z)+1;
-        int qx=QuartPos.fromBlock(x),qy=QuartPos.fromBlock(y),qz=QuartPos.fromBlock(z);
         var map=biomes(level);if(map.size()>32768)map.clear();
-        return map.computeIfAbsent(BlockPos.asLong(qx,qy,qz),key->{
+        // Match Minecraft's fuzzy biome zoom exactly, but replace chunk reads with pure noise.
+        return level.getBiomeManager().withDifferentSource((qx,qy,qz)->map.computeIfAbsent(BlockPos.asLong(qx,qy,qz),key->{
             var source=level.getChunkSource();
-            return source.getGenerator().getBiomeSource().getNoiseBiome(qx,qy,qz,source.randomState().sampler()).is(Biomes.CHERRY_GROVE);
-        });
+            return source.getGenerator().getBiomeSource().getNoiseBiome(qx,qy,qz,source.randomState().sampler());
+        })).getBiome(new BlockPos(x,y,z)).is(Biomes.CHERRY_GROVE);
     }
     public static boolean target(ServerLevel level,BlockPos p){return target(level,p.getX(),p.getZ());}
     public static boolean target(WorldGenLevel level,BlockPos p){return target(level.getLevel(),p.getX(),p.getZ());}
@@ -135,7 +135,7 @@ public final class SakuraForest {
         return true;
     }
     private static boolean replaceable(BlockState state){
-        return state.isAir()||state.is(net.minecraft.tags.BlockTags.LEAVES)||state.is(Blocks.CHERRY_LOG)||state.is(Blocks.CHERRY_WOOD)
+        return state.isAir()||state.is(net.minecraft.tags.BlockTags.REPLACEABLE_BY_TREES)||state.is(net.minecraft.tags.BlockTags.LEAVES)||state.is(Blocks.CHERRY_LOG)||state.is(Blocks.CHERRY_WOOD)
                 ||state.is(Blocks.PINK_PETALS)||state.is(Blocks.SHORT_GRASS)||state.is(Blocks.TALL_GRASS)||state.is(Blocks.FERN)||state.is(Blocks.LARGE_FERN)
                 ||state.getBlock() instanceof FlowerBlock||state.getBlock() instanceof DimensionCropBlock;
     }
@@ -149,7 +149,10 @@ public final class SakuraForest {
             for(var entry:shape.entrySet()){
                 var p=entry.getKey().offset(tree.x,tree.y,tree.z);if(!own.equals(new net.minecraft.world.level.ChunkPos(p)))continue;
                 var old=chunk.getBlockState(p);
-                if(old.hasBlockEntity()||!old.getFluidState().isEmpty()||!replaceable(old)){safe=false;break;}
+                if(old.hasBlockEntity()||!old.getFluidState().isEmpty()||!replaceable(old)){
+                    if(Boolean.getBoolean("uwu.forestDiagnostics"))com.mojang.logging.LogUtils.getLogger().info("FOREST BLOCKER root={},{} at={} existing={} wanted={}",tree.x,tree.z,p,old,entry.getValue());
+                    safe=false;break;
+                }
             }
             if(!safe){SettlementLayout.rejectForest(level,tree.x(),tree.z());continue;}
             for(var entry:shape.entrySet()){

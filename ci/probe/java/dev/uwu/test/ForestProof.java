@@ -47,8 +47,10 @@ public final class ForestProof {
         }
         int logs=0,leaves=0;Set<Long> crown=new HashSet<>();Set<BlockPos> leafBlocks=new HashSet<>();
         for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++){
-            if(!SakuraForest.target(level,x,z))continue;
             int ground=height(level,x,z);
+            boolean target=SakuraForest.target(level,x,z);
+            check(target==level.getBiome(new BlockPos(x,ground+1,z)).is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE),"biome border differs from actual Minecraft biome zoom");
+            if(!target)continue;
             for(int y=ground+5;y<=ground+46;y++){
                 var p=new BlockPos(x,y,z);var actual=level.getBlockState(p);
                 if(actual.is(net.minecraft.tags.BlockTags.LOGS)||actual.is(net.minecraft.tags.BlockTags.LEAVES)){

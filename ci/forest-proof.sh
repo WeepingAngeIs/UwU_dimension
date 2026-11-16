@@ -18,19 +18,19 @@ if [[ "${UWU_SOURCE_WORLD:-fresh}" = upgrade ]]; then
   mkdir candidate
   mv mods/UwU-Dimension-*.jar candidate/
   cp "$RUNNER_TEMP/forest-beta7"/build/libs/*.jar mods/
-  UWU_FOREST_BASELINE=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee baseline.log
+  UWU_FOREST_BASELINE=1 timeout 10m java -Duwu.forestDiagnostics=true -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee baseline.log
   grep -F 'FOREST BETA7 BASELINE SAVED' baseline.log
   mv mods/UwU-Dimension-*.jar ./
   mv candidate/*.jar mods/
-  UWU_FOREST_UPGRADE=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
+  UWU_FOREST_UPGRADE=1 timeout 10m java -Duwu.forestDiagnostics=true -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
   grep -F 'FOREST BETA7 UPGRADE PASS' forest.log
   exit 0
 fi
-UWU_FOREST=1 timeout 25m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
+UWU_FOREST=1 timeout 25m java -Duwu.forestDiagnostics=true -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
 grep -F 'FOREST NATURAL PASS' forest.log
 grep -F 'FOREST SAPLING PASS' forest.log
 grep -F 'FOREST 3D CANOPY PASS' forest.log
 grep -F 'FOREST CLAIMGEN PASS' forest.log
 grep -F 'GIANT SAKURA OPAC PASS' forest.log
-UWU_FOREST_RESTART=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee restart.log
+UWU_FOREST_RESTART=1 timeout 10m java -Duwu.forestDiagnostics=true -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee restart.log
 grep -F 'FOREST REJECTION RESTART PASS' restart.log
