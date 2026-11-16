@@ -122,7 +122,12 @@ def bow_masks(jar, art, name):
 
 def bow_geometry(model, masks, name):
     """Each surface pixel keeps its approved UV, and every exposed pixel edge gets exactly one cap."""
-    assert model["parent"] == "uwudimension:item/cupid_bow_handheld" and "display" not in model
+    assert model["parent"] == "uwudimension:item/cupid_bow_handheld"
+    if name != "cupid_bow":
+        assert set(model["display"]) == {"firstperson_righthand", "firstperson_lefthand"}
+        for hand, sign in (("right",1),("left",-1)):
+            assert model["display"][f"firstperson_{hand}hand"] == {"rotation":[0,-90*sign,25*sign],"translation":[1.13,3.2,1.13],"scale":[.68,.68,.28]}
+
     normals = {"up": (0,-1), "down": (0,1), "west": (-1,0), "east": (1,0)}
     boundaries = {
         part: {(side,x,y) for x,y in pixels for side,(dx,dy) in normals.items() if (x+dx,y+dy) not in pixels}
@@ -175,8 +180,8 @@ def bow_transforms(parent):
     # Effective original transforms including vanilla item/bow and item/generated defaults.
     assert "parent" not in parent and not parent.get("elements") and parent["gui_light"]=="front"
     expected = {
-        "firstperson_righthand": ([0,-90,29],[-1.25,4,-.85],[.54,.54,.28]),
-        "firstperson_lefthand": ([0,90,-29],[-1.25,4,-.85],[.54,.54,.28]),
+        "firstperson_righthand": ([0,-46,29],[-1.25,4,-.85],[.54,.54,.28]),
+        "firstperson_lefthand": ([0,46,-29],[-1.25,4,-.85],[.54,.54,.28]),
         "thirdperson_righthand": ([-80,252,-40],[-1,-2,2.5],[.9,.9,.9]),
         "thirdperson_lefthand": ([-80,-272,40],[-1,-2,2.5],[.9,.9,.9]),
         "ground": ([0,0,0],[0,2,0],[.5,.5,.5]),

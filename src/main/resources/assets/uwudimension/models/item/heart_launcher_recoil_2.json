@@ -6,9 +6,9 @@
   "display": {
     "thirdperson_righthand": {
       "rotation": [
-        -80,
-        260,
-        37
+        0,
+        90,
+        32
       ],
       "translation": [
         0,
@@ -23,9 +23,9 @@
     },
     "thirdperson_lefthand": {
       "rotation": [
-        -80,
-        -280,
-        -37
+        0,
+        -90,
+        -32
       ],
       "translation": [
         0,
