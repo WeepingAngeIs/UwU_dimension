@@ -24,6 +24,11 @@ public final class RevivalProof {
         }catch(ReflectiveOperationException e){throw new IllegalStateException("Cannot inspect fake player spawn immunity",e);}
     }
     static void begin(ServerLevel level,ServerPlayer attacker){
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST,true,
+            net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent.class,event->{
+                if(samples.stream().anyMatch(s->s.actor()==event.getEntity()))
+                    System.out.println("REVIVAL INCOMING canceled="+event.isCanceled()+" amount="+event.getAmount()+" source="+event.getSource().getMsgId());
+            });
         started=level.getGameTime();int i=0;
         for(String id:List.of("waxweaver","wickpiercer"))for(boolean late:new boolean[]{true,false}){
             var p=CounterProof.player(level,new GameProfile(UUID.randomUUID(),"SealGuest"+(i++)));
@@ -49,6 +54,7 @@ public final class RevivalProof {
                         +" previousHealth="+prior+" health="+p.getHealth()+" accepted="+accepted+" absorption="+p.getAbsorptionAmount()
                         +" armor="+p.getArmorValue()+" invulnerable="+p.isInvulnerable()+" spectator="+p.isSpectator()
                         +" spawnProtectionBefore="+spawnProtection+" playerTicks="+p.tickCount
+                        +" abilitiesInvulnerable="+p.getAbilities().invulnerable+" damageInvulnerable="+p.isInvulnerableTo(p.damageSources().generic())+" changingDimension="+p.isChangingDimension()
                         +" effects="+p.getActiveEffects()+" cooldown="+RevivalCooldownManager.isCoolingDown(level,p,sample.stack()));
                 require(accepted,"Sealed lethal damage was rejected before reaching the native revival path");
                 System.out.println("REVIVAL SEALED HIT accepted=true spawnProtectionBefore="+spawnProtection+" playerTicks="+p.tickCount);
