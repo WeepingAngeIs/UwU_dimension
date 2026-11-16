@@ -137,7 +137,7 @@ public final class SakuraForest {
     private static boolean replaceable(BlockState state){
         return state.isAir()||state.is(net.minecraft.tags.BlockTags.REPLACEABLE_BY_TREES)||state.is(net.minecraft.tags.BlockTags.LEAVES)||state.is(Blocks.CHERRY_LOG)||state.is(Blocks.CHERRY_WOOD)
                 ||state.is(Blocks.PINK_PETALS)||state.is(Blocks.SHORT_GRASS)||state.is(Blocks.TALL_GRASS)||state.is(Blocks.FERN)||state.is(Blocks.LARGE_FERN)
-                ||state.getBlock() instanceof FlowerBlock||state.getBlock() instanceof DimensionCropBlock;
+                ||state.getBlock() instanceof FlowerBlock||state.getBlock() instanceof DimensionCropBlock||Understory.isVegetation(state);
     }
     public static void decorate(ServerLevel level,ChunkAccess chunk){
         if(!level.dimension().equals(ReefLife.REACH))return;

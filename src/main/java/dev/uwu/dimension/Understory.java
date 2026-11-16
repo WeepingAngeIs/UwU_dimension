@@ -68,6 +68,10 @@ public final class Understory {
     private static boolean rooted(BlockState soil,BlockGetter level,BlockPos pos){
         return soil.is(SOIL) && soil.getFluidState().isEmpty() && soil.isFaceSturdy(level,pos,Direction.UP);
     }
+    /** These rooted decorations yield to trees just like vanilla grass and flowers. */
+    static boolean isVegetation(BlockState state){
+        return state.getBlock() instanceof LowPlant || state.getBlock() instanceof HighGrass;
+    }
     private static final class LowPlant extends BushBlock {
         private static final com.mojang.serialization.MapCodec<LowPlant> CODEC=com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(
                 fields->fields.group(com.mojang.serialization.Codec.intRange(1,16).fieldOf("height").forGetter((LowPlant plant)->plant.height),
