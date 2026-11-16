@@ -17,6 +17,12 @@ public final class RevivalProof {
     private static long started;
     private static boolean checkedLate,done;
     private static void require(boolean ok,String why){if(!ok)throw new AssertionError(why);}
+    private static int clearSpawnProtection(ServerPlayer p){
+        try{
+            var field=ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");field.setAccessible(true);
+            int before=field.getInt(p);field.setInt(p,0);return before;
+        }catch(ReflectiveOperationException e){throw new IllegalStateException("Cannot inspect fake player spawn immunity",e);}
+    }
     static void begin(ServerLevel level,ServerPlayer attacker){
         started=level.getGameTime();int i=0;
         for(String id:List.of("waxweaver","wickpiercer"))for(boolean late:new boolean[]{true,false}){
@@ -38,11 +44,14 @@ public final class RevivalProof {
             for(var sample:samples)if(sample.late()){
                 var p=sample.actor();require(!RevivalCooldownManager.isCoolingDown(level,p,sample.stack()),"Shortened cooldown did not expire");
                 require(!((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Late mark lost revival seal");
-                p.invulnerableTime=0;float prior=p.getHealth();boolean accepted=p.hurt(p.damageSources().generic(),2000);
+                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;float prior=p.getHealth();boolean accepted=p.hurt(p.damageSources().generic(),2000);
                 require(!p.isAlive(),"Sealed lethal hit revived at tick159: item="+BuiltInRegistries.ITEM.getKey(sample.stack().getItem())
                         +" previousHealth="+prior+" health="+p.getHealth()+" accepted="+accepted+" absorption="+p.getAbsorptionAmount()
                         +" armor="+p.getArmorValue()+" invulnerable="+p.isInvulnerable()+" spectator="+p.isSpectator()
+                        +" spawnProtectionBefore="+spawnProtection+" playerTicks="+p.tickCount
                         +" effects="+p.getActiveEffects()+" cooldown="+RevivalCooldownManager.isCoolingDown(level,p,sample.stack()));
+                require(accepted,"Sealed lethal damage was rejected before reaching the native revival path");
+                System.out.println("REVIVAL SEALED HIT accepted=true spawnProtectionBefore="+spawnProtection+" playerTicks="+p.tickCount);
             }
             checkedLate=true;
         }
@@ -50,8 +59,11 @@ public final class RevivalProof {
             require(checkedLate,"Missed late-seal tick");
             for(var sample:samples)if(!sample.late()){
                 var p=sample.actor();require(((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Expired seal still blocked revival");
-                p.invulnerableTime=0;p.hurt(p.damageSources().generic(),2000);
+                int spawnProtection=clearSpawnProtection(p);p.invulnerableTime=0;boolean accepted=p.hurt(p.damageSources().generic(),2000);
                 require(p.isAlive()&&p.getHealth()>0,"Unsealed ready weapon did not revive after lethal hit");
+                require(accepted,"Unsealed lethal damage was rejected before reaching the native revival path");
+                require(!((RevivalWeapon)sample.stack().getItem()).canRevive(p,sample.stack(),p.damageSources().generic()),"Native revival did not set its item-specific cooldown");
+                System.out.println("REVIVAL NATIVE HIT accepted=true cooldown=true item="+BuiltInRegistries.ITEM.getKey(sample.stack().getItem())+" spawnProtectionBefore="+spawnProtection+" playerTicks="+p.tickCount);
             }
             samples.forEach(s->s.actor().discard());done=true;
             System.out.println("REVIVAL DEADLINE PASS awakened Waxweaver/Wickpiercer: expired cooldown cannot revive at159; native lethal revival works at160");
