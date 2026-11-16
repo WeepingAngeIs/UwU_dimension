@@ -86,8 +86,10 @@ public final class MoonveilTreehouse {
     public static boolean suitable(ServerLevel level,BlossomVillage.Plan village,BlockPos base){
         if(!ReefLife.isSettlementRealm(level))return false;
         int x=base.getX(),y=base.getY(),z=base.getZ();
-        for(int dx=-FOOTPRINT;dx<=FOOTPRINT;dx++)for(int dz=-FOOTPRINT;dz<=FOOTPRINT;dz++)
-            if(SakuraForest.target(level,x+dx,z+dz))return false;
+        // Preserve reconstruction of an existing household; restrict only new untouched plots.
+        if(SettlementLayout.untouchedForForest(level,x-FOOTPRINT,z-FOOTPRINT,x+FOOTPRINT,z+FOOTPRINT))
+            for(int dx=-FOOTPRINT;dx<=FOOTPRINT;dx++)for(int dz=-FOOTPRINT;dz<=FOOTPRINT;dz++)
+                if(SakuraForest.target(level,x+dx,z+dz))return false;
         if(y<=64 || y+42>=level.getMaxBuildHeight() || y!=GroveSites.height(level,x,z)
                 || !level.getWorldBorder().isWithinBounds(base.offset(-FOOTPRINT,0,-FOOTPRINT))
                 || !level.getWorldBorder().isWithinBounds(base.offset(FOOTPRINT,0,FOOTPRINT))

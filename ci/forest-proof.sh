@@ -11,6 +11,21 @@ curl --retry 4 -fsSL 'https://maven.neoforged.net/releases/net/neoforged/neoforg
 java -jar installer.jar --installServer
 printf 'eula=true\n' > eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-seed=%s\nview-distance=3\nsimulation-distance=3\nmax-tick-time=600000\n' "$UWU_FIELD_SEED" > server.properties
+if [[ "${UWU_SOURCE_WORLD:-fresh}" = upgrade ]]; then
+  git fetch origin b0e11e4cf38bfdf12b08701a65822a3619c3d9ee --depth=1
+  git worktree add --detach "$RUNNER_TEMP/forest-beta7" b0e11e4cf38bfdf12b08701a65822a3619c3d9ee
+  (cd "$RUNNER_TEMP/forest-beta7" && ./gradlew jar)
+  mkdir candidate
+  mv mods/UwU-Dimension-*.jar candidate/
+  cp "$RUNNER_TEMP/forest-beta7"/build/libs/*.jar mods/
+  UWU_FOREST_BASELINE=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee baseline.log
+  grep -F 'FOREST BETA7 BASELINE SAVED' baseline.log
+  mv mods/UwU-Dimension-*.jar ./
+  mv candidate/*.jar mods/
+  UWU_FOREST_UPGRADE=1 timeout 10m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
+  grep -F 'FOREST BETA7 UPGRADE PASS' forest.log
+  exit 0
+fi
 UWU_FOREST=1 timeout 25m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee forest.log
 grep -F 'FOREST NATURAL PASS' forest.log
 grep -F 'FOREST SAPLING PASS' forest.log

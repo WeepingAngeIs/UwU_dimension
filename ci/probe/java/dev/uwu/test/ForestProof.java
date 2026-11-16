@@ -1,4 +1,5 @@
-package dev.uwu.dimension;
+package dev.uwu.test;
+import dev.uwu.dimension.*;
 
 import java.util.*;
 import net.minecraft.core.*;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 /** Actual newly generated chunks, with independent scans of every natural log/leaf. */
 public final class ForestProof {
     private static void check(boolean value,String why){if(!value)throw new AssertionError("Authored forest: "+why);}
+    private static int height(ServerLevel level,int x,int z){return level.getChunkSource().getGenerator().getBaseHeight(x,z,net.minecraft.world.level.levelgen.Heightmap.Types.OCEAN_FLOOR_WG,level,level.getChunkSource().randomState())-1;}
     public record Cluster(int x,int z,List<SakuraForest.Tree> trees){}
     public static Cluster find(ServerLevel level){
         var site=GroveSites.first(level);int ox=Math.floorDiv(site.x(),24),oz=Math.floorDiv(site.z(),22);
@@ -45,7 +47,7 @@ public final class ForestProof {
         int logs=0,leaves=0;Set<Long> crown=new HashSet<>();Set<BlockPos> leafBlocks=new HashSet<>();
         for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++){
             if(!SakuraForest.target(level,x,z))continue;
-            int ground=GroveSites.height(level,x,z);
+            int ground=height(level,x,z);
             for(int y=ground+5;y<=ground+46;y++){
                 var p=new BlockPos(x,y,z);var actual=level.getBlockState(p);
                 if(actual.is(net.minecraft.tags.BlockTags.LOGS)||actual.is(net.minecraft.tags.BlockTags.LEAVES)){

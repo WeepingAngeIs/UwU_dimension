@@ -46,7 +46,9 @@ public class Expedition {
                 if(GlitchLifecycleProof.tick(level)){stage=-1;server.halt(false);}
                 return;
             }
-            if(System.getenv("UWU_FOREST")!=null){if(!GiantSakuraProof.tick(level))return;dev.uwu.dimension.ForestProof.run(level);stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_FOREST_BASELINE")!=null){ForestBaselineFixture.run(level);stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_FOREST_UPGRADE")!=null){ForestUpgradeProof.run(level);stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_FOREST")!=null){if(!GiantSakuraProof.tick(level))return;ForestProof.run(level);stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_GIANT_SAKURA")!=null){
                 if(GiantSakuraProof.tick(level)){stage=-1;server.halt(false);}
                 return;

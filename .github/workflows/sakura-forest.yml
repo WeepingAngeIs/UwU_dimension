@@ -13,8 +13,13 @@ jobs:
     timeout-minutes: 40
     strategy:
       fail-fast: false
-      matrix: {seed: ['152045', '4372191', '918273645']}
-    env: {UWU_FIELD_SEED: '${{ matrix.seed }}'}
+      matrix:
+        include:
+          - {seed: '152045', mode: fresh}
+          - {seed: '4372191', mode: fresh}
+          - {seed: '918273645', mode: fresh}
+          - {seed: '152045', mode: upgrade}
+    env: {UWU_FIELD_SEED: '${{ matrix.seed }}', UWU_SOURCE_WORLD: '${{ matrix.mode }}'}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -25,10 +30,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: forest-server-${{ matrix.seed }}
+          name: forest-server-${{ matrix.seed }}-${{ matrix.mode }}
           path: |
             build/libs/*.jar
             build/forest-server/forest.log
+            build/forest-server/baseline.log
             build/forest-server/logs/latest.log
             build/forest-server/crash-reports
   visual:

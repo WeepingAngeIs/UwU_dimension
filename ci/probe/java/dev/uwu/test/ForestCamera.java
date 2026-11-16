@@ -3,9 +3,9 @@ import dev.uwu.dimension.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 final class ForestCamera {
-    private static dev.uwu.dimension.ForestProof.Cluster forest;
+    private static ForestProof.Cluster forest;
     static SeaWatch.View frame(ServerPlayer player,String name){
-        if(forest==null){try{forest=dev.uwu.dimension.ForestProof.run(player.serverLevel());}catch(Exception e){throw new IllegalStateException(e);}}
+        if(forest==null){try{forest=ForestProof.run(player.serverLevel());}catch(Exception e){throw new IllegalStateException(e);}}
         double x=forest.x()+.5,z=forest.z()+.5;
         var tree=forest.trees().get(forest.trees().size()/2);double y=tree.y();
         Vec3 eye,aim;
