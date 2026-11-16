@@ -1,0 +1,44 @@
+{
+  "parent": "uwudimension:activities/community/petal_trade",
+  "display": {
+    "icon": {
+      "id": "uwudimension:keeper_figurine"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.community/both_trades.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.community/both_trades.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "petal": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "uwudimension:petal_keeper"
+        }
+      }
+    },
+    "dusk": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "uwudimension:dusk_keeper"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "petal"
+    ],
+    [
+      "dusk"
+    ]
+  ]
+}

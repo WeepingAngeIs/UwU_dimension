@@ -1,0 +1,38 @@
+{
+  "parent": "uwudimension:a_rather_pretty_place",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heart_neon_lantern"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.utility/lantern_crafted.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.utility/lantern_crafted.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "original": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:heart_neon_lantern"
+      }
+    },
+    "silver": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:heart_neon_lantern_from_silver"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "original",
+      "silver"
+    ]
+  ]
+}

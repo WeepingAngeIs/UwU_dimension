@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/cupid/charm",
+  "display": {
+    "icon": {
+      "id": "uwudimension:cupid_bow"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.cupid/player.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.cupid/player.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

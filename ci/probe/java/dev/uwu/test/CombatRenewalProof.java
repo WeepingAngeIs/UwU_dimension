@@ -332,7 +332,7 @@ public final class CombatRenewalProof {
         }
     }
 
-    private static void returns(ServerLevel level, ServerPlayer player) {
+    static void returns(ServerLevel level, ServerPlayer player) {
         var sword = Arsenal.WEAPONS.get(Arsenal.Relic.BLOSSOM_GREATSWORD).get();
         var held = new ItemStack(sword);
         held.set(DataComponents.CUSTOM_NAME, Component.literal("Proof of ownership"));
@@ -352,6 +352,7 @@ public final class CombatRenewalProof {
         player.tickCount = 20;
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
         require(!escrow.isEmpty(), "Full inventory lost the claim");
+        if(System.getenv("UWU_ACTIVITY_TEST")!=null)ActivityProof.expect(player,"utility/return",false,"full inventory has not received a relic");
         CompoundTag snapshot = player.saveWithoutId(new CompoundTag());
         require(snapshot.getCompound("NeoForgeData").getCompound(Player.PERSISTED_NBT_TAG)
                 .getCompound("uwudimension.relic_returns").size() == 1, "Player save omitted weapon");

@@ -112,6 +112,7 @@ final class ToolAreaProof {
             ticks++;
             if (stage == 1 && ticks >= 3) {
                 require(remaining(level) == 80, "Disabled area mining broke neighboring blocks");
+                if(System.getenv("UWU_ACTIVITY_TEST")!=null)ActivityProof.expect(player,"utility/hammer",false,"disabled area mining excluded");
                 AcquisitionPolicy.AREA_MINING.set(true);
                 fill(level);
                 player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item("bell_hammer")));
@@ -123,6 +124,7 @@ final class ToolAreaProof {
             }
             if (stage == 2 && ticks >= 18) {
                 require(remaining(level) == 0, "Hammer failed to mine the full 9 x 9 plane: "+remaining(level)+" remain");
+                if(System.getenv("UWU_ACTIVITY_TEST")!=null)ActivityProof.expect(player,"utility/hammer",true,"successful extra-block mining");
                 require(player.getMainHandItem().getDamageValue() == 81, "Hammer durability did not match 81 breaks");
                 int drops = level.getEntitiesOfClass(ItemEntity.class,
                         new net.minecraft.world.phys.AABB(center).inflate(32)).stream()

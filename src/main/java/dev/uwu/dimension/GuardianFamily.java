@@ -56,6 +56,7 @@ final class GuardianFamily {
                 if(other==null||!canPair(self,player,mate,other,now,held))continue;
                 if(!birth(self,player,mate,other,held))return notice(player,"blocked");
                 held.consume(1,player);
+                SakuraAchievements.award(player,"guardians/feed");
                 return notice(player,"born");
             }
             return notice(player,"unavailable");
@@ -65,6 +66,7 @@ final class GuardianFamily {
         feedToken=UUID.randomUUID();
         readyUntil=now+AcquisitionPolicy.GUARDIAN_READY.get();
         held.consume(1,player);
+        SakuraAchievements.award(player,"guardians/feed");
         hearts(level,self,4);
         return notice(player,"fed");
     }
@@ -154,6 +156,10 @@ final class GuardianFamily {
                         || !capacity(level,child.position()) || !level.addFreshEntity(child))return false;
                 long rest=now+AcquisitionPolicy.GUARDIAN_COOLDOWN.get();
                 first.finish(rest);second.finish(rest);
+                SakuraAchievements.award(pa,"guardians/family");SakuraAchievements.award(pb,"guardians/family");
+                if(!pa.getUUID().equals(pb.getUUID())){
+                    SakuraAchievements.award(pa,"guardians/together");SakuraAchievements.award(pb,"guardians/together");
+                }
                 hearts(level,a,5);hearts(level,b,5);hearts(level,child,8);
                 return true;
             }

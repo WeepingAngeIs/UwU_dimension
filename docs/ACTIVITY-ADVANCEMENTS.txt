@@ -1,0 +1,259 @@
+UwU Dimension activity achievements
+
+50 additive achievements. Existing a_rather_pretty_place and every recipe advancement are preserved.
+
+No XP, items, functions, recipe rewards, global chat announcements or repeat rewards are added. IDs and criterion names are stable; existing earned progress is never reset.
+
+Children can be earned before their parent; the existing Sakura Reach root controls tab visibility. Native criteria retain ordinary Minecraft creative-mode semantics. Server hook awards exclude dead/spectator actors.
+
+Lore-book acquisition, delivery, text and art are outside this change. No new image/audio/model assets.
+
+Canopy Appreciation Society
+uwudimension:activities/journey/canopy_club
+Visit a Cherry Grove in Sakura Reach.
+Trigger: minecraft:location
+
+A Cliffhanger With Good Lighting
+uwudimension:activities/journey/ribbon_bluffs
+Visit the Ribbon Bluffs in Sakura Reach.
+Trigger: minecraft:location
+
+Pastel Is a State of Altitude
+uwudimension:activities/journey/velvet_highlands
+Visit the Velvet Highlands in Sakura Reach.
+Trigger: minecraft:location
+
+Swamp, But Make It Cozy
+uwudimension:activities/journey/lantern_fens
+Visit the Lantern Fens in Sakura Reach.
+Trigger: minecraft:location
+
+Underwater, Overdressed
+uwudimension:activities/journey/blush_reef
+Visit the Blush Reef in Sakura Reach.
+Trigger: minecraft:location
+
+Abyss-solutely Adorable
+uwudimension:activities/journey/moonwake_trench
+Visit the Moonwake Trench in Sakura Reach.
+Trigger: minecraft:location
+
+Cold Hands, Warm Vibes
+uwudimension:activities/journey/starlace_frostlands
+Visit the Starlace Frostlands in Sakura Reach.
+Trigger: minecraft:location
+
+The Snow Has Entered Its Goth Era
+uwudimension:activities/journey/dusk_frostlands
+Visit the Dusk Frostlands in Sakura Reach.
+Trigger: minecraft:location
+
+Taking the Scenic Route Very Seriously
+uwudimension:activities/journey/scenic_route
+Visit the Blush Reef, Ribbon Bluffs and both frostlands in Sakura Reach.
+Trigger: minecraft:location
+
+Gardening Starter Pack
+uwudimension:activities/garden/seeds
+Obtain any native pantry seed.
+Trigger: minecraft:inventory_changed
+
+A Plot Twist
+uwudimension:activities/garden/plant
+Successfully plant a native pantry crop.
+Trigger: minecraft:placed_block
+
+An Honest Day's UwU
+uwudimension:activities/garden/harvest
+Harvest a fully mature native pantry crop by breaking it.
+Trigger: minecraft:impossible
+
+Pick Me, Literally
+uwudimension:activities/garden/fruit
+Pick a visible fruit cluster from native fruiting leaves.
+Trigger: minecraft:impossible
+
+The Fine Print Said Giant
+uwudimension:activities/garden/sapling
+Obtain a giant sakura sapling.
+Trigger: minecraft:inventory_changed
+
+I Thought You Said Houseplant
+uwudimension:activities/garden/giant
+Use bone meal to successfully grow Anya's authored giant sakura. Natural trees and unattended growth do not count.
+Trigger: minecraft:impossible
+
+Crop Circles, but Helpful
+uwudimension:activities/garden/chakram
+Harvest a mature crop with a returning physical chakram.
+Trigger: minecraft:impossible
+
+Locally Sourced Munchies
+uwudimension:activities/pantry/snack
+Eat a native crop ingredient.
+Trigger: minecraft:consume_item
+
+The Seed Packet Was a Snack
+uwudimension:activities/pantry/seeds
+Eat any native pantry seed.
+Trigger: minecraft:consume_item
+
+Stack Overflow, but Lunch
+uwudimension:activities/pantry/burger
+Eat a Heartberry Burger.
+Trigger: minecraft:consume_item
+
+Soup-er-vised Chaos
+uwudimension:activities/pantry/hotpot
+Eat a Cozy Udon Hotpot.
+Trigger: minecraft:consume_item
+
+Professionally Distracted by Dessert
+uwudimension:activities/pantry/dessert
+Eat sakura mochi ice cream, a maple sundae or a heart bar.
+Trigger: minecraft:consume_item
+
+A Very Important Little Picnic
+uwudimension:activities/pantry/picnic
+Eat a Cherry Picnic Bento.
+Trigger: minecraft:consume_item
+
+Balanced Diet, Unbalanced Vibes
+uwudimension:activities/pantry/three_course
+Enjoy a Heartberry Burger, Cozy Udon Hotpot and sakura mochi ice cream.
+Trigger: minecraft:consume_item
+
+My Emotional Support Sparkle
+uwudimension:activities/wardrobe/petalweave_gem
+Obtain a Roseglass Prism.
+Trigger: minecraft:inventory_changed
+
+Sewn With Main-Character Energy
+uwudimension:activities/wardrobe/petalweave_crafted
+Personally craft all four Petalweave armor pieces.
+Trigger: minecraft:recipe_crafted
+
+Soft, but Armored
+uwudimension:activities/wardrobe/petalweave_worn
+Wear a complete matching Petalweave armor set.
+Trigger: minecraft:location
+
+A Tiny Gothic Shopping Trip
+uwudimension:activities/wardrobe/nightbriar_gem
+Obtain a Vesper Opal.
+Trigger: minecraft:inventory_changed
+
+Dress Code: Moonlight
+uwudimension:activities/wardrobe/nightbriar_crafted
+Personally craft all four Nightbriar armor pieces.
+Trigger: minecraft:recipe_crafted
+
+Gothic, With Benefits
+uwudimension:activities/wardrobe/nightbriar_worn
+Wear a complete matching Nightbriar armor set.
+Trigger: minecraft:location
+
+Retail Therapy: Petal Edition
+uwudimension:activities/community/petal_trade
+Complete a trade with a Petal Keeper.
+Trigger: minecraft:villager_trade
+
+Retail Therapy: After Dark
+uwudimension:activities/community/dusk_trade
+Complete a trade with a Dusk Keeper.
+Trigger: minecraft:villager_trade
+
+Diplomacy With Receipts
+uwudimension:activities/community/both_trades
+Complete at least one trade with each Keeper faction.
+Trigger: minecraft:villager_trade
+
+The Group Project Enjoyer
+uwudimension:activities/community/contribute
+Contribute supplies to a native village commons project at its bell.
+Trigger: minecraft:impossible
+
+Certified Community Bean
+uwudimension:activities/community/keepsake
+Collect an earned commons project keepsake as a contributor.
+Trigger: minecraft:impossible
+
+Court Adjourned, Sparkles Pending
+uwudimension:activities/community/court
+Earn your own Mirror Court victory seal as a contributing participant.
+Trigger: minecraft:impossible
+
+Paid in Snacks
+uwudimension:activities/guardians/feed
+Successfully feed an eligible adult Owl Guardian a native crop.
+Trigger: minecraft:impossible
+
+Tiny Guardian, Huge Responsibilities
+uwudimension:activities/guardians/family
+Help feed a pair of Owl Guardians that successfully welcomes a child.
+Trigger: minecraft:impossible
+
+It Takes Two Snack Dealers
+uwudimension:activities/guardians/together
+Welcome an Owl Guardian child with a different player feeding the other parent. Both helpers earn this.
+Trigger: minecraft:impossible
+
+Heartware Engineer
+uwudimension:activities/utility/lantern_crafted
+Craft a Heart Neon Lantern using either supported recipe.
+Trigger: minecraft:recipe_crafted
+
+Home Is Where the Heart Glows
+uwudimension:activities/utility/lantern_placed
+Place a Heart Neon Lantern.
+Trigger: minecraft:placed_block
+
+Mood Lighting Is a Personality
+uwudimension:activities/utility/dusk_lantern
+Place a Dusk Heart Lantern.
+Trigger: minecraft:placed_block
+
+A Minor Mining Incident
+uwudimension:activities/utility/hammer
+Use the Bell Hammer's area mining to successfully break an extra block. Protected or failed breaks do not count.
+Trigger: minecraft:impossible
+
+It Came Back With the Milk
+uwudimension:activities/utility/return
+Receive your returning physical relic back into your hand or inventory.
+Trigger: minecraft:impossible
+
+A Bow With Excellent Intentions
+uwudimension:activities/cupid/bow
+Obtain a Cupid Bow.
+Trigger: minecraft:inventory_changed
+
+Friend Request Sent
+uwudimension:activities/cupid/charm
+Successfully charm an eligible creature or player with Cupid magic.
+Trigger: minecraft:impossible
+
+Multiplayer Friendship Protocol
+uwudimension:activities/cupid/player
+Successfully charm an eligible survival player with Cupid magic. PvP rules still apply.
+Trigger: minecraft:impossible
+
+Two Hearts, One Tiny Friend
+uwudimension:activities/cupid/wish
+Complete a Cupid wish that actually creates one viable baby creature.
+Trigger: minecraft:impossible
+
+Plus One, Plus Moo
+uwudimension:activities/cupid/player_wish
+Complete a successful wish with a charmed, opted-in player and a viable creature.
+Trigger: minecraft:impossible
+
+Witness Protection, but Cute
+uwudimension:activities/cupid/witness
+Opt in and participate as the charmed player in a successful creature wish.
+Trigger: minecraft:impossible
+
+Besties With a Battle Plan
+uwudimension:activities/cupid/command
+Have a charmed ally actually damage the foe you designated. A targeting message alone does not count.
+Trigger: minecraft:impossible

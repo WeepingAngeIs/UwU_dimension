@@ -107,6 +107,7 @@ final class VillageCommons extends SavedData {
                     }
                     entry.putBoolean("Claim"+player.getUUID(),true);
                     book.put(project.name(),entry);
+                    SakuraAchievements.at(player,pos,"community/keepsake");
                     tell(player, "Thank you for helping with the " + project.title + ". Your keepsake is ready.");
                 } else tell(player, project.title + " · " + paid + "/" + project.need + " " + project.material.replace('_',' '));
             }
@@ -120,6 +121,7 @@ final class VillageCommons extends SavedData {
             entry.putBoolean("Gave"+player.getUUID(),true);
             entry.putInt("Total", match.need - remaining + contribution);
             book.put(match.name(), entry);
+            if(contribution>0)SakuraAchievements.at(player,pos,"community/contribute");
             tell(player, "Contributed " + contribution + " to the " + match.title + ".");
             if (remaining == contribution) {
                 data.villages.putLong("festival_"+site.gx()+"_"+site.gz()+"_"+district,pos.asLong());

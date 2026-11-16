@@ -1,0 +1,41 @@
+{
+  "parent": "uwudimension:activities/pantry/snack",
+  "display": {
+    "icon": {
+      "id": "uwudimension:sweetbean_seeds"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.pantry/seeds.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.pantry/seeds.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:heartberry_seeds",
+            "uwudimension:sakura_rice_seeds",
+            "uwudimension:starfruit_seeds",
+            "uwudimension:frostpetal_seeds",
+            "uwudimension:sweetbean_seeds",
+            "uwudimension:glowginger_seeds",
+            "uwudimension:vanilla_bean_seeds"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

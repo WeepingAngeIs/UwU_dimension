@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/garden/sapling",
+  "display": {
+    "icon": {
+      "id": "uwudimension:giant_sakura_sapling"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.garden/giant.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.garden/giant.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -147,9 +147,11 @@ final class GiantSakuraProof {
             bonemeal(level,origin,40);originalSapling(level,origin,"unattributed across crown claim");
             for(int i=0;i<500;i++)level.getBlockState(origin).randomTick(level,origin,RandomSource.create(i));
             originalSapling(level,origin,"random growth across crown claim");
+            if(System.getenv("UWU_ACTIVITY_TEST")!=null){ActivityProof.expect(owner,"garden/giant",false,"no successful owner growth yet");ActivityProof.expect(stranger,"garden/giant",false,"denied/random growth has no gardener credit");}
             for(int i=0;i<100&&level.getBlockState(origin).is(GiantSakuraSapling.SAPLING.get());i++)
                 BoneMealItem.applyBonemeal(new ItemStack(Items.BONE_MEAL,64),level,origin,owner);
             connectivity(level,origin,"claim owner");
+            if(System.getenv("UWU_ACTIVITY_TEST")!=null){ActivityProof.expect(owner,"garden/giant",true,"actual owner bonemeal growth");ActivityProof.expect(stranger,"garden/giant",false,"stranger not credited");System.out.println("ACTIVITY GIANT PASS owner success, denied stranger and unattributed growth exclusion");}
             System.out.println("GIANT SAKURA OPAC PASS full crown denies stranger/random/dispenser and allows owner bonemeal");
         } finally {unclaim.invoke(manager,level.dimension().location(),1,0);owner.discard();stranger.discard();}
     }

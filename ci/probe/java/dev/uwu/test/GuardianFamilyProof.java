@@ -119,7 +119,7 @@ final class GuardianFamilyProof {
             }
         }
     }
-    private static void conditions(ServerLevel l,BlockPos at,ServerPlayer a,ServerPlayer b)throws Exception{
+    static void conditions(ServerLevel l,BlockPos at,ServerPlayer a,ServerPlayer b)throws Exception{
         var male=adult(l,at.west(),false);var second=adult(l,at.east(),false);
         for(var invalid:List.of(Items.WHEAT,uwu("sakura_rice_seeds"),uwu("heartberry_burger")))
             check(feed(a,male,invalid)==0&&male.familyReadyUntil()==0,"accepted "+invalid);

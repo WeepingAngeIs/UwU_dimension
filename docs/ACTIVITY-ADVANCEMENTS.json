@@ -1,0 +1,1400 @@
+[
+  {
+    "id": "uwudimension:activities/journey/canopy_club",
+    "title": "Canopy Appreciation Society",
+    "description": "Visit a Cherry Grove in Sakura Reach.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "minecraft:cherry_grove"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:giant_sakura_sapling",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/ribbon_bluffs",
+    "title": "A Cliffhanger With Good Lighting",
+    "description": "Visit the Ribbon Bluffs in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/canopy_club",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:ribbon_bluffs"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:roseglass_prism",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/velvet_highlands",
+    "title": "Pastel Is a State of Altitude",
+    "description": "Visit the Velvet Highlands in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/ribbon_bluffs",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:velvet_highlands"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:vesper_opal",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/lantern_fens",
+    "title": "Swamp, But Make It Cozy",
+    "description": "Visit the Lantern Fens in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/canopy_club",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:lantern_fens"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heart_neon_lantern",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/blush_reef",
+    "title": "Underwater, Overdressed",
+    "description": "Visit the Blush Reef in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/lantern_fens",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:blush_reef"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:blush_shellstone",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/moonwake_trench",
+    "title": "Abyss-solutely Adorable",
+    "description": "Visit the Moonwake Trench in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/blush_reef",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:moonwake_trench"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:moonwake_shellstone",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/starlace_frostlands",
+    "title": "Cold Hands, Warm Vibes",
+    "description": "Visit the Starlace Frostlands in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/canopy_club",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:starlace_frostlands"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:frostpetal",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/dusk_frostlands",
+    "title": "The Snow Has Entered Its Goth Era",
+    "description": "Visit the Dusk Frostlands in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/starlace_frostlands",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:dusk_frostlands"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:rough_vesper_opal",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/journey/scenic_route",
+    "title": "Taking the Scenic Route Very Seriously",
+    "description": "Visit the Blush Reef, Ribbon Bluffs and both frostlands in Sakura Reach.",
+    "parent": "uwudimension:activities/journey/canopy_club",
+    "criteria": {
+      "reef": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:blush_reef"
+            }
+          }
+        }
+      },
+      "bluffs": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:ribbon_bluffs"
+            }
+          }
+        }
+      },
+      "petal_snow": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:starlace_frostlands"
+            }
+          }
+        }
+      },
+      "dusk_snow": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "location": {
+              "dimension": "uwudimension:sakura_reach",
+              "biomes": "uwudimension:dusk_frostlands"
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "reef"
+      ],
+      [
+        "bluffs"
+      ],
+      [
+        "petal_snow"
+      ],
+      [
+        "dusk_snow"
+      ]
+    ],
+    "icon": "uwudimension:heartwater_locket",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/garden/seeds",
+    "title": "Gardening Starter Pack",
+    "description": "Obtain any native pantry seed.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "uwudimension:heartberry_seeds",
+                "uwudimension:sakura_rice_seeds",
+                "uwudimension:starfruit_seeds",
+                "uwudimension:frostpetal_seeds",
+                "uwudimension:sweetbean_seeds",
+                "uwudimension:glowginger_seeds",
+                "uwudimension:vanilla_bean_seeds"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sakura_rice_seeds",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/garden/plant",
+    "title": "A Plot Twist",
+    "description": "Successfully plant a native pantry crop.",
+    "parent": "uwudimension:activities/garden/seeds",
+    "criteria": {
+      "heartberry_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:heartberry_crop"
+            }
+          ]
+        }
+      },
+      "sakura_rice_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:sakura_rice_crop"
+            }
+          ]
+        }
+      },
+      "starfruit_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:starfruit_crop"
+            }
+          ]
+        }
+      },
+      "frostpetal_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:frostpetal_crop"
+            }
+          ]
+        }
+      },
+      "sweetbean_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:sweetbean_crop"
+            }
+          ]
+        }
+      },
+      "glowginger_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:glowginger_crop"
+            }
+          ]
+        }
+      },
+      "vanilla_bean_crop": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:vanilla_bean_crop"
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "heartberry_crop",
+        "sakura_rice_crop",
+        "starfruit_crop",
+        "frostpetal_crop",
+        "sweetbean_crop",
+        "glowginger_crop",
+        "vanilla_bean_crop"
+      ]
+    ],
+    "icon": "uwudimension:heartberry_seeds",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/garden/harvest",
+    "title": "An Honest Day's UwU",
+    "description": "Harvest a fully mature native pantry crop by breaking it.",
+    "parent": "uwudimension:activities/garden/plant",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sakura_rice",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/garden/fruit",
+    "title": "Pick Me, Literally",
+    "description": "Pick a visible fruit cluster from native fruiting leaves.",
+    "parent": "uwudimension:activities/garden/harvest",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:moonberry",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/garden/sapling",
+    "title": "The Fine Print Said Giant",
+    "description": "Obtain a giant sakura sapling.",
+    "parent": "uwudimension:activities/garden/seeds",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "uwudimension:giant_sakura_sapling"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:giant_sakura_sapling",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/garden/giant",
+    "title": "I Thought You Said Houseplant",
+    "description": "Use bone meal to successfully grow Anya's authored giant sakura. Natural trees and unattended growth do not count.",
+    "parent": "uwudimension:activities/garden/sapling",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:giant_sakura_sapling",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/garden/chakram",
+    "title": "Crop Circles, but Helpful",
+    "description": "Harvest a mature crop with a returning physical chakram.",
+    "parent": "uwudimension:activities/garden/harvest",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sakura_rice",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/pantry/snack",
+    "title": "Locally Sourced Munchies",
+    "description": "Eat a native crop ingredient.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:heartberry",
+              "uwudimension:sakura_rice",
+              "uwudimension:starfruit",
+              "uwudimension:frostpetal",
+              "uwudimension:sweetbean_pods",
+              "uwudimension:glowginger",
+              "uwudimension:vanilla_bean"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/seeds",
+    "title": "The Seed Packet Was a Snack",
+    "description": "Eat any native pantry seed.",
+    "parent": "uwudimension:activities/pantry/snack",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:heartberry_seeds",
+              "uwudimension:sakura_rice_seeds",
+              "uwudimension:starfruit_seeds",
+              "uwudimension:frostpetal_seeds",
+              "uwudimension:sweetbean_seeds",
+              "uwudimension:glowginger_seeds",
+              "uwudimension:vanilla_bean_seeds"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sweetbean_seeds",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/burger",
+    "title": "Stack Overflow, but Lunch",
+    "description": "Eat a Heartberry Burger.",
+    "parent": "uwudimension:activities/pantry/snack",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:heartberry_burger"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry_burger",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/hotpot",
+    "title": "Soup-er-vised Chaos",
+    "description": "Eat a Cozy Udon Hotpot.",
+    "parent": "uwudimension:activities/pantry/snack",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:cozy_udon_hotpot"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cozy_udon_hotpot",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/dessert",
+    "title": "Professionally Distracted by Dessert",
+    "description": "Eat sakura mochi ice cream, a maple sundae or a heart bar.",
+    "parent": "uwudimension:activities/pantry/snack",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:sakura_mochi_ice_cream",
+              "uwudimension:maple_ice_cream_sundae",
+              "uwudimension:nanaimo_heart_bar"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sakura_mochi_ice_cream",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/picnic",
+    "title": "A Very Important Little Picnic",
+    "description": "Eat a Cherry Picnic Bento.",
+    "parent": "uwudimension:activities/pantry/snack",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:cherry_picnic_bento"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cherry_picnic_bento",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/pantry/three_course",
+    "title": "Balanced Diet, Unbalanced Vibes",
+    "description": "Enjoy a Heartberry Burger, Cozy Udon Hotpot and sakura mochi ice cream.",
+    "parent": "uwudimension:activities/pantry/burger",
+    "criteria": {
+      "burger": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:heartberry_burger"
+            ]
+          }
+        }
+      },
+      "hotpot": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:cozy_udon_hotpot"
+            ]
+          }
+        }
+      },
+      "dessert": {
+        "trigger": "minecraft:consume_item",
+        "conditions": {
+          "item": {
+            "items": [
+              "uwudimension:sakura_mochi_ice_cream"
+            ]
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "burger"
+      ],
+      [
+        "hotpot"
+      ],
+      [
+        "dessert"
+      ]
+    ],
+    "icon": "uwudimension:cherry_picnic_bento",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/petalweave_gem",
+    "title": "My Emotional Support Sparkle",
+    "description": "Obtain a Roseglass Prism.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "uwudimension:roseglass_prism"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:roseglass_prism",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/petalweave_crafted",
+    "title": "Sewn With Main-Character Energy",
+    "description": "Personally craft all four Petalweave armor pieces.",
+    "parent": "uwudimension:activities/wardrobe/petalweave_gem",
+    "criteria": {
+      "helmet": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:petalweave_helmet"
+        }
+      },
+      "chestplate": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:petalweave_chestplate"
+        }
+      },
+      "leggings": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:petalweave_leggings"
+        }
+      },
+      "boots": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:petalweave_boots"
+        }
+      }
+    },
+    "requirements": [
+      [
+        "helmet"
+      ],
+      [
+        "chestplate"
+      ],
+      [
+        "leggings"
+      ],
+      [
+        "boots"
+      ]
+    ],
+    "icon": "uwudimension:petalweave_chestplate",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/petalweave_worn",
+    "title": "Soft, but Armored",
+    "description": "Wear a complete matching Petalweave armor set.",
+    "parent": "uwudimension:activities/wardrobe/petalweave_gem",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "equipment": {
+              "head": {
+                "items": [
+                  "uwudimension:petalweave_helmet"
+                ]
+              },
+              "chest": {
+                "items": [
+                  "uwudimension:petalweave_chestplate"
+                ]
+              },
+              "legs": {
+                "items": [
+                  "uwudimension:petalweave_leggings"
+                ]
+              },
+              "feet": {
+                "items": [
+                  "uwudimension:petalweave_boots"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:petalweave_helmet",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/nightbriar_gem",
+    "title": "A Tiny Gothic Shopping Trip",
+    "description": "Obtain a Vesper Opal.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "uwudimension:vesper_opal"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:vesper_opal",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/nightbriar_crafted",
+    "title": "Dress Code: Moonlight",
+    "description": "Personally craft all four Nightbriar armor pieces.",
+    "parent": "uwudimension:activities/wardrobe/nightbriar_gem",
+    "criteria": {
+      "helmet": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:nightbriar_helmet"
+        }
+      },
+      "chestplate": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:nightbriar_chestplate"
+        }
+      },
+      "leggings": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:nightbriar_leggings"
+        }
+      },
+      "boots": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:nightbriar_boots"
+        }
+      }
+    },
+    "requirements": [
+      [
+        "helmet"
+      ],
+      [
+        "chestplate"
+      ],
+      [
+        "leggings"
+      ],
+      [
+        "boots"
+      ]
+    ],
+    "icon": "uwudimension:nightbriar_chestplate",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/wardrobe/nightbriar_worn",
+    "title": "Gothic, With Benefits",
+    "description": "Wear a complete matching Nightbriar armor set.",
+    "parent": "uwudimension:activities/wardrobe/nightbriar_gem",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:location",
+        "conditions": {
+          "player": {
+            "equipment": {
+              "head": {
+                "items": [
+                  "uwudimension:nightbriar_helmet"
+                ]
+              },
+              "chest": {
+                "items": [
+                  "uwudimension:nightbriar_chestplate"
+                ]
+              },
+              "legs": {
+                "items": [
+                  "uwudimension:nightbriar_leggings"
+                ]
+              },
+              "feet": {
+                "items": [
+                  "uwudimension:nightbriar_boots"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:nightbriar_helmet",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/community/petal_trade",
+    "title": "Retail Therapy: Petal Edition",
+    "description": "Complete a trade with a Petal Keeper.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:villager_trade",
+        "conditions": {
+          "villager": {
+            "type": "uwudimension:petal_keeper"
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:roseglass_prism",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/community/dusk_trade",
+    "title": "Retail Therapy: After Dark",
+    "description": "Complete a trade with a Dusk Keeper.",
+    "parent": "uwudimension:activities/community/petal_trade",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:villager_trade",
+        "conditions": {
+          "villager": {
+            "type": "uwudimension:dusk_keeper"
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:vesper_opal",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/community/both_trades",
+    "title": "Diplomacy With Receipts",
+    "description": "Complete at least one trade with each Keeper faction.",
+    "parent": "uwudimension:activities/community/petal_trade",
+    "criteria": {
+      "petal": {
+        "trigger": "minecraft:villager_trade",
+        "conditions": {
+          "villager": {
+            "type": "uwudimension:petal_keeper"
+          }
+        }
+      },
+      "dusk": {
+        "trigger": "minecraft:villager_trade",
+        "conditions": {
+          "villager": {
+            "type": "uwudimension:dusk_keeper"
+          }
+        }
+      }
+    },
+    "requirements": [
+      [
+        "petal"
+      ],
+      [
+        "dusk"
+      ]
+    ],
+    "icon": "uwudimension:keeper_figurine",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/community/contribute",
+    "title": "The Group Project Enjoyer",
+    "description": "Contribute supplies to a native village commons project at its bell.",
+    "parent": "uwudimension:activities/community/petal_trade",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:petal_house_standard",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/community/keepsake",
+    "title": "Certified Community Bean",
+    "description": "Collect an earned commons project keepsake as a contributor.",
+    "parent": "uwudimension:activities/community/contribute",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:keeper_figurine",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/community/court",
+    "title": "Court Adjourned, Sparkles Pending",
+    "description": "Earn your own Mirror Court victory seal as a contributing participant.",
+    "parent": "uwudimension:activities/community/both_trades",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:vesper_opal",
+    "frame": "challenge"
+  },
+  {
+    "id": "uwudimension:activities/guardians/feed",
+    "title": "Paid in Snacks",
+    "description": "Successfully feed an eligible adult Owl Guardian a native crop.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/guardians/family",
+    "title": "Tiny Guardian, Huge Responsibilities",
+    "description": "Help feed a pair of Owl Guardians that successfully welcomes a child.",
+    "parent": "uwudimension:activities/guardians/feed",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:uwu_guardian_spawn_egg",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/guardians/together",
+    "title": "It Takes Two Snack Dealers",
+    "description": "Welcome an Owl Guardian child with a different player feeding the other parent. Both helpers earn this.",
+    "parent": "uwudimension:activities/guardians/family",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/utility/lantern_crafted",
+    "title": "Heartware Engineer",
+    "description": "Craft a Heart Neon Lantern using either supported recipe.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "original": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:heart_neon_lantern"
+        }
+      },
+      "silver": {
+        "trigger": "minecraft:recipe_crafted",
+        "conditions": {
+          "recipe_id": "uwudimension:heart_neon_lantern_from_silver"
+        }
+      }
+    },
+    "requirements": [
+      [
+        "original",
+        "silver"
+      ]
+    ],
+    "icon": "uwudimension:heart_neon_lantern",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/utility/lantern_placed",
+    "title": "Home Is Where the Heart Glows",
+    "description": "Place a Heart Neon Lantern.",
+    "parent": "uwudimension:activities/utility/lantern_crafted",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:heart_neon_lantern"
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heart_neon_lantern",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/utility/dusk_lantern",
+    "title": "Mood Lighting Is a Personality",
+    "description": "Place a Dusk Heart Lantern.",
+    "parent": "uwudimension:activities/utility/lantern_placed",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:placed_block",
+        "conditions": {
+          "location": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "uwudimension:dusk_heart_lantern"
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:dusk_heart_lantern",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/utility/hammer",
+    "title": "A Minor Mining Incident",
+    "description": "Use the Bell Hammer's area mining to successfully break an extra block. Protected or failed breaks do not count.",
+    "parent": "uwudimension:activities/utility/lantern_placed",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:bell_hammer",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/utility/return",
+    "title": "It Came Back With the Milk",
+    "description": "Receive your returning physical relic back into your hand or inventory.",
+    "parent": "uwudimension:activities/utility/lantern_placed",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:lantern_spear",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/cupid/bow",
+    "title": "A Bow With Excellent Intentions",
+    "description": "Obtain a Cupid Bow.",
+    "parent": "uwudimension:a_rather_pretty_place",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "uwudimension:cupid_bow"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cupid_bow",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/cupid/charm",
+    "title": "Friend Request Sent",
+    "description": "Successfully charm an eligible creature or player with Cupid magic.",
+    "parent": "uwudimension:activities/cupid/bow",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cupid_bow",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/cupid/player",
+    "title": "Multiplayer Friendship Protocol",
+    "description": "Successfully charm an eligible survival player with Cupid magic. PvP rules still apply.",
+    "parent": "uwudimension:activities/cupid/charm",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cupid_bow",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/cupid/wish",
+    "title": "Two Hearts, One Tiny Friend",
+    "description": "Complete a Cupid wish that actually creates one viable baby creature.",
+    "parent": "uwudimension:activities/cupid/charm",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/cupid/player_wish",
+    "title": "Plus One, Plus Moo",
+    "description": "Complete a successful wish with a charmed, opted-in player and a viable creature.",
+    "parent": "uwudimension:activities/cupid/wish",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:sakura_mochi_ice_cream",
+    "frame": "goal"
+  },
+  {
+    "id": "uwudimension:activities/cupid/witness",
+    "title": "Witness Protection, but Cute",
+    "description": "Opt in and participate as the charmed player in a successful creature wish.",
+    "parent": "uwudimension:activities/cupid/player",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:heartberry",
+    "frame": "task"
+  },
+  {
+    "id": "uwudimension:activities/cupid/command",
+    "title": "Besties With a Battle Plan",
+    "description": "Have a charmed ally actually damage the foe you designated. A targeting message alone does not count.",
+    "parent": "uwudimension:activities/cupid/charm",
+    "criteria": {
+      "done": {
+        "trigger": "minecraft:impossible"
+      }
+    },
+    "requirements": [
+      [
+        "done"
+      ]
+    ],
+    "icon": "uwudimension:cupid_bow",
+    "frame": "goal"
+  }
+]

@@ -104,6 +104,7 @@ final class CupidMinions {
             target.sendSystemMessage(net.minecraft.network.chat.Component.literal("Creature wishes are optional. To accept invitations, use /sakura cupid witness on. Help: /sakura cupid help."));
         keeper.displayClientMessage(net.minecraft.network.chat.Component.literal(target.getGameProfile().getName() + " is charmed for " + (duration / 20) + " seconds."), true);
         sendControl(target, keeper, 3.0);
+        if(pastelCupid){SakuraAchievements.award(keeper,"cupid/charm");SakuraAchievements.award(keeper,"cupid/player");}
         return true;
     }
 

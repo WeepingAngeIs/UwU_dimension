@@ -106,7 +106,12 @@ public final class GiantSakuraSapling extends Feature<NoneFeatureConfiguration> 
             if(!existing.isAir() && !existing.is(Blocks.SHORT_GRASS) && !existing.is(Blocks.TALL_GRASS)
                     && !existing.is(Blocks.FERN) && !existing.is(Blocks.LARGE_FERN) && !existing.is(Blocks.PINK_PETALS))return false;
         }
-        for(var entry:plan.entrySet())level.setBlock(origin.offset(entry.getKey()),entry.getValue(),3);
+        boolean complete=true;
+        for(var entry:plan.entrySet()){
+            var pos=origin.offset(entry.getKey());
+            if(!level.setBlock(pos,entry.getValue(),3)&&!level.getBlockState(pos).equals(entry.getValue()))complete=false;
+        }
+        if(complete)SakuraAchievements.award(GARDENER.get(),"garden/giant");
         return true;
     }
 }

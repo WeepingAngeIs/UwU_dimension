@@ -1,0 +1,54 @@
+{
+  "parent": "uwudimension:activities/wardrobe/petalweave_gem",
+  "display": {
+    "icon": {
+      "id": "uwudimension:petalweave_helmet"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.wardrobe/petalweave_worn.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.wardrobe/petalweave_worn.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "equipment": {
+            "head": {
+              "items": [
+                "uwudimension:petalweave_helmet"
+              ]
+            },
+            "chest": {
+              "items": [
+                "uwudimension:petalweave_chestplate"
+              ]
+            },
+            "legs": {
+              "items": [
+                "uwudimension:petalweave_leggings"
+              ]
+            },
+            "feet": {
+              "items": [
+                "uwudimension:petalweave_boots"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

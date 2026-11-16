@@ -56,6 +56,7 @@ final class FarmChakram {
                 if (player.gameMode.destroyBlock(position)
                         && !level.getBlockState(position).equals(state)) {
                     RelicReturns.damageHarvest(player, flight);
+                    SakuraAchievements.award(player,"garden/chakram");
                     if (!RelicReturns.active(player, flight)) return;
                 }
             }

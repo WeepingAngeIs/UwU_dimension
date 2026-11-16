@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/utility/lantern_placed",
+  "display": {
+    "icon": {
+      "id": "uwudimension:dusk_heart_lantern"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.utility/dusk_lantern.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.utility/dusk_lantern.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "uwudimension:dusk_heart_lantern"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

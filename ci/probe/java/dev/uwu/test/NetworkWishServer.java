@@ -97,9 +97,15 @@ public final class NetworkWishServer {
             select(cow,"First wish target",null);select(sheep,"Two hearts answered",()->{births(2,null);check(List.of(EntityType.COW,EntityType.SHEEP).contains(babies.getLast()),"cross-species young");});
             arrow(witness,NetworkWishServer::refresh,()->{check(charmed(witness),"survival player did not charm");check(witness.position().distanceTo(archer.position())<5,"remote minion failed to follow");});
             arrow(cow,null,()->check(charmed(cow),"cow charm before player wish"));
-            select(witness,"Choose an available adult",()->births(2,null));
+            select(witness,"Choose an available adult",()->{
+                births(2,null);
+                if(System.getenv("UWU_ACTIVITY_TEST")!=null){ActivityProof.expect(archer,"cupid/player",true,"real player charm");ActivityProof.expect(archer,"cupid/player_wish",false,"opt-out failed wish excluded");ActivityProof.expect(witness,"cupid/witness",false,"opt-out witness excluded");}
+            });
             action("witness","command",null,"Cupid wish invitations on",null,null);
-            select(witness,"First wish target",null);select(cow,"Two hearts answered",()->births(3,EntityType.COW));
+            select(witness,"First wish target",null);select(cow,"Two hearts answered",()->{
+                births(3,EntityType.COW);
+                if(System.getenv("UWU_ACTIVITY_TEST")!=null){ActivityProof.expect(archer,"cupid/wish",true,"real baby wish");ActivityProof.expect(archer,"cupid/player_wish",true,"actual player/cow success");ActivityProof.expect(witness,"cupid/witness",true,"voluntary witness credited");ActivityProof.expect(archer,"cupid/witness",false,"caster did not become witness");ActivityProof.expect(witness,"cupid/player_wish",false,"witness did not become caster");}
+            });
             arrow(witness,NetworkWishServer::refresh,()->check(charmed(witness),"refresh actual player charm"));
             arrow(sheep,null,()->check(charmed(sheep),"sheep charm before reversed pair"));
             select(sheep,"First wish target",null);select(witness,"Two hearts answered",()->births(4,EntityType.SHEEP));
@@ -111,6 +117,7 @@ public final class NetworkWishServer {
                 check(witness.getPersistentData().hasUUID("uwudimension.cupid_target")
                     &&witness.getPersistentData().getUUID("uwudimension.cupid_target").equals(foe.getUUID()),"remote player did not receive attack designation");
                 check(foe.getLastHurtByMob()==witness,"remote player minion failed to attack designated foe");
+                if(System.getenv("UWU_ACTIVITY_TEST")!=null){ActivityProof.expect(archer,"cupid/command",true,"actual minion hit");ActivityProof.expect(witness,"cupid/command",false,"owner attribution only");}
                 System.out.println("NETWORK WISH PLAYER MINION ATTACK PASS real owner click, remote movement and actual hit");foe.discard();
             });
             arrow(witness,()->resetWitness(GameType.CREATIVE),()->check(!charmed(witness),"creative player charmed"));

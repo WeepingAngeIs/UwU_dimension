@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/cupid/charm",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heartberry"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.cupid/wish.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.cupid/wish.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

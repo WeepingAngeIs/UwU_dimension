@@ -120,7 +120,7 @@ public final class BellHammer {
                     || !SakuraAccess.mayInteract(player, pos)) continue;
             processing = true;
             try {
-                player.gameMode.destroyBlock(pos);
+                if(player.gameMode.destroyBlock(pos)&&!job.level().getBlockState(pos).equals(state))SakuraAchievements.award(player,"utility/hammer");
             } finally {
                 processing = false;
             }

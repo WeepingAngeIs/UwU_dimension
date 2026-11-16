@@ -42,6 +42,16 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_ACTIVITY_BASELINE")!=null){ActivityLegacyFixture.run(level);stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_ACTIVITY_RESTART")!=null){ActivityProof.restart(level);stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_ACTIVITY_SERVER")!=null){
+                if(stage==0){for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)level.setChunkForced(x,z,true);stage=1;arenaReadyAt=server.getTickCount()+80;return;}
+                if(server.getTickCount()<arenaReadyAt)return;
+                for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)if(!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(x,z)))return;
+                if(stage==1){ActivityProof.first(level);stage=2;}
+                if(!ToolAreaProof.tick(level))return;
+                stage=-1;server.halt(false);return;
+            }
             if(System.getenv("UWU_GUARDIAN_CREEPER")!=null){
                 if(GuardianCreeperProof.tick(level)){stage=-1;server.halt(false);}
                 return;

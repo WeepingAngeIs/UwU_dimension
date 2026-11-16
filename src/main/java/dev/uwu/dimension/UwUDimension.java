@@ -64,6 +64,7 @@ public final class UwUDimension {
         PantryPlants.register(bus);
         PantryTrees.register(bus);
         Pantry.register(bus);
+        SakuraAchievements.register();
         bus.addListener(UwUDimension::creative);
     }
 

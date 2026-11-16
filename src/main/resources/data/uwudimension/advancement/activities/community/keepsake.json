@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/community/contribute",
+  "display": {
+    "icon": {
+      "id": "uwudimension:keeper_figurine"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.community/keepsake.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.community/keepsake.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/journey/canopy_club",
+  "display": {
+    "icon": {
+      "id": "uwudimension:roseglass_prism"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/ribbon_bluffs.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/ribbon_bluffs.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:ribbon_bluffs"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

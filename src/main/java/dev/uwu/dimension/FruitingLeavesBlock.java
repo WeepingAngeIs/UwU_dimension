@@ -60,7 +60,8 @@ final class FruitingLeavesBlock extends LeavesBlock {
         if (!state.getValue(FRUITING) || !ReefLife.isProduceRealm(level)) return super.useWithoutItem(state, level, pos, player, hit);
         if (!level.isClientSide) {
             popResource(level, pos, new ItemStack(fruit.get(), 1 + player.getRandom().nextInt(2)));
-            level.setBlock(pos, state.setValue(FRUITING, false), Block.UPDATE_CLIENTS);
+            boolean picked=level.setBlock(pos, state.setValue(FRUITING, false), Block.UPDATE_CLIENTS);
+            if(picked&&player instanceof net.minecraft.server.level.ServerPlayer actor)SakuraAchievements.at(actor,pos,"garden/fruit");
             level.playSound(null, pos, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS,
                     .75F, .9F + player.getRandom().nextFloat() * .2F);
         }

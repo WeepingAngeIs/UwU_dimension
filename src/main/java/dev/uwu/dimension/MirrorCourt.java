@@ -301,8 +301,11 @@ public final class MirrorCourt {
         data.seals.computeIfAbsent(key, ignored -> new java.util.HashSet<>()).addAll(helpers);
         data.setDirty();
         for (var player : level.players()) {
-            if (helpers.contains(player.getUUID())) player.sendSystemMessage(Component.literal(
+            if (helpers.contains(player.getUUID())) {
+                SakuraAchievements.award(player,"community/court");
+                player.sendSystemMessage(Component.literal(
                     "Mirror Court victory seal earned. This village's personal treasure is open to everyone."));
+            }
         }
     }
 

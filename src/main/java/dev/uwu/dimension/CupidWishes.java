@@ -151,6 +151,11 @@ final class CupidWishes {
             if(e instanceof AgeableMob parent) parent.setAge(6000);
         }
         p.getPersistentData().putLong("uwudimension.wish_archer_until",level.getGameTime()+60);
+        SakuraAchievements.award(p,"cupid/wish");
+        if(a instanceof ServerPlayer || b instanceof ServerPlayer){
+            SakuraAchievements.award(p,"cupid/player_wish");
+            SakuraAchievements.award(a instanceof ServerPlayer player?player:(ServerPlayer)b,"cupid/witness");
+        }
         tell(p,"Your wish welcomed "+child.getName().getString()+".");
     }
     private static boolean validChild(AgeableMob child,LivingEntity parent,LivingEntity other) {

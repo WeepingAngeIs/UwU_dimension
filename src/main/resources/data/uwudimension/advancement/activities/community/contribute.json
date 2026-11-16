@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/community/petal_trade",
+  "display": {
+    "icon": {
+      "id": "uwudimension:petal_house_standard"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.community/contribute.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.community/contribute.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

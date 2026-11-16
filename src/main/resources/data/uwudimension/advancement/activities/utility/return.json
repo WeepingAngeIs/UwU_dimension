@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/utility/lantern_placed",
+  "display": {
+    "icon": {
+      "id": "uwudimension:lantern_spear"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.utility/return.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.utility/return.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

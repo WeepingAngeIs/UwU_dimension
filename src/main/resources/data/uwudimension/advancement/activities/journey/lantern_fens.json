@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/journey/canopy_club",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heart_neon_lantern"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/lantern_fens.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/lantern_fens.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:lantern_fens"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

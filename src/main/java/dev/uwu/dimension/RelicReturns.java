@@ -140,5 +140,6 @@ final class RelicReturns {
             return;
         }
         flights.remove(key);
+        SakuraAchievements.award(owner,"utility/return");
     }
 }

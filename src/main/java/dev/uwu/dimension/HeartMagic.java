@@ -38,6 +38,7 @@ final class HeartMagic {
         clearTarget(mob);
         if (!pastelCupid)
             level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, .5, .2, .5, .05);
+        if(pastelCupid)SakuraAchievements.award(keeper,"cupid/charm");
         return true;
     }
 
