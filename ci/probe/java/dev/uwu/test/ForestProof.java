@@ -31,7 +31,11 @@ public final class ForestProof {
         }
         throw new AssertionError("No sixteen-tree forest cluster in bounded survey");
     }
-    public static Cluster run(ServerLevel level)throws Exception {
+    public static Cluster run(ServerLevel level)throws Exception {return inspect(level,true);}
+    // The dedicated servers exercise growth/claims. A camera must inspect its real forest,
+    // without also generating remote sapling/claim fixtures before taking the first image.
+    public static Cluster view(ServerLevel level)throws Exception {return inspect(level,false);}
+    private static Cluster inspect(ServerLevel level,boolean gameplay)throws Exception {
         var cluster=find(level);long start=System.nanoTime();
         int minX=cluster.x()-36,maxX=cluster.x()+36,minZ=cluster.z()-36,maxZ=cluster.z()+36;
         for(int x=(minX-18)>>4;x<=(maxX+18)>>4;x++)for(int z=(minZ-18)>>4;z<=(maxZ+18)>>4;z++)level.getChunk(x,z);
@@ -86,8 +90,10 @@ public final class ForestProof {
         check(connected>=leaves*.70,"3D leaf canopy disconnected: "+connected+"/"+leaves);
         System.out.println("FOREST 3D CANOPY PASS connected="+connected+" leaves="+leaves);
         System.out.println("FOREST NATURAL PASS seed="+level.getSeed()+" center="+cluster.x()+","+cluster.z()+" trees="+seen.size()+" logs="+logs+" leaves="+leaves+" canopy="+largest+"/"+crown.size()+" generationMs="+elapsed);
-        saplings(level,cluster);
-        if(net.neoforged.fml.ModList.get().isLoaded("openpartiesandclaims"))claims(level,cluster);
+        if(gameplay){
+            saplings(level,cluster);
+            if(net.neoforged.fml.ModList.get().isLoaded("openpartiesandclaims"))claims(level,cluster);
+        }
         return cluster;
     }
     private static void claims(ServerLevel level,Cluster cluster)throws Exception {

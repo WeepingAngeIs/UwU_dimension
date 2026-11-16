@@ -5,7 +5,7 @@ import net.minecraft.world.phys.Vec3;
 final class ForestCamera {
     private static ForestProof.Cluster forest;
     static SeaWatch.View frame(ServerPlayer player,String name){
-        if(forest==null){try{forest=ForestProof.run(player.serverLevel());}catch(Exception e){throw new IllegalStateException(e);}}
+        if(forest==null){try{forest=ForestProof.view(player.serverLevel());}catch(Exception e){throw new IllegalStateException(e);}}
         double x=forest.x()+.5,z=forest.z()+.5;
         var tree=forest.trees().stream().filter(t->t.x()==forest.x()&&t.z()==forest.z()).findFirst().orElseThrow();double y=tree.y();
         Vec3 eye,aim;
