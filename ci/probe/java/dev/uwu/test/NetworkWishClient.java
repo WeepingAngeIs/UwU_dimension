@@ -90,9 +90,11 @@ public final class NetworkWishClient {
         }else if(action.equals("attack")){
             if(ticks==10)robot.mousePress(1);
             if(ticks==12)robot.mouseRelease(1);
-        }else if(action.equals("hold")){
+        }else if(action.equals("hold")||action.equals("wish-hold")){
+            if(action.equals("wish-hold")&&ticks==3)robot.keyPress(crouchKey);
             if(ticks==8)robot.mousePress(1);
             if(ticks==44)robot.mouseRelease(1);
+            if(action.equals("wish-hold")&&ticks==48)robot.keyRelease(crouchKey);
         }else if(action.equals("command")){
             if(ticks==8)mc.getConnection().sendCommand(task.getProperty("command"));
         }else if(action.equals("logout")){

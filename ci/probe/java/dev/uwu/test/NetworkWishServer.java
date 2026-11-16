@@ -91,7 +91,7 @@ public final class NetworkWishServer {
             arrow(cow,null,()->check(charmed(cow),"first cow not charmed by physical arrow"));
             arrow(second,null,()->check(charmed(second),"second cow not charmed"));
             select(cow,"First wish target",null);select(second,"Two hearts answered",()->births(1,EntityType.COW));
-            action("archer","hold",cow,"",null,()->births(1,EntityType.COW));
+            action("archer","wish-hold",cow,"",null,()->births(1,EntityType.COW));
             arrow(cow,NetworkWishServer::refresh,()->check(charmed(cow),"cow refresh"));
             arrow(sheep,null,()->check(charmed(sheep),"sheep charm"));
             select(cow,"First wish target",null);select(sheep,"Two hearts answered",()->{births(2,null);check(List.of(EntityType.COW,EntityType.SHEEP).contains(babies.getLast()),"cross-species young");});
