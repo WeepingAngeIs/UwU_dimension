@@ -439,7 +439,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         else discard();
     }
 
-    private String counter() { return entityData.get(COUNTER); }
+    String counter() { return entityData.get(COUNTER); }
 
     @Override public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
