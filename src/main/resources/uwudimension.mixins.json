@@ -23,7 +23,8 @@
     "AcquisitionTradeMixin",
     "SakuraForestTreeMixin",
     "SakuraForestTreeWriteMixin",
-    "SakuraForestSaplingMixin"
+    "SakuraForestSaplingMixin",
+    "SakuraForestConfiguredMixin"
   ],
   "injectors": {
     "defaultRequire": 1

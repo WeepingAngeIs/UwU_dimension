@@ -13,7 +13,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 /** Seed-only forest planning. Writes are clipped to the chunk already generating, before lighting. */
 public final class SakuraForest {
     private SakuraForest(){}
-    public static final int STEP_X=24,STEP_Z=22,RADIUS=17;
+    public static final int STEP_X=21,STEP_Z=21,RADIUS=17;
     private static final Map<ServerLevel,Map<Long,Optional<Tree>>> CACHE=new WeakHashMap<>();
     private static final ThreadLocal<Boolean> FOREIGN=ThreadLocal.withInitial(()->false);
     public record Tree(int x,int y,int z,int turns){}
@@ -47,6 +47,13 @@ public final class SakuraForest {
     }
     public static boolean target(ServerLevel level,BlockPos p){return target(level,p.getX(),p.getZ());}
     public static boolean target(WorldGenLevel level,BlockPos p){return target(level.getLevel(),p.getX(),p.getZ());}
+    public static boolean foreignFeature(net.minecraft.world.level.levelgen.feature.Feature<?> feature){
+        if(feature instanceof GiantSakuraSapling)return false;
+        var id=net.minecraft.core.registries.BuiltInRegistries.FEATURE.getKey(feature);
+        return feature instanceof net.minecraft.world.level.levelgen.feature.TreeFeature
+                ||feature.getClass().getSimpleName().toLowerCase(java.util.Locale.ROOT).contains("tree")
+                ||(id!=null&&id.getPath().contains("tree"));
+    }
     public static boolean foreign(){return FOREIGN.get();}
     public static boolean enterForeign(){boolean prior=FOREIGN.get();FOREIGN.set(true);return prior;}
     public static void leaveForeign(boolean prior){if(prior)FOREIGN.set(true);else FOREIGN.remove();}
@@ -69,7 +76,8 @@ public final class SakuraForest {
     }
     private static Optional<Tree> survey(ServerLevel level,int cx,int cz){
         int hash=HeartwaterFeature.Valley.mix(cx,cz,level.getSeed());
-        int x=cx*STEP_X+Math.floorMod(hash,3)-1,z=cz*STEP_Z+Math.floorMod(hash>>>4,3)-1;
+        int x=cx*STEP_X+Math.floorMod(HeartwaterFeature.Valley.mix(0,cz,level.getSeed()),5)-2;
+        int z=cz*STEP_Z+Math.floorMod(HeartwaterFeature.Valley.mix(cx,0,level.getSeed()),5)-2;
         if(!target(level,x,z)||!SettlementLayout.untouchedForForest(level,x-17,z-17,x+17,z+17))return Optional.empty();
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
         for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){
@@ -108,8 +116,8 @@ public final class SakuraForest {
     public static List<Tree> trees(ServerLevel level,net.minecraft.world.level.ChunkPos chunk){
         if(!level.dimension().equals(ReefLife.REACH))return List.of();
         var list=new ArrayList<Tree>();
-        for(int x=Math.floorDiv(chunk.getMinBlockX()-18,STEP_X);x<=Math.floorDiv(chunk.getMaxBlockX()+18,STEP_X);x++)
-            for(int z=Math.floorDiv(chunk.getMinBlockZ()-18,STEP_Z);z<=Math.floorDiv(chunk.getMaxBlockZ()+18,STEP_Z);z++)tree(level,x,z).ifPresent(list::add);
+        for(int x=Math.floorDiv(chunk.getMinBlockX()-20,STEP_X);x<=Math.floorDiv(chunk.getMaxBlockX()+20,STEP_X);x++)
+            for(int z=Math.floorDiv(chunk.getMinBlockZ()-20,STEP_Z);z<=Math.floorDiv(chunk.getMaxBlockZ()+20,STEP_Z);z++)tree(level,x,z).ifPresent(list::add);
         return list;
     }
     private static boolean open(ServerLevel level,Tree t){

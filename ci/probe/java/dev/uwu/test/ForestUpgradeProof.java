@@ -15,8 +15,14 @@ public final class ForestUpgradeProof {
         if(!(level.getBlockEntity(base.below(2)) instanceof ChestBlockEntity chest)||!chest.getItem(0).is(Items.DIAMOND)||chest.getItem(0).getCount()!=37||!level.getBlockState(base.offset(1,-2,0)).is(Blocks.OBSIDIAN))throw new AssertionError("Existing player build/inventory changed");
         if(!untouched(level,1000000,1000000,1000034,1000034))throw new AssertionError("Unexplored terrain incorrectly marked old");
         // A new tree cannot straddle any old boundary, even if its center is in a new chunk.
-        for(int x=Math.floorDiv(base.getX()-32,24);x<=Math.floorDiv(base.getX()+32,24);x++)for(int z=Math.floorDiv(base.getZ()-32,22);z<=Math.floorDiv(base.getZ()+32,22);z++)
+        for(int x=Math.floorDiv(base.getX()-32,SakuraForest.STEP_X);x<=Math.floorDiv(base.getX()+32,SakuraForest.STEP_X);x++)for(int z=Math.floorDiv(base.getZ()-32,SakuraForest.STEP_Z);z<=Math.floorDiv(base.getZ()+32,SakuraForest.STEP_Z);z++)
             SakuraForest.tree(level,x,z).ifPresent(tree->{if(tree.x()-17<=base.getX()+16&&tree.x()+17>=base.getX()-16&&tree.z()-17<=base.getZ()+16&&tree.z()+17>=base.getZ()-16)throw new AssertionError("Tree entered existing saved chunks");});
+        var house=MoonveilTreehouse.first(level,false);
+        var notes=Files.readAllLines(Path.of("forest-old-house.txt"));
+        for(var note:notes){var parts=note.split(",");var point=BlockPos.of(Long.parseLong(parts[0]));
+            if(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(point).getBlock()).toString().equals(parts[1]))throw new AssertionError("Existing treehouse block changed "+point);
+        }
+        if(house.door().asLong()!=Long.parseLong(notes.getFirst().split(",")[0]))throw new AssertionError("Existing treehouse household plot changed");
         System.out.println("FOREST BETA7 UPGRADE PASS 5026 old blocks, chest NBT, build and new/old chunk boundary");
     }
 }

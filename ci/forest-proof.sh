@@ -30,4 +30,5 @@ UWU_FOREST=1 timeout 25m java -Xms512M -Xmx5G @libraries/net/neoforged/neoforge/
 grep -F 'FOREST NATURAL PASS' forest.log
 grep -F 'FOREST SAPLING PASS' forest.log
 grep -F 'FOREST 3D CANOPY PASS' forest.log
+grep -F 'FOREST CLAIMGEN PASS' forest.log
 grep -F 'GIANT SAKURA OPAC PASS' forest.log
