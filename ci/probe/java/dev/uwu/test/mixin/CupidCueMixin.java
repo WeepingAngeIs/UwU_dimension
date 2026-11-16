@@ -11,6 +11,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Observe cues after the real client has passed the packet to its particle provider. */
 @Mixin(ClientPacketListener.class)
 public abstract class CupidCueMixin {
+    @Inject(method="handleSystemChat",at=@At("TAIL"))
+    private void wishMessage(net.minecraft.network.protocol.game.ClientboundSystemChatPacket packet,CallbackInfo ci){
+        dev.uwu.test.NetworkWishClient.message(packet.content().getString());
+    }
     @Inject(method="handleParticleEvent",at=@At("TAIL"))
     private void received(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         RelicPortraits.received(packet);

@@ -105,6 +105,15 @@ final class CupidWishProof {
         pair(visitor,mature);settle();check(babies()==5 && mature.getAge()==6000,"player then creature");fresh();
         visitor.getPersistentData().remove(REST);
         var last=mob(EntityType.SHEEP,0);pair(last,visitor);settle();check(babies()==6 && last.getAge()==6000,"creature then player");
+        fresh();visitor.getPersistentData().remove(REST);charm(visitor);
+        try(var third=new ChestProof.Visitor(level,origin,"Willow",UUID.randomUUID())){
+            level.addNewPlayer(third.player);
+            try {
+                charm(third.player);third.player.getPersistentData().put(Player.PERSISTED_NBT_TAG,prefs.copy());
+                pair(visitor,third.player);settle();click(archer,null);
+                check(babies()==6 && !third.player.getPersistentData().contains(REST),"two players must never create offspring");
+            }finally{third.player.discard();}
+        }
         for(var e:level.getEntitiesOfClass(Mob.class,new AABB(origin).inflate(7))) e.discard();
     }
 }

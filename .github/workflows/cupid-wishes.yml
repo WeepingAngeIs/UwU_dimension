@@ -1,0 +1,37 @@
+name: Cupid real-player wishes
+on:
+  push:
+    branches: [feature/cupid-player-wish-proof]
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: cupid-wishes-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  two-clients:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: {combat: [vanilla, bettercombat]}
+    env: {WISH_COMBAT: '${{ matrix.combat }}'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2
+      - run: bash ci/wish-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cupid-wishes-${{ matrix.combat }}
+          path: |
+            build/libs/*.jar
+            build/wish-network/server.log
+            build/wish-network/archer.log
+            build/wish-network/witness.log
+            build/wish-network/sync
+            build/wish-network/archer/run-archer/screenshots/wish-*.png
+            build/wish-network/archer/run-archer/crash-reports
+            build/wish-network/witness/run-witness/crash-reports

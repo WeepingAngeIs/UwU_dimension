@@ -304,7 +304,7 @@ def check_jar(jar):
     assert not any(p.startswith("dev/uwu/test/") for p in paths)
     assert not any(p.startswith("data/minecraft/worldgen/biome/") for p in paths)
     meta = tomllib.loads(jar.read("META-INF/neoforge.mods.toml").decode())
-    assert meta["mods"][0]["version"] == "1.5.0-beta.8-dev"
+    assert meta["mods"][0]["version"] == "1.5.0-beta.9-dev"
     locale = read(art + "lang/en_us.json")
     understory(jar, art, data, read, locale)
     workshop_resources(jar, art, read)

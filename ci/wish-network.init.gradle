@@ -1,0 +1,13 @@
+gradle.beforeProject { project ->
+    project.pluginManager.withPlugin('net.neoforged.moddev') {
+        project.extensions.getByName('neoForge').runs.configureEach {
+            if (name == 'client') {
+                def role = System.getenv('WISH_ROLE')
+                if (!(role in ['archer', 'witness'])) throw new GradleException('Missing wish role')
+                gameDirectory.set(project.layout.projectDirectory.dir('run-' + role))
+                programArguments.addAll('--username', role == 'archer' ? 'WishArcher' : 'WishWitness',
+                    '--width', '854', '--height', '480')
+            }
+        }
+    }
+}

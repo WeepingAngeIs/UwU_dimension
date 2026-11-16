@@ -51,17 +51,35 @@ final class ReachLife {
         player.sendSystemMessage(Component.literal(message));
         return 1;
     }
+    private static int cupidHelp(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal("Cupid Bow: shoot an eligible creature or survival player to charm them for 40 seconds. Hold the bow in your main hand. Left-click a foe to command your allies."));
+        player.sendSystemMessage(Component.literal("For a wish, use your configured crouch control and left-click two different charmed adults within 24 blocks of you and "
+            +AcquisitionPolicy.CUPID_WISH_RADIUS.get()+" blocks of each other. Hearts appear, then one young creature may arrive after a second. Crouch-click empty air to cancel."));
+        player.sendSystemMessage(Component.literal("A player participant must opt in: /sakura cupid witness on. A player plus a creature can summon that creature's young; two players cannot. Two creatures can summon a viable young of either kind. This is a magical companion wish."));
+        player.sendSystemMessage(Component.literal("Your invitations: "+(preference(player,"cupid_witness",0)!=0?"on":"off")
+            +". Wishes on this server: "+(AcquisitionPolicy.CUPID_WISHES.get()?"enabled":"disabled")
+            +"; player participants: "+(AcquisitionPolicy.CUPID_PLAYER_WITNESSES.get()?"enabled":"disabled")
+            +". Claims, adult/rest requirements, PvP rules and server permissions apply."));
+        return 1;
+    }
     private static void commands(RegisterCommandsEvent event) {
         var cmd = Commands.literal("sakura");
         cmd.then(Commands.literal("journal").executes(ctx -> {
             ReachJournal.give(ctx.getSource().getPlayerOrException()); return 1;
         }));
-        var witness = Commands.literal("witness");
+        var witness = Commands.literal("witness").executes(ctx -> {
+            var player=ctx.getSource().getPlayerOrException();
+            player.sendSystemMessage(Component.literal("Cupid wish invitations are "
+                +(preference(player,"cupid_witness",0)!=0?"on":"off")+". Use /sakura cupid witness on or off."));
+            return 1;
+        });
         for (String option : new String[]{"on","off"}) {
             witness.then(Commands.literal(option).executes(ctx -> preference(ctx.getSource().getPlayerOrException(),
                 "cupid_witness", option.equals("on") ? 1 : 0, "Cupid wish invitations " + option + ".")));
         }
-        cmd.then(Commands.literal("cupid").then(witness));
+        cmd.then(Commands.literal("cupid").executes(ctx -> cupidHelp(ctx.getSource().getPlayerOrException()))
+            .then(Commands.literal("help").executes(ctx -> cupidHelp(ctx.getSource().getPlayerOrException())))
+            .then(witness));
         var effects = Commands.literal("effects");
         String[] modes = {"quiet","gentle","full"};
         for (int i=0; i<modes.length; i++) {

@@ -100,6 +100,8 @@ final class CupidMinions {
         data.remove(COMMAND_TARGET);
         data.remove(COMMAND_END);
         target.displayClientMessage(net.minecraft.network.chat.Component.literal("You have been charmed into a temporary minion."), true);
+        if(pastelCupid && AcquisitionPolicy.CUPID_PLAYER_WITNESSES.get() && ReachLife.preference(target,"cupid_witness",0)==0)
+            target.sendSystemMessage(net.minecraft.network.chat.Component.literal("Creature wishes are optional. To accept invitations, use /sakura cupid witness on. Help: /sakura cupid help."));
         keeper.displayClientMessage(net.minecraft.network.chat.Component.literal(target.getGameProfile().getName() + " is charmed for " + (duration / 20) + " seconds."), true);
         sendControl(target, keeper, 3.0);
         return true;

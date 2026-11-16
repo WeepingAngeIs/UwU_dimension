@@ -26,6 +26,10 @@ public class Expedition {
     public Expedition() { NeoForge.EVENT_BUS.addListener(this::tick); }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
+        if(server.isDedicatedServer() && "network-wishes".equals(System.getenv("UWU_VISIT"))){
+            try{NetworkWishServer.tick(server);}catch(Exception e){throw new IllegalStateException("Network wish proof",e);}
+            return;
+        }
         if (server.isDedicatedServer() && NetworkCupidServer.SESSION.equals(System.getenv("UWU_VISIT"))) {
             NetworkCupidServer.tick(server);
             return;
