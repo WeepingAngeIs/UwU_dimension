@@ -141,6 +141,8 @@ public final class NetworkWishServer {
             if(current.kind.equals("shoot"))clearFixtureCharm(current.target);
             var p=new Properties();p.setProperty("id",Integer.toString(index));p.setProperty("role",current.role);p.setProperty("action",current.kind);
             p.setProperty("target",Integer.toString(current.target==null?-1:current.target.getId()));p.setProperty("expect",current.expect);
+            if(current.target!=null){var center=current.target.getBoundingBox().getCenter();
+                p.setProperty("x",Double.toString(center.x));p.setProperty("y",Double.toString(center.y));p.setProperty("z",Double.toString(center.z));}
             p.setProperty("binding",index==19||index==20?"shift":"ctrl");
             if(current.kind.equals("command"))p.setProperty("command",current.role.equals("witness")&&index<20?"sakura cupid witness on":"sakura cupid help");
             Path temp=SYNC.resolve("task.tmp");Files.createDirectories(SYNC);try(var writer=Files.newBufferedWriter(temp)){p.store(writer,"Disposable native-input test");}

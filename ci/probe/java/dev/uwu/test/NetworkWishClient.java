@@ -70,8 +70,12 @@ public final class NetworkWishClient {
         check(System.nanoTime()-actionStarted<100_000_000_000L,"action stalled "+serial);
         Entity target=mc.level.getEntity(Integer.parseInt(task.getProperty("target","-1")));
         String action=task.getProperty("action");
-        if(target!=null){
-            var direction=target.getBoundingBox().getCenter().subtract(mc.player.getEyePosition());
+        if(target!=null||action.equals("shoot")&&task.containsKey("x")){
+            // Spectators are intentionally not tracked as pickable/rendered entities by the archer.
+            // A negative arrow test still shoots toward their known fixture position.
+            var center=target!=null?target.getBoundingBox().getCenter():new net.minecraft.world.phys.Vec3(
+                Double.parseDouble(task.getProperty("x")),Double.parseDouble(task.getProperty("y")),Double.parseDouble(task.getProperty("z")));
+            var direction=center.subtract(mc.player.getEyePosition());
             mc.player.setYRot((float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90));
             mc.player.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z))));
         }else if(!action.equals("command")&&!action.equals("logout"))return;
