@@ -1,8 +1,5 @@
 package dev.uwu.test;
 
-import java.awt.Robot;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.nio.file.*;
 import java.util.*;
 import net.minecraft.client.Minecraft;
@@ -24,7 +21,20 @@ public final class NetworkWishClient {
     private static final String ROLE=System.getenv().getOrDefault("WISH_ROLE","");
     private static final Path SYNC=Path.of(System.getenv().getOrDefault("WISH_SYNC_DIR","."));
     private static final List<String> messages=new ArrayList<>();
-    private static Robot robot;
+    private static PhysicalInput robot;
+    private static final class PhysicalInput {
+        private void send(String... command){
+            var args=new ArrayList<String>();args.add("xdotool");args.addAll(List.of(command));
+            try{
+                var process=new ProcessBuilder(args).redirectErrorStream(true).start();
+                check(process.waitFor(3,java.util.concurrent.TimeUnit.SECONDS)&&process.exitValue()==0,"native X11 input failed "+args);
+            }catch(Exception e){throw new IllegalStateException("Hosted native input",e);}
+        }
+        void mousePress(int button){send("mousedown",Integer.toString(button));}
+        void mouseRelease(int button){send("mouseup",Integer.toString(button));}
+        void keyPress(String key){send("keydown",key);}
+        void keyRelease(String key){send("keyup",key);}
+    }
     private static boolean connecting,finished;
     private static long start,actionStarted;
     private static int serial=-1,done=-1,ticks;
@@ -32,7 +42,7 @@ public final class NetworkWishClient {
     public static void message(String text){if(ACTIVE){messages.add(text);System.out.println("WISH CLIENT MESSAGE "+ROLE+" "+text);}}
     private static void check(boolean ok,String why){if(!ok)throw new AssertionError("WISH CLIENT "+ROLE+" "+why);}
     private static void release(){
-        if(robot!=null){robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK|InputEvent.BUTTON3_DOWN_MASK);robot.keyRelease(KeyEvent.VK_CONTROL);robot.keyRelease(KeyEvent.VK_SHIFT);}
+        if(robot!=null){robot.mouseRelease(1);robot.mouseRelease(3);robot.keyRelease("Control_L");robot.keyRelease("Shift_L");}
     }
     @SubscribeEvent public static void tick(ClientTickEvent.Post event)throws Exception {
         if(!ACTIVE||finished)return;
@@ -40,7 +50,7 @@ public final class NetworkWishClient {
         check(System.nanoTime()-start<1_200_000_000_000L,"session timed out serial="+serial);
         var mc=Minecraft.getInstance();
         if(!connecting&&mc.screen instanceof TitleScreen menu){
-            connecting=true;robot=new Robot();mc.options.bobView().set(false);
+            connecting=true;robot=new PhysicalInput();mc.options.bobView().set(false);
             ConnectScreen.startConnecting(menu,mc,ServerAddress.parseString("127.0.0.1:25576"),
                 new ServerData("Wish input proof","127.0.0.1:25576",ServerData.Type.OTHER),false,null);return;
         }
@@ -66,23 +76,23 @@ public final class NetworkWishClient {
             mc.player.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z))));
         }else if(!action.equals("command")&&!action.equals("logout"))return;
         ticks++;
-        int crouchKey=task.getProperty("binding","ctrl").equals("shift")?KeyEvent.VK_SHIFT:KeyEvent.VK_CONTROL;
+        String crouchKey=task.getProperty("binding","ctrl").equals("shift")?"Shift_L":"Control_L";
         if(action.equals("shoot")){
-            if(ticks==8)robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-            if(ticks==40){check(mc.player.isUsingItem(),"physical right mouse did not draw bow");robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);}
+            if(ticks==8)robot.mousePress(3);
+            if(ticks==40){check(mc.player.isUsingItem(),"physical right mouse did not draw bow");robot.mouseRelease(3);}
         }else if(action.equals("select")){
             if(ticks==3)robot.keyPress(crouchKey);
-            if(ticks==10){check(mc.options.keyShift.isDown()&&mc.player.isShiftKeyDown(),"configured crouch mapping inactive");robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);}
-            if(ticks==12)robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+            if(ticks==10){check(mc.options.keyShift.isDown()&&mc.player.isShiftKeyDown(),"configured crouch mapping inactive");robot.mousePress(1);}
+            if(ticks==12)robot.mouseRelease(1);
             if(ticks==18)robot.keyRelease(crouchKey);
         }else if(action.equals("rapid")){
-            if(ticks>=10&&ticks<34){if(ticks%2==0)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);else robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);}
+            if(ticks>=10&&ticks<34){if(ticks%2==0)robot.mousePress(1);else robot.mouseRelease(1);}
         }else if(action.equals("attack")){
-            if(ticks==10)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-            if(ticks==12)robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+            if(ticks==10)robot.mousePress(1);
+            if(ticks==12)robot.mouseRelease(1);
         }else if(action.equals("hold")){
-            if(ticks==8)robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-            if(ticks==44)robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+            if(ticks==8)robot.mousePress(1);
+            if(ticks==44)robot.mouseRelease(1);
         }else if(action.equals("command")){
             if(ticks==8)mc.getConnection().sendCommand(task.getProperty("command"));
         }else if(action.equals("logout")){
