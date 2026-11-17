@@ -163,7 +163,7 @@ public final class FieldCamera {
     }
     @SubscribeEvent public static void step(ClientTickEvent.Post event){
         if("bow-poses".equals(System.getenv("UWU_VISIT"))||"network-cupid".equals(System.getenv("UWU_VISIT"))||"network-glitch".equals(System.getenv("UWU_VISIT"))||"controls".equals(System.getenv("UWU_VISIT"))||"arsenal".equals(System.getenv("UWU_VISIT"))||"launcher".equals(System.getenv("UWU_VISIT"))||"flight".equals(System.getenv("UWU_VISIT"))||"roster".equals(System.getenv("UWU_VISIT")))return;
-        if("network-wishes".equals(System.getenv("UWU_VISIT")))return;
+        if("network-wishes".equals(System.getenv("UWU_VISIT"))||"network-weapon-animation".equals(System.getenv("UWU_VISIT")))return;
         Minecraft mc=Minecraft.getInstance();ticks++;
         if(state.equals("closed")&&mc.level==null&&mc.getSingleplayerServer()==null){
             System.out.println("SAKURA REACH CLIENT ROUND TRIP PASSED seed="+SEED+" with locket travel and clean disconnect");

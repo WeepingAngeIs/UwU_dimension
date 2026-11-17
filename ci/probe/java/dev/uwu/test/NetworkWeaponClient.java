@@ -52,7 +52,7 @@ public final class NetworkWeaponClient {
         if(!connecting&&mc.screen instanceof TitleScreen menu){connecting=true;mc.options.bobView().set(false);
             ConnectScreen.startConnecting(menu,mc,ServerAddress.parseString("127.0.0.1:25576"),new ServerData("Weapon animation proof","127.0.0.1:25576",ServerData.Type.OTHER),false,null);return;}
         if(mc.player==null||mc.level==null||mc.getConnection()==null||mc.screen!=null)return;
-        check(!mc.isLocalServer(),"expected dedicated server");
+        check(mc.getSingleplayerServer()==null&&!mc.getConnection().getConnection().isMemoryConnection(),"expected dedicated server over TCP");
         if(!watching){watching=true;observe(mc);}
         if(Files.exists(SYNC.resolve("weapon-complete"))){if(pressed)click("mouseup");finished=true;System.out.println("WEAPON CLIENT PASS "+ROLE);mc.stop();return;}
         Path file=SYNC.resolve("weapon-task.properties");if(!Files.exists(file))return;
