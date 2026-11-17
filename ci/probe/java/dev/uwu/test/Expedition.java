@@ -24,7 +24,7 @@ public class Expedition {
         try { test.run(); } catch (Throwable error) { recordFailure(name,error); }
     }
     public Expedition(net.neoforged.bus.api.IEventBus bus) {
-        if(System.getenv("UWU_OVERLAP")!=null)dev.uwu.dimension.OverlapProof.register(bus);
+        if(System.getenv("UWU_OVERLAP")!=null)OverlapProof.register(bus);
         NeoForge.EVENT_BUS.addListener(this::tick);
     }
     private void tick(ServerTickEvent.Post event) {
@@ -45,7 +45,7 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
-            if(System.getenv("UWU_OVERLAP")!=null){dev.uwu.dimension.OverlapProof.run(level,"restart".equals(System.getenv("UWU_OVERLAP")));stage=-1;server.halt(false);return;}
+            if(System.getenv("UWU_OVERLAP")!=null){OverlapProof.run(level,"restart".equals(System.getenv("UWU_OVERLAP")));stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_ACTIVITY_BASELINE")!=null){ActivityLegacyFixture.run(level);stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_ACTIVITY_RESTART")!=null){ActivityProof.restart(level);stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_ACTIVITY_SERVER")!=null){

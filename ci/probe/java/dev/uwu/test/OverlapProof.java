@@ -1,4 +1,6 @@
-package dev.uwu.dimension;
+package dev.uwu.test;
+
+import dev.uwu.dimension.*;
 
 import com.google.gson.*;
 import java.nio.file.*;
@@ -41,19 +43,30 @@ public final class OverlapProof {
         return parts.stream().map(p->p.part()+":"+p.box().minX()+","+p.box().minY()+","+p.box().minZ()+","+p.box().maxX()+","+p.box().maxY()+","+p.box().maxZ()).sorted().reduce("",(a,b)->a+b+"\n");
     }
     private static BoundingBox point(BlockPos p){return new BoundingBox(p.getX(),p.getY(),p.getZ(),p.getX(),p.getY(),p.getZ());}
-    private static void rotations(ServerLevel level,BlossomVillage.Plan original){
+    private static Object construct(Class<?> type,Class<?>[] types,Object... args){
+        try{var constructor=type.getDeclaredConstructor(types);constructor.setAccessible(true);return constructor.newInstance(args);}
+        catch(ReflectiveOperationException e){throw new AssertionError("fixture constructor",e);}
+    }
+    private static Object invoke(Class<?> type,Object instance,String name,Class<?>[] types,Object... args){
+        try{var method=type.getDeclaredMethod(name,types);method.setAccessible(true);return method.invoke(instance,args);}
+        catch(ReflectiveOperationException e){throw new AssertionError("fixture method "+name,e);}
+    }
+    @SuppressWarnings("unchecked") private static void rotations(ServerLevel level,BlossomVillage.Plan original)throws Exception{
+        var surveyType=Class.forName("dev.uwu.dimension.AuthoredFootprints$Survey");
+        var valleyType=Class.forName("dev.uwu.dimension.HeartwaterFeature$Valley");
+        var result=surveyType.getDeclaredField("result");result.setAccessible(true);
         for(int turn=0;turn<4;turn++){
             var s=original.site();var site=new GroveSites.Site(s.x(),s.z(),turn,s.entryY(),s.gx(),s.gz(),true,true);
-            var sink=new AuthoredFootprints.Survey(level,site);
-            sink.part("rotation",()->sink.box(-7,-19,12,3,70,25));
-            var b=sink.result.getFirst().box();
+            var sink=construct(surveyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class},level,site);
+            invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"rotation",(Runnable)()->invoke(surveyType,sink,"box",new Class<?>[]{int.class,int.class,int.class,int.class,int.class,int.class},-7,-19,12,3,70,25));
+            var parts=(List<AuthoredFootprints.Envelope>)result.get(sink);var b=parts.getFirst().box();
             for(int x:new int[]{-7,3})for(int z:new int[]{12,25})check(b.isInside(site.pos(x,0,z)),"rotation misses corner "+turn);
-            var v=new HeartwaterFeature.Valley(level,site,sink);
+            var v=construct(valleyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class,surveyType},level,site,sink);
             var p=new BlossomVillage.Plan(site,original.x(),original.z(),original.y(),original.road(),original.bends(),original.houses(),original.dusk());
-            sink.part("houses_roads_gates",()->BlossomVillage.place(v,p));
-            sink.part("moonveil_geometry",()->MoonveilTreehouse.place(v,new MoonveilTreehouse.Plot(p,0,80,-170,level.getSeed())));
-            check(sink.result.size()==3,"synthetic rotated builder envelopes missing");
-            check(sink.result.get(2).box().getYSpan()>30,"Moonveil crown omitted");
+            invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"houses_roads_gates",(Runnable)()->invoke(BlossomVillage.class,null,"place",new Class<?>[]{valleyType,BlossomVillage.Plan.class},v,p));
+            invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"moonveil_geometry",(Runnable)()->invoke(MoonveilTreehouse.class,null,"place",new Class<?>[]{valleyType,MoonveilTreehouse.Plot.class},v,new MoonveilTreehouse.Plot(p,0,80,-170,level.getSeed())));
+            check(parts.size()==3,"synthetic rotated builder envelopes missing");
+            check(parts.get(2).box().getYSpan()>30,"Moonveil crown omitted");
         }
         System.out.println("OVERLAP ROTATIONS PASS four rotated real village and Moonveil builders, full corners and crown");
     }
