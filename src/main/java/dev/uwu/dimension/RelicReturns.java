@@ -139,6 +139,7 @@ final class RelicReturns {
             }
             return;
         }
+        BlossomArts.caught(owner, stack);
         flights.remove(key);
         SakuraAchievements.award(owner,"utility/return");
     }

@@ -188,6 +188,7 @@ public final class SakuraForest {
                     }
                 }
             }
+            Moonbells.decorateTree(level,chunk,tree);
         }
     }
 }

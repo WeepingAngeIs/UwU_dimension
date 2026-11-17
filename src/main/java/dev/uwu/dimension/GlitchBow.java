@@ -75,7 +75,7 @@ public final class GlitchBow extends Item {
         CompoundTag n=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(!n.contains("uwu_form"))CustomData.update(DataComponents.CUSTOM_DATA,stack,d->d.putInt("uwu_form",0));
         if(!n.getBoolean("uwu_glitch_pending")||level.getServer().overworld().getGameTime()<n.getLong("uwu_glitch_ready"))return;
-        if(entity instanceof Player p && p.getCooldowns().isOnCooldown(this))return;
+        if(entity instanceof Player p && (p.getCooldowns().isOnCooldown(this) || BlossomArts.pinFlower(p,stack)))return;
         // Vanilla fishing hooks belong to the player and are not persisted on logout.
         // Keep the form while that hook remains active, including if the stack moves.
         if(n.getBoolean("uwu_glitch_fishing")){
@@ -139,7 +139,7 @@ public final class GlitchBow extends Item {
             }
             return result;
         }
-        if(pending(s)||p.getCooldowns().isOnCooldown(this))return InteractionResultHolder.fail(s);
+        if((pending(s) && !(r==Arsenal.Relic.VESPER_SCYTHE && BlossomArts.flowerCredit(p,s)))||p.getCooldowns().isOnCooldown(this))return InteractionResultHolder.fail(s);
         boolean draw=r!=null&&(r.bow()||r==Arsenal.Relic.VESPER_SCYTHE)||c!=null&&c.shape().equals("scythe");
         if(draw){if(r==Arsenal.Relic.CUPID_BOW&&!world.isClientSide)CupidEffects.resetDraw(p);p.startUsingItem(hand);return InteractionResultHolder.consume(s);}
         if(!(world instanceof ServerLevel level))return InteractionResultHolder.sidedSuccess(s,true);
@@ -180,7 +180,7 @@ public final class GlitchBow extends Item {
         if(world instanceof ServerLevel level&&user instanceof Player p&&relic(s)==Arsenal.Relic.CUPID_BOW&&BowItem.getPowerForTime(72000-remaining)>=1)CupidEffects.fullDraw(level,p);
     }
     @Override public void releaseUsing(ItemStack stack,Level world,LivingEntity user,int left){
-        if(!(world instanceof ServerLevel level)||!(user instanceof Player p)||pending(stack)||p.getCooldowns().isOnCooldown(this))return;
+        if(!(world instanceof ServerLevel level)||!(user instanceof Player p)||(pending(stack) && !(relic(stack)==Arsenal.Relic.VESPER_SCYTHE && BlossomArts.flowerCredit(p,stack)))||p.getCooldowns().isOnCooldown(this))return;
         var c=counter(stack);var r=relic(stack);InteractionHand hand=p.getUsedItemHand();
         if(c!=null&&c.shape().equals("scythe")||r==Arsenal.Relic.VESPER_SCYTHE){
             if(72000-left<12||p.getPersistentData().getLong("uwu.scythe_flight")>level.getGameTime())return;

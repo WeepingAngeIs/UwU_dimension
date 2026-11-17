@@ -45,6 +45,8 @@ public final class UwUDimension {
         MoonveilWood.register(bus);
         GiantSakuraSapling.register(bus);
         Understory.register(bus);
+        Moonbells.register(bus);
+        RevivalBlossoms.register(bus);
         ReachArchitecture.register(bus);
         ITEMS.register(bus);
         SOUNDS.register("music.heartwater", () -> SoundEvent.createVariableRangeEvent(id("music.heartwater")));

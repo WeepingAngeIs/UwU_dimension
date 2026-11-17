@@ -65,9 +65,9 @@ public final class RangedRelics {
         return strike(level,player,target,relic,attackPosition,null);
     }
     static boolean strike(ServerLevel level, Player player, LivingEntity target, Arsenal.Relic relic, Vec3 attackPosition, Entity abilitySource) {
-        if (!enemy(player,target)) return false;
+        if (!enemy(player,target) || !BlossomArts.allowedTarget(level, player, target)) return false;
         boolean rear = relic == Arsenal.Relic.ROSE_DAGGER && DaggerBackstab.isBehind(target, attackPosition);
-        if (!target.hurt(player.damageSources().playerAttack(player), rear ? relic.damage * 2F : relic.damage)) return false;
+        if (!target.hurt(player.damageSources().playerAttack(player), rear ? relic.damage * 2F : relic.damage + BlossomArts.lightningBonus(player, target, relic, abilitySource))) return false;
         if (rear) player.crit(target);
         switch(relic) {
             case FROST_WHIP -> {
@@ -91,6 +91,7 @@ public final class RangedRelics {
             default -> {if(GlitchCompletions.applyEffect(target,new MobEffectInstance(MobEffects.GLOWING,100)) && abilitySource!=null)
                 GlitchCompletions.track(abilitySource,target,"glow",100);}
         }
+        BlossomArts.hit(level, player, target, relic, abilitySource);
         return true;
     }
     private static boolean teleport(ServerLevel level,Player player) {

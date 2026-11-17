@@ -79,6 +79,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     public Arsenal.Relic relic() { return Arsenal.Relic.values()[entityData.get(KIND)]; }
     public int element() { return entityData.get(ELEMENT); }
+    public boolean physical() { return physicalWeapon; }
     public boolean wave() { return entityData.get(WAVE); }
     public boolean hareOrb() { return entityData.get(HARE_ORB); }
     float flightYaw(float partial) {
@@ -103,6 +104,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     static boolean castWeapon(ServerLevel level, Player owner, Arsenal.Relic kind, InteractionHand hand) {
         ItemStack held = owner.getItemInHand(hand);
         if (held.isEmpty() || held.getItem() != Arsenal.WEAPONS.get(kind).get()) return false;
+        BlossomArts.identity(held);
         ItemStack carried = held.copy();
         carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
         if (carried.isEmpty()) {
@@ -123,6 +125,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty() || held.getItem() != CounterArsenal.ITEMS.get(entry.id()).get()) return false;
+        BlossomArts.identity(held);
         ItemStack carried = held.copy();
         carried.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
         if (carried.isEmpty()) {
@@ -139,6 +142,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             Arsenal.Relic kind, CounterArsenal.Entry counter) {
         ItemStack held = owner.getItemInHand(hand);
         if (!(held.getItem() instanceof GlitchBow)) return false;
+        BlossomArts.identity(held);
         ItemStack carried = held.copy();
         carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
         if (carried.isEmpty()) {
@@ -217,6 +221,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         flight.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0, wave ? 1.5F : physical ? 2.05F : 1.8F, 0);
         if (!level.addFreshEntity(flight)) return null;
         if (physical) {
+            BlossomArts.launched(owner, display, flight);
             RelicReturns.reserve(owner, flight, display, hand);
             owner.setItemInHand(hand, ItemStack.EMPTY);
             HeartCombatGlow.trail(level, flight.position(), element);
@@ -261,6 +266,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 && (counter().isEmpty() || (CounterArsenal.entry(counter()) != null
                     && CounterArsenal.entry(counter()).shape().equals("scythe")))) {
             charmOnLanding(server, hit.getLocation());
+            if (getOwner() instanceof Player owner) BlossomArts.flowerLanding(server, owner, this, hit);
         }
     }
 
@@ -368,7 +374,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         if (returning() || landed()) return;
         if (level() instanceof ServerLevel server && getOwner() instanceof Player player
                 && hit.getEntity() instanceof LivingEntity target) {
-            if (!RangedRelics.enemy(player, target)) {
+            if (!RangedRelics.enemy(player, target) || !BlossomArts.allowedTarget(server, player, target)) {
                 finish();
                 return;
             }
@@ -386,7 +392,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 var entry=CounterArsenal.entry(counter());
                 if(entry!=null && CounterEffects.holds(target,entry.target()))effectTicks=160;
                 else if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))effectTicks=14;
+                float before = target.getHealth();
                 CounterEffects.hit(server, player, target, entry, impact,this);
+                if (target.getHealth() < before) BlossomArts.counterHit(server, player, target, entry);
                 if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))GlitchCompletions.track(this,target,"echo");
                 if(entry!=null && CounterEffects.holds(target,entry.target())){
                     GlitchCompletions.track(this,target,"counter_mark");

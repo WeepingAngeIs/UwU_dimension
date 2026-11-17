@@ -102,8 +102,9 @@ public final class HeartArrow extends Arrow {
 
     private void burst(ServerLevel level, Vec3 spot, Player player) {
         if (!rippleBow()) return;
-        RelicAbilities.ring(level, spot, 3.5, ParticleTypes.GLOW);
-        for (LivingEntity mob : level.getEntitiesOfClass(Mob.class, new AABB(spot, spot).inflate(3.5), m -> !HeartMagic.friendly(player, m))) {
+        BlossomArts.waterImpact(level, player, spot);
+        for (LivingEntity mob : level.getEntitiesOfClass(Mob.class, new AABB(spot, spot).inflate(3.5), m -> !HeartMagic.friendly(player, m) && BlossomArts.allowedTarget(level, player, m))) {
+            BlossomArts.waterRecipient(level, mob);
             if(GlitchCompletions.applyEffect(mob,new MobEffectInstance(MobEffects.GLOWING,140)))GlitchCompletions.track(this,mob,"glow",140);
             if(GlitchCompletions.applyEffect(mob,new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,75,1)))GlitchCompletions.track(this,mob,"slow",75);
         }
