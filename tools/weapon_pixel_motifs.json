@@ -1,0 +1,752 @@
+{
+  "cupid_bow": {
+    "pattern": "heart",
+    "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+    "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+  },
+  "ripple_bow": {
+    "pattern": "drop",
+    "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+    "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+  },
+  "ribbonhare_scepter": {
+    "pattern": "paired",
+    "held_design": "Two upright ear-shaped buds tilt toward the caster",
+    "impact_design": "A travelling pink seed lights progressively; two small prints touch the valid summon surface"
+  },
+  "blossom_greatsword": {
+    "pattern": "triad",
+    "held_design": "Three sakura stamens brighten down the split axe-head",
+    "impact_design": "As the existing charged scatter fires, petals fan away from the working edge"
+  },
+  "bellheart_axe": {
+    "pattern": "glint",
+    "held_design": "Bell clapper rocks one pixel inside the guard",
+    "impact_design": "A bell-shaped ripple contracts from struck foe toward the caster"
+  },
+  "lockkeeper_axe": {
+    "pattern": "glint",
+    "held_design": "An aqua key tooth flickers along the axe-face socket",
+    "impact_design": "A broken lock glyph separates away from the caster along the existing push"
+  },
+  "vesper_scythe": {
+    "pattern": "blossom",
+    "held_design": "One blossom hinge opens into the current elemental color",
+    "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+  },
+  "axolotl_whip": {
+    "pattern": "glint",
+    "held_design": "A pink and a blue fin flick independently at the braid",
+    "impact_design": "Leave two wakes at the single successful summon point; same two fins close behind the lash"
+  },
+  "frost_whip": {
+    "pattern": "blossom",
+    "held_design": "A frost bud crawls outward one braid link at a time",
+    "impact_design": "Three angular, translucent ice petals frame the existing frozen foe; collapse at thaw"
+  },
+  "rift_whip": {
+    "pattern": "glint",
+    "held_design": "A four-corner rose window opens at the handle",
+    "impact_design": "Mark with a seam of violet petals; a matching seam snaps shut at a successful teleport"
+  },
+  "rose_dagger": {
+    "pattern": "glint",
+    "held_design": "One white glint crosses the rose guard, leaving the approved blade clear",
+    "impact_design": "Side-on, point-led throw; a rose-outline flash distinguishes a successful rear strike"
+  },
+  "satin_whip": {
+    "pattern": "glint",
+    "held_design": "A satin fold ripples from pommel to tip",
+    "impact_design": "A taut, tapered ribbon winds back along the existing pull vector"
+  },
+  "lantern_spear": {
+    "pattern": "glint",
+    "held_design": "The tiny hanging lantern swings beneath the spearhead at recovery",
+    "impact_design": "Three warm panes unfold at the actual reveal impact"
+  },
+  "tidelace_trident": {
+    "pattern": "paired",
+    "held_design": "Twin aqua drops climb the outer tines around a white center spark",
+    "impact_design": "Keep the approved three tines; forked light converges on the impact target under the proposed lightning brief"
+  },
+  "blue_hour_wand": {
+    "pattern": "glint",
+    "held_design": "A miniature dusk moon turns at the head",
+    "impact_design": "Cold ray carries a short violet core; a six-point frost flower closes around the first hit"
+  },
+  "counter_iron_longsword": {
+    "pattern": "ribbon",
+    "held_design": "An unbroken ribbon along the spear ridge; a single clean rim glint in silver with a blush edge",
+    "impact_design": "One long ribbon points away along the push; finish with a clear pearl imprint"
+  },
+  "counter_iron_twinblade": {
+    "pattern": "paired",
+    "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a single clean rim glint in silver with a blush edge",
+    "impact_design": "Two offset crescents mark the guard; finish with a clear pearl imprint"
+  },
+  "counter_iron_rapier": {
+    "pattern": "needle",
+    "held_design": "A needle flash around the ring inner edge; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A narrow thorn gate marks the guard; finish with a clear pearl imprint"
+  },
+  "counter_iron_katana": {
+    "pattern": "orbit",
+    "held_design": "A crescent moving along the ring outer edge; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A moon segment traces the guarded side; finish with a clear pearl imprint"
+  },
+  "counter_iron_sai": {
+    "pattern": "triad",
+    "held_design": "Three seed lights on separate ring teeth; a single clean rim glint in silver with a blush edge",
+    "impact_design": "Three pinpoint studs mark the guarded contact; finish with a clear pearl imprint"
+  },
+  "counter_iron_spear": {
+    "pattern": "glint",
+    "held_design": "One lance pennant at the spear collar; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A triangular pennant stretches along the push; finish with a clear pearl imprint"
+  },
+  "counter_iron_glaive": {
+    "pattern": "blossom",
+    "held_design": "An asymmetric leaf near the long blade; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A leaf-shaped streak extends along the push; finish with a clear pearl imprint"
+  },
+  "counter_iron_warglaive": {
+    "pattern": "paired",
+    "held_design": "Two wing leaves at the spear neck; a single clean rim glint in silver with a blush edge",
+    "impact_design": "Paired wing-strokes show displacement; finish with a clear pearl imprint"
+  },
+  "counter_iron_cutlass": {
+    "pattern": "glint",
+    "held_design": "A sail fold on a spear fin; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A short curved sail curls in the push direction; finish with a clear pearl imprint"
+  },
+  "counter_iron_claymore": {
+    "pattern": "glint",
+    "held_design": "One chime line down the axe cheek; a single clean rim glint in silver with a blush edge",
+    "impact_design": "One broad chime wave marks the stagger; finish with a clear pearl imprint"
+  },
+  "counter_iron_greathammer": {
+    "pattern": "paired",
+    "held_design": "Two alternating studs in the hammer head; a single clean rim glint in silver with a blush edge",
+    "impact_design": "Two squared waves mark the staggered contact; finish with a clear pearl imprint"
+  },
+  "counter_iron_greataxe": {
+    "pattern": "glint",
+    "held_design": "Mirrored bells pulsing across both axe cheeks; a single clean rim glint in silver with a blush edge",
+    "impact_design": "Paired crescent bells launch along the push; finish with a clear pearl imprint"
+  },
+  "counter_iron_chakram": {
+    "pattern": "orbit",
+    "held_design": "A ring-shaped knot on the legacy bow limb; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A ring clasp closes at a successful interception; finish with a clear pearl imprint"
+  },
+  "counter_iron_scythe": {
+    "pattern": "blossom",
+    "held_design": "A flower calyx halfway up the spearhead; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A pointed petal shoots along the push; finish with a clear pearl imprint"
+  },
+  "counter_iron_halberd": {
+    "pattern": "glint",
+    "held_design": "A forked highlight below the spear tip; a single clean rim glint in silver with a blush edge",
+    "impact_design": "A split leaf opens along the push; finish with a clear pearl imprint"
+  },
+  "counter_gold_longsword": {
+    "pattern": "paired",
+    "held_design": "An unbroken ribbon along the spear ridge; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "One long ribbon points away along the push; finish with an amber double imprint"
+  },
+  "counter_gold_twinblade": {
+    "pattern": "paired",
+    "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "Two offset crescents mark the guard; finish with an amber double imprint"
+  },
+  "counter_gold_rapier": {
+    "pattern": "paired",
+    "held_design": "A needle flash around the ring inner edge; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A narrow thorn gate marks the guard; finish with an amber double imprint"
+  },
+  "counter_gold_katana": {
+    "pattern": "paired",
+    "held_design": "A crescent moving along the ring outer edge; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A moon segment traces the guarded side; finish with an amber double imprint"
+  },
+  "counter_gold_sai": {
+    "pattern": "triad",
+    "held_design": "Three seed lights on separate ring teeth; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "Three pinpoint studs mark the guarded contact; finish with an amber double imprint"
+  },
+  "counter_gold_spear": {
+    "pattern": "paired",
+    "held_design": "One lance pennant at the spear collar; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A triangular pennant stretches along the push; finish with an amber double imprint"
+  },
+  "counter_gold_glaive": {
+    "pattern": "paired",
+    "held_design": "An asymmetric leaf near the long blade; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A leaf-shaped streak extends along the push; finish with an amber double imprint"
+  },
+  "counter_gold_warglaive": {
+    "pattern": "paired",
+    "held_design": "Two wing leaves at the spear neck; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "Paired wing-strokes show displacement; finish with an amber double imprint"
+  },
+  "counter_gold_cutlass": {
+    "pattern": "paired",
+    "held_design": "A sail fold on a spear fin; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A short curved sail curls in the push direction; finish with an amber double imprint"
+  },
+  "counter_gold_claymore": {
+    "pattern": "paired",
+    "held_design": "One chime line down the axe cheek; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "One broad chime wave marks the stagger; finish with an amber double imprint"
+  },
+  "counter_gold_greathammer": {
+    "pattern": "paired",
+    "held_design": "Two alternating studs in the hammer head; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "Two squared waves mark the staggered contact; finish with an amber double imprint"
+  },
+  "counter_gold_greataxe": {
+    "pattern": "paired",
+    "held_design": "Mirrored bells pulsing across both axe cheeks; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "Paired crescent bells launch along the push; finish with an amber double imprint"
+  },
+  "counter_gold_chakram": {
+    "pattern": "paired",
+    "held_design": "A ring-shaped knot on the legacy bow limb; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A ring clasp closes at a successful interception; finish with an amber double imprint"
+  },
+  "counter_gold_scythe": {
+    "pattern": "paired",
+    "held_design": "A flower calyx halfway up the spearhead; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A pointed petal shoots along the push; finish with an amber double imprint"
+  },
+  "counter_gold_halberd": {
+    "pattern": "paired",
+    "held_design": "A forked highlight below the spear tip; two staggered amber glints in honey-gold with a peach center",
+    "impact_design": "A split leaf opens along the push; finish with an amber double imprint"
+  },
+  "counter_diamond_longsword": {
+    "pattern": "ribbon",
+    "held_design": "An unbroken ribbon along the spear ridge; a faceted cold glint in turquoise with a white center",
+    "impact_design": "One long ribbon points away along the push; finish with a mint faceted imprint"
+  },
+  "counter_diamond_twinblade": {
+    "pattern": "paired",
+    "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a faceted cold glint in turquoise with a white center",
+    "impact_design": "Two offset crescents mark the guard; finish with a mint faceted imprint"
+  },
+  "counter_diamond_rapier": {
+    "pattern": "needle",
+    "held_design": "A needle flash around the ring inner edge; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A narrow thorn gate marks the guard; finish with a mint faceted imprint"
+  },
+  "counter_diamond_katana": {
+    "pattern": "orbit",
+    "held_design": "A crescent moving along the ring outer edge; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A moon segment traces the guarded side; finish with a mint faceted imprint"
+  },
+  "counter_diamond_sai": {
+    "pattern": "triad",
+    "held_design": "Three seed lights on separate ring teeth; a faceted cold glint in turquoise with a white center",
+    "impact_design": "Three pinpoint studs mark the guarded contact; finish with a mint faceted imprint"
+  },
+  "counter_diamond_spear": {
+    "pattern": "glint",
+    "held_design": "One lance pennant at the spear collar; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A triangular pennant stretches along the push; finish with a mint faceted imprint"
+  },
+  "counter_diamond_glaive": {
+    "pattern": "blossom",
+    "held_design": "An asymmetric leaf near the long blade; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A leaf-shaped streak extends along the push; finish with a mint faceted imprint"
+  },
+  "counter_diamond_warglaive": {
+    "pattern": "paired",
+    "held_design": "Two wing leaves at the spear neck; a faceted cold glint in turquoise with a white center",
+    "impact_design": "Paired wing-strokes show displacement; finish with a mint faceted imprint"
+  },
+  "counter_diamond_cutlass": {
+    "pattern": "glint",
+    "held_design": "A sail fold on a spear fin; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A short curved sail curls in the push direction; finish with a mint faceted imprint"
+  },
+  "counter_diamond_claymore": {
+    "pattern": "glint",
+    "held_design": "One chime line down the axe cheek; a faceted cold glint in turquoise with a white center",
+    "impact_design": "One broad chime wave marks the stagger; finish with a mint faceted imprint"
+  },
+  "counter_diamond_greathammer": {
+    "pattern": "paired",
+    "held_design": "Two alternating studs in the hammer head; a faceted cold glint in turquoise with a white center",
+    "impact_design": "Two squared waves mark the staggered contact; finish with a mint faceted imprint"
+  },
+  "counter_diamond_greataxe": {
+    "pattern": "glint",
+    "held_design": "Mirrored bells pulsing across both axe cheeks; a faceted cold glint in turquoise with a white center",
+    "impact_design": "Paired crescent bells launch along the push; finish with a mint faceted imprint"
+  },
+  "counter_diamond_chakram": {
+    "pattern": "orbit",
+    "held_design": "A ring-shaped knot on the legacy bow limb; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A ring clasp closes at a successful interception; finish with a mint faceted imprint"
+  },
+  "counter_diamond_scythe": {
+    "pattern": "blossom",
+    "held_design": "A flower calyx halfway up the spearhead; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A pointed petal shoots along the push; finish with a mint faceted imprint"
+  },
+  "counter_diamond_halberd": {
+    "pattern": "glint",
+    "held_design": "A forked highlight below the spear tip; a faceted cold glint in turquoise with a white center",
+    "impact_design": "A split leaf opens along the push; finish with a mint faceted imprint"
+  },
+  "counter_netherite_longsword": {
+    "pattern": "ribbon",
+    "held_design": "An unbroken ribbon along the spear ridge; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "One long ribbon points away along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_twinblade": {
+    "pattern": "paired",
+    "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "Two offset crescents mark the guard; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_rapier": {
+    "pattern": "needle",
+    "held_design": "A needle flash around the ring inner edge; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A narrow thorn gate marks the guard; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_katana": {
+    "pattern": "orbit",
+    "held_design": "A crescent moving along the ring outer edge; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A moon segment traces the guarded side; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_sai": {
+    "pattern": "triad",
+    "held_design": "Three seed lights on separate ring teeth; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "Three pinpoint studs mark the guarded contact; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_spear": {
+    "pattern": "glint",
+    "held_design": "One lance pennant at the spear collar; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A triangular pennant stretches along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_glaive": {
+    "pattern": "blossom",
+    "held_design": "An asymmetric leaf near the long blade; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A leaf-shaped streak extends along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_warglaive": {
+    "pattern": "paired",
+    "held_design": "Two wing leaves at the spear neck; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "Paired wing-strokes show displacement; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_cutlass": {
+    "pattern": "glint",
+    "held_design": "A sail fold on a spear fin; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A short curved sail curls in the push direction; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_claymore": {
+    "pattern": "glint",
+    "held_design": "One chime line down the axe cheek; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "One broad chime wave marks the stagger; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_greathammer": {
+    "pattern": "paired",
+    "held_design": "Two alternating studs in the hammer head; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "Two squared waves mark the staggered contact; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_greataxe": {
+    "pattern": "glint",
+    "held_design": "Mirrored bells pulsing across both axe cheeks; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "Paired crescent bells launch along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_chakram": {
+    "pattern": "orbit",
+    "held_design": "A ring-shaped knot on the legacy bow limb; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A ring clasp closes at a successful interception; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_scythe": {
+    "pattern": "blossom",
+    "held_design": "A flower calyx halfway up the spearhead; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A pointed petal shoots along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_netherite_halberd": {
+    "pattern": "glint",
+    "held_design": "A forked highlight below the spear tip; a low violet afterglow in plum-black with a lilac center",
+    "impact_design": "A split leaf opens along the push; finish with a dark outline with one lilac break"
+  },
+  "counter_runic_longsword": {
+    "pattern": "triad",
+    "held_design": "An unbroken ribbon along the spear ridge; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "One long ribbon points away along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_twinblade": {
+    "pattern": "triad",
+    "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "Two offset crescents mark the guard; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_rapier": {
+    "pattern": "triad",
+    "held_design": "A needle flash around the ring inner edge; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A narrow thorn gate marks the guard; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_katana": {
+    "pattern": "triad",
+    "held_design": "A crescent moving along the ring outer edge; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A moon segment traces the guarded side; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_sai": {
+    "pattern": "triad",
+    "held_design": "Three seed lights on separate ring teeth; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "Three pinpoint studs mark the guarded contact; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_spear": {
+    "pattern": "triad",
+    "held_design": "One lance pennant at the spear collar; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A triangular pennant stretches along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_glaive": {
+    "pattern": "triad",
+    "held_design": "An asymmetric leaf near the long blade; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A leaf-shaped streak extends along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_warglaive": {
+    "pattern": "triad",
+    "held_design": "Two wing leaves at the spear neck; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "Paired wing-strokes show displacement; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_cutlass": {
+    "pattern": "triad",
+    "held_design": "A sail fold on a spear fin; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A short curved sail curls in the push direction; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_claymore": {
+    "pattern": "triad",
+    "held_design": "One chime line down the axe cheek; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "One broad chime wave marks the stagger; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_chakram": {
+    "pattern": "triad",
+    "held_design": "A ring-shaped knot on the legacy bow limb; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A ring clasp closes at a successful interception; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_greataxe": {
+    "pattern": "triad",
+    "held_design": "Mirrored bells pulsing across both axe cheeks; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "Paired crescent bells launch along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_greathammer": {
+    "pattern": "triad",
+    "held_design": "Two alternating studs in the hammer head; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "Two squared waves mark the staggered contact; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_scythe": {
+    "pattern": "triad",
+    "held_design": "A flower calyx halfway up the spearhead; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A pointed petal shoots along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_runic_halberd": {
+    "pattern": "triad",
+    "held_design": "A forked highlight below the spear tip; a three-step rune glint in amethyst with a warm petal center",
+    "impact_design": "A split leaf opens along the push; finish with a violet rune imprint; cleanse adds one white petal"
+  },
+  "counter_brimstone_claymore": {
+    "pattern": "blossom",
+    "held_design": "Charred petal veins fade to orange on the spear collar",
+    "impact_design": "Split a cinder into two droplets at the quenched foe"
+  },
+  "counter_watcher_claymore": {
+    "pattern": "blossom",
+    "held_design": "A rosebud eye opens at the wand head and blinks",
+    "impact_design": "A pale lid unfolds over the caster as the cleanse resolves"
+  },
+  "counter_the_devourer": {
+    "pattern": "blossom",
+    "held_design": "Violet petal teeth close along the inside hook",
+    "impact_design": "A cut thread unspools away from the severed link"
+  },
+  "counter_storms_edge": {
+    "pattern": "paired",
+    "held_design": "Two pink seed knots chase each other down the lash",
+    "impact_design": "Fix a small petal cross at the anchor point"
+  },
+  "counter_stormscale": {
+    "pattern": "glint",
+    "held_design": "A cobalt scale flips under the blade knot",
+    "impact_design": "Elastic blue filament parts in scales at the actual sever"
+  },
+  "counter_ionbound_stormscale": {
+    "pattern": "paired",
+    "held_design": "Two polarized flecks exchange places at the dagger guard",
+    "impact_design": "A faceted scale splits now; its halves light again on the delayed pulse"
+  },
+  "counter_stormbringer": {
+    "pattern": "drop",
+    "held_design": "Violet droplets pause just short of the blade tip",
+    "impact_design": "A soft false spark fades before the solid delayed flash"
+  },
+  "counter_sword_on_a_stick": {
+    "pattern": "heart",
+    "held_design": "A heartwood seed peeks out of the spear collar",
+    "impact_design": "A short fan of woodgrain strokes opens in the push direction"
+  },
+  "counter_bramblethorn": {
+    "pattern": "blossom",
+    "held_design": "A green thorn curls into a pale blossom on the hook",
+    "impact_design": "One bramble strand parts in two at the severed effect"
+  },
+  "counter_watching_warglaive": {
+    "pattern": "paired",
+    "held_design": "Two petal pupils orbit the blossom wand",
+    "impact_design": "A pair of half-rings wipes inward on cleanse"
+  },
+  "counter_toxic_longsword": {
+    "pattern": "drop",
+    "held_design": "A green droplet rolls away from the accepted blade point",
+    "impact_design": "Poison-colored petals wash clear across the wielder"
+  },
+  "counter_emberblade": {
+    "pattern": "star",
+    "held_design": "A small ember turns rose then pearl at the tip",
+    "impact_design": "Three vapor petals float up from the quenched impact"
+  },
+  "counter_hearthflame": {
+    "pattern": "heart",
+    "held_design": "A tiny hearth-window lights at the collar",
+    "impact_design": "An amber tile cools from its corners into a mint flower"
+  },
+  "counter_soulkeeper": {
+    "pattern": "glint",
+    "held_design": "A pale wisp rests in the bow fork",
+    "impact_design": "The legacy cast leaves a hollow blush trail that folds at the interception point"
+  },
+  "counter_twisted_blade": {
+    "pattern": "paired",
+    "held_design": "Two thorn glints cross below the dagger guard",
+    "impact_design": "Two staggered stems outline the delayed strike"
+  },
+  "counter_soulstealer": {
+    "pattern": "drop",
+    "held_design": "A pink dew bead recedes into the curved blade",
+    "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+  },
+  "counter_soulrender": {
+    "pattern": "triad",
+    "held_design": "Three blue petal sparks drift in single file along the hook",
+    "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+  },
+  "counter_soulstalker": {
+    "pattern": "blossom",
+    "held_design": "A shadow bud crawls down the inner whip loop",
+    "impact_design": "A small crescent shadow pins the anchor location"
+  },
+  "counter_soulpyre": {
+    "pattern": "paired",
+    "held_design": "Two lavender cinder petals trade brightness by the grip",
+    "impact_design": "A fading ghost flame travels with the legacy cast and goes quiet on interception"
+  },
+  "counter_frostfall": {
+    "pattern": "blossom",
+    "held_design": "An icy flower facets outward along the scythe shoulder",
+    "impact_design": "Two frost filaments part into floating shards"
+  },
+  "counter_molten_edge": {
+    "pattern": "glint",
+    "held_design": "Molten amber runs down the spearhead's center channel",
+    "impact_design": "The impact solidifies in three stepped, cooling pixels"
+  },
+  "counter_livyatan": {
+    "pattern": "glint",
+    "held_design": "A teal fin turns under the scythe joint",
+    "impact_design": "A curling foam seam tears along the sever effect"
+  },
+  "counter_icewhisper": {
+    "pattern": "glint",
+    "held_design": "A white breath pixel glides across the hook shadow",
+    "impact_design": "A hairline icicle snaps without a broad fog cloud"
+  },
+  "counter_arcanethyst": {
+    "pattern": "triad",
+    "held_design": "Three violet amethyst facets alternate on the whip handle",
+    "impact_design": "An angular lilac seal sits at the existing anchor"
+  },
+  "counter_thunderbrand": {
+    "pattern": "glint",
+    "held_design": "A bright fork races to the end of the lash",
+    "impact_design": "A zigzag tack marks the struck tether origin"
+  },
+  "counter_mjolnir": {
+    "pattern": "glint",
+    "held_design": "Hammer-stamp shapes glow on the scythe collar",
+    "impact_design": "A two-pronged crack breaks through a short energy thread"
+  },
+  "counter_slumbering_lichblade": {
+    "pattern": "ribbon",
+    "held_design": "Closed eyelid stitched into the bow tip breathes once",
+    "impact_design": "Drowsy violet dots stop at the old projectile interception point"
+  },
+  "counter_waking_lichblade": {
+    "pattern": "ribbon",
+    "held_design": "The same stitched eye opens halfway for a beat",
+    "impact_design": "Two lavender rays close from either side on an intercepted shot"
+  },
+  "counter_awakened_lichblade": {
+    "pattern": "star",
+    "held_design": "An open rose eye sheds one small diamond",
+    "impact_design": "Three bright lids converge into a silent bead at interception"
+  },
+  "counter_shadowsting": {
+    "pattern": "glint",
+    "held_design": "A dark rose stinger pulses at the loop tip",
+    "impact_design": "A tapered ink petal pins the shadow at the anchored point"
+  },
+  "counter_dormant_relic": {
+    "pattern": "glint",
+    "held_design": "An unbroken seed seam glimmers once near the tip",
+    "impact_design": "An unopened seed stamps the leading edge of the spacing push"
+  },
+  "counter_righteous_relic": {
+    "pattern": "orbit",
+    "held_design": "A gold halo rolls to the center of the curved blade",
+    "impact_design": "A pale rose seal closes in a six-petal sun ring"
+  },
+  "counter_tainted_relic": {
+    "pattern": "blossom",
+    "held_design": "A dusky droplet drains into the wand blossom",
+    "impact_design": "A dark leaf peels away from the cleansed caster"
+  },
+  "counter_sunfire": {
+    "pattern": "blossom",
+    "held_design": "One sunlit petal follows the top of the hook",
+    "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+  },
+  "counter_harbinger": {
+    "pattern": "blossom",
+    "held_design": "Small folded bird petals stir near the whip tassel",
+    "impact_design": "Three outward wing strokes mark actual displaced summons"
+  },
+  "counter_whisperwind": {
+    "pattern": "glint",
+    "held_design": "Pale pink pennants lean downwind along the lash",
+    "impact_design": "Wind lines fold into an anchored leaf pin"
+  },
+  "counter_dreadwhisper": {
+    "pattern": "blossom",
+    "held_design": "Violet teardrops lift from the wand bud in sequence",
+    "impact_design": "A tiny open blossom dissolves the dark trace on cleanse"
+  },
+  "counter_emberlash": {
+    "pattern": "flare",
+    "held_design": "Glowing ember pollen sweeps along the copper hook",
+    "impact_design": "A small ember lattice closes on the marked foe"
+  },
+  "counter_waxweaver": {
+    "pattern": "drop",
+    "held_design": "A honey-pink bead slides along one scythe tooth",
+    "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+  },
+  "counter_hiveheart": {
+    "pattern": "triad",
+    "held_design": "Three hex-pollen beads orbit close to the whip knot",
+    "impact_design": "Petal-wing pairs stream outward only at banished summons"
+  },
+  "counter_stars_edge": {
+    "pattern": "star",
+    "held_design": "A small four-point star crosses the dagger spine",
+    "impact_design": "A dim star appears at contact and a crisp echo marks delayed damage"
+  },
+  "counter_wickpiercer": {
+    "pattern": "blossom",
+    "held_design": "A flower-wick pin smolders along the scythe collar",
+    "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+  },
+  "counter_gloampiercer": {
+    "pattern": "star",
+    "held_design": "A star appears between dark bow limbs for one beat",
+    "impact_design": "Mauve puncture rings vanish around intercepted projectiles"
+  },
+  "counter_tempest": {
+    "pattern": "triad",
+    "held_design": "Three short wind streaks orbit the waning blossom",
+    "impact_design": "A clean spiral lifts the dispelled color away from the caster"
+  },
+  "counter_flamewind": {
+    "pattern": "blossom",
+    "held_design": "An orange petal curls around the spear pin",
+    "impact_design": "A fan of steam follows the push of the actual contact"
+  },
+  "counter_ribboncleaver": {
+    "pattern": "paired",
+    "held_design": "Two pink weave lines split at the dagger guard",
+    "impact_design": "A small bow cleaves in two; its free ends flash on the delayed pulse"
+  },
+  "counter_decaying_relic": {
+    "pattern": "glint",
+    "held_design": "A russet flake drifts off the spear neck",
+    "impact_design": "A decayed-leaf outline folds back as the struck target is spaced away"
+  },
+  "counter_magiscythe": {
+    "pattern": "paired",
+    "held_design": "Two violet runes follow the scythe inner edge",
+    "impact_design": "A rune thread snaps into two small mirrored stems"
+  },
+  "counter_enigma": {
+    "pattern": "star",
+    "held_design": "A moving gap makes one negative-space star on the hook",
+    "impact_design": "A broken square unfolds at the severed effect"
+  },
+  "counter_magispear": {
+    "pattern": "ribbon",
+    "held_design": "A pink spearhead-shaped stitch glides along the bow tip",
+    "impact_design": "Spearhead motes disperse at the successful intercept"
+  },
+  "counter_magiblade": {
+    "pattern": "paired",
+    "held_design": "A bright facet travels between two bow-limb knots",
+    "impact_design": "A flat rose pane catches the intercepted shot and folds into dots"
+  },
+  "counter_caelestis": {
+    "pattern": "blossom",
+    "held_design": "Pale feather petals lift off the whip handle",
+    "impact_design": "A thin wing prints over each successfully repelled summon"
+  },
+  "counter_dawnquiver": {
+    "pattern": "glint",
+    "held_design": "A tiny dawn line climbs the dark bow upper limb",
+    "impact_design": "A small fan of sunrise petals closes around each intercepted projectile"
+  },
+  "counter_riftmane": {
+    "pattern": "glint",
+    "held_design": "Loose lilac tassels rise off the whip knot",
+    "impact_design": "A rectangular rift stitch pins the anchored enemy's origin"
+  },
+  "counter_wraithfang": {
+    "pattern": "paired",
+    "held_design": "Two violet fang petals blink inside the lash curve",
+    "impact_design": "Dark teeth close around the anchor point and fade at expiry"
+  },
+  "counter_wraithmaw": {
+    "pattern": "blossom",
+    "held_design": "A split-jaw petal opens on the outer bow limb",
+    "impact_design": "A violet jaw-shaped bracket meets around the intercepted shot"
+  },
+  "counter_bloodwake": {
+    "pattern": "blossom",
+    "held_design": "A red bud turns pale at the wand tip",
+    "impact_design": "A crimson wash thins into clear pink as the caster is cleansed"
+  },
+  "counter_chompolotl": {
+    "pattern": "blossom",
+    "held_design": "Small coral gill petals flutter around the whip loop",
+    "impact_design": "Two gill fans paddle outward at the existing summon repulsion"
+  },
+  "heart_launcher": {
+    "pattern": "heart",
+    "held_design": "Heart-shaped pilot bead travels toward the barrel crown",
+    "impact_design": "Twelve-tick recoil drives the barrel back then forward; short muzzle petals point along the shot"
+  },
+  "bell_hammer": {
+    "pattern": "glint",
+    "held_design": "Clapper highlight sweeps across the hammer cheek, clear of handle",
+    "impact_design": "A chalk-thin bell outline flashes against the actual mining face; only valid affected cells sparkle"
+  }
+}

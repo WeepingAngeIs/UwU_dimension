@@ -32,6 +32,13 @@ def blossom(cx,cy,frame,petals=5,ready=False):
     return img
 
 for name,center in [('returnbloom_dirk',(17,17)),('dawnpetal_axe',(23,10))]:
+    fp,third,ground=(.68,.85,.5) if name.endswith('dirk') else (.8,1,.7)
+    display={'gui':{'rotation':[0,0,0],'translation':[0,0,0],'scale':[1,1,1]},
+        'firstperson_righthand':{'rotation':[0,90,-25],'translation':[1.13,3.2,1.13],'scale':[fp,fp,fp]},
+        'firstperson_lefthand':{'rotation':[0,-90,25],'translation':[1.13,3.2,1.13],'scale':[fp,fp,fp]},
+        'thirdperson_righthand':{'rotation':[0,90,-55],'translation':[0,4,.5],'scale':[third,third,third]},
+        'thirdperson_lefthand':{'rotation':[0,-90,55],'translation':[0,4,.5],'scale':[third,third,third]},
+        'ground':{'translation':[0,2.5,0],'scale':[ground,ground,ground]}}
     image=Image.new('RGBA',(32,32));d=ImageDraw.Draw(image)
     if name.endswith('dirk'):
         d.polygon([(2,1),(3,8),(9,16),(15,22),(21,19),(15,16),(9,10),(5,5)],fill='#8e536e')
@@ -64,7 +71,7 @@ for name,center in [('returnbloom_dirk',(17,17)),('dawnpetal_axe',(23,10))]:
     for phase in range(1,6):save_item(name+'_phase'+str(phase),blossom(*center,0,petals=phase-1))
     for phase in range(6):
         overlay=name+'_ready' if phase==0 else name+'_phase'+str(phase)
-        model={'parent':'minecraft:item/handheld','loader':'neoforge:item_layers','textures':{'layer0':'uwudimension:item/'+name,'layer1':'uwudimension:item/'+overlay},'render_types':{'minecraft:cutout':[0,1]},'neoforge_data':{'layers':{'1':{'block_light':15 if phase==0 else 0,'sky_light':15 if phase==0 else 0,'ambient_occlusion':False}}}}
+        model={'parent':'minecraft:item/handheld','loader':'neoforge:item_layers','display':display,'textures':{'layer0':'uwudimension:item/'+name,'layer1':'uwudimension:item/'+overlay},'render_types':{'minecraft:cutout':[0,1]},'neoforge_data':{'layers':{'1':{'block_light':15 if phase==0 else 0,'sky_light':15 if phase==0 else 0,'ambient_occlusion':False}}}}
         if phase==0:model['overrides']=[{'predicate':{'uwudimension:revival_phase':p},'model':f'uwudimension:item/{name}_phase{p}'} for p in range(1,6)]
         write(ART/'models/item'/(name+('' if phase==0 else '_phase'+str(phase))+'.json'),model)
 

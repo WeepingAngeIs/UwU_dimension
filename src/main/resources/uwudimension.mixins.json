@@ -35,6 +35,7 @@
     "FrostSnowRenderMixin",
     "SakuraGrassTintMixin",
     "ReactiveMusicRealmMixin",
-    "WeaponCarryPoseMixin"
+    "WeaponCarryPoseMixin",
+    "ScytheFirstPersonMixin"
   ]
 }

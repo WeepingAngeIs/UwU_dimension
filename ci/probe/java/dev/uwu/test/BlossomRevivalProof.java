@@ -108,17 +108,17 @@ public final class BlossomRevivalProof {
             long deadline=fixture.getLong("Deadline");
             check(RevivalBlossoms.remaining(visitor.player,stack)==Math.max(0,deadline-oldTime),"restart deadline not restored");
             check(deadline>oldTime,"fixture expired before restart boundary proof");
-            level.getServer().overworld().setGameTime(deadline-1);
+            level.getServer().getWorldData().overworldData().setGameTime(deadline-1);
             check(RevivalBlossoms.remaining(visitor.player,stack)==1,"last blocked tick");
             stack.getItem().inventoryTick(stack,level,visitor.player,0,true);
             check(RevivalBlossoms.visualPhase(stack)==5,"last recharge petal state");
-            level.getServer().overworld().setGameTime(deadline);
+            level.getServer().getWorldData().overworldData().setGameTime(deadline);
             check(RevivalBlossoms.remaining(visitor.player,stack)==0,"exact ready tick");
             stack.getItem().inventoryTick(stack,level,visitor.player,0,true);
             check(RevivalBlossoms.visualPhase(stack)==0,"ready sprite at deadline");
             lethal(visitor.player);check(visitor.player.isAlive()&&visitor.player.getHealth()==40,"deadline native lethal rescue");
             check(RevivalBlossoms.remaining(visitor.player,stack)==1200,"second durable deadline");
-        } finally {level.getServer().overworld().setGameTime(oldTime);}
+        } finally {level.getServer().getWorldData().overworldData().setGameTime(oldTime);}
         System.out.println("BLOSSOM RESTART PASS restored owner/item deadlines, blocked at1199 and real rescue at1200");
     }
     private BlossomRevivalProof() {}

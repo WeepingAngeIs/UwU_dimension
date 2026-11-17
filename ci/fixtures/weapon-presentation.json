@@ -74,7 +74,12 @@
       }
     },
     "overlay": "cupid_bow_glint",
-    "source": "uwudimension:item/cupid_bow"
+    "source": "uwudimension:item/cupid_bow",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+      "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+    }
   },
   {
     "item": "cupid_bow",
@@ -151,7 +156,12 @@
       }
     },
     "overlay": "cupid_bow_deep_glint",
-    "source": "uwudimension:item/cupid_bow_deep"
+    "source": "uwudimension:item/cupid_bow_deep",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+      "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+    }
   },
   {
     "item": "cupid_bow",
@@ -228,7 +238,12 @@
       }
     },
     "overlay": "cupid_bow_draw0_glint",
-    "source": "uwudimension:item/cupid_bow_draw0"
+    "source": "uwudimension:item/cupid_bow_draw0",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+      "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+    }
   },
   {
     "item": "cupid_bow",
@@ -305,7 +320,12 @@
       }
     },
     "overlay": "cupid_bow_draw1_glint",
-    "source": "uwudimension:item/cupid_bow_draw1"
+    "source": "uwudimension:item/cupid_bow_draw1",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+      "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+    }
   },
   {
     "item": "cupid_bow",
@@ -382,7 +402,12 @@
       }
     },
     "overlay": "cupid_bow_draw2_glint",
-    "source": "uwudimension:item/cupid_bow_draw2"
+    "source": "uwudimension:item/cupid_bow_draw2",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "One rose-gold stitch circles the heart jewel and stops at the nock",
+      "impact_design": "A drawn thread connects nock to string; pink hearts bloom upward only on successful charm"
+    }
   },
   {
     "item": "ripple_bow",
@@ -476,7 +501,12 @@
       }
     },
     "overlay": "ripple_bow_glint",
-    "source": "uwudimension:item/ripple_bow"
+    "source": "uwudimension:item/ripple_bow",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ripple_bow",
@@ -570,7 +600,12 @@
       }
     },
     "overlay": "ripple_bow_deep_glint",
-    "source": "uwudimension:item/ripple_bow_deep"
+    "source": "uwudimension:item/ripple_bow_deep",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ripple_bow",
@@ -664,7 +699,12 @@
       }
     },
     "overlay": "ripple_bow_draw1_glint",
-    "source": "uwudimension:item/ripple_bow_draw1"
+    "source": "uwudimension:item/ripple_bow_draw1",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ripple_bow",
@@ -758,7 +798,111 @@
       }
     },
     "overlay": "ripple_bow_draw2_glint",
-    "source": "uwudimension:item/ripple_bow_draw2"
+    "source": "uwudimension:item/ripple_bow_draw2",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
+  },
+  {
+    "item": "ripple_bow",
+    "shape": "bow",
+    "model": "ripple_bow_full",
+    "display": {
+      "gui": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          -90,
+          115
+        ],
+        "translation": [
+          1.13,
+          3.2,
+          1.13
+        ],
+        "scale": [
+          0.68,
+          0.68,
+          0.68
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -115
+        ],
+        "translation": [
+          1.13,
+          3.2,
+          1.13
+        ],
+        "scale": [
+          0.68,
+          0.68,
+          0.68
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          -80,
+          260,
+          50
+        ],
+        "translation": [
+          -1,
+          -2,
+          2.5
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          -80,
+          -280,
+          -50
+        ],
+        "translation": [
+          -1,
+          -2,
+          2.5
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      }
+    },
+    "overlay": "ripple_bow_full_glint",
+    "source": "uwudimension:item/ripple_bow_full",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ripple_bow",
@@ -852,7 +996,12 @@
       }
     },
     "overlay": "ripple_bow_half_glint",
-    "source": "uwudimension:item/ripple_bow_half"
+    "source": "uwudimension:item/ripple_bow_half",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ripple_bow",
@@ -946,7 +1095,12 @@
       }
     },
     "overlay": "ripple_bow_nock_glint",
-    "source": "uwudimension:item/ripple_bow_nock"
+    "source": "uwudimension:item/ripple_bow_nock",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Aqua bead runs along the inside limb and collects at the nock",
+      "impact_design": "Teardrop fletching; a low outward water ring marks the actual slowing radius"
+    }
   },
   {
     "item": "ribbonhare_scepter",
@@ -1057,7 +1211,12 @@
       }
     },
     "overlay": "ribbonhare_scepter_glint",
-    "source": "uwudimension:item/ribbonhare_scepter"
+    "source": "uwudimension:item/ribbonhare_scepter",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two upright ear-shaped buds tilt toward the caster",
+      "impact_design": "A travelling pink seed lights progressively; two small prints touch the valid summon surface"
+    }
   },
   {
     "item": "blossom_greatsword",
@@ -1151,7 +1310,12 @@
       }
     },
     "overlay": "blossom_greatsword_glint",
-    "source": "uwudimension:item/blossom_greatsword"
+    "source": "uwudimension:item/blossom_greatsword",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three sakura stamens brighten down the split axe-head",
+      "impact_design": "As the existing charged scatter fires, petals fan away from the working edge"
+    }
   },
   {
     "item": "bellheart_axe",
@@ -1245,7 +1409,12 @@
       }
     },
     "overlay": "bellheart_axe_glint",
-    "source": "uwudimension:item/bellheart_axe"
+    "source": "uwudimension:item/bellheart_axe",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Bell clapper rocks one pixel inside the guard",
+      "impact_design": "A bell-shaped ripple contracts from struck foe toward the caster"
+    }
   },
   {
     "item": "lockkeeper_axe",
@@ -1339,7 +1508,12 @@
       }
     },
     "overlay": "lockkeeper_axe_glint",
-    "source": "uwudimension:item/lockkeeper_axe"
+    "source": "uwudimension:item/lockkeeper_axe",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "An aqua key tooth flickers along the axe-face socket",
+      "impact_design": "A broken lock glyph separates away from the caster along the existing push"
+    }
   },
   {
     "item": "vesper_scythe",
@@ -1433,7 +1607,12 @@
       }
     },
     "overlay": "vesper_scythe_glint",
-    "source": "uwudimension:item/vesper_scythe_0"
+    "source": "uwudimension:item/vesper_scythe_0",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One blossom hinge opens into the current elemental color",
+      "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+    }
   },
   {
     "item": "vesper_scythe",
@@ -1527,7 +1706,12 @@
       }
     },
     "overlay": "vesper_scythe_0_glint",
-    "source": "uwudimension:item/vesper_scythe_0"
+    "source": "uwudimension:item/vesper_scythe_0",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One blossom hinge opens into the current elemental color",
+      "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+    }
   },
   {
     "item": "vesper_scythe",
@@ -1621,7 +1805,12 @@
       }
     },
     "overlay": "vesper_scythe_1_glint",
-    "source": "uwudimension:item/vesper_scythe_1"
+    "source": "uwudimension:item/vesper_scythe_1",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One blossom hinge opens into the current elemental color",
+      "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+    }
   },
   {
     "item": "vesper_scythe",
@@ -1715,7 +1904,12 @@
       }
     },
     "overlay": "vesper_scythe_2_glint",
-    "source": "uwudimension:item/vesper_scythe_2"
+    "source": "uwudimension:item/vesper_scythe_2",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One blossom hinge opens into the current elemental color",
+      "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+    }
   },
   {
     "item": "vesper_scythe",
@@ -1809,7 +2003,12 @@
       }
     },
     "overlay": "vesper_scythe_3_glint",
-    "source": "uwudimension:item/vesper_scythe_3"
+    "source": "uwudimension:item/vesper_scythe_3",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One blossom hinge opens into the current elemental color",
+      "impact_design": "Orient frost splinters, soul cinders, lightning forks or blossoms along the same swept wedge"
+    }
   },
   {
     "item": "axolotl_whip",
@@ -1903,7 +2102,12 @@
       }
     },
     "overlay": "axolotl_whip_glint",
-    "source": "uwudimension:item/axolotl_whip"
+    "source": "uwudimension:item/axolotl_whip",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A pink and a blue fin flick independently at the braid",
+      "impact_design": "Leave two wakes at the single successful summon point; same two fins close behind the lash"
+    }
   },
   {
     "item": "frost_whip",
@@ -1997,7 +2201,12 @@
       }
     },
     "overlay": "frost_whip_glint",
-    "source": "uwudimension:item/frost_whip"
+    "source": "uwudimension:item/frost_whip",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A frost bud crawls outward one braid link at a time",
+      "impact_design": "Three angular, translucent ice petals frame the existing frozen foe; collapse at thaw"
+    }
   },
   {
     "item": "rift_whip",
@@ -2091,7 +2300,12 @@
       }
     },
     "overlay": "rift_whip_glint",
-    "source": "uwudimension:item/rift_whip"
+    "source": "uwudimension:item/rift_whip",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A four-corner rose window opens at the handle",
+      "impact_design": "Mark with a seam of violet petals; a matching seam snaps shut at a successful teleport"
+    }
   },
   {
     "item": "rose_dagger",
@@ -2099,7 +2313,12 @@
     "model": "rose_dagger",
     "display": {},
     "overlay": "rose_dagger_glint",
-    "source": "uwudimension:item/rose_dagger"
+    "source": "uwudimension:item/rose_dagger",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One white glint crosses the rose guard, leaving the approved blade clear",
+      "impact_design": "Side-on, point-led throw; a rose-outline flash distinguishes a successful rear strike"
+    }
   },
   {
     "item": "satin_whip",
@@ -2193,7 +2412,12 @@
       }
     },
     "overlay": "satin_whip_glint",
-    "source": "uwudimension:item/satin_whip"
+    "source": "uwudimension:item/satin_whip",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A satin fold ripples from pommel to tip",
+      "impact_design": "A taut, tapered ribbon winds back along the existing pull vector"
+    }
   },
   {
     "item": "lantern_spear",
@@ -2304,7 +2528,12 @@
       }
     },
     "overlay": "lantern_spear_glint",
-    "source": "uwudimension:item/lantern_spear"
+    "source": "uwudimension:item/lantern_spear",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "The tiny hanging lantern swings beneath the spearhead at recovery",
+      "impact_design": "Three warm panes unfold at the actual reveal impact"
+    }
   },
   {
     "item": "tidelace_trident",
@@ -2312,7 +2541,12 @@
     "model": "tidelace_trident",
     "display": {},
     "overlay": "tidelace_trident_glint",
-    "source": "uwudimension:item/tidelace_trident"
+    "source": "uwudimension:item/tidelace_trident",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Twin aqua drops climb the outer tines around a white center spark",
+      "impact_design": "Keep the approved three tines; forked light converges on the impact target under the proposed lightning brief"
+    }
   },
   {
     "item": "blue_hour_wand",
@@ -2423,7 +2657,12 @@
       }
     },
     "overlay": "blue_hour_wand_glint",
-    "source": "uwudimension:item/blue_hour_wand"
+    "source": "uwudimension:item/blue_hour_wand",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A miniature dusk moon turns at the head",
+      "impact_design": "Cold ray carries a short violet core; a six-point frost flower closes around the first hit"
+    }
   },
   {
     "item": "heart_launcher",
@@ -2431,7 +2670,12 @@
     "model": "heart_launcher",
     "display": {},
     "overlay": "heart_launcher_glint",
-    "source": "uwudimension:item/heart_launcher"
+    "source": "uwudimension:item/heart_launcher",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "Heart-shaped pilot bead travels toward the barrel crown",
+      "impact_design": "Twelve-tick recoil drives the barrel back then forward; short muzzle petals point along the shot"
+    }
   },
   {
     "item": "bell_hammer",
@@ -2525,7 +2769,12 @@
       }
     },
     "overlay": "bell_hammer_glint",
-    "source": "uwudimension:item/bell_hammer"
+    "source": "uwudimension:item/bell_hammer",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Clapper highlight sweeps across the hammer cheek, clear of handle",
+      "impact_design": "A chalk-thin bell outline flashes against the actual mining face; only valid affected cells sparkle"
+    }
   },
   {
     "item": "counter_iron_longsword",
@@ -2636,7 +2885,12 @@
       }
     },
     "overlay": "counter_iron_longsword_glint",
-    "source": "uwudimension:item/counter_iron_longsword"
+    "source": "uwudimension:item/counter_iron_longsword",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "An unbroken ribbon along the spear ridge; a single clean rim glint in silver with a blush edge",
+      "impact_design": "One long ribbon points away along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_twinblade",
@@ -2730,7 +2984,12 @@
       }
     },
     "overlay": "counter_iron_twinblade_glint",
-    "source": "uwudimension:item/counter_iron_twinblade"
+    "source": "uwudimension:item/counter_iron_twinblade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a single clean rim glint in silver with a blush edge",
+      "impact_design": "Two offset crescents mark the guard; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_rapier",
@@ -2824,7 +3083,12 @@
       }
     },
     "overlay": "counter_iron_rapier_glint",
-    "source": "uwudimension:item/counter_iron_rapier"
+    "source": "uwudimension:item/counter_iron_rapier",
+    "motif": {
+      "pattern": "needle",
+      "held_design": "A needle flash around the ring inner edge; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A narrow thorn gate marks the guard; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_katana",
@@ -2918,7 +3182,12 @@
       }
     },
     "overlay": "counter_iron_katana_glint",
-    "source": "uwudimension:item/counter_iron_katana"
+    "source": "uwudimension:item/counter_iron_katana",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A crescent moving along the ring outer edge; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A moon segment traces the guarded side; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_sai",
@@ -3012,7 +3281,12 @@
       }
     },
     "overlay": "counter_iron_sai_glint",
-    "source": "uwudimension:item/counter_iron_sai"
+    "source": "uwudimension:item/counter_iron_sai",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three seed lights on separate ring teeth; a single clean rim glint in silver with a blush edge",
+      "impact_design": "Three pinpoint studs mark the guarded contact; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_spear",
@@ -3123,7 +3397,12 @@
       }
     },
     "overlay": "counter_iron_spear_glint",
-    "source": "uwudimension:item/counter_iron_spear"
+    "source": "uwudimension:item/counter_iron_spear",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One lance pennant at the spear collar; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A triangular pennant stretches along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_glaive",
@@ -3234,7 +3513,12 @@
       }
     },
     "overlay": "counter_iron_glaive_glint",
-    "source": "uwudimension:item/counter_iron_glaive"
+    "source": "uwudimension:item/counter_iron_glaive",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An asymmetric leaf near the long blade; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A leaf-shaped streak extends along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_warglaive",
@@ -3345,7 +3629,12 @@
       }
     },
     "overlay": "counter_iron_warglaive_glint",
-    "source": "uwudimension:item/counter_iron_warglaive"
+    "source": "uwudimension:item/counter_iron_warglaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two wing leaves at the spear neck; a single clean rim glint in silver with a blush edge",
+      "impact_design": "Paired wing-strokes show displacement; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_cutlass",
@@ -3456,7 +3745,12 @@
       }
     },
     "overlay": "counter_iron_cutlass_glint",
-    "source": "uwudimension:item/counter_iron_cutlass"
+    "source": "uwudimension:item/counter_iron_cutlass",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A sail fold on a spear fin; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A short curved sail curls in the push direction; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_claymore",
@@ -3550,7 +3844,12 @@
       }
     },
     "overlay": "counter_iron_claymore_glint",
-    "source": "uwudimension:item/counter_iron_claymore"
+    "source": "uwudimension:item/counter_iron_claymore",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One chime line down the axe cheek; a single clean rim glint in silver with a blush edge",
+      "impact_design": "One broad chime wave marks the stagger; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_greathammer",
@@ -3644,7 +3943,12 @@
       }
     },
     "overlay": "counter_iron_greathammer_glint",
-    "source": "uwudimension:item/counter_iron_greathammer"
+    "source": "uwudimension:item/counter_iron_greathammer",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two alternating studs in the hammer head; a single clean rim glint in silver with a blush edge",
+      "impact_design": "Two squared waves mark the staggered contact; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_greataxe",
@@ -3738,7 +4042,12 @@
       }
     },
     "overlay": "counter_iron_greataxe_glint",
-    "source": "uwudimension:item/counter_iron_greataxe"
+    "source": "uwudimension:item/counter_iron_greataxe",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Mirrored bells pulsing across both axe cheeks; a single clean rim glint in silver with a blush edge",
+      "impact_design": "Paired crescent bells launch along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_chakram",
@@ -3764,7 +4073,12 @@
       }
     },
     "overlay": "counter_iron_chakram_glint",
-    "source": "uwudimension:item/counter_iron_chakram"
+    "source": "uwudimension:item/counter_iron_chakram",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A ring-shaped knot on the legacy bow limb; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A ring clasp closes at a successful interception; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_scythe",
@@ -3875,7 +4189,12 @@
       }
     },
     "overlay": "counter_iron_scythe_glint",
-    "source": "uwudimension:item/counter_iron_scythe"
+    "source": "uwudimension:item/counter_iron_scythe",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower calyx halfway up the spearhead; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A pointed petal shoots along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_iron_halberd",
@@ -3986,7 +4305,12 @@
       }
     },
     "overlay": "counter_iron_halberd_glint",
-    "source": "uwudimension:item/counter_iron_halberd"
+    "source": "uwudimension:item/counter_iron_halberd",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A forked highlight below the spear tip; a single clean rim glint in silver with a blush edge",
+      "impact_design": "A split leaf opens along the push; finish with a clear pearl imprint"
+    }
   },
   {
     "item": "counter_gold_longsword",
@@ -4097,7 +4421,12 @@
       }
     },
     "overlay": "counter_gold_longsword_glint",
-    "source": "uwudimension:item/counter_gold_longsword"
+    "source": "uwudimension:item/counter_gold_longsword",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "An unbroken ribbon along the spear ridge; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "One long ribbon points away along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_twinblade",
@@ -4191,7 +4520,12 @@
       }
     },
     "overlay": "counter_gold_twinblade_glint",
-    "source": "uwudimension:item/counter_gold_twinblade"
+    "source": "uwudimension:item/counter_gold_twinblade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "Two offset crescents mark the guard; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_rapier",
@@ -4285,7 +4619,12 @@
       }
     },
     "overlay": "counter_gold_rapier_glint",
-    "source": "uwudimension:item/counter_gold_rapier"
+    "source": "uwudimension:item/counter_gold_rapier",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A needle flash around the ring inner edge; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A narrow thorn gate marks the guard; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_katana",
@@ -4379,7 +4718,12 @@
       }
     },
     "overlay": "counter_gold_katana_glint",
-    "source": "uwudimension:item/counter_gold_katana"
+    "source": "uwudimension:item/counter_gold_katana",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A crescent moving along the ring outer edge; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A moon segment traces the guarded side; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_sai",
@@ -4473,7 +4817,12 @@
       }
     },
     "overlay": "counter_gold_sai_glint",
-    "source": "uwudimension:item/counter_gold_sai"
+    "source": "uwudimension:item/counter_gold_sai",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three seed lights on separate ring teeth; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "Three pinpoint studs mark the guarded contact; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_spear",
@@ -4584,7 +4933,12 @@
       }
     },
     "overlay": "counter_gold_spear_glint",
-    "source": "uwudimension:item/counter_gold_spear"
+    "source": "uwudimension:item/counter_gold_spear",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "One lance pennant at the spear collar; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A triangular pennant stretches along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_glaive",
@@ -4695,7 +5049,12 @@
       }
     },
     "overlay": "counter_gold_glaive_glint",
-    "source": "uwudimension:item/counter_gold_glaive"
+    "source": "uwudimension:item/counter_gold_glaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "An asymmetric leaf near the long blade; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A leaf-shaped streak extends along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_warglaive",
@@ -4806,7 +5165,12 @@
       }
     },
     "overlay": "counter_gold_warglaive_glint",
-    "source": "uwudimension:item/counter_gold_warglaive"
+    "source": "uwudimension:item/counter_gold_warglaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two wing leaves at the spear neck; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "Paired wing-strokes show displacement; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_cutlass",
@@ -4917,7 +5281,12 @@
       }
     },
     "overlay": "counter_gold_cutlass_glint",
-    "source": "uwudimension:item/counter_gold_cutlass"
+    "source": "uwudimension:item/counter_gold_cutlass",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A sail fold on a spear fin; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A short curved sail curls in the push direction; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_claymore",
@@ -5011,7 +5380,12 @@
       }
     },
     "overlay": "counter_gold_claymore_glint",
-    "source": "uwudimension:item/counter_gold_claymore"
+    "source": "uwudimension:item/counter_gold_claymore",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "One chime line down the axe cheek; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "One broad chime wave marks the stagger; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_greathammer",
@@ -5105,7 +5479,12 @@
       }
     },
     "overlay": "counter_gold_greathammer_glint",
-    "source": "uwudimension:item/counter_gold_greathammer"
+    "source": "uwudimension:item/counter_gold_greathammer",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two alternating studs in the hammer head; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "Two squared waves mark the staggered contact; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_greataxe",
@@ -5199,7 +5578,12 @@
       }
     },
     "overlay": "counter_gold_greataxe_glint",
-    "source": "uwudimension:item/counter_gold_greataxe"
+    "source": "uwudimension:item/counter_gold_greataxe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Mirrored bells pulsing across both axe cheeks; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "Paired crescent bells launch along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_chakram",
@@ -5225,7 +5609,12 @@
       }
     },
     "overlay": "counter_gold_chakram_glint",
-    "source": "uwudimension:item/counter_gold_chakram"
+    "source": "uwudimension:item/counter_gold_chakram",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A ring-shaped knot on the legacy bow limb; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A ring clasp closes at a successful interception; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_scythe",
@@ -5336,7 +5725,12 @@
       }
     },
     "overlay": "counter_gold_scythe_glint",
-    "source": "uwudimension:item/counter_gold_scythe"
+    "source": "uwudimension:item/counter_gold_scythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A flower calyx halfway up the spearhead; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A pointed petal shoots along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_gold_halberd",
@@ -5447,7 +5841,12 @@
       }
     },
     "overlay": "counter_gold_halberd_glint",
-    "source": "uwudimension:item/counter_gold_halberd"
+    "source": "uwudimension:item/counter_gold_halberd",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A forked highlight below the spear tip; two staggered amber glints in honey-gold with a peach center",
+      "impact_design": "A split leaf opens along the push; finish with an amber double imprint"
+    }
   },
   {
     "item": "counter_diamond_longsword",
@@ -5558,7 +5957,12 @@
       }
     },
     "overlay": "counter_diamond_longsword_glint",
-    "source": "uwudimension:item/counter_diamond_longsword"
+    "source": "uwudimension:item/counter_diamond_longsword",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "An unbroken ribbon along the spear ridge; a faceted cold glint in turquoise with a white center",
+      "impact_design": "One long ribbon points away along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_twinblade",
@@ -5652,7 +6056,12 @@
       }
     },
     "overlay": "counter_diamond_twinblade_glint",
-    "source": "uwudimension:item/counter_diamond_twinblade"
+    "source": "uwudimension:item/counter_diamond_twinblade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a faceted cold glint in turquoise with a white center",
+      "impact_design": "Two offset crescents mark the guard; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_rapier",
@@ -5746,7 +6155,12 @@
       }
     },
     "overlay": "counter_diamond_rapier_glint",
-    "source": "uwudimension:item/counter_diamond_rapier"
+    "source": "uwudimension:item/counter_diamond_rapier",
+    "motif": {
+      "pattern": "needle",
+      "held_design": "A needle flash around the ring inner edge; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A narrow thorn gate marks the guard; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_katana",
@@ -5840,7 +6254,12 @@
       }
     },
     "overlay": "counter_diamond_katana_glint",
-    "source": "uwudimension:item/counter_diamond_katana"
+    "source": "uwudimension:item/counter_diamond_katana",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A crescent moving along the ring outer edge; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A moon segment traces the guarded side; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_sai",
@@ -5934,7 +6353,12 @@
       }
     },
     "overlay": "counter_diamond_sai_glint",
-    "source": "uwudimension:item/counter_diamond_sai"
+    "source": "uwudimension:item/counter_diamond_sai",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three seed lights on separate ring teeth; a faceted cold glint in turquoise with a white center",
+      "impact_design": "Three pinpoint studs mark the guarded contact; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_spear",
@@ -6045,7 +6469,12 @@
       }
     },
     "overlay": "counter_diamond_spear_glint",
-    "source": "uwudimension:item/counter_diamond_spear"
+    "source": "uwudimension:item/counter_diamond_spear",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One lance pennant at the spear collar; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A triangular pennant stretches along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_glaive",
@@ -6156,7 +6585,12 @@
       }
     },
     "overlay": "counter_diamond_glaive_glint",
-    "source": "uwudimension:item/counter_diamond_glaive"
+    "source": "uwudimension:item/counter_diamond_glaive",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An asymmetric leaf near the long blade; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A leaf-shaped streak extends along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_warglaive",
@@ -6267,7 +6701,12 @@
       }
     },
     "overlay": "counter_diamond_warglaive_glint",
-    "source": "uwudimension:item/counter_diamond_warglaive"
+    "source": "uwudimension:item/counter_diamond_warglaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two wing leaves at the spear neck; a faceted cold glint in turquoise with a white center",
+      "impact_design": "Paired wing-strokes show displacement; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_cutlass",
@@ -6378,7 +6817,12 @@
       }
     },
     "overlay": "counter_diamond_cutlass_glint",
-    "source": "uwudimension:item/counter_diamond_cutlass"
+    "source": "uwudimension:item/counter_diamond_cutlass",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A sail fold on a spear fin; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A short curved sail curls in the push direction; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_claymore",
@@ -6472,7 +6916,12 @@
       }
     },
     "overlay": "counter_diamond_claymore_glint",
-    "source": "uwudimension:item/counter_diamond_claymore"
+    "source": "uwudimension:item/counter_diamond_claymore",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One chime line down the axe cheek; a faceted cold glint in turquoise with a white center",
+      "impact_design": "One broad chime wave marks the stagger; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_greathammer",
@@ -6566,7 +7015,12 @@
       }
     },
     "overlay": "counter_diamond_greathammer_glint",
-    "source": "uwudimension:item/counter_diamond_greathammer"
+    "source": "uwudimension:item/counter_diamond_greathammer",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two alternating studs in the hammer head; a faceted cold glint in turquoise with a white center",
+      "impact_design": "Two squared waves mark the staggered contact; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_greataxe",
@@ -6660,7 +7114,12 @@
       }
     },
     "overlay": "counter_diamond_greataxe_glint",
-    "source": "uwudimension:item/counter_diamond_greataxe"
+    "source": "uwudimension:item/counter_diamond_greataxe",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Mirrored bells pulsing across both axe cheeks; a faceted cold glint in turquoise with a white center",
+      "impact_design": "Paired crescent bells launch along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_chakram",
@@ -6686,7 +7145,12 @@
       }
     },
     "overlay": "counter_diamond_chakram_glint",
-    "source": "uwudimension:item/counter_diamond_chakram"
+    "source": "uwudimension:item/counter_diamond_chakram",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A ring-shaped knot on the legacy bow limb; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A ring clasp closes at a successful interception; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_scythe",
@@ -6797,7 +7261,12 @@
       }
     },
     "overlay": "counter_diamond_scythe_glint",
-    "source": "uwudimension:item/counter_diamond_scythe"
+    "source": "uwudimension:item/counter_diamond_scythe",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower calyx halfway up the spearhead; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A pointed petal shoots along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_diamond_halberd",
@@ -6908,7 +7377,12 @@
       }
     },
     "overlay": "counter_diamond_halberd_glint",
-    "source": "uwudimension:item/counter_diamond_halberd"
+    "source": "uwudimension:item/counter_diamond_halberd",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A forked highlight below the spear tip; a faceted cold glint in turquoise with a white center",
+      "impact_design": "A split leaf opens along the push; finish with a mint faceted imprint"
+    }
   },
   {
     "item": "counter_netherite_longsword",
@@ -7019,7 +7493,12 @@
       }
     },
     "overlay": "counter_netherite_longsword_glint",
-    "source": "uwudimension:item/counter_netherite_longsword"
+    "source": "uwudimension:item/counter_netherite_longsword",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "An unbroken ribbon along the spear ridge; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "One long ribbon points away along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_twinblade",
@@ -7113,7 +7592,12 @@
       }
     },
     "overlay": "counter_netherite_twinblade_glint",
-    "source": "uwudimension:item/counter_netherite_twinblade"
+    "source": "uwudimension:item/counter_netherite_twinblade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "Two offset crescents mark the guard; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_rapier",
@@ -7207,7 +7691,12 @@
       }
     },
     "overlay": "counter_netherite_rapier_glint",
-    "source": "uwudimension:item/counter_netherite_rapier"
+    "source": "uwudimension:item/counter_netherite_rapier",
+    "motif": {
+      "pattern": "needle",
+      "held_design": "A needle flash around the ring inner edge; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A narrow thorn gate marks the guard; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_katana",
@@ -7301,7 +7790,12 @@
       }
     },
     "overlay": "counter_netherite_katana_glint",
-    "source": "uwudimension:item/counter_netherite_katana"
+    "source": "uwudimension:item/counter_netherite_katana",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A crescent moving along the ring outer edge; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A moon segment traces the guarded side; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_sai",
@@ -7395,7 +7889,12 @@
       }
     },
     "overlay": "counter_netherite_sai_glint",
-    "source": "uwudimension:item/counter_netherite_sai"
+    "source": "uwudimension:item/counter_netherite_sai",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three seed lights on separate ring teeth; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "Three pinpoint studs mark the guarded contact; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_spear",
@@ -7506,7 +8005,12 @@
       }
     },
     "overlay": "counter_netherite_spear_glint",
-    "source": "uwudimension:item/counter_netherite_spear"
+    "source": "uwudimension:item/counter_netherite_spear",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One lance pennant at the spear collar; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A triangular pennant stretches along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_glaive",
@@ -7617,7 +8121,12 @@
       }
     },
     "overlay": "counter_netherite_glaive_glint",
-    "source": "uwudimension:item/counter_netherite_glaive"
+    "source": "uwudimension:item/counter_netherite_glaive",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An asymmetric leaf near the long blade; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A leaf-shaped streak extends along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_warglaive",
@@ -7728,7 +8237,12 @@
       }
     },
     "overlay": "counter_netherite_warglaive_glint",
-    "source": "uwudimension:item/counter_netherite_warglaive"
+    "source": "uwudimension:item/counter_netherite_warglaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two wing leaves at the spear neck; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "Paired wing-strokes show displacement; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_cutlass",
@@ -7839,7 +8353,12 @@
       }
     },
     "overlay": "counter_netherite_cutlass_glint",
-    "source": "uwudimension:item/counter_netherite_cutlass"
+    "source": "uwudimension:item/counter_netherite_cutlass",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A sail fold on a spear fin; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A short curved sail curls in the push direction; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_claymore",
@@ -7933,7 +8452,12 @@
       }
     },
     "overlay": "counter_netherite_claymore_glint",
-    "source": "uwudimension:item/counter_netherite_claymore"
+    "source": "uwudimension:item/counter_netherite_claymore",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "One chime line down the axe cheek; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "One broad chime wave marks the stagger; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_greathammer",
@@ -8027,7 +8551,12 @@
       }
     },
     "overlay": "counter_netherite_greathammer_glint",
-    "source": "uwudimension:item/counter_netherite_greathammer"
+    "source": "uwudimension:item/counter_netherite_greathammer",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two alternating studs in the hammer head; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "Two squared waves mark the staggered contact; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_greataxe",
@@ -8121,7 +8650,12 @@
       }
     },
     "overlay": "counter_netherite_greataxe_glint",
-    "source": "uwudimension:item/counter_netherite_greataxe"
+    "source": "uwudimension:item/counter_netherite_greataxe",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Mirrored bells pulsing across both axe cheeks; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "Paired crescent bells launch along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_chakram",
@@ -8147,7 +8681,12 @@
       }
     },
     "overlay": "counter_netherite_chakram_glint",
-    "source": "uwudimension:item/counter_netherite_chakram"
+    "source": "uwudimension:item/counter_netherite_chakram",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A ring-shaped knot on the legacy bow limb; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A ring clasp closes at a successful interception; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_scythe",
@@ -8258,7 +8797,12 @@
       }
     },
     "overlay": "counter_netherite_scythe_glint",
-    "source": "uwudimension:item/counter_netherite_scythe"
+    "source": "uwudimension:item/counter_netherite_scythe",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower calyx halfway up the spearhead; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A pointed petal shoots along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_netherite_halberd",
@@ -8369,7 +8913,12 @@
       }
     },
     "overlay": "counter_netherite_halberd_glint",
-    "source": "uwudimension:item/counter_netherite_halberd"
+    "source": "uwudimension:item/counter_netherite_halberd",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A forked highlight below the spear tip; a low violet afterglow in plum-black with a lilac center",
+      "impact_design": "A split leaf opens along the push; finish with a dark outline with one lilac break"
+    }
   },
   {
     "item": "counter_runic_longsword",
@@ -8480,7 +9029,12 @@
       }
     },
     "overlay": "counter_runic_longsword_glint",
-    "source": "uwudimension:item/counter_runic_longsword"
+    "source": "uwudimension:item/counter_runic_longsword",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "An unbroken ribbon along the spear ridge; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "One long ribbon points away along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_twinblade",
@@ -8574,7 +9128,12 @@
       }
     },
     "overlay": "counter_runic_twinblade_glint",
-    "source": "uwudimension:item/counter_runic_twinblade"
+    "source": "uwudimension:item/counter_runic_twinblade",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Two opposing buds on the accessible rim or twin-ring bridge; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "Two offset crescents mark the guard; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_rapier",
@@ -8668,7 +9227,12 @@
       }
     },
     "overlay": "counter_runic_rapier_glint",
-    "source": "uwudimension:item/counter_runic_rapier"
+    "source": "uwudimension:item/counter_runic_rapier",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A needle flash around the ring inner edge; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A narrow thorn gate marks the guard; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_katana",
@@ -8762,7 +9326,12 @@
       }
     },
     "overlay": "counter_runic_katana_glint",
-    "source": "uwudimension:item/counter_runic_katana"
+    "source": "uwudimension:item/counter_runic_katana",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A crescent moving along the ring outer edge; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A moon segment traces the guarded side; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_sai",
@@ -8856,7 +9425,12 @@
       }
     },
     "overlay": "counter_runic_sai_glint",
-    "source": "uwudimension:item/counter_runic_sai"
+    "source": "uwudimension:item/counter_runic_sai",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three seed lights on separate ring teeth; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "Three pinpoint studs mark the guarded contact; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_spear",
@@ -8967,7 +9541,12 @@
       }
     },
     "overlay": "counter_runic_spear_glint",
-    "source": "uwudimension:item/counter_runic_spear"
+    "source": "uwudimension:item/counter_runic_spear",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "One lance pennant at the spear collar; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A triangular pennant stretches along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_glaive",
@@ -9078,7 +9657,12 @@
       }
     },
     "overlay": "counter_runic_glaive_glint",
-    "source": "uwudimension:item/counter_runic_glaive"
+    "source": "uwudimension:item/counter_runic_glaive",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "An asymmetric leaf near the long blade; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A leaf-shaped streak extends along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_warglaive",
@@ -9189,7 +9773,12 @@
       }
     },
     "overlay": "counter_runic_warglaive_glint",
-    "source": "uwudimension:item/counter_runic_warglaive"
+    "source": "uwudimension:item/counter_runic_warglaive",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Two wing leaves at the spear neck; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "Paired wing-strokes show displacement; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_cutlass",
@@ -9300,7 +9889,12 @@
       }
     },
     "overlay": "counter_runic_cutlass_glint",
-    "source": "uwudimension:item/counter_runic_cutlass"
+    "source": "uwudimension:item/counter_runic_cutlass",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A sail fold on a spear fin; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A short curved sail curls in the push direction; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_claymore",
@@ -9394,7 +9988,12 @@
       }
     },
     "overlay": "counter_runic_claymore_glint",
-    "source": "uwudimension:item/counter_runic_claymore"
+    "source": "uwudimension:item/counter_runic_claymore",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "One chime line down the axe cheek; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "One broad chime wave marks the stagger; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_chakram",
@@ -9420,7 +10019,12 @@
       }
     },
     "overlay": "counter_runic_chakram_glint",
-    "source": "uwudimension:item/counter_runic_chakram"
+    "source": "uwudimension:item/counter_runic_chakram",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A ring-shaped knot on the legacy bow limb; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A ring clasp closes at a successful interception; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_greataxe",
@@ -9514,7 +10118,12 @@
       }
     },
     "overlay": "counter_runic_greataxe_glint",
-    "source": "uwudimension:item/counter_runic_greataxe"
+    "source": "uwudimension:item/counter_runic_greataxe",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Mirrored bells pulsing across both axe cheeks; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "Paired crescent bells launch along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_greathammer",
@@ -9608,7 +10217,12 @@
       }
     },
     "overlay": "counter_runic_greathammer_glint",
-    "source": "uwudimension:item/counter_runic_greathammer"
+    "source": "uwudimension:item/counter_runic_greathammer",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Two alternating studs in the hammer head; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "Two squared waves mark the staggered contact; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_scythe",
@@ -9719,7 +10333,12 @@
       }
     },
     "overlay": "counter_runic_scythe_glint",
-    "source": "uwudimension:item/counter_runic_scythe"
+    "source": "uwudimension:item/counter_runic_scythe",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A flower calyx halfway up the spearhead; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A pointed petal shoots along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_runic_halberd",
@@ -9830,7 +10449,12 @@
       }
     },
     "overlay": "counter_runic_halberd_glint",
-    "source": "uwudimension:item/counter_runic_halberd"
+    "source": "uwudimension:item/counter_runic_halberd",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "A forked highlight below the spear tip; a three-step rune glint in amethyst with a warm petal center",
+      "impact_design": "A split leaf opens along the push; finish with a violet rune imprint; cleanse adds one white petal"
+    }
   },
   {
     "item": "counter_brimstone_claymore",
@@ -9941,7 +10565,12 @@
       }
     },
     "overlay": "counter_brimstone_claymore_glint",
-    "source": "uwudimension:item/counter_brimstone_claymore"
+    "source": "uwudimension:item/counter_brimstone_claymore",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Charred petal veins fade to orange on the spear collar",
+      "impact_design": "Split a cinder into two droplets at the quenched foe"
+    }
   },
   {
     "item": "counter_watcher_claymore",
@@ -10052,7 +10681,12 @@
       }
     },
     "overlay": "counter_watcher_claymore_glint",
-    "source": "uwudimension:item/counter_watcher_claymore"
+    "source": "uwudimension:item/counter_watcher_claymore",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A rosebud eye opens at the wand head and blinks",
+      "impact_design": "A pale lid unfolds over the caster as the cleanse resolves"
+    }
   },
   {
     "item": "counter_the_devourer",
@@ -10146,7 +10780,12 @@
       }
     },
     "overlay": "counter_the_devourer_glint",
-    "source": "uwudimension:item/counter_the_devourer"
+    "source": "uwudimension:item/counter_the_devourer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet petal teeth close along the inside hook",
+      "impact_design": "A cut thread unspools away from the severed link"
+    }
   },
   {
     "item": "counter_the_devourer",
@@ -10240,7 +10879,12 @@
       }
     },
     "overlay": "counter_the_devourer_0_glint",
-    "source": "uwudimension:item/counter_the_devourer"
+    "source": "uwudimension:item/counter_the_devourer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet petal teeth close along the inside hook",
+      "impact_design": "A cut thread unspools away from the severed link"
+    }
   },
   {
     "item": "counter_the_devourer",
@@ -10334,7 +10978,12 @@
       }
     },
     "overlay": "counter_the_devourer_1_glint",
-    "source": "uwudimension:item/counter_the_devourer"
+    "source": "uwudimension:item/counter_the_devourer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet petal teeth close along the inside hook",
+      "impact_design": "A cut thread unspools away from the severed link"
+    }
   },
   {
     "item": "counter_the_devourer",
@@ -10428,7 +11077,12 @@
       }
     },
     "overlay": "counter_the_devourer_2_glint",
-    "source": "uwudimension:item/counter_the_devourer"
+    "source": "uwudimension:item/counter_the_devourer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet petal teeth close along the inside hook",
+      "impact_design": "A cut thread unspools away from the severed link"
+    }
   },
   {
     "item": "counter_the_devourer",
@@ -10522,7 +11176,12 @@
       }
     },
     "overlay": "counter_the_devourer_3_glint",
-    "source": "uwudimension:item/counter_the_devourer"
+    "source": "uwudimension:item/counter_the_devourer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet petal teeth close along the inside hook",
+      "impact_design": "A cut thread unspools away from the severed link"
+    }
   },
   {
     "item": "counter_storms_edge",
@@ -10616,7 +11275,12 @@
       }
     },
     "overlay": "counter_storms_edge_glint",
-    "source": "uwudimension:item/counter_storms_edge"
+    "source": "uwudimension:item/counter_storms_edge",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two pink seed knots chase each other down the lash",
+      "impact_design": "Fix a small petal cross at the anchor point"
+    }
   },
   {
     "item": "counter_stormscale",
@@ -10710,7 +11374,12 @@
       }
     },
     "overlay": "counter_stormscale_glint",
-    "source": "uwudimension:item/counter_stormscale"
+    "source": "uwudimension:item/counter_stormscale",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A cobalt scale flips under the blade knot",
+      "impact_design": "Elastic blue filament parts in scales at the actual sever"
+    }
   },
   {
     "item": "counter_stormscale",
@@ -10804,7 +11473,12 @@
       }
     },
     "overlay": "counter_stormscale_0_glint",
-    "source": "uwudimension:item/counter_stormscale"
+    "source": "uwudimension:item/counter_stormscale",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A cobalt scale flips under the blade knot",
+      "impact_design": "Elastic blue filament parts in scales at the actual sever"
+    }
   },
   {
     "item": "counter_stormscale",
@@ -10898,7 +11572,12 @@
       }
     },
     "overlay": "counter_stormscale_1_glint",
-    "source": "uwudimension:item/counter_stormscale"
+    "source": "uwudimension:item/counter_stormscale",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A cobalt scale flips under the blade knot",
+      "impact_design": "Elastic blue filament parts in scales at the actual sever"
+    }
   },
   {
     "item": "counter_stormscale",
@@ -10992,7 +11671,12 @@
       }
     },
     "overlay": "counter_stormscale_2_glint",
-    "source": "uwudimension:item/counter_stormscale"
+    "source": "uwudimension:item/counter_stormscale",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A cobalt scale flips under the blade knot",
+      "impact_design": "Elastic blue filament parts in scales at the actual sever"
+    }
   },
   {
     "item": "counter_stormscale",
@@ -11086,7 +11770,12 @@
       }
     },
     "overlay": "counter_stormscale_3_glint",
-    "source": "uwudimension:item/counter_stormscale"
+    "source": "uwudimension:item/counter_stormscale",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A cobalt scale flips under the blade knot",
+      "impact_design": "Elastic blue filament parts in scales at the actual sever"
+    }
   },
   {
     "item": "counter_ionbound_stormscale",
@@ -11094,7 +11783,12 @@
     "model": "counter_ionbound_stormscale",
     "display": {},
     "overlay": "counter_ionbound_stormscale_glint",
-    "source": "uwudimension:item/counter_ionbound_stormscale"
+    "source": "uwudimension:item/counter_ionbound_stormscale",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two polarized flecks exchange places at the dagger guard",
+      "impact_design": "A faceted scale splits now; its halves light again on the delayed pulse"
+    }
   },
   {
     "item": "counter_stormbringer",
@@ -11102,7 +11796,12 @@
     "model": "counter_stormbringer",
     "display": {},
     "overlay": "counter_stormbringer_glint",
-    "source": "uwudimension:item/counter_stormbringer"
+    "source": "uwudimension:item/counter_stormbringer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "Violet droplets pause just short of the blade tip",
+      "impact_design": "A soft false spark fades before the solid delayed flash"
+    }
   },
   {
     "item": "counter_sword_on_a_stick",
@@ -11213,7 +11912,12 @@
       }
     },
     "overlay": "counter_sword_on_a_stick_glint",
-    "source": "uwudimension:item/counter_sword_on_a_stick"
+    "source": "uwudimension:item/counter_sword_on_a_stick",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "A heartwood seed peeks out of the spear collar",
+      "impact_design": "A short fan of woodgrain strokes opens in the push direction"
+    }
   },
   {
     "item": "counter_bramblethorn",
@@ -11307,7 +12011,12 @@
       }
     },
     "overlay": "counter_bramblethorn_glint",
-    "source": "uwudimension:item/counter_bramblethorn"
+    "source": "uwudimension:item/counter_bramblethorn",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A green thorn curls into a pale blossom on the hook",
+      "impact_design": "One bramble strand parts in two at the severed effect"
+    }
   },
   {
     "item": "counter_bramblethorn",
@@ -11401,7 +12110,12 @@
       }
     },
     "overlay": "counter_bramblethorn_0_glint",
-    "source": "uwudimension:item/counter_bramblethorn"
+    "source": "uwudimension:item/counter_bramblethorn",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A green thorn curls into a pale blossom on the hook",
+      "impact_design": "One bramble strand parts in two at the severed effect"
+    }
   },
   {
     "item": "counter_bramblethorn",
@@ -11495,7 +12209,12 @@
       }
     },
     "overlay": "counter_bramblethorn_1_glint",
-    "source": "uwudimension:item/counter_bramblethorn"
+    "source": "uwudimension:item/counter_bramblethorn",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A green thorn curls into a pale blossom on the hook",
+      "impact_design": "One bramble strand parts in two at the severed effect"
+    }
   },
   {
     "item": "counter_bramblethorn",
@@ -11589,7 +12308,12 @@
       }
     },
     "overlay": "counter_bramblethorn_2_glint",
-    "source": "uwudimension:item/counter_bramblethorn"
+    "source": "uwudimension:item/counter_bramblethorn",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A green thorn curls into a pale blossom on the hook",
+      "impact_design": "One bramble strand parts in two at the severed effect"
+    }
   },
   {
     "item": "counter_bramblethorn",
@@ -11683,7 +12407,12 @@
       }
     },
     "overlay": "counter_bramblethorn_3_glint",
-    "source": "uwudimension:item/counter_bramblethorn"
+    "source": "uwudimension:item/counter_bramblethorn",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A green thorn curls into a pale blossom on the hook",
+      "impact_design": "One bramble strand parts in two at the severed effect"
+    }
   },
   {
     "item": "counter_watching_warglaive",
@@ -11794,7 +12523,12 @@
       }
     },
     "overlay": "counter_watching_warglaive_glint",
-    "source": "uwudimension:item/counter_watching_warglaive"
+    "source": "uwudimension:item/counter_watching_warglaive",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two petal pupils orbit the blossom wand",
+      "impact_design": "A pair of half-rings wipes inward on cleanse"
+    }
   },
   {
     "item": "counter_toxic_longsword",
@@ -11802,7 +12536,12 @@
     "model": "counter_toxic_longsword",
     "display": {},
     "overlay": "counter_toxic_longsword_glint",
-    "source": "uwudimension:item/counter_toxic_longsword"
+    "source": "uwudimension:item/counter_toxic_longsword",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A green droplet rolls away from the accepted blade point",
+      "impact_design": "Poison-colored petals wash clear across the wielder"
+    }
   },
   {
     "item": "counter_emberblade",
@@ -11913,7 +12652,12 @@
       }
     },
     "overlay": "counter_emberblade_glint",
-    "source": "uwudimension:item/counter_emberblade"
+    "source": "uwudimension:item/counter_emberblade",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A small ember turns rose then pearl at the tip",
+      "impact_design": "Three vapor petals float up from the quenched impact"
+    }
   },
   {
     "item": "counter_hearthflame",
@@ -12024,7 +12768,12 @@
       }
     },
     "overlay": "counter_hearthflame_glint",
-    "source": "uwudimension:item/counter_hearthflame"
+    "source": "uwudimension:item/counter_hearthflame",
+    "motif": {
+      "pattern": "heart",
+      "held_design": "A tiny hearth-window lights at the collar",
+      "impact_design": "An amber tile cools from its corners into a mint flower"
+    }
   },
   {
     "item": "counter_soulkeeper",
@@ -12050,7 +12799,12 @@
       }
     },
     "overlay": "counter_soulkeeper_glint",
-    "source": "uwudimension:item/counter_soulkeeper"
+    "source": "uwudimension:item/counter_soulkeeper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A pale wisp rests in the bow fork",
+      "impact_design": "The legacy cast leaves a hollow blush trail that folds at the interception point"
+    }
   },
   {
     "item": "counter_twisted_blade",
@@ -12058,7 +12812,12 @@
     "model": "counter_twisted_blade",
     "display": {},
     "overlay": "counter_twisted_blade_glint",
-    "source": "uwudimension:item/counter_twisted_blade"
+    "source": "uwudimension:item/counter_twisted_blade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two thorn glints cross below the dagger guard",
+      "impact_design": "Two staggered stems outline the delayed strike"
+    }
   },
   {
     "item": "counter_soulstealer",
@@ -12152,7 +12911,12 @@
       }
     },
     "overlay": "counter_soulstealer_glint",
-    "source": "uwudimension:item/counter_soulstealer"
+    "source": "uwudimension:item/counter_soulstealer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A pink dew bead recedes into the curved blade",
+      "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+    }
   },
   {
     "item": "counter_soulstealer",
@@ -12246,7 +13010,12 @@
       }
     },
     "overlay": "counter_soulstealer_0_glint",
-    "source": "uwudimension:item/counter_soulstealer"
+    "source": "uwudimension:item/counter_soulstealer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A pink dew bead recedes into the curved blade",
+      "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+    }
   },
   {
     "item": "counter_soulstealer",
@@ -12340,7 +13109,12 @@
       }
     },
     "overlay": "counter_soulstealer_1_glint",
-    "source": "uwudimension:item/counter_soulstealer"
+    "source": "uwudimension:item/counter_soulstealer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A pink dew bead recedes into the curved blade",
+      "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+    }
   },
   {
     "item": "counter_soulstealer",
@@ -12434,7 +13208,12 @@
       }
     },
     "overlay": "counter_soulstealer_2_glint",
-    "source": "uwudimension:item/counter_soulstealer"
+    "source": "uwudimension:item/counter_soulstealer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A pink dew bead recedes into the curved blade",
+      "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+    }
   },
   {
     "item": "counter_soulstealer",
@@ -12528,7 +13307,12 @@
       }
     },
     "overlay": "counter_soulstealer_3_glint",
-    "source": "uwudimension:item/counter_soulstealer"
+    "source": "uwudimension:item/counter_soulstealer",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A pink dew bead recedes into the curved blade",
+      "impact_design": "A closing rose at the existing marked foe signals the healing seal"
+    }
   },
   {
     "item": "counter_soulrender",
@@ -12622,7 +13406,12 @@
       }
     },
     "overlay": "counter_soulrender_glint",
-    "source": "uwudimension:item/counter_soulrender"
+    "source": "uwudimension:item/counter_soulrender",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three blue petal sparks drift in single file along the hook",
+      "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+    }
   },
   {
     "item": "counter_soulrender",
@@ -12716,7 +13505,12 @@
       }
     },
     "overlay": "counter_soulrender_0_glint",
-    "source": "uwudimension:item/counter_soulrender"
+    "source": "uwudimension:item/counter_soulrender",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three blue petal sparks drift in single file along the hook",
+      "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+    }
   },
   {
     "item": "counter_soulrender",
@@ -12810,7 +13604,12 @@
       }
     },
     "overlay": "counter_soulrender_1_glint",
-    "source": "uwudimension:item/counter_soulrender"
+    "source": "uwudimension:item/counter_soulrender",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three blue petal sparks drift in single file along the hook",
+      "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+    }
   },
   {
     "item": "counter_soulrender",
@@ -12904,7 +13703,12 @@
       }
     },
     "overlay": "counter_soulrender_2_glint",
-    "source": "uwudimension:item/counter_soulrender"
+    "source": "uwudimension:item/counter_soulrender",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three blue petal sparks drift in single file along the hook",
+      "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+    }
   },
   {
     "item": "counter_soulrender",
@@ -12998,7 +13802,12 @@
       }
     },
     "overlay": "counter_soulrender_3_glint",
-    "source": "uwudimension:item/counter_soulrender"
+    "source": "uwudimension:item/counter_soulrender",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three blue petal sparks drift in single file along the hook",
+      "impact_design": "A navy outline briefly closes around a pale blossom at the anti-heal mark"
+    }
   },
   {
     "item": "counter_soulstalker",
@@ -13092,7 +13901,12 @@
       }
     },
     "overlay": "counter_soulstalker_glint",
-    "source": "uwudimension:item/counter_soulstalker"
+    "source": "uwudimension:item/counter_soulstalker",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A shadow bud crawls down the inner whip loop",
+      "impact_design": "A small crescent shadow pins the anchor location"
+    }
   },
   {
     "item": "counter_soulpyre",
@@ -13118,7 +13932,12 @@
       }
     },
     "overlay": "counter_soulpyre_glint",
-    "source": "uwudimension:item/counter_soulpyre"
+    "source": "uwudimension:item/counter_soulpyre",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two lavender cinder petals trade brightness by the grip",
+      "impact_design": "A fading ghost flame travels with the legacy cast and goes quiet on interception"
+    }
   },
   {
     "item": "counter_frostfall",
@@ -13212,7 +14031,12 @@
       }
     },
     "overlay": "counter_frostfall_glint",
-    "source": "uwudimension:item/counter_frostfall"
+    "source": "uwudimension:item/counter_frostfall",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An icy flower facets outward along the scythe shoulder",
+      "impact_design": "Two frost filaments part into floating shards"
+    }
   },
   {
     "item": "counter_frostfall",
@@ -13306,7 +14130,12 @@
       }
     },
     "overlay": "counter_frostfall_0_glint",
-    "source": "uwudimension:item/counter_frostfall"
+    "source": "uwudimension:item/counter_frostfall",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An icy flower facets outward along the scythe shoulder",
+      "impact_design": "Two frost filaments part into floating shards"
+    }
   },
   {
     "item": "counter_frostfall",
@@ -13400,7 +14229,12 @@
       }
     },
     "overlay": "counter_frostfall_1_glint",
-    "source": "uwudimension:item/counter_frostfall"
+    "source": "uwudimension:item/counter_frostfall",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An icy flower facets outward along the scythe shoulder",
+      "impact_design": "Two frost filaments part into floating shards"
+    }
   },
   {
     "item": "counter_frostfall",
@@ -13494,7 +14328,12 @@
       }
     },
     "overlay": "counter_frostfall_2_glint",
-    "source": "uwudimension:item/counter_frostfall"
+    "source": "uwudimension:item/counter_frostfall",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An icy flower facets outward along the scythe shoulder",
+      "impact_design": "Two frost filaments part into floating shards"
+    }
   },
   {
     "item": "counter_frostfall",
@@ -13588,7 +14427,12 @@
       }
     },
     "overlay": "counter_frostfall_3_glint",
-    "source": "uwudimension:item/counter_frostfall"
+    "source": "uwudimension:item/counter_frostfall",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An icy flower facets outward along the scythe shoulder",
+      "impact_design": "Two frost filaments part into floating shards"
+    }
   },
   {
     "item": "counter_molten_edge",
@@ -13699,7 +14543,12 @@
       }
     },
     "overlay": "counter_molten_edge_glint",
-    "source": "uwudimension:item/counter_molten_edge"
+    "source": "uwudimension:item/counter_molten_edge",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Molten amber runs down the spearhead's center channel",
+      "impact_design": "The impact solidifies in three stepped, cooling pixels"
+    }
   },
   {
     "item": "counter_livyatan",
@@ -13793,7 +14642,12 @@
       }
     },
     "overlay": "counter_livyatan_glint",
-    "source": "uwudimension:item/counter_livyatan"
+    "source": "uwudimension:item/counter_livyatan",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A teal fin turns under the scythe joint",
+      "impact_design": "A curling foam seam tears along the sever effect"
+    }
   },
   {
     "item": "counter_livyatan",
@@ -13887,7 +14741,12 @@
       }
     },
     "overlay": "counter_livyatan_0_glint",
-    "source": "uwudimension:item/counter_livyatan"
+    "source": "uwudimension:item/counter_livyatan",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A teal fin turns under the scythe joint",
+      "impact_design": "A curling foam seam tears along the sever effect"
+    }
   },
   {
     "item": "counter_livyatan",
@@ -13981,7 +14840,12 @@
       }
     },
     "overlay": "counter_livyatan_1_glint",
-    "source": "uwudimension:item/counter_livyatan"
+    "source": "uwudimension:item/counter_livyatan",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A teal fin turns under the scythe joint",
+      "impact_design": "A curling foam seam tears along the sever effect"
+    }
   },
   {
     "item": "counter_livyatan",
@@ -14075,7 +14939,12 @@
       }
     },
     "overlay": "counter_livyatan_2_glint",
-    "source": "uwudimension:item/counter_livyatan"
+    "source": "uwudimension:item/counter_livyatan",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A teal fin turns under the scythe joint",
+      "impact_design": "A curling foam seam tears along the sever effect"
+    }
   },
   {
     "item": "counter_livyatan",
@@ -14169,7 +15038,12 @@
       }
     },
     "overlay": "counter_livyatan_3_glint",
-    "source": "uwudimension:item/counter_livyatan"
+    "source": "uwudimension:item/counter_livyatan",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A teal fin turns under the scythe joint",
+      "impact_design": "A curling foam seam tears along the sever effect"
+    }
   },
   {
     "item": "counter_icewhisper",
@@ -14263,7 +15137,12 @@
       }
     },
     "overlay": "counter_icewhisper_glint",
-    "source": "uwudimension:item/counter_icewhisper"
+    "source": "uwudimension:item/counter_icewhisper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A white breath pixel glides across the hook shadow",
+      "impact_design": "A hairline icicle snaps without a broad fog cloud"
+    }
   },
   {
     "item": "counter_icewhisper",
@@ -14357,7 +15236,12 @@
       }
     },
     "overlay": "counter_icewhisper_0_glint",
-    "source": "uwudimension:item/counter_icewhisper"
+    "source": "uwudimension:item/counter_icewhisper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A white breath pixel glides across the hook shadow",
+      "impact_design": "A hairline icicle snaps without a broad fog cloud"
+    }
   },
   {
     "item": "counter_icewhisper",
@@ -14451,7 +15335,12 @@
       }
     },
     "overlay": "counter_icewhisper_1_glint",
-    "source": "uwudimension:item/counter_icewhisper"
+    "source": "uwudimension:item/counter_icewhisper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A white breath pixel glides across the hook shadow",
+      "impact_design": "A hairline icicle snaps without a broad fog cloud"
+    }
   },
   {
     "item": "counter_icewhisper",
@@ -14545,7 +15434,12 @@
       }
     },
     "overlay": "counter_icewhisper_2_glint",
-    "source": "uwudimension:item/counter_icewhisper"
+    "source": "uwudimension:item/counter_icewhisper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A white breath pixel glides across the hook shadow",
+      "impact_design": "A hairline icicle snaps without a broad fog cloud"
+    }
   },
   {
     "item": "counter_icewhisper",
@@ -14639,7 +15533,12 @@
       }
     },
     "overlay": "counter_icewhisper_3_glint",
-    "source": "uwudimension:item/counter_icewhisper"
+    "source": "uwudimension:item/counter_icewhisper",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A white breath pixel glides across the hook shadow",
+      "impact_design": "A hairline icicle snaps without a broad fog cloud"
+    }
   },
   {
     "item": "counter_arcanethyst",
@@ -14733,7 +15632,12 @@
       }
     },
     "overlay": "counter_arcanethyst_glint",
-    "source": "uwudimension:item/counter_arcanethyst"
+    "source": "uwudimension:item/counter_arcanethyst",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three violet amethyst facets alternate on the whip handle",
+      "impact_design": "An angular lilac seal sits at the existing anchor"
+    }
   },
   {
     "item": "counter_thunderbrand",
@@ -14827,7 +15731,12 @@
       }
     },
     "overlay": "counter_thunderbrand_glint",
-    "source": "uwudimension:item/counter_thunderbrand"
+    "source": "uwudimension:item/counter_thunderbrand",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A bright fork races to the end of the lash",
+      "impact_design": "A zigzag tack marks the struck tether origin"
+    }
   },
   {
     "item": "counter_mjolnir",
@@ -14921,7 +15830,12 @@
       }
     },
     "overlay": "counter_mjolnir_glint",
-    "source": "uwudimension:item/counter_mjolnir"
+    "source": "uwudimension:item/counter_mjolnir",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Hammer-stamp shapes glow on the scythe collar",
+      "impact_design": "A two-pronged crack breaks through a short energy thread"
+    }
   },
   {
     "item": "counter_mjolnir",
@@ -15015,7 +15929,12 @@
       }
     },
     "overlay": "counter_mjolnir_0_glint",
-    "source": "uwudimension:item/counter_mjolnir"
+    "source": "uwudimension:item/counter_mjolnir",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Hammer-stamp shapes glow on the scythe collar",
+      "impact_design": "A two-pronged crack breaks through a short energy thread"
+    }
   },
   {
     "item": "counter_mjolnir",
@@ -15109,7 +16028,12 @@
       }
     },
     "overlay": "counter_mjolnir_1_glint",
-    "source": "uwudimension:item/counter_mjolnir"
+    "source": "uwudimension:item/counter_mjolnir",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Hammer-stamp shapes glow on the scythe collar",
+      "impact_design": "A two-pronged crack breaks through a short energy thread"
+    }
   },
   {
     "item": "counter_mjolnir",
@@ -15203,7 +16127,12 @@
       }
     },
     "overlay": "counter_mjolnir_2_glint",
-    "source": "uwudimension:item/counter_mjolnir"
+    "source": "uwudimension:item/counter_mjolnir",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Hammer-stamp shapes glow on the scythe collar",
+      "impact_design": "A two-pronged crack breaks through a short energy thread"
+    }
   },
   {
     "item": "counter_mjolnir",
@@ -15297,7 +16226,12 @@
       }
     },
     "overlay": "counter_mjolnir_3_glint",
-    "source": "uwudimension:item/counter_mjolnir"
+    "source": "uwudimension:item/counter_mjolnir",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Hammer-stamp shapes glow on the scythe collar",
+      "impact_design": "A two-pronged crack breaks through a short energy thread"
+    }
   },
   {
     "item": "counter_slumbering_lichblade",
@@ -15323,7 +16257,12 @@
       }
     },
     "overlay": "counter_slumbering_lichblade_glint",
-    "source": "uwudimension:item/counter_slumbering_lichblade"
+    "source": "uwudimension:item/counter_slumbering_lichblade",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "Closed eyelid stitched into the bow tip breathes once",
+      "impact_design": "Drowsy violet dots stop at the old projectile interception point"
+    }
   },
   {
     "item": "counter_waking_lichblade",
@@ -15349,7 +16288,12 @@
       }
     },
     "overlay": "counter_waking_lichblade_glint",
-    "source": "uwudimension:item/counter_waking_lichblade"
+    "source": "uwudimension:item/counter_waking_lichblade",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "The same stitched eye opens halfway for a beat",
+      "impact_design": "Two lavender rays close from either side on an intercepted shot"
+    }
   },
   {
     "item": "counter_awakened_lichblade",
@@ -15375,7 +16319,12 @@
       }
     },
     "overlay": "counter_awakened_lichblade_glint",
-    "source": "uwudimension:item/counter_awakened_lichblade"
+    "source": "uwudimension:item/counter_awakened_lichblade",
+    "motif": {
+      "pattern": "star",
+      "held_design": "An open rose eye sheds one small diamond",
+      "impact_design": "Three bright lids converge into a silent bead at interception"
+    }
   },
   {
     "item": "counter_shadowsting",
@@ -15469,7 +16418,12 @@
       }
     },
     "overlay": "counter_shadowsting_glint",
-    "source": "uwudimension:item/counter_shadowsting"
+    "source": "uwudimension:item/counter_shadowsting",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A dark rose stinger pulses at the loop tip",
+      "impact_design": "A tapered ink petal pins the shadow at the anchored point"
+    }
   },
   {
     "item": "counter_dormant_relic",
@@ -15580,7 +16534,12 @@
       }
     },
     "overlay": "counter_dormant_relic_glint",
-    "source": "uwudimension:item/counter_dormant_relic"
+    "source": "uwudimension:item/counter_dormant_relic",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "An unbroken seed seam glimmers once near the tip",
+      "impact_design": "An unopened seed stamps the leading edge of the spacing push"
+    }
   },
   {
     "item": "counter_righteous_relic",
@@ -15674,7 +16633,12 @@
       }
     },
     "overlay": "counter_righteous_relic_glint",
-    "source": "uwudimension:item/counter_righteous_relic"
+    "source": "uwudimension:item/counter_righteous_relic",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A gold halo rolls to the center of the curved blade",
+      "impact_design": "A pale rose seal closes in a six-petal sun ring"
+    }
   },
   {
     "item": "counter_righteous_relic",
@@ -15768,7 +16732,12 @@
       }
     },
     "overlay": "counter_righteous_relic_0_glint",
-    "source": "uwudimension:item/counter_righteous_relic"
+    "source": "uwudimension:item/counter_righteous_relic",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A gold halo rolls to the center of the curved blade",
+      "impact_design": "A pale rose seal closes in a six-petal sun ring"
+    }
   },
   {
     "item": "counter_righteous_relic",
@@ -15862,7 +16831,12 @@
       }
     },
     "overlay": "counter_righteous_relic_1_glint",
-    "source": "uwudimension:item/counter_righteous_relic"
+    "source": "uwudimension:item/counter_righteous_relic",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A gold halo rolls to the center of the curved blade",
+      "impact_design": "A pale rose seal closes in a six-petal sun ring"
+    }
   },
   {
     "item": "counter_righteous_relic",
@@ -15956,7 +16930,12 @@
       }
     },
     "overlay": "counter_righteous_relic_2_glint",
-    "source": "uwudimension:item/counter_righteous_relic"
+    "source": "uwudimension:item/counter_righteous_relic",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A gold halo rolls to the center of the curved blade",
+      "impact_design": "A pale rose seal closes in a six-petal sun ring"
+    }
   },
   {
     "item": "counter_righteous_relic",
@@ -16050,7 +17029,12 @@
       }
     },
     "overlay": "counter_righteous_relic_3_glint",
-    "source": "uwudimension:item/counter_righteous_relic"
+    "source": "uwudimension:item/counter_righteous_relic",
+    "motif": {
+      "pattern": "orbit",
+      "held_design": "A gold halo rolls to the center of the curved blade",
+      "impact_design": "A pale rose seal closes in a six-petal sun ring"
+    }
   },
   {
     "item": "counter_tainted_relic",
@@ -16161,7 +17145,12 @@
       }
     },
     "overlay": "counter_tainted_relic_glint",
-    "source": "uwudimension:item/counter_tainted_relic"
+    "source": "uwudimension:item/counter_tainted_relic",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A dusky droplet drains into the wand blossom",
+      "impact_design": "A dark leaf peels away from the cleansed caster"
+    }
   },
   {
     "item": "counter_sunfire",
@@ -16255,7 +17244,12 @@
       }
     },
     "overlay": "counter_sunfire_glint",
-    "source": "uwudimension:item/counter_sunfire"
+    "source": "uwudimension:item/counter_sunfire",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One sunlit petal follows the top of the hook",
+      "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+    }
   },
   {
     "item": "counter_sunfire",
@@ -16349,7 +17343,12 @@
       }
     },
     "overlay": "counter_sunfire_0_glint",
-    "source": "uwudimension:item/counter_sunfire"
+    "source": "uwudimension:item/counter_sunfire",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One sunlit petal follows the top of the hook",
+      "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+    }
   },
   {
     "item": "counter_sunfire",
@@ -16443,7 +17442,12 @@
       }
     },
     "overlay": "counter_sunfire_1_glint",
-    "source": "uwudimension:item/counter_sunfire"
+    "source": "uwudimension:item/counter_sunfire",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One sunlit petal follows the top of the hook",
+      "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+    }
   },
   {
     "item": "counter_sunfire",
@@ -16537,7 +17541,12 @@
       }
     },
     "overlay": "counter_sunfire_2_glint",
-    "source": "uwudimension:item/counter_sunfire"
+    "source": "uwudimension:item/counter_sunfire",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One sunlit petal follows the top of the hook",
+      "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+    }
   },
   {
     "item": "counter_sunfire",
@@ -16631,7 +17640,12 @@
       }
     },
     "overlay": "counter_sunfire_3_glint",
-    "source": "uwudimension:item/counter_sunfire"
+    "source": "uwudimension:item/counter_sunfire",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "One sunlit petal follows the top of the hook",
+      "impact_design": "A sun disc shuts like a morning flower on the healing seal"
+    }
   },
   {
     "item": "counter_harbinger",
@@ -16725,7 +17739,12 @@
       }
     },
     "overlay": "counter_harbinger_glint",
-    "source": "uwudimension:item/counter_harbinger"
+    "source": "uwudimension:item/counter_harbinger",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Small folded bird petals stir near the whip tassel",
+      "impact_design": "Three outward wing strokes mark actual displaced summons"
+    }
   },
   {
     "item": "counter_whisperwind",
@@ -16819,7 +17838,12 @@
       }
     },
     "overlay": "counter_whisperwind_glint",
-    "source": "uwudimension:item/counter_whisperwind"
+    "source": "uwudimension:item/counter_whisperwind",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Pale pink pennants lean downwind along the lash",
+      "impact_design": "Wind lines fold into an anchored leaf pin"
+    }
   },
   {
     "item": "counter_dreadwhisper",
@@ -16930,7 +17954,12 @@
       }
     },
     "overlay": "counter_dreadwhisper_glint",
-    "source": "uwudimension:item/counter_dreadwhisper"
+    "source": "uwudimension:item/counter_dreadwhisper",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Violet teardrops lift from the wand bud in sequence",
+      "impact_design": "A tiny open blossom dissolves the dark trace on cleanse"
+    }
   },
   {
     "item": "counter_emberlash",
@@ -17024,7 +18053,12 @@
       }
     },
     "overlay": "counter_emberlash_glint",
-    "source": "uwudimension:item/counter_emberlash"
+    "source": "uwudimension:item/counter_emberlash",
+    "motif": {
+      "pattern": "flare",
+      "held_design": "Glowing ember pollen sweeps along the copper hook",
+      "impact_design": "A small ember lattice closes on the marked foe"
+    }
   },
   {
     "item": "counter_emberlash",
@@ -17118,7 +18152,12 @@
       }
     },
     "overlay": "counter_emberlash_0_glint",
-    "source": "uwudimension:item/counter_emberlash"
+    "source": "uwudimension:item/counter_emberlash",
+    "motif": {
+      "pattern": "flare",
+      "held_design": "Glowing ember pollen sweeps along the copper hook",
+      "impact_design": "A small ember lattice closes on the marked foe"
+    }
   },
   {
     "item": "counter_emberlash",
@@ -17212,7 +18251,12 @@
       }
     },
     "overlay": "counter_emberlash_1_glint",
-    "source": "uwudimension:item/counter_emberlash"
+    "source": "uwudimension:item/counter_emberlash",
+    "motif": {
+      "pattern": "flare",
+      "held_design": "Glowing ember pollen sweeps along the copper hook",
+      "impact_design": "A small ember lattice closes on the marked foe"
+    }
   },
   {
     "item": "counter_emberlash",
@@ -17306,7 +18350,12 @@
       }
     },
     "overlay": "counter_emberlash_2_glint",
-    "source": "uwudimension:item/counter_emberlash"
+    "source": "uwudimension:item/counter_emberlash",
+    "motif": {
+      "pattern": "flare",
+      "held_design": "Glowing ember pollen sweeps along the copper hook",
+      "impact_design": "A small ember lattice closes on the marked foe"
+    }
   },
   {
     "item": "counter_emberlash",
@@ -17400,7 +18449,12 @@
       }
     },
     "overlay": "counter_emberlash_3_glint",
-    "source": "uwudimension:item/counter_emberlash"
+    "source": "uwudimension:item/counter_emberlash",
+    "motif": {
+      "pattern": "flare",
+      "held_design": "Glowing ember pollen sweeps along the copper hook",
+      "impact_design": "A small ember lattice closes on the marked foe"
+    }
   },
   {
     "item": "counter_waxweaver",
@@ -17494,7 +18548,12 @@
       }
     },
     "overlay": "counter_waxweaver_glint",
-    "source": "uwudimension:item/counter_waxweaver"
+    "source": "uwudimension:item/counter_waxweaver",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A honey-pink bead slides along one scythe tooth",
+      "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+    }
   },
   {
     "item": "counter_waxweaver",
@@ -17588,7 +18647,12 @@
       }
     },
     "overlay": "counter_waxweaver_0_glint",
-    "source": "uwudimension:item/counter_waxweaver"
+    "source": "uwudimension:item/counter_waxweaver",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A honey-pink bead slides along one scythe tooth",
+      "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+    }
   },
   {
     "item": "counter_waxweaver",
@@ -17682,7 +18746,12 @@
       }
     },
     "overlay": "counter_waxweaver_1_glint",
-    "source": "uwudimension:item/counter_waxweaver"
+    "source": "uwudimension:item/counter_waxweaver",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A honey-pink bead slides along one scythe tooth",
+      "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+    }
   },
   {
     "item": "counter_waxweaver",
@@ -17776,7 +18845,12 @@
       }
     },
     "overlay": "counter_waxweaver_2_glint",
-    "source": "uwudimension:item/counter_waxweaver"
+    "source": "uwudimension:item/counter_waxweaver",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A honey-pink bead slides along one scythe tooth",
+      "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+    }
   },
   {
     "item": "counter_waxweaver",
@@ -17870,7 +18944,12 @@
       }
     },
     "overlay": "counter_waxweaver_3_glint",
-    "source": "uwudimension:item/counter_waxweaver"
+    "source": "uwudimension:item/counter_waxweaver",
+    "motif": {
+      "pattern": "drop",
+      "held_design": "A honey-pink bead slides along one scythe tooth",
+      "impact_design": "A hexagonal flower seal marks the existing revival suppression"
+    }
   },
   {
     "item": "counter_hiveheart",
@@ -17964,7 +19043,12 @@
       }
     },
     "overlay": "counter_hiveheart_glint",
-    "source": "uwudimension:item/counter_hiveheart"
+    "source": "uwudimension:item/counter_hiveheart",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three hex-pollen beads orbit close to the whip knot",
+      "impact_design": "Petal-wing pairs stream outward only at banished summons"
+    }
   },
   {
     "item": "counter_stars_edge",
@@ -17972,7 +19056,12 @@
     "model": "counter_stars_edge",
     "display": {},
     "overlay": "counter_stars_edge_glint",
-    "source": "uwudimension:item/counter_stars_edge"
+    "source": "uwudimension:item/counter_stars_edge",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A small four-point star crosses the dagger spine",
+      "impact_design": "A dim star appears at contact and a crisp echo marks delayed damage"
+    }
   },
   {
     "item": "counter_wickpiercer",
@@ -18066,7 +19155,12 @@
       }
     },
     "overlay": "counter_wickpiercer_glint",
-    "source": "uwudimension:item/counter_wickpiercer"
+    "source": "uwudimension:item/counter_wickpiercer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower-wick pin smolders along the scythe collar",
+      "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+    }
   },
   {
     "item": "counter_wickpiercer",
@@ -18160,7 +19254,12 @@
       }
     },
     "overlay": "counter_wickpiercer_0_glint",
-    "source": "uwudimension:item/counter_wickpiercer"
+    "source": "uwudimension:item/counter_wickpiercer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower-wick pin smolders along the scythe collar",
+      "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+    }
   },
   {
     "item": "counter_wickpiercer",
@@ -18254,7 +19353,12 @@
       }
     },
     "overlay": "counter_wickpiercer_1_glint",
-    "source": "uwudimension:item/counter_wickpiercer"
+    "source": "uwudimension:item/counter_wickpiercer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower-wick pin smolders along the scythe collar",
+      "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+    }
   },
   {
     "item": "counter_wickpiercer",
@@ -18348,7 +19452,12 @@
       }
     },
     "overlay": "counter_wickpiercer_2_glint",
-    "source": "uwudimension:item/counter_wickpiercer"
+    "source": "uwudimension:item/counter_wickpiercer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower-wick pin smolders along the scythe collar",
+      "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+    }
   },
   {
     "item": "counter_wickpiercer",
@@ -18442,7 +19551,12 @@
       }
     },
     "overlay": "counter_wickpiercer_3_glint",
-    "source": "uwudimension:item/counter_wickpiercer"
+    "source": "uwudimension:item/counter_wickpiercer",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A flower-wick pin smolders along the scythe collar",
+      "impact_design": "A shaded rose cup closes at the existing anti-revival mark; not a revival item"
+    }
   },
   {
     "item": "counter_gloampiercer",
@@ -18468,7 +19582,12 @@
       }
     },
     "overlay": "counter_gloampiercer_glint",
-    "source": "uwudimension:item/counter_gloampiercer"
+    "source": "uwudimension:item/counter_gloampiercer",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A star appears between dark bow limbs for one beat",
+      "impact_design": "Mauve puncture rings vanish around intercepted projectiles"
+    }
   },
   {
     "item": "counter_tempest",
@@ -18579,7 +19698,12 @@
       }
     },
     "overlay": "counter_tempest_glint",
-    "source": "uwudimension:item/counter_tempest"
+    "source": "uwudimension:item/counter_tempest",
+    "motif": {
+      "pattern": "triad",
+      "held_design": "Three short wind streaks orbit the waning blossom",
+      "impact_design": "A clean spiral lifts the dispelled color away from the caster"
+    }
   },
   {
     "item": "counter_flamewind",
@@ -18690,7 +19814,12 @@
       }
     },
     "overlay": "counter_flamewind_glint",
-    "source": "uwudimension:item/counter_flamewind"
+    "source": "uwudimension:item/counter_flamewind",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "An orange petal curls around the spear pin",
+      "impact_design": "A fan of steam follows the push of the actual contact"
+    }
   },
   {
     "item": "counter_ribboncleaver",
@@ -18698,7 +19827,12 @@
     "model": "counter_ribboncleaver",
     "display": {},
     "overlay": "counter_ribboncleaver_glint",
-    "source": "uwudimension:item/counter_ribboncleaver"
+    "source": "uwudimension:item/counter_ribboncleaver",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two pink weave lines split at the dagger guard",
+      "impact_design": "A small bow cleaves in two; its free ends flash on the delayed pulse"
+    }
   },
   {
     "item": "counter_decaying_relic",
@@ -18809,7 +19943,12 @@
       }
     },
     "overlay": "counter_decaying_relic_glint",
-    "source": "uwudimension:item/counter_decaying_relic"
+    "source": "uwudimension:item/counter_decaying_relic",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A russet flake drifts off the spear neck",
+      "impact_design": "A decayed-leaf outline folds back as the struck target is spaced away"
+    }
   },
   {
     "item": "counter_magiscythe",
@@ -18903,7 +20042,12 @@
       }
     },
     "overlay": "counter_magiscythe_glint",
-    "source": "uwudimension:item/counter_magiscythe"
+    "source": "uwudimension:item/counter_magiscythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet runes follow the scythe inner edge",
+      "impact_design": "A rune thread snaps into two small mirrored stems"
+    }
   },
   {
     "item": "counter_magiscythe",
@@ -18997,7 +20141,12 @@
       }
     },
     "overlay": "counter_magiscythe_0_glint",
-    "source": "uwudimension:item/counter_magiscythe"
+    "source": "uwudimension:item/counter_magiscythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet runes follow the scythe inner edge",
+      "impact_design": "A rune thread snaps into two small mirrored stems"
+    }
   },
   {
     "item": "counter_magiscythe",
@@ -19091,7 +20240,12 @@
       }
     },
     "overlay": "counter_magiscythe_1_glint",
-    "source": "uwudimension:item/counter_magiscythe"
+    "source": "uwudimension:item/counter_magiscythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet runes follow the scythe inner edge",
+      "impact_design": "A rune thread snaps into two small mirrored stems"
+    }
   },
   {
     "item": "counter_magiscythe",
@@ -19185,7 +20339,12 @@
       }
     },
     "overlay": "counter_magiscythe_2_glint",
-    "source": "uwudimension:item/counter_magiscythe"
+    "source": "uwudimension:item/counter_magiscythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet runes follow the scythe inner edge",
+      "impact_design": "A rune thread snaps into two small mirrored stems"
+    }
   },
   {
     "item": "counter_magiscythe",
@@ -19279,7 +20438,12 @@
       }
     },
     "overlay": "counter_magiscythe_3_glint",
-    "source": "uwudimension:item/counter_magiscythe"
+    "source": "uwudimension:item/counter_magiscythe",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet runes follow the scythe inner edge",
+      "impact_design": "A rune thread snaps into two small mirrored stems"
+    }
   },
   {
     "item": "counter_enigma",
@@ -19373,7 +20537,12 @@
       }
     },
     "overlay": "counter_enigma_glint",
-    "source": "uwudimension:item/counter_enigma"
+    "source": "uwudimension:item/counter_enigma",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A moving gap makes one negative-space star on the hook",
+      "impact_design": "A broken square unfolds at the severed effect"
+    }
   },
   {
     "item": "counter_enigma",
@@ -19467,7 +20636,12 @@
       }
     },
     "overlay": "counter_enigma_0_glint",
-    "source": "uwudimension:item/counter_enigma"
+    "source": "uwudimension:item/counter_enigma",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A moving gap makes one negative-space star on the hook",
+      "impact_design": "A broken square unfolds at the severed effect"
+    }
   },
   {
     "item": "counter_enigma",
@@ -19561,7 +20735,12 @@
       }
     },
     "overlay": "counter_enigma_1_glint",
-    "source": "uwudimension:item/counter_enigma"
+    "source": "uwudimension:item/counter_enigma",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A moving gap makes one negative-space star on the hook",
+      "impact_design": "A broken square unfolds at the severed effect"
+    }
   },
   {
     "item": "counter_enigma",
@@ -19655,7 +20834,12 @@
       }
     },
     "overlay": "counter_enigma_2_glint",
-    "source": "uwudimension:item/counter_enigma"
+    "source": "uwudimension:item/counter_enigma",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A moving gap makes one negative-space star on the hook",
+      "impact_design": "A broken square unfolds at the severed effect"
+    }
   },
   {
     "item": "counter_enigma",
@@ -19749,7 +20933,12 @@
       }
     },
     "overlay": "counter_enigma_3_glint",
-    "source": "uwudimension:item/counter_enigma"
+    "source": "uwudimension:item/counter_enigma",
+    "motif": {
+      "pattern": "star",
+      "held_design": "A moving gap makes one negative-space star on the hook",
+      "impact_design": "A broken square unfolds at the severed effect"
+    }
   },
   {
     "item": "counter_magispear",
@@ -19775,7 +20964,12 @@
       }
     },
     "overlay": "counter_magispear_glint",
-    "source": "uwudimension:item/counter_magispear"
+    "source": "uwudimension:item/counter_magispear",
+    "motif": {
+      "pattern": "ribbon",
+      "held_design": "A pink spearhead-shaped stitch glides along the bow tip",
+      "impact_design": "Spearhead motes disperse at the successful intercept"
+    }
   },
   {
     "item": "counter_magiblade",
@@ -19801,7 +20995,12 @@
       }
     },
     "overlay": "counter_magiblade_glint",
-    "source": "uwudimension:item/counter_magiblade"
+    "source": "uwudimension:item/counter_magiblade",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "A bright facet travels between two bow-limb knots",
+      "impact_design": "A flat rose pane catches the intercepted shot and folds into dots"
+    }
   },
   {
     "item": "counter_caelestis",
@@ -19895,7 +21094,12 @@
       }
     },
     "overlay": "counter_caelestis_glint",
-    "source": "uwudimension:item/counter_caelestis"
+    "source": "uwudimension:item/counter_caelestis",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Pale feather petals lift off the whip handle",
+      "impact_design": "A thin wing prints over each successfully repelled summon"
+    }
   },
   {
     "item": "counter_dawnquiver",
@@ -19921,7 +21125,12 @@
       }
     },
     "overlay": "counter_dawnquiver_glint",
-    "source": "uwudimension:item/counter_dawnquiver"
+    "source": "uwudimension:item/counter_dawnquiver",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "A tiny dawn line climbs the dark bow upper limb",
+      "impact_design": "A small fan of sunrise petals closes around each intercepted projectile"
+    }
   },
   {
     "item": "counter_riftmane",
@@ -20015,7 +21224,12 @@
       }
     },
     "overlay": "counter_riftmane_glint",
-    "source": "uwudimension:item/counter_riftmane"
+    "source": "uwudimension:item/counter_riftmane",
+    "motif": {
+      "pattern": "glint",
+      "held_design": "Loose lilac tassels rise off the whip knot",
+      "impact_design": "A rectangular rift stitch pins the anchored enemy's origin"
+    }
   },
   {
     "item": "counter_wraithfang",
@@ -20109,7 +21323,12 @@
       }
     },
     "overlay": "counter_wraithfang_glint",
-    "source": "uwudimension:item/counter_wraithfang"
+    "source": "uwudimension:item/counter_wraithfang",
+    "motif": {
+      "pattern": "paired",
+      "held_design": "Two violet fang petals blink inside the lash curve",
+      "impact_design": "Dark teeth close around the anchor point and fade at expiry"
+    }
   },
   {
     "item": "counter_wraithmaw",
@@ -20135,7 +21354,12 @@
       }
     },
     "overlay": "counter_wraithmaw_glint",
-    "source": "uwudimension:item/counter_wraithmaw"
+    "source": "uwudimension:item/counter_wraithmaw",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A split-jaw petal opens on the outer bow limb",
+      "impact_design": "A violet jaw-shaped bracket meets around the intercepted shot"
+    }
   },
   {
     "item": "counter_bloodwake",
@@ -20246,7 +21470,12 @@
       }
     },
     "overlay": "counter_bloodwake_glint",
-    "source": "uwudimension:item/counter_bloodwake"
+    "source": "uwudimension:item/counter_bloodwake",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "A red bud turns pale at the wand tip",
+      "impact_design": "A crimson wash thins into clear pink as the caster is cleansed"
+    }
   },
   {
     "item": "counter_chompolotl",
@@ -20340,6 +21569,11 @@
       }
     },
     "overlay": "counter_chompolotl_glint",
-    "source": "uwudimension:item/counter_chompolotl"
+    "source": "uwudimension:item/counter_chompolotl",
+    "motif": {
+      "pattern": "blossom",
+      "held_design": "Small coral gill petals flutter around the whip loop",
+      "impact_design": "Two gill fans paddle outward at the existing summon repulsion"
+    }
   }
 ]

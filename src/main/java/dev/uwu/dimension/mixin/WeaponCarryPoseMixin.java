@@ -20,4 +20,9 @@ abstract class WeaponCarryPoseMixin {
     private void uwu$leftScythe(LivingEntity entity, CallbackInfo callback) {
         WeaponPresentation.idleScythe((HumanoidModel<?>)(Object)this, entity, HumanoidArm.LEFT);
     }
+
+    @Inject(method="setupAttackAnimation", at=@At("TAIL"))
+    private void uwu$scytheReap(LivingEntity entity, float age, CallbackInfo callback) {
+        WeaponPresentation.swingScythe((HumanoidModel<?>)(Object)this, entity);
+    }
 }

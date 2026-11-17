@@ -1354,7 +1354,7 @@
         "uwudimension:glitch_ripple_drawing": 1,
         "uwudimension:glitch_ripple_draw": 1
       },
-      "model": "uwudimension:item/ripple_bow_draw2"
+      "model": "uwudimension:item/ripple_bow_full"
     },
     {
       "predicate": {

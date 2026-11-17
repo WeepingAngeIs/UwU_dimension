@@ -1,0 +1,241 @@
+{
+  "meta": {
+    "format_version": "4.10",
+    "model_format": "figura",
+    "box_uv": false
+  },
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "right_sleeve",
+      "type": "cube",
+      "uuid": "48dd9a42-8902-46ee-8e53-95dfe71e9cbb",
+      "from": [
+        -8,
+        12,
+        -2
+      ],
+      "to": [
+        -4,
+        24,
+        2
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "left_sleeve",
+      "type": "cube",
+      "uuid": "46206052-15b9-435a-a373-18cede7d8a8b",
+      "from": [
+        4,
+        12,
+        -2
+      ],
+      "to": [
+        8,
+        24,
+        2
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        }
+      }
+    }
+  ],
+  "outliner": [
+    {
+      "name": "RightArm",
+      "origin": [
+        -5,
+        22,
+        0
+      ],
+      "uuid": "4dba3235-0788-488e-8eed-1f20fdf0eb16",
+      "children": [
+        "48dd9a42-8902-46ee-8e53-95dfe71e9cbb",
+        {
+          "name": "RightItemPivot",
+          "origin": [
+            -6,
+            12,
+            1
+          ],
+          "uuid": "691ca1f8-0a70-4a36-b2bb-0200da7879d8",
+          "children": [],
+          "export": true,
+          "visibility": true,
+          "rotation": [
+            0,
+            0,
+            -5
+          ]
+        }
+      ],
+      "export": true,
+      "visibility": true
+    },
+    {
+      "name": "LeftArm",
+      "origin": [
+        5,
+        22,
+        0
+      ],
+      "uuid": "0ae51aa5-1c85-4494-8505-e6f026337a16",
+      "children": [
+        "46206052-15b9-435a-a373-18cede7d8a8b",
+        {
+          "name": "LeftItemPivot",
+          "origin": [
+            6,
+            12,
+            1
+          ],
+          "uuid": "3f3a9c1d-04b3-4079-b147-db03d616fbf5",
+          "children": [],
+          "export": true,
+          "visibility": true,
+          "rotation": [
+            0,
+            0,
+            5
+          ]
+        }
+      ],
+      "export": true,
+      "visibility": true
+    }
+  ],
+  "textures": [
+    {
+      "name": "test.png",
+      "id": "0",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAJklEQVR4nGP8/+D9fwYKABMlmkcNgAAmBgoB06gBDKNhwEB5GAAArTkD7dbQSuMAAAAASUVORK5CYII="
+    }
+  ],
+  "animations": []
+}

@@ -28,6 +28,7 @@ BASE = {
 ROSTER = json.loads((ASSETS / 'counter_roster.json').read_text(encoding='utf-8'))
 SHAPES = BASE | {r['id']: r['shape'] for r in ROSTER}
 THEMES = {r['id']: r['theme'] for r in ROSTER}
+MOTIFS = json.loads((ROOT / 'tools/weapon_pixel_motifs.json').read_text(encoding='utf-8'))
 
 
 def write(path, data):
@@ -119,8 +120,9 @@ def accent_frames(key, shape, source, element):
     center_y = sum(y for x,y in pixels)/len(pixels)
     seed = int.from_bytes(hashlib.sha256(key.encode()).digest()[:4], 'big')
     shade = tone(key, element)
+    motif = MOTIFS[key]['pattern']
     sheet = Image.new('RGBA', (size, size * 32))
-    if shape == 'chakram':
+    if shape == 'chakram' or motif == 'orbit':
         path = sorted(boundary, key=lambda p: math.atan2(p[1]-center_y, p[0]-center_x))
     elif shape in ('spear', 'dagger', 'trident', 'wand'):
         path = sorted(pixels, key=lambda p: p[0]-p[1])
@@ -133,10 +135,27 @@ def accent_frames(key, shape, source, element):
             continue # a short visual rest keeps the silhouette quiet between pulses
         cursor = (frame / 25 + (seed % 7) / 16) % 1
         point_index = int(cursor*(len(path)-1))
-        for tail in range(3):
+        for tail in range(4 if motif in ('needle','ribbon') else 2):
             x, y = path[(point_index-tail*max(1,len(path)//32)) % len(path)]
             color = (255, 247, 232, 255) if tail == 0 else shade[:3]+(210-tail*35,)
             sheet.putpixel((x,y+frame*size), color)
+        if 7 <= frame <= 20:
+            # This signature follows the reviewed item motif, independently of its school.
+            # Sample the existing material so the opening of a ring is always transparent.
+            marks = 3 if motif == 'triad' else 2 if motif in ('paired','echo') else 1
+            for mark in range(marks):
+                index=(point_index+mark*len(path)//marks)%len(path)
+                x,y=path[index]
+                sheet.putpixel((x,y+frame*size),shade)
+                if motif in ('star','heart','blossom','drop','flare'):
+                    offsets={'star':[(-1,0),(1,0),(0,-1),(0,1)],
+                             'heart':[(-1,-1),(1,-1),(0,1)],
+                             'blossom':[(-1,0),(1,0),(0,-1),(0,1)],
+                             'drop':[(0,-1),(0,-2),(1,0)],
+                             'flare':[(0,-1),(-1,-2),(1,0)]}[motif]
+                    for dx,dy in offsets:
+                        if 0<=x+dx<size and 0<=y+dy<size and alpha.getpixel((x+dx,y+dy))>128:
+                            sheet.putpixel((x+dx,y+dy+frame*size),shade[:3]+(185,))
         # A second blossom accent is tied to this item's own phase and its head material.
         if shape in ('scythe', 'axe', 'wand') and 9 <= frame <= 16:
             head = min(pixels, key=lambda p: (p[0]-size*.7)**2+(p[1]-size*.22)**2)
@@ -185,7 +204,7 @@ def ripple_stages():
         x=y-16
         if body.getpixel((x,y)) == (166,129,103,255):
             body.putpixel((x,y),(0,0,0,0))
-    for name,nock in [('ripple_bow_nock',(8,24)),('ripple_bow_half',(5,27)),('ripple_bow_deep',(3,29))]:
+    for name,nock in [('ripple_bow_nock',(8,24)),('ripple_bow_half',(5,27)),('ripple_bow_deep',(3,29)),('ripple_bow_full',(1,31))]:
         pic=Image.new('RGBA',(32,32));d=ImageDraw.Draw(pic)
         d.line([(0,16),nock,(15,31)],fill=(166,129,103,255),width=1)
         tip=(nock[0]+20,nock[1]-20)
@@ -214,7 +233,7 @@ def draw_overrides(kind, glitch=False):
     prefix='uwudimension:glitch_'+('cupid' if kind=='cupid_bow' else 'ripple') if glitch else 'uwudimension:'
     drawing=prefix+'_drawing' if glitch else prefix+'drawing'
     draw=prefix+'_draw' if glitch else prefix+'draw'
-    names=[kind+'_draw0',kind+'_draw1',kind+'_deep',kind+'_draw2'] if kind=='cupid_bow' else [kind+'_nock',kind+'_half',kind+'_deep',kind+'_draw2']
+    names=[kind+'_draw0',kind+'_draw1',kind+'_deep',kind+'_draw2'] if kind=='cupid_bow' else [kind+'_nock',kind+'_half',kind+'_deep',kind+'_full']
     return [{'predicate':{drawing:1,draw:amount},'model':'uwudimension:item/'+name} for name,amount in zip(names,[0,.4,.75,1])]
 
 
@@ -226,7 +245,7 @@ def main():
         if shape=='scythe':
             names.update(key+'_'+str(n) for n in range(4))
         if key=='cupid_bow':names.update(['cupid_bow_draw0','cupid_bow_draw1','cupid_bow_deep','cupid_bow_draw2'])
-        if key=='ripple_bow':names.update(['ripple_bow_nock','ripple_bow_half','ripple_bow_deep','ripple_bow_draw1','ripple_bow_draw2'])
+        if key=='ripple_bow':names.update(['ripple_bow_nock','ripple_bow_half','ripple_bow_deep','ripple_bow_full','ripple_bow_draw1','ripple_bow_draw2'])
         for name in sorted(names):
             if not (MODELS/(name+'.json')).is_file():continue
             data=model(name)
@@ -239,7 +258,7 @@ def main():
             element=int(name[-1]) if shape=='scythe' and name[-1:].isdigit() else 0
             glow=overlay(key,name,data,element)
             write(MODELS/(name+'.json'),data)
-            inventory.append({'item':key,'shape':shape,'model':name,'display':display,'overlay':glow,'source':data['textures']['layer0']})
+            inventory.append({'item':key,'shape':shape,'model':name,'display':display,'overlay':glow,'source':data['textures']['layer0'],'motif':MOTIFS[key]})
     bud=Image.new('RGBA',(32,32));bd=ImageDraw.Draw(bud)
     # A spent/available follow-up has a distinct little two-leaf silhouette at the hinge.
     bd.polygon([(22,9),(20,7),(20,9),(22,11),(24,10),(25,7),(23,8)],fill=(141,235,185,255))

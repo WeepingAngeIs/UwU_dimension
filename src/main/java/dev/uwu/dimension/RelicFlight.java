@@ -104,6 +104,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     static boolean castWeapon(ServerLevel level, Player owner, Arsenal.Relic kind, InteractionHand hand) {
         ItemStack held = owner.getItemInHand(hand);
         if (held.isEmpty() || held.getItem() != Arsenal.WEAPONS.get(kind).get()) return false;
+        if (!BlossomArts.mayThrow(owner, held)) return false;
         BlossomArts.identity(held);
         ItemStack carried = held.copy();
         carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
@@ -142,6 +143,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             Arsenal.Relic kind, CounterArsenal.Entry counter) {
         ItemStack held = owner.getItemInHand(hand);
         if (!(held.getItem() instanceof GlitchBow)) return false;
+        if (!BlossomArts.mayThrow(owner, held)) return false;
         BlossomArts.identity(held);
         ItemStack carried = held.copy();
         carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));

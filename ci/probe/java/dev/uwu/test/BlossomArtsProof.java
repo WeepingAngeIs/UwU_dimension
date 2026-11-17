@@ -29,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 /** Real item entry points, native ticks, accepted/rejected damage and custody in the hosted disposable arena. */
 public final class BlossomArtsProof {
     private static ChestProof.Visitor visitor;
+    private static ChestProof.Visitor glitchVisitor;
+    private static ServerPlayer glitchOwner;
     private static ServerPlayer owner;
     private static int phase;
     private static long ready, started;
@@ -107,7 +109,7 @@ public final class BlossomArtsProof {
                 level.setBlockAndUpdate(new BlockPos(x, floor.getY(), z), Blocks.STONE.defaultBlockState());
             visitor = new ChestProof.Visitor(level, floor.above(), "PetalTester", UUID.randomUUID());
             owner = visitor.player; owner.setPos(4.5, floor.getY() + 1, 4.5); owner.setNoGravity(true);
-            owner.getFoodData().setFoodLevel(0);
+            owner.getFoodData().setFoodLevel(6);
             level.addNewPlayer(owner);
             require(owner.getMaxHealth() == 20, "test owner max health changed");
             owner.getPersistentData().putInt("uwu.scythe_element", 3);
@@ -161,6 +163,18 @@ public final class BlossomArtsProof {
             require(owner.getPersistentData().contains("uwu.art_vortex"), "accepted Tempest hit missed vortex");
             windStart = windTarget.getHealth(); bystanderStart = windBystander.getHealth();
             owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            glitchVisitor = new ChestProof.Visitor(level, floor.above(), "GlitchPetals", UUID.randomUUID());
+            glitchOwner = glitchVisitor.player; glitchOwner.setPos(4.5, floor.getY() + 1, 12.5); glitchOwner.setNoGravity(true);
+            level.addNewPlayer(glitchOwner);
+            ItemStack glitch = new ItemStack(dev.uwu.dimension.UwUDimension.GLITCH.get());
+            net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, glitch,
+                    data -> data.putInt("uwu_form", GlitchBow.FORMS.indexOf("vesper_scythe")));
+            glitchOwner.getPersistentData().putInt("uwu.scythe_element", 3);
+            glitchOwner.setItemInHand(InteractionHand.MAIN_HAND, glitch);
+            glitch.use(level, glitchOwner, InteractionHand.MAIN_HAND); glitch.releaseUsing(level, glitchOwner, 72000 - 12); glitchOwner.stopUsingItem();
+            var glitchFlight = level.getEntitiesOfClass(RelicFlight.class, glitchOwner.getBoundingBox().inflate(4), f -> f.getOwner() == glitchOwner).getFirst();
+            actors.add(glitchFlight); land(level, glitchFlight, glitchOwner.position().add(.3, 0, 0));
+            require(glitchOwner.getPersistentData().contains(FLOWER), "saved Glitch Vesper did not create healing flower");
             owner.setHealth(10); started = level.getGameTime(); phase = 2; return false;
         }
         long age = level.getGameTime() - started;
@@ -186,6 +200,15 @@ public final class BlossomArtsProof {
             CompoundTag serialized = owner.saveWithoutId(new CompoundTag());
             net.minecraft.nbt.NbtIo.writeCompressed(serialized, java.nio.file.Path.of("polish-effects-owner.dat"));
             require(enterWater.hasEffect(MobEffects.MOVEMENT_SLOWDOWN), "late entry did not receive bounded puddle slow");
+            ItemStack caughtGlitch = glitchOwner.getMainHandItem();
+            require(caughtGlitch.getItem() instanceof GlitchBow && GlitchBow.form(caughtGlitch).equals("vesper_scythe"), "Glitch rerolled before follow-up catch");
+            require(!glitchOwner.getCooldowns().isOnCooldown(caughtGlitch.getItem()), "Glitch follow-up cooldown was not opened");
+            caughtGlitch.use(level, glitchOwner, InteractionHand.MAIN_HAND);
+            caughtGlitch.releaseUsing(level, glitchOwner, 72000 - 12); glitchOwner.stopUsingItem();
+            var glitchFollowup = level.getEntitiesOfClass(RelicFlight.class, glitchOwner.getBoundingBox().inflate(4), f -> f.getOwner() == glitchOwner && !f.returning() && !f.landed()).getFirst();
+            actors.add(glitchFollowup);
+            require(glitchFollowup.getPersistentData().getBoolean("uwu.flower_followup") && glitchOwner.getCooldowns().isOnCooldown(caughtGlitch.getItem()), "Glitch pending-action exception lost or renewed the credit");
+            land(level, glitchFollowup, glitchOwner.position().add(.3, 0, 0));
             phase = 3;
         }
         if (phase == 3 && age >= 86) {
@@ -202,6 +225,7 @@ public final class BlossomArtsProof {
             invoke(arts(), "logout", new Class<?>[]{net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent.class}, null,
                     new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(owner));
             for (Entity actor : actors) actor.discard();
+            glitchOwner.discard(); glitchVisitor.close();
             owner.discard(); visitor.close();
             System.out.println("UWU BLOSSOM ARTS PASS real throw/embed/catch/single-credit, four heal pulses, roots, frost cage, clear-weather non-destructive lightning, water entry, timed wind, cleanup");
             return true;

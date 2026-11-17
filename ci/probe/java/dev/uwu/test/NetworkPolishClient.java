@@ -45,6 +45,8 @@ public final class NetworkPolishClient {
         if(id!=scene){scene=id;ticks=0;captured=false;}
         task=next;
         String view=task.getProperty("view");
+        var remote=mc.level.players().stream().filter(p->p!=mc.player).findFirst().orElse(null);
+        if(remote==null||!FiguraPivotProof.ready(mc,remote.getUUID()))return;
         mc.options.setCameraType(ROLE.equals("archer")&&view.startsWith("third")?CameraType.THIRD_PERSON_FRONT:CameraType.FIRST_PERSON);
         if(ROLE.equals("archer")){
             mc.player.setYRot(0);mc.player.setXRot(view.equals("ground")?24:0);

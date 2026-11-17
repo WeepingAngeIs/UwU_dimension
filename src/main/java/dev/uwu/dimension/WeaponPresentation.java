@@ -7,6 +7,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
+import net.minecraft.util.Mth;
 
 /** Idle presentation for the historical scythes that have no combat profile. */
 public final class WeaponPresentation {
@@ -31,6 +32,23 @@ public final class WeaponPresentation {
     private static boolean scythe(ItemStack stack) {
         return GlitchBow.isRelic(stack, Arsenal.Relic.VESPER_SCYTHE) || GlitchBow.isScythe(stack)
                 || stack.getItem() instanceof CounterArsenal.CounterItem item && item.entry.shape().equals("scythe");
+    }
+
+    public static boolean unprofiledScythe(ItemStack stack) {
+        return scythe(stack) && !hasCombatProfile(stack);
+    }
+
+    public static void swingScythe(HumanoidModel<?> model, LivingEntity entity) {
+        if (model.attackTime <= 0 || entity.isUsingItem() || entity.isFallFlying() || entity.isVisuallySwimming()) return;
+        InteractionHand hand = entity.swingingArm == null ? InteractionHand.MAIN_HAND : entity.swingingArm;
+        if (!unprofiledScythe(entity.getItemInHand(hand))) return;
+        HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? entity.getMainArm() : entity.getMainArm().getOpposite();
+        var part = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
+        int side = arm == HumanoidArm.RIGHT ? 1 : -1;
+        float sweep = Mth.sin(Mth.sqrt(model.attackTime) * Mth.PI);
+        part.xRot = -.82F - .5F * sweep;
+        part.yRot = side * (.35F - 1.15F * sweep);
+        part.zRot = side * (.14F - .18F * sweep);
     }
 
     private static boolean hasCombatProfile(ItemStack stack) {

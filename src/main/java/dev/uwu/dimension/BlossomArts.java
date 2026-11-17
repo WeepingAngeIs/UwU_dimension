@@ -178,7 +178,7 @@ public final class BlossomArts {
                     CompoundTag root = field(level, at, 34); root.putUUID("owner", owner.getUUID());
                     target.getPersistentData().put(ROOT, root);
                     boolean boss = target.getMaxHealth() > 200;
-                    GlitchCompletions.applyEffect(target, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 28, boss || target instanceof Player ? 2 : 10));
+                    GlitchCompletions.applyEffect(target, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2, boss || target instanceof Player ? 2 : 10));
                 }
             }
             case FROST_WHIP -> {
@@ -374,21 +374,27 @@ public final class BlossomArts {
         if (!root.isEmpty()) {
             int age = (int) (level.getGameTime() - root.getLong("start"));
             Player owner = root.hasUUID("owner") ? level.getPlayerByUUID(root.getUUID("owner")) : null;
-            if (level.getGameTime() >= root.getLong("until") || owner == null || !hostile(level, owner, target)
+            if (!level.dimension().location().toString().equals(root.getString("world"))
+                    || level.getGameTime() >= root.getLong("until") || owner == null || !hostile(level, owner, target)
                     || target.position().distanceToSqr(center(root)) > 4) target.getPersistentData().remove(ROOT);
-            else if (target.tickCount % 3 == 0) {
-                double height = .55 * Math.min(1, (age + 1) / 6.0) * Math.min(1, (34 - age) / 6.0);
-                for (int i = 0; i < 9; i++) {
-                    double angle = i * Math.PI * 2 / 9;
-                    Vec3 at = target.position().add(Math.cos(angle) * .42, height * (i % 3) / 2, Math.sin(angle) * .42);
-                    point(level, MINT, at, i);
+            else {
+                if (age < 28) GlitchCompletions.applyEffect(target, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2,
+                        target.getMaxHealth() > 200 || target instanceof Player ? 2 : 10));
+                if (target.tickCount % 3 == 0) {
+                    double height = .55 * Math.min(1, (age + 1) / 6.0) * Math.min(1, (34 - age) / 6.0);
+                    for (int i = 0; i < 9; i++) {
+                        double angle = i * Math.PI * 2 / 9;
+                        Vec3 at = target.position().add(Math.cos(angle) * .42, height * (i % 3) / 2, Math.sin(angle) * .42);
+                        point(level, MINT, at, i);
+                    }
                 }
             }
         }
         CompoundTag ice = target.getPersistentData().getCompound(ICE);
         if (ice.isEmpty()) return;
         int age = (int) (level.getGameTime() - ice.getLong("start"));
-        if (!target.isAlive() || level.getGameTime() >= ice.getLong("until") || !target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+        if (!level.dimension().location().toString().equals(ice.getString("world")) || !target.isAlive()
+                || level.getGameTime() >= ice.getLong("until") || !target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
             target.getPersistentData().remove(ICE); return;
         }
         if (target.tickCount % 4 == 0) for (int side = 0; side < 4; side++) {
@@ -447,6 +453,14 @@ public final class BlossomArts {
             if (viewer.distanceToSqr(at) > 1024) continue;
             int quality = ReachLife.preference(viewer, "sakura_effects", 2);
             if (ordinal % (quality == 0 ? 4 : quality == 1 ? 2 : 1) != 0) continue;
+            CompoundTag budget = viewer.getPersistentData();
+            long tick = level.getServer().overworld().getGameTime();
+            if (budget.getLong("uwu.art_budget_tick") != tick) {
+                budget.putLong("uwu.art_budget_tick", tick); budget.putInt("uwu.art_budget_used", 0);
+            }
+            int used = budget.getInt("uwu.art_budget_used");
+            if (used >= (quality == 0 ? 16 : quality == 1 ? 48 : 128)) continue;
+            budget.putInt("uwu.art_budget_used", used + 1);
             level.sendParticles(viewer, effect, false, at.x, at.y, at.z, 1, 0, 0, 0, 0);
         }
     }

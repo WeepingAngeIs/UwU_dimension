@@ -187,9 +187,11 @@ public final class GlitchBow extends Item {
             boolean resistance=c!=null && CounterEffects.wardTracked(level,p,c);
             // The real scythe item cooldown is 60 ticks; counter scythes also
             // retain their form through the matching 160-tick ward.
+            var beforeCast=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             begin(stack,level,c!=null?160:60,UUID.randomUUID());
             if(c!=null)trackWard(level,stack,p,resistance);
-            if(RelicFlight.castGlitchWeapon(level,p,hand,r,c))p.getCooldowns().addCooldown(this,60);else cancel(stack);
+            if(RelicFlight.castGlitchWeapon(level,p,hand,r,c))p.getCooldowns().addCooldown(this,60);
+            else stack.set(DataComponents.CUSTOM_DATA,CustomData.of(beforeCast));
             return;
         }
         if(r==null||!r.bow())return;

@@ -23,6 +23,7 @@ for role in archer witness; do
   git archive HEAD | tar -x -C "$world/$role"
   cp -a libs "$world/$role/libs"
   cp build/weapon-compat/*.jar "$world/$role/libs/"
+  cp -a "$root/ci/fixtures/weapon-compat/pivot-avatar" "$world/$role/run-$role/"
   cp -a "$world/natives" "$world/$role/natives"
   mkdir -p "$world/$role/build/probe-compile" "$world/$role/run-$role/config"
   mkdir -p "$world/$role/run-$role/config/bettercombat"
