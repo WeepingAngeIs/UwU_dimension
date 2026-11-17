@@ -22,3 +22,61 @@ jobs:
         with:
           name: weapon-polish-compiled
           path: build/libs/*.jar
+  mechanics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/weapon-polish-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-polish-mechanics
+          path: |
+            build/libs/*.jar
+            build/weapon-polish-server/*.log
+            build/weapon-polish-server/*fixture*
+            build/weapon-polish-server/crash-reports
+  profiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/weapon-profile-observe.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-polish-profiles
+          path: |
+            build/weapon-profile-server/weapon-profile-*.json
+            build/weapon-profile-server/observation.log
+            build/weapon-profile-server/crash-reports
+  gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env: {WISH_COMBAT: bettercombat}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
+      - run: bash ci/weapon-polish-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-polish-gallery
+          path: |
+            build/weapon-polish-network/*.log
+            build/weapon-polish-network/sync
+            build/weapon-polish-network/archer/run-archer/screenshots
+            build/weapon-polish-network/witness/run-witness/screenshots
+            build/weapon-polish-network/crash-reports
+            build/weapon-polish-network/archer/run-archer/crash-reports
+            build/weapon-polish-network/witness/run-witness/crash-reports

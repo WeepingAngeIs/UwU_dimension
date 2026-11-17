@@ -58,18 +58,13 @@ public final class RangedRelicRenderer {
     }
     static final class FlightRenderer extends EntityRenderer<RelicFlight>{
         private final net.minecraft.client.renderer.entity.ItemRenderer itemRenderer;
+        private final java.util.Map<RelicFlight,FlightFrame> frames = new java.util.WeakHashMap<>();
         FlightRenderer(EntityRendererProvider.Context context){super(context);itemRenderer=context.getItemRenderer();}
         @Override public ResourceLocation getTextureLocation(RelicFlight e){return SLASH;}
         @Override public void render(RelicFlight e,float yaw,float partial,PoseStack poses,MultiBufferSource buffers,int light){
             poses.pushPose();
             if(e.wave()){
-                poses.mulPose(entityRenderDispatcher.cameraOrientation());
-                poses.scale(2.3F,2.3F,2.3F);
-                var b=buffers.getBuffer(RenderType.entityTranslucent(SLASH));
-                vertex(b,poses.last(),new Vec3(-1,-.5,0),0,1,color(e.element()),15728880);
-                vertex(b,poses.last(),new Vec3(1,-.5,0),1,1,color(e.element()),15728880);
-                vertex(b,poses.last(),new Vec3(1,.5,0),1,0,color(e.element()),15728880);
-                vertex(b,poses.last(),new Vec3(-1,.5,0),0,0,color(e.element()),15728880);
+                wave(e, poses, buffers, frame(e));
             }else if(e.hareOrb()){
                 // The scepter itself returns to the player, but its travelling cast is a
                 // bright pastel heart instead of a second copy of the item.
@@ -86,11 +81,67 @@ public final class RangedRelicRenderer {
                 poses.mulPose(Axis.ZP.rotationDegrees(flightPitch-45.0F));
                 // Axes and ring blades tumble in their vertical flight plane like a wheel.
                 // Spears, tridents and daggers retain point-first alignment; embeds stay still.
-                if(!e.landed() && tumbles(e))poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*36F));
+                if (chakram(e)) {
+                    // The aperture stays readable while the ring rolls around its own normal.
+                    // It remains at the tracked world position through outbound, embed and return.
+                    poses.mulPose(Axis.YP.rotationDegrees(14F));
+                    if (!e.landed()) poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*36F));
+                } else if(!e.landed() && tumbles(e)) {
+                    poses.mulPose(Axis.ZP.rotationDegrees((e.tickCount+partial)*36F));
+                }
                 poses.scale(1.8F,1.8F,1.8F);
                 itemRenderer.renderStatic(e.getItem(),ItemDisplayContext.NONE,15728880,OverlayTexture.NO_OVERLAY,poses,buffers,e.level(),e.getId());
             }
             poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
+        }
+        private record FlightFrame(Vec3 forward,Vec3 side,Vec3 up) {}
+
+        private FlightFrame frame(RelicFlight flight) {
+            FlightFrame previous=frames.get(flight);
+            Vec3 motion=flight.getDeltaMovement();
+            if (motion.lengthSqr()<1.0E-8) {
+                if(previous!=null)return previous;
+                motion=Vec3.directionFromRotation(flight.getXRot(),flight.getYRot());
+            }
+            Vec3 forward=motion.normalize();
+            Vec3 side=previous==null?forward.cross(new Vec3(0,1,0))
+                    :previous.side().subtract(forward.scale(previous.side().dot(forward)));
+            if(side.lengthSqr()<1.0E-6) {
+                Vec3 axis=Math.abs(forward.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0);
+                side=forward.cross(axis);
+            }
+            side=side.normalize();
+            if(previous!=null&&side.dot(previous.side())<0)side=side.scale(-1);
+            FlightFrame next=new FlightFrame(forward,side,side.cross(forward).normalize());
+            frames.put(flight,next);
+            return next;
+        }
+
+        private static void wave(RelicFlight flight,PoseStack poses,MultiBufferSource buffers,FlightFrame frame) {
+            VertexConsumer beam=buffers.getBuffer(RenderType.entityTranslucent(Arsenal.id("textures/entity/petal_crest.png")));
+            // A double-sided narrow crest encloses the actual .4 block collision width.
+            // Two crossing strips retain the nose and trailing points in an edge-on view.
+            crest(beam,poses,frame.forward(),frame.side(),color(flight.element()));
+            crest(beam,poses,frame.forward(),frame.up(),(color(flight.element())&0xffffff)|0xb0000000);
+        }
+
+        private static void crest(VertexConsumer consumer,PoseStack poses,Vec3 forward,Vec3 across,int color) {
+            Vec3 nose=forward.scale(.08),tail=forward.scale(-.3);
+            Vec3 left=across.scale(-.2),right=across.scale(.2);
+            Vec3 a=tail.add(left),b=tail.add(right),c=nose.add(right),d=nose.add(left);
+            vertex(consumer,poses.last(),a,0,1,color,15728880);
+            vertex(consumer,poses.last(),b,1,1,color,15728880);
+            vertex(consumer,poses.last(),c,1,0,color,15728880);
+            vertex(consumer,poses.last(),d,0,0,color,15728880);
+            vertex(consumer,poses.last(),d,0,0,color,15728880);
+            vertex(consumer,poses.last(),c,1,0,color,15728880);
+            vertex(consumer,poses.last(),b,1,1,color,15728880);
+            vertex(consumer,poses.last(),a,0,1,color,15728880);
+        }
+
+        private static boolean chakram(RelicFlight flight) {
+            var entry=CounterArsenal.entry(flight.counter());
+            return entry!=null&&entry.shape().equals("chakram");
         }
         private static boolean tumbles(RelicFlight e) {
             var counter=CounterArsenal.entry(e.counter());

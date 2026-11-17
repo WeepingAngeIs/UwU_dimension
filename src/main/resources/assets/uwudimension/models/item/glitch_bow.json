@@ -1302,35 +1302,87 @@
     },
     {
       "predicate": {
-        "uwudimension:glitch_cupid_drawing": 1
+        "uwudimension:glitch_cupid_drawing": 1,
+        "uwudimension:glitch_cupid_draw": 0
       },
       "model": "uwudimension:item/cupid_bow_draw0"
     },
     {
       "predicate": {
         "uwudimension:glitch_cupid_drawing": 1,
-        "uwudimension:glitch_cupid_draw": 0.5
+        "uwudimension:glitch_cupid_draw": 0.4
       },
       "model": "uwudimension:item/cupid_bow_draw1"
     },
     {
       "predicate": {
         "uwudimension:glitch_cupid_drawing": 1,
-        "uwudimension:glitch_cupid_draw": 0.9
+        "uwudimension:glitch_cupid_draw": 0.75
+      },
+      "model": "uwudimension:item/cupid_bow_deep"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_cupid_drawing": 1,
+        "uwudimension:glitch_cupid_draw": 1
       },
       "model": "uwudimension:item/cupid_bow_draw2"
     },
     {
       "predicate": {
-        "uwudimension:glitch_ripple_draw": 0.05
+        "uwudimension:glitch_ripple_drawing": 1,
+        "uwudimension:glitch_ripple_draw": 0
       },
-      "model": "uwudimension:item/ripple_bow_draw1"
+      "model": "uwudimension:item/ripple_bow_nock"
     },
     {
       "predicate": {
-        "uwudimension:glitch_ripple_draw": 0.85
+        "uwudimension:glitch_ripple_drawing": 1,
+        "uwudimension:glitch_ripple_draw": 0.4
+      },
+      "model": "uwudimension:item/ripple_bow_half"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_ripple_drawing": 1,
+        "uwudimension:glitch_ripple_draw": 0.75
+      },
+      "model": "uwudimension:item/ripple_bow_deep"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_ripple_drawing": 1,
+        "uwudimension:glitch_ripple_draw": 1
       },
       "model": "uwudimension:item/ripple_bow_draw2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_flower_credit": 1,
+        "uwudimension:glitch_scythe": 28
+      },
+      "model": "uwudimension:item/vesper_scythe_credit_0"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_flower_credit": 1,
+        "uwudimension:glitch_scythe": 29
+      },
+      "model": "uwudimension:item/vesper_scythe_credit_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_flower_credit": 1,
+        "uwudimension:glitch_scythe": 30
+      },
+      "model": "uwudimension:item/vesper_scythe_credit_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:glitch_flower_credit": 1,
+        "uwudimension:glitch_scythe": 31
+      },
+      "model": "uwudimension:item/vesper_scythe_credit_3"
     },
     {
       "predicate": {

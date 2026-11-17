@@ -39,7 +39,7 @@ public final class AcquisitionPolicy {
  }
  public static boolean heartLocketCraftingEnabled(){return !SPEC.isLoaded()||HEART_LOCKET_CRAFTING.get();}
  public static boolean weaponAcquisitionEnabled(){return !SPEC.isLoaded()||WEAPON_ACQUISITION.get();}
- public static boolean isWeapon(ItemStack stack){return stack.getItem() instanceof Arsenal.RelicItem||stack.getItem() instanceof CounterArsenal.CounterItem||stack.getItem() instanceof GlitchBow||stack.is(HeartLauncher.LAUNCHER.get())||stack.is(BellHammer.ITEM.get());}
+ public static boolean isWeapon(ItemStack stack){return stack.getItem() instanceof Arsenal.RelicItem||stack.getItem() instanceof CounterArsenal.CounterItem||stack.getItem() instanceof GlitchBow||stack.is(HeartLauncher.LAUNCHER.get())||stack.is(BellHammer.ITEM.get())||RevivalBlossoms.isWeapon(stack);}
  public static boolean allowsWeapon(ItemStack stack){return weaponAcquisitionEnabled()||!isWeapon(stack);}
  public static boolean allowsCraft(ItemStack stack){return allowsWeapon(stack)&&(heartLocketCraftingEnabled()||!stack.is(UwUDimension.LOCKET.get()));}
 }

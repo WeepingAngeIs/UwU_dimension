@@ -64,7 +64,7 @@ public final class WeaponAnimationAdapter {
             Object replacements=Array.newInstance(attackType,count);
             boolean two=Boolean.TRUE.equals(get(original,"two_handed"));
             String oldPose=(String)get(original,"pose");
-            String newPose=two?switch(shape){
+            String newPose=shape.equals("scythe")&&simply?"simplyswords:pose_soulrender":two?switch(shape){
                 case "axe"->"bettercombat:pose_two_handed_heavy";
                 case "spear"->"bettercombat:pose_two_handed_polearm";
                 case "scythe"->"bettercombat:pose_two_handed_scythe";

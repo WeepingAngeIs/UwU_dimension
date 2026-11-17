@@ -1,0 +1,42 @@
+[
+  {
+    "file": "figura-0.1.6+1.21.1-neoforge-mc.jar",
+    "url": "https://cdn.modrinth.com/data/s9gIPDom/versions/AvgeQoZm/figura-0.1.6%2B1.21.1-neoforge-mc.jar",
+    "sha256": "f379147b52953e8013c27ee5b9d1552618b649f80a0cbe974ed0c6e8de89515c"
+  },
+  {
+    "file": "EPC-2.2.2-1.21.1-neoforge.jar",
+    "url": "https://edge.forgecdn.net/files/9034/368/EPC-2.2.2-1.21.1-neoforge.jar",
+    "sha256": "24d4e37f09d081367e3ea57cf9702fd8f83fab68675e4bde972599b9a81da09e"
+  },
+  {
+    "file": "emf_compat_core_1.21.1_2.0.0.jar",
+    "url": "https://cdn.modrinth.com/data/hbGct5uU/versions/31At82lp/emf_compat_core_1.21.1_2.0.0.jar",
+    "sha256": "0bf16c45550896381f732e4c3348e8e1d8e9457c355d616536d6cf8982c66eb0"
+  },
+  {
+    "file": "figura_bettercombatpal_compat-1.0.0.jar",
+    "url": "https://cdn.modrinth.com/data/MJ621F5r/versions/ZDKzzkR2/figura_bettercombatpal_compat-1.0.0.jar",
+    "sha256": "863146bfcf8870a73caa824a1c33fe60f72b1400fe5c83ccd73c3af4793efb97"
+  },
+  {
+    "file": "entity_model_features-3.3.9-1.21-neoforge.jar",
+    "url": "https://cdn.modrinth.com/data/4I1XuqiY/versions/gEOHNhtN/entity_model_features-3.3.9-1.21-neoforge.jar",
+    "sha256": "21881f096eb73d44f90120c07bf4cc5187d52115841a720785ac02f6c478e562"
+  },
+  {
+    "file": "entity_texture_features-7.2.4-1.21-neoforge.jar",
+    "url": "https://cdn.modrinth.com/data/BVzZfTc1/versions/HOizEpC7/entity_texture_features-7.2.4-1.21-neoforge.jar",
+    "sha256": "49da793fe15a8aed2222cd42b12e87e2a09df9890f773e179770b2f462d2988d"
+  },
+  {
+    "file": "notenoughanimations-neoforge-1.12.4-mc1.21.1.jar",
+    "url": "https://cdn.modrinth.com/data/MPCX6s5C/versions/eYNogep3/notenoughanimations-neoforge-1.12.4-mc1.21.1.jar",
+    "sha256": "a8705202193813de291195ad6bbd03101c4ddc1ab2878aadb018ab92f903999f"
+  },
+  {
+    "file": "emf_compat_not_enough_animations_1.21.1_1.2.0.jar",
+    "url": "https://cdn.modrinth.com/data/IGCrWfL7/versions/2PAaJs7w/emf_compat_not_enough_animations_1.21.1_1.2.0.jar",
+    "sha256": "6200e37888f313ce7e5c2857616fe2629eb222f01e4ff5c721d0806157153a6c"
+  }
+]

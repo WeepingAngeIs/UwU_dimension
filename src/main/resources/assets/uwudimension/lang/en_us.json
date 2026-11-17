@@ -474,5 +474,9 @@
   "advancements.uwudimension.activities.cupid/witness.title": "Witness Protection, but Cute",
   "advancements.uwudimension.activities.cupid/witness.description": "Opt in and participate as the charmed player in a successful creature wish.",
   "advancements.uwudimension.activities.cupid/command.title": "Besties With a Battle Plan",
-  "advancements.uwudimension.activities.cupid/command.description": "Have a charmed ally actually damage the foe you designated. A targeting message alone does not count."
+  "advancements.uwudimension.activities.cupid/command.description": "Have a charmed ally actually damage the foe you designated. A targeting message alone does not count.",
+  "item.uwudimension.returnbloom_dirk": "Returnbloom Dirk",
+  "item.uwudimension.dawnpetal_axe": "Dawnpetal Axe",
+  "block.uwudimension.petal_moonbell": "Petal Moonbell",
+  "block.uwudimension.dusk_moonbell": "Dusk Moonbell"
 }

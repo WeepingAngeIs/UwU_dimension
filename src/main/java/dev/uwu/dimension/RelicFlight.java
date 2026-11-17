@@ -222,6 +222,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         if (!level.addFreshEntity(flight)) return null;
         if (physical) {
             BlossomArts.launched(owner, display, flight);
+            flight.setItem(display.copy());
             RelicReturns.reserve(owner, flight, display, hand);
             owner.setItemInHand(hand, ItemStack.EMPTY);
             HeartCombatGlow.trail(level, flight.position(), element);

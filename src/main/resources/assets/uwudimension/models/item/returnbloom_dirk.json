@@ -1,0 +1,55 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:item_layers",
+  "textures": {
+    "layer0": "uwudimension:item/returnbloom_dirk",
+    "layer1": "uwudimension:item/returnbloom_dirk_ready"
+  },
+  "render_types": {
+    "minecraft:cutout": [
+      0,
+      1
+    ]
+  },
+  "neoforge_data": {
+    "layers": {
+      "1": {
+        "block_light": 15,
+        "sky_light": 15,
+        "ambient_occlusion": false
+      }
+    }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:revival_phase": 1
+      },
+      "model": "uwudimension:item/returnbloom_dirk_phase1"
+    },
+    {
+      "predicate": {
+        "uwudimension:revival_phase": 2
+      },
+      "model": "uwudimension:item/returnbloom_dirk_phase2"
+    },
+    {
+      "predicate": {
+        "uwudimension:revival_phase": 3
+      },
+      "model": "uwudimension:item/returnbloom_dirk_phase3"
+    },
+    {
+      "predicate": {
+        "uwudimension:revival_phase": 4
+      },
+      "model": "uwudimension:item/returnbloom_dirk_phase4"
+    },
+    {
+      "predicate": {
+        "uwudimension:revival_phase": 5
+      },
+      "model": "uwudimension:item/returnbloom_dirk_phase5"
+    }
+  ]
+}

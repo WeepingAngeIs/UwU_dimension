@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:item_layers",
+  "textures": {
+    "layer0": "uwudimension:item/dawnpetal_axe",
+    "layer1": "uwudimension:item/dawnpetal_axe_phase5"
+  },
+  "render_types": {
+    "minecraft:cutout": [
+      0,
+      1
+    ]
+  },
+  "neoforge_data": {
+    "layers": {
+      "1": {
+        "block_light": 0,
+        "sky_light": 0,
+        "ambient_occlusion": false
+      }
+    }
+  }
+}

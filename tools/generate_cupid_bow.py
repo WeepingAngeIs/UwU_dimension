@@ -17,7 +17,10 @@ class BowSprite:
         self.image = Image.new("RGBA", (64, 64))
         self.draw = ImageDraw.Draw(self.image)
         self.stage = draw_stage
-        self.nock = (32.0, 25.0, 18.0, 10.0)[draw_stage]
+        nocks = (32.0, 25.0, 18.0, 10.0)
+        lower = min(3, int(draw_stage))
+        upper = min(3, lower + 1)
+        self.nock = nocks[lower] + (nocks[upper] - nocks[lower]) * (draw_stage - lower)
 
     @staticmethod
     def pixel(p):

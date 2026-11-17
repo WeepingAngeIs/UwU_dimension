@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "uwudimension:block/dusk_moonbell_lower"
+    },
+    "half=upper": {
+      "model": "uwudimension:block/dusk_moonbell_upper"
+    }
+  }
+}

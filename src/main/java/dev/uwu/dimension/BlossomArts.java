@@ -44,6 +44,7 @@ public final class BlossomArts {
     private static final String ROOT = "uwu.art_root";
     private static final String ICE = "uwu.art_ice";
     private static final String STACK = "uwu.art_stack";
+    private static final String THROW_GATE = "uwu.art_flower_throw_until";
     private static final DustParticleOptions ROSE = dust(1, .54F, .75F);
     private static final DustParticleOptions MINT = dust(.4F, .95F, .62F);
     private static final DustParticleOptions AQUA = dust(.48F, .88F, 1);
@@ -98,6 +99,9 @@ public final class BlossomArts {
 
     /** Consume only after an actual projectile spawn succeeded. The following throw keeps its ordinary cooldown. */
     static void launched(Player owner, ItemStack stack, RelicFlight flight) {
+        flight.getPersistentData().putLong("uwu.art_launched", owner.level().getGameTime());
+        if (flight.relic() == Arsenal.Relic.VESPER_SCYTHE && flight.counter().isEmpty() && flight.physical())
+            saved(owner).putLong(THROW_GATE, owner.level().getServer().overworld().getGameTime() + 60);
         if (!flowerCredit(owner, stack)) return;
         owner.getPersistentData().getCompound(FLOWER).putBoolean("spent", true);
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.remove("uwu.flower_credit_until"));
@@ -114,6 +118,7 @@ public final class BlossomArts {
         CompoundTag field = field(level, at, 80);
         field.putUUID("stack", identity(flight.getItem()));
         field.putUUID("cast", flight.getUUID());
+        field.putLong("normalReady", flight.getPersistentData().getLong("uwu.art_launched") + 60);
         owner.getPersistentData().put(FLOWER, field);
         RelicReturns.deferGlitch(owner, flight, 80);
         level.playSound(null, at.x, at.y, at.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, .7F, 1.5F);
@@ -125,6 +130,17 @@ public final class BlossomArts {
         field.putDouble("x", at.x); field.putDouble("y", at.y); field.putDouble("z", at.z);
         field.putLong("start", level.getGameTime()); field.putLong("until", level.getGameTime() + duration);
         return field;
+    }
+
+    private static CompoundTag saved(Player owner) {
+        CompoundTag data = owner.getPersistentData();
+        if (!data.contains(Player.PERSISTED_NBT_TAG, Tag.TAG_COMPOUND)) data.put(Player.PERSISTED_NBT_TAG, new CompoundTag());
+        return data.getCompound(Player.PERSISTED_NBT_TAG);
+    }
+
+    static boolean mayThrow(Player owner, ItemStack stack) {
+        return owner.level().isClientSide || !GlitchBow.isRelic(stack, Arsenal.Relic.VESPER_SCYTHE) || flowerCredit(owner, stack)
+                || saved(owner).getLong(THROW_GATE) <= owner.level().getServer().overworld().getGameTime();
     }
 
     private static Vec3 center(CompoundTag field) {
@@ -384,6 +400,12 @@ public final class BlossomArts {
     }
 
     @SubscribeEvent public static void logout(PlayerEvent.PlayerLoggedOutEvent event) { clearFields(event.getEntity()); }
+    /** Vanilla cooldowns are per item type. Opening one stack's credit cannot open a second copy. */
+    @SubscribeEvent public static void use(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem event) {
+        Player owner = event.getEntity();
+        if (owner.level().isClientSide || !GlitchBow.isRelic(event.getItemStack(), Arsenal.Relic.VESPER_SCYTHE)) return;
+        if (!mayThrow(owner, event.getItemStack())) event.setCanceled(true);
+    }
     @SubscribeEvent public static void cloned(PlayerEvent.Clone event) { clearFields(event.getEntity()); clearFields(event.getOriginal()); }
     private static void clearFields(Player owner) {
         for (String key : List.of(FLOWER, PUDDLE, VORTEX)) owner.getPersistentData().remove(key);

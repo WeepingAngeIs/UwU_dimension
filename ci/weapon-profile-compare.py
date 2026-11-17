@@ -43,10 +43,11 @@ def index(rows):
     if len(table)!=len(rows):raise AssertionError('Duplicate item IDs in observation')
     return table
 before=index(base['items']);after=index(current['items'])
-if before.keys()!=after.keys():
+expected_added={'uwudimension:returnbloom_dirk','uwudimension:dawnpetal_axe','uwudimension:petal_moonbell','uwudimension:dusk_moonbell'}
+if before.keys()-after.keys() or after.keys()-before.keys()!=expected_added:
     raise AssertionError(f'Item IDs changed: removed={sorted(before.keys()-after.keys())}, added={sorted(after.keys()-before.keys())}')
 for key in ('uwu_item_count','reference_item_count','glitch_form_count'):
-    if base[key]!=current[key]:raise AssertionError(f'Observation coverage changed: {key}')
+    if base[key]+(len(expected_added) if key=='uwu_item_count' else 0)!=current[key]:raise AssertionError(f'Observation coverage changed: {key}')
 
 def base_shape(item_id):
     return item_id.split('#',1)[-1].split(':',1)[-1]
@@ -59,7 +60,7 @@ relic_shapes={'blossom_greatsword':'axe','bellheart_axe':'axe','lockkeeper_axe':
               'vesper_scythe':'scythe','lantern_spear':'spear'}
 approved_poses={'axe':'bettercombat:pose_two_handed_heavy',
                 'spear':'bettercombat:pose_two_handed_polearm',
-                'scythe':'bettercombat:pose_two_handed_scythe'}
+                'scythe':'simplyswords:pose_soulrender'}
 def animations(row):
     profile=row.get('base_profile')
     return [attack.get('animation') if attack is not None else None for attack in (profile.get('attacks') or [])] if profile else None

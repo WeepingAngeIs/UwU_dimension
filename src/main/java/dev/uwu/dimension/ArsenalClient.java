@@ -40,6 +40,10 @@ public final class ArsenalClient {
                 GlitchBow.relic(stack)==Arsenal.Relic.CUPID_BOW && holder!=null && holder.getUseItem()==stack ? Math.min(1,holder.getTicksUsingItem()/20F) : 0F);
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_ripple_draw"),(stack,level,holder,seed) ->
                 GlitchBow.relic(stack)==Arsenal.Relic.RIPPLE_BOW && holder!=null && holder.getUseItem()==stack ? Math.min(1,holder.getTicksUsingItem()/20F) : 0F);
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_ripple_drawing"),(stack,level,holder,seed) ->
+                GlitchBow.relic(stack)==Arsenal.Relic.RIPPLE_BOW && holder!=null && holder.isUsingItem() && holder.getUseItem()==stack ? 1F : 0F);
+            ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_flower_credit"),(stack,level,holder,seed) ->
+                GlitchBow.relic(stack)==Arsenal.Relic.VESPER_SCYTHE ? flowerCredit(stack,level) : 0);
             ItemProperties.register(UwUDimension.GLITCH.get(),Arsenal.id("glitch_scythe"),(stack,level,holder,seed) -> {
                 if(!GlitchBow.isScythe(stack))return 0;
                 int element=Math.floorMod(stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"),4);
@@ -51,15 +55,20 @@ public final class ArsenalClient {
             });
             ItemProperties.register(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get(), Arsenal.id("element"), (stack,level,holder,seed) ->
                 stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
+            ItemProperties.register(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get(), Arsenal.id("flower_credit"),
+                (stack,level,holder,seed)->flowerCredit(stack,level));
             for (Arsenal.Relic relic : new Arsenal.Relic[]{Arsenal.Relic.CUPID_BOW, Arsenal.Relic.RIPPLE_BOW}) {
                 var bow = Arsenal.WEAPONS.get(relic).get();
-                if (relic == Arsenal.Relic.CUPID_BOW) {
-                    ItemProperties.register(bow, Arsenal.id("drawing"), (stack, level, holder, seed) ->
-                            holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1F : 0F);
-                }
+                ItemProperties.register(bow, Arsenal.id("drawing"), (stack, level, holder, seed) ->
+                        holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1F : 0F);
                 ItemProperties.register(bow, Arsenal.id("draw"), (stack, level, holder, seed) ->
                     holder != null && holder.getUseItem() == stack ? Math.min(1, holder.getTicksUsingItem() / 20F) : 0);
             }
         });
+    }
+
+    private static float flowerCredit(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level) {
+        return level != null && stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getLong("uwu.flower_credit_until") > level.getGameTime() ? 1 : 0;
     }
 }
