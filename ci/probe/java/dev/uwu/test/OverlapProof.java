@@ -75,7 +75,8 @@ public final class OverlapProof {
             var geometry=level.getServer().overworld();
             var treeSink=construct(surveyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class},geometry,site);
             var treeValley=construct(valleyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class,surveyType},geometry,site,treeSink);
-            var treeType=Class.forName("dev.uwu.dimension.VillageSakura"),plotType=Class.forName("dev.uwu.dimension.VillageSakura$Plot");
+            var treeType=Class.forName("dev.uwu.dimension.VillageSakura");
+            var plotType=Class.forName("dev.uwu.dimension.VillageSakura$Plot");
             var plot=construct(plotType,new Class<?>[]{int.class,int.class,int.class,int.class},0,80,-170,38);
             invoke(surveyType,treeSink,"part",new Class<?>[]{String.class,Runnable.class},"village_sakura_geometry",(Runnable)()->invoke(treeType,null,"build",new Class<?>[]{valleyType,plotType},treeValley,plot));
             var treeParts=(List<AuthoredFootprints.Envelope>)result.get(treeSink);
