@@ -24,5 +24,51 @@ jobs:
           path: |
             build/libs/*.jar
             build/weapon-profile-server/weapon-profile-observation.json
+            build/weapon-profile-server/weapon-profile-comparison.json
             build/weapon-profile-server/observation.log
             build/weapon-profile-server/crash-reports
+  network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {WISH_COMBAT: bettercombat}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
+      - run: bash ci/weapon-animation-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-animation-network
+          path: |
+            build/libs/*.jar
+            build/weapon-animation-network/server.log
+            build/weapon-animation-network/archer.log
+            build/weapon-animation-network/witness.log
+            build/weapon-animation-network/sync
+            build/weapon-animation-network/archer/run-archer/screenshots
+            build/weapon-animation-network/witness/run-witness/screenshots
+            build/weapon-animation-network/crash-reports
+            build/weapon-animation-network/archer/run-archer/crash-reports
+            build/weapon-animation-network/witness/run-witness/crash-reports
+  no-better-combat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {ACTIVITY_WORLD: fresh}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/activity-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-animation-no-better-combat
+          path: |
+            build/libs/*.jar
+            build/activity-server/first.log
+            build/activity-server/restart.log
+            build/activity-server/crash-reports

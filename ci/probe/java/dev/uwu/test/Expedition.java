@@ -29,6 +29,10 @@ public class Expedition {
     }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
+        if(server.isDedicatedServer() && "network-weapon-animation".equals(System.getenv("UWU_VISIT"))){
+            try{NetworkWeaponServer.tick(server);}catch(Exception e){throw new IllegalStateException("Network weapon animation proof",e);}
+            return;
+        }
         if(server.isDedicatedServer() && "network-wishes".equals(System.getenv("UWU_VISIT"))){
             try{NetworkWishServer.tick(server);}catch(Exception e){throw new IllegalStateException("Network wish proof",e);}
             return;

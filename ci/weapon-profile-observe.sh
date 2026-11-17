@@ -20,3 +20,4 @@ printf 'server-ip=127.0.0.1\nonline-mode=false\nlevel-seed=152045\nview-distance
 UWU_WEAPON_OBSERVE=1 timeout 15m java -Xms512m -Xmx5G @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee observation.log
 grep -F 'UWU WEAPON PROFILE OBSERVATION PASS' observation.log
 test -s weapon-profile-observation.json
+python ../../ci/weapon-profile-compare.py ../../ci/fixtures/bettercombat/beta11-weapon-profile-observation.json.gz weapon-profile-observation.json mods/bettercombat.jar mods/simplyswords.jar

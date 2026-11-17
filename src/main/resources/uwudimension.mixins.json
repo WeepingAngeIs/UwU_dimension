@@ -8,6 +8,7 @@
     "DaggerAttackMixin",
     "GlitchBetterCombatMixin",
     "GlitchBetterCombatAttributesMixin",
+    "WeaponAnimationMixin",
     "SakuraPaletteMixin",
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",
