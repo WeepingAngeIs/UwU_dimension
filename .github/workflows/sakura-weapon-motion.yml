@@ -1,0 +1,38 @@
+name: Sakura travelling weapon effects
+on:
+  push:
+    branches: [feature/sakura-weapon-polish-beta13]
+    paths:
+      - 'ci/probe/java/dev/uwu/test/NetworkMotion*.java'
+      - 'ci/weapon-motion-network.sh'
+      - '.github/workflows/sakura-weapon-motion.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: sakura-weapon-motion-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env: {WISH_COMBAT: bettercombat}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
+      - run: bash ci/weapon-motion-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-motion-network
+          path: |
+            build/libs/*.jar
+            build/weapon-motion-network/*.log
+            build/weapon-motion-network/sync
+            build/weapon-motion-network/archer/run-archer/screenshots
+            build/weapon-motion-network/witness/run-witness/screenshots
+            build/weapon-motion-network/crash-reports
+            build/weapon-motion-network/archer/run-archer/crash-reports
+            build/weapon-motion-network/witness/run-witness/crash-reports

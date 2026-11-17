@@ -29,6 +29,10 @@ public class Expedition {
     }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
+        if(server.isDedicatedServer() && "network-weapon-motion".equals(System.getenv("UWU_VISIT"))){
+            try{NetworkMotionServer.tick(server);}catch(Exception error){throw new IllegalStateException("Network motion proof",error);}
+            return;
+        }
         if(server.isDedicatedServer() && "network-weapon-polish".equals(System.getenv("UWU_VISIT"))){
             try{NetworkPolishServer.tick(server);}catch(Exception error){throw new IllegalStateException("Network weapon polish proof",error);}
             return;
