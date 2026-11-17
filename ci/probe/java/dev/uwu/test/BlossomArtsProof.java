@@ -113,6 +113,7 @@ public final class BlossomArtsProof {
             level.addNewPlayer(owner);
             require(owner.getMaxHealth() == 20, "test owner max health changed");
             owner.getPersistentData().putInt("uwu.scythe_element", 3);
+            canceledSpawn(level);
             healing = throwRelic(level, Arsenal.Relic.VESPER_SCYTHE);
             land(level, healing, owner.position().add(.35, 0, 0));
             var field = owner.getPersistentData().getCompound(FLOWER);
@@ -130,6 +131,13 @@ public final class BlossomArtsProof {
             RelicFlight rejected = throwRelic(level, Arsenal.Relic.BLOSSOM_GREATSWORD);
             impact(rejected, immune);
             require(!immune.getPersistentData().contains("uwu.art_root"), "invulnerable target received roots");
+            var blockedTag = healing.saveWithoutId(new CompoundTag());
+            blockedTag.putInt("element", 2); blockedTag.putBoolean("physical_weapon", false); blockedTag.putBoolean("landed", false);
+            RelicFlight blockedFire = dev.uwu.dimension.RangedRelics.FLIGHT.get().create(level);
+            blockedFire.load(blockedTag); blockedFire.setUUID(UUID.randomUUID()); blockedFire.setOwner(owner);
+            impact(blockedFire, immune);
+            require(!immune.isOnFire() && !immune.hasEffect(MobEffects.MOVEMENT_SLOWDOWN), "rejected native hit still applied elemental control/fire");
+            blockedFire.discard();
             frozen = mob(level, 10.5, 4.5);
             var ranged = Class.forName("dev.uwu.dimension.RangedRelics");
             require((boolean) invoke(ranged, "strike", new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class,
@@ -189,6 +197,10 @@ public final class BlossomArtsProof {
             }
             require(!returned.isEmpty() && owner.getInventory().countItem(scythe) == 0, "return failed or duplicate inventory scythe");
             require(!owner.getCooldowns().isOnCooldown(scythe), "one follow-up cooldown was not opened at catch");
+            ItemStack otherScythe = new ItemStack(scythe);
+            owner.setItemInHand(InteractionHand.MAIN_HAND, otherScythe);
+            otherScythe.use(level, owner, InteractionHand.MAIN_HAND); otherScythe.releaseUsing(level, owner, 72000 - 12); owner.stopUsingItem();
+            require(owner.getMainHandItem() == otherScythe && !owner.getMainHandItem().isEmpty(), "unrelated stack spent another scythe's credit");
             owner.setItemInHand(InteractionHand.MAIN_HAND, returned);
             returned.use(level, owner, InteractionHand.MAIN_HAND); returned.releaseUsing(level, owner, 72000 - 12); owner.stopUsingItem();
             var second = level.getEntitiesOfClass(RelicFlight.class, owner.getBoundingBox().inflate(5), f -> f.getOwner() == owner && !f.landed() && !f.returning()).getFirst();
@@ -237,6 +249,21 @@ public final class BlossomArtsProof {
     private static void landAttempt(ServerLevel level, RelicFlight flight, Vec3 at) throws Exception {
         invoke(RelicFlight.class, "onHitBlock", new Class<?>[]{BlockHitResult.class}, flight,
                 new BlockHitResult(at, Direction.UP, BlockPos.containing(at.add(0, -.01, 0)), false));
+    }
+
+    private static void canceledSpawn(ServerLevel level) {
+        ItemStack stack = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get());
+        owner.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        java.util.function.Consumer<net.neoforged.neoforge.event.entity.EntityJoinLevelEvent> reject = event -> {
+            if (event.getEntity() instanceof RelicFlight) event.setCanceled(true);
+        };
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(reject);
+        try {
+            stack.use(level, owner, InteractionHand.MAIN_HAND); stack.releaseUsing(level, owner, 72000 - 12); owner.stopUsingItem();
+            require(owner.getMainHandItem() == stack && stack.getDamageValue() == 0, "canceled spawn consumed the owned item");
+            require(owner.getPersistentData().getInt("uwu.scythe_element") == 3
+                    && !owner.getPersistentData().contains("uwu.scythe_flight"), "canceled spawn cycled or locked the scythe");
+        } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(reject); }
     }
 
     private static boolean restart(ServerLevel level) throws Exception {

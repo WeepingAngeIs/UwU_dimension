@@ -153,19 +153,22 @@ public final class BlossomArts {
     }
 
     static boolean allowedTarget(ServerLevel level, Player owner, LivingEntity target) {
-        return RangedRelics.enemy(owner, target) && canUse(level, owner, target.blockPosition()) && owner.hasLineOfSight(target);
+        return RangedRelics.enemy(owner, target) && canUse(level, owner, target.blockPosition());
     }
 
     private static boolean hostile(ServerLevel level, Player owner, LivingEntity target) {
         return (!(target instanceof Player) || level.getServer().isPvpAllowed())
                 && (target instanceof Player || target.getType().getCategory() == MobCategory.MONSTER)
-                && allowedTarget(level, owner, target) && owner.distanceToSqr(target) <= 4096;
+                && allowedTarget(level, owner, target) && owner.distanceToSqr(target) <= 4096
+                && clearPath(level, owner.getEyePosition(), target.getEyePosition());
     }
 
     /** Damage is folded into the original accepted hit so native hurt resistance remains authoritative. */
     static float lightningBonus(Player owner, LivingEntity target, Arsenal.Relic relic, Entity source) {
         return relic == Arsenal.Relic.TIDELACE_TRIDENT && source instanceof RelicFlight flight && flight.physical()
-                && !flight.wave() && hostile((ServerLevel) owner.level(), owner, target) ? 3F : 0F;
+                && !flight.wave() && (target.getType().getCategory() == MobCategory.MONSTER
+                    || target instanceof Player && owner.level().getServer().isPvpAllowed())
+                && allowedTarget((ServerLevel) owner.level(), owner, target) ? 3F : 0F;
     }
 
     static void hit(ServerLevel level, Player owner, LivingEntity target, Arsenal.Relic relic, Entity source) {
@@ -251,6 +254,9 @@ public final class BlossomArts {
     }
 
     private static boolean clearPath(ServerLevel level, Vec3 a, Vec3 b) {
+        int steps = Math.max(1, (int) Math.ceil(a.distanceTo(b) * 2));
+        for (int step = 0; step <= steps; step++)
+            if (!level.hasChunkAt(BlockPos.containing(a.lerp(b, (double) step / steps)))) return false;
         return level.clip(new net.minecraft.world.level.ClipContext(a, b,
                 net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE,
                 net.minecraft.world.phys.shapes.CollisionContext.empty())).getType() == net.minecraft.world.phys.HitResult.Type.MISS;

@@ -28,6 +28,8 @@ public final class BlossomRevivalProof {
     private static final UUID PERSISTENT = UUID.fromString("64ee0e6d-999c-4161-8f5b-a835ac69bf15");
     private static final Path RECORD = Path.of("blossom-revival-fixture.nbt");
     private static final UUID RESCUED = UUID.fromString("64ee0e6d-999c-4161-8f5b-a835ac69bf16");
+    private static BlockPos lightPlot;
+    private static long lightPlaced, lightBroken;
     private static void check(boolean ok,String why) { if(!ok)throw new AssertionError("BLOSSOM "+why); }
     private static void arm(ServerPlayer p, ItemStack main, ItemStack off) {
         p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(40);
@@ -75,15 +77,41 @@ public final class BlossomRevivalProof {
             ItemStack bypassStack=new ItemStack(RevivalBlossoms.DIRK.get());arm(bypass.player,bypassStack,ItemStack.EMPTY);
             check(bypass.player.hurt(bypass.player.damageSources().genericKill(),500)&&!bypass.player.isAlive(),"absolute bypass resurrected");
             check(RevivalBlossoms.remaining(bypass.player,bypassStack)==0,"absolute bypass spent charge");
-            arm(plain.player,ItemStack.EMPTY,ItemStack.EMPTY);plain.player.getInventory().add(new ItemStack(RevivalBlossoms.DIRK.get()));
+            arm(plain.player,ItemStack.EMPTY,ItemStack.EMPTY);plain.player.getInventory().setItem(9,new ItemStack(RevivalBlossoms.DIRK.get()));
+            check(plain.player.getMainHandItem().isEmpty()&&plain.player.getOffhandItem().isEmpty(),"inventory-only fixture accidentally equipped weapon");
             lethal(plain.player);check(!plain.player.isAlive(),"inventory-only revival");
             ItemStack fresh=new ItemStack(RevivalBlossoms.AXE.get());arm(borrower.player,fresh,ItemStack.EMPTY);
             lethal(borrower.player);check(borrower.player.isAlive()&&borrower.player.getHealth()==40,"axe entry point full rescue");
             lethal(borrower.player);check(!borrower.player.isAlive(),"second lethal hit revived during cooldown");
             nativePlant(level,visitor.player,pos.south(5),Moonbells.PETAL.get(),Moonbells.PETAL_ITEM.get());
             nativePlant(level,visitor.player,pos.south(8),Moonbells.DUSK.get(),Moonbells.DUSK_ITEM.get());
+            // A separate loaded plot retains the actual flower long enough for asynchronous light propagation.
+            lightPlot=new BlockPos(45,level.getMaxBuildHeight()-30,45);
+            level.getChunkAt(lightPlot);
+            for(BlockPos air:BlockPos.betweenClosed(lightPlot.offset(-2,0,-2),lightPlot.offset(2,3,2)))level.setBlock(air,Blocks.AIR.defaultBlockState(),3);
+            level.setBlock(lightPlot.below(),Blocks.DIRT.defaultBlockState(),3);
+            DoublePlantBlock.placeAt(level,Moonbells.PETAL.get().defaultBlockState(),lightPlot,3);
+            lightPlaced=level.getGameTime();lightBroken=0;
         }
         System.out.println("BLOSSOM PASS full-health dirk/axe, held-only, shared owner, stale copied ID, totem precedence, repeat lethal, two rooted light plants; durable fixture saved");
+    }
+    /** Call on server ticks until true. Checks both propagation and removal through the real light engine. */
+    public static boolean verifyLighting(ServerLevel level) {
+        check(lightPlot!=null,"retained lighting fixture missing");
+        long now=level.getGameTime();
+        if(lightBroken==0) {
+            if(now-lightPlaced<12)return false;
+            BlockPos upper=lightPlot.above(),adjacent=upper.east();
+            check(level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,upper)==12,"real source block light not12");
+            check(level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,adjacent)>=11,"adjacent server block light did not propagate");
+            level.destroyBlock(upper,false);lightBroken=now;
+            return false;
+        }
+        if(now-lightBroken<12)return false;
+        check(level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,lightPlot.above())==0,"removed source left stale block light");
+        check(level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK,lightPlot.above().east())==0,"removed source left stale adjacent light");
+        System.out.println("MOONBELL LIGHT ENGINE PASS source12 adjacent11, removed flower clears propagated server block light");
+        return true;
     }
     private static void nativePlant(ServerLevel level,ServerPlayer p,BlockPos pos,net.minecraft.world.level.block.Block plant,net.minecraft.world.item.Item item) {
         level.setBlock(pos.below(),Blocks.DIRT.defaultBlockState(),3);level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);level.setBlock(pos.above(),Blocks.AIR.defaultBlockState(),3);

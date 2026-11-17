@@ -189,10 +189,6 @@ public final class RelicFlight extends ThrowableItemProjectile {
         int element = fallbackElement;
         if (cycleScythe) {
             element = Math.floorMod(owner.getPersistentData().getInt("uwu.scythe_element") + (wave ? 0 : 1), 4);
-            if (!wave) {
-                owner.getPersistentData().putInt("uwu.scythe_element", element);
-                owner.getPersistentData().putLong("uwu.scythe_flight", level.getGameTime() + 60);
-            }
         }
         flight.entityData.set(ELEMENT, element);
         flight.entityData.set(HARE_ORB, kind == Arsenal.Relic.RIBBONHARE_SCEPTER);
@@ -222,6 +218,10 @@ public final class RelicFlight extends ThrowableItemProjectile {
         flight.returnHand = hand;
         flight.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0, wave ? 1.5F : physical ? 2.05F : 1.8F, 0);
         if (!level.addFreshEntity(flight)) return null;
+        if (cycleScythe && !wave) {
+            owner.getPersistentData().putInt("uwu.scythe_element", element);
+            owner.getPersistentData().putLong("uwu.scythe_flight", level.getGameTime() + 60);
+        }
         if (physical) {
             BlossomArts.launched(owner, display, flight);
             flight.setItem(display.copy());
@@ -386,8 +386,9 @@ public final class RelicFlight extends ThrowableItemProjectile {
             Vec3 impact = target.getBoundingBox().inflate(0.3D)
                     .clip(position(), position().add(getDeltaMovement())).orElse(position());
             int effectTicks=0;
+            boolean applied;
             if (counter().isEmpty()) {
-                boolean applied=RangedRelics.strike(server, player, target, relic(), impact,this);
+                applied=RangedRelics.strike(server, player, target, relic(), impact,this);
                 if(applied && (switch(relic()){case RIBBONHARE_SCEPTER,BLOSSOM_GREATSWORD,ROSE_DAGGER,LANTERN_SPEAR -> true;default -> false;})){
                     effectTicks=100;
                 }
@@ -395,17 +396,16 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 var entry=CounterArsenal.entry(counter());
                 if(entry!=null && CounterEffects.holds(target,entry.target()))effectTicks=160;
                 else if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))effectTicks=14;
-                float before = target.getHealth();
-                CounterEffects.hit(server, player, target, entry, impact,this);
-                if (target.getHealth() < before) BlossomArts.counterHit(server, player, target, entry);
+                applied = CounterEffects.hit(server, player, target, entry, impact,this);
+                if (applied) BlossomArts.counterHit(server, player, target, entry);
                 if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))GlitchCompletions.track(this,target,"echo");
                 if(entry!=null && CounterEffects.holds(target,entry.target())){
                     GlitchCompletions.track(this,target,"counter_mark");
                 }
             }
-            if (relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && summonHare(server, player, target.blockPosition()))
+            if (applied && relic() == Arsenal.Relic.RIBBONHARE_SCEPTER && summonHare(server, player, target.blockPosition()))
                 effectTicks=Math.max(effectTicks,160);
-            if (relic() == Arsenal.Relic.VESPER_SCYTHE) {
+            if (applied && relic() == Arsenal.Relic.VESPER_SCYTHE) {
                 switch (element()) {
                     case 1 -> {if(GlitchCompletions.applyEffect(target,new net.minecraft.world.effect.MobEffectInstance(
                             net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,60,2)))GlitchCompletions.track(this,target,"slow",60);}
@@ -417,7 +417,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             }
             if(getPersistentData().hasUUID("uwu.glitch_token"))getPersistentData().putInt("uwu.glitch_effect_ticks",effectTicks);
             RelicReturns.deferGlitch(player,this,effectTicks);
-            HeartCombatGlow.burst(server, target.position().add(0, target.getBbHeight() * .55, 0), 1.25, element());
+            if (applied) HeartCombatGlow.burst(server, target.position().add(0, target.getBbHeight() * .55, 0), 1.25, element());
         }
         finish();
     }

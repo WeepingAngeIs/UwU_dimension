@@ -23,11 +23,16 @@ final class NetworkPolishServer {
     private static boolean ready,issued,go,finished;
     private static int scene;
     private static long started;
+    private static int shots, shotsBefore;
+    private static int baseCount(){return ITEMS.size()*VIEWS.length;}
+    private static String item(){return scene<baseCount()?ITEMS.get(scene/VIEWS.length):(scene-baseCount())/4==0?"cupid_bow":"ripple_bow";}
+    private static String view(){return scene<baseCount()?VIEWS[scene%VIEWS.length]:VIEWS[(scene-baseCount())%4];}
     private static void require(boolean test,String why){if(!test)throw new AssertionError("POLISH NETWORK "+why);}
     private static void task(String state)throws Exception{
         var p=new Properties();
         p.setProperty("id",Integer.toString(scene));p.setProperty("state",state);
-        p.setProperty("item",ITEMS.get(scene/VIEWS.length));p.setProperty("view",VIEWS[scene%VIEWS.length]);
+        p.setProperty("item",item());p.setProperty("view",view());
+        p.setProperty("action",scene<baseCount()?"idle":"draw");
         p.setProperty("shooter",Integer.toString(archer.getId()));
         Path temp=SYNC.resolve("polish-task.tmp");
         try(var out=Files.newBufferedWriter(temp)){p.store(out,"Actual registered weapon visual matrix");}
@@ -49,34 +54,38 @@ final class NetworkPolishServer {
             for(int x=-8;x<=8;x++)for(int z=-5;z<=10;z++)level.setBlockAndUpdate(new BlockPos(x,112,z),Blocks.STONE.defaultBlockState());
             archer.teleportTo(level,.5,113,.5,0,0);
             witness.teleportTo(level,3.5,113,3.5,135,0);
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event)->{
+                if(event.getEntity() instanceof HeartArrow arrow && arrow.getOwner()==archer)shots++;
+            });
             ready=true;started=System.nanoTime();
             System.out.println("POLISH NETWORK READY items="+ITEMS.size());return;
         }
         require(System.nanoTime()-started<1_650_000_000_000L,"timeout "+scene);
-        if(scene==ITEMS.size()*VIEWS.length){
+        if(scene==baseCount()+8){
             Files.writeString(SYNC.resolve("polish-complete"),"passed "+scene);
             finished=true;System.out.println("POLISH NETWORK PASS "+scene+" mounted scenes, 153 registered weapons, real remote client");return;
         }
         if(!issued){
             if(drop!=null){drop.discard();drop=null;}
-            var key=ResourceLocation.fromNamespaceAndPath("uwudimension",ITEMS.get(scene/VIEWS.length));
+            var key=ResourceLocation.fromNamespaceAndPath("uwudimension",item());
             var stack=new ItemStack(BuiltInRegistries.ITEM.getOptional(key).orElseThrow());
             archer.stopUsingItem();archer.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);archer.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
-            String view=VIEWS[scene%VIEWS.length];
+            String view=view();
             if(view.equals("ground")){
                 drop=new ItemEntity(server.overworld(),.5,113,2.2,stack);
                 drop.setNoGravity(true);drop.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
                 require(server.overworld().addFreshEntity(drop),"drop spawn");
             }else archer.setItemInHand(view.endsWith("left")?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND,stack);
             archer.containerMenu.broadcastChanges();
-            task("prepare");issued=true;go=false;return;
+            task("prepare");issued=true;go=false;shotsBefore=shots;return;
         }
         if(!go){
             if(!Files.exists(SYNC.resolve("polish-ready-"+scene+"-archer"))||!Files.exists(SYNC.resolve("polish-ready-"+scene+"-witness")))return;
             task("go");go=true;return;
         }
         if(!Files.exists(SYNC.resolve("polish-done-"+scene+"-archer"))||!Files.exists(SYNC.resolve("polish-done-"+scene+"-witness")))return;
-        System.out.println("POLISH NETWORK FRAME "+scene+" "+ITEMS.get(scene/VIEWS.length)+" "+VIEWS[scene%VIEWS.length]);
+        System.out.println("POLISH NETWORK FRAME "+scene+" "+item()+" "+view());
+        if(scene>=baseCount())require(shots==shotsBefore+1,"bow did not emit exactly one real shot "+item()+" "+view()+" shots="+(shots-shotsBefore));
         scene++;issued=false;
     }
 }

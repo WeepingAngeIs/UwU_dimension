@@ -22,7 +22,8 @@ public final class NetworkPolishClient {
     private static final Path SYNC=Path.of(System.getenv().getOrDefault("WISH_SYNC_DIR","."));
     private static final String ROLE=System.getenv().getOrDefault("WISH_ROLE","");
     private static boolean connecting,finished,captured;
-    private static int scene=-1,ticks,photos;
+    private static int scene=-1,ticks,photos,drawPhotos;
+    private static boolean held;
     private static long started;
     private static Properties task;
     @SubscribeEvent public static void tick(ClientTickEvent.Post e)throws Exception{
@@ -42,7 +43,7 @@ public final class NetworkPolishClient {
         Path f=SYNC.resolve("polish-task.properties");if(!Files.exists(f))return;
         var next=new Properties();try(var r=Files.newBufferedReader(f)){next.load(r);}
         int id=Integer.parseInt(next.getProperty("id"));
-        if(id!=scene){scene=id;ticks=0;captured=false;}
+        if(id!=scene){scene=id;ticks=0;captured=false;drawPhotos=0;held=false;}
         task=next;
         String view=task.getProperty("view");
         var remote=mc.level.players().stream().filter(p->p!=mc.player).findFirst().orElse(null);
@@ -60,11 +61,26 @@ public final class NetworkPolishClient {
         Files.writeString(SYNC.resolve("polish-ready-"+scene+"-"+ROLE),"ready");
         if(!task.getProperty("state").equals("go"))return;
         ticks++;
-        if(captured&&ticks>15)Files.writeString(SYNC.resolve("polish-done-"+scene+"-"+ROLE),"captured");
+        if(task.getProperty("action").equals("draw") && ROLE.equals("archer")){
+            if(ticks==12){button("mousedown");held=true;}
+            if(ticks==44){button("mouseup");held=false;}
+        }
+        if(captured&&ticks>(task.getProperty("action").equals("draw")?64:15))Files.writeString(SYNC.resolve("polish-done-"+scene+"-"+ROLE),"captured");
+    }
+    private static void button(String action)throws Exception{
+        var process=new ProcessBuilder("xdotool",action,"3").redirectErrorStream(true).start();
+        if(!process.waitFor(3,java.util.concurrent.TimeUnit.SECONDS)||process.exitValue()!=0)throw new AssertionError("Physical bow input "+action);
     }
     @SubscribeEvent public static void render(RenderGuiEvent.Post e)throws Exception{
         if(!ACTIVE||finished||captured||task==null||ticks<12)return;
+        boolean draw=task.getProperty("action").equals("draw");
         var mc=Minecraft.getInstance();if(mc.player==null)return;
+        if(draw){
+            var actor=mc.level.getEntity(Integer.parseInt(task.getProperty("shooter")));
+            if(!(actor instanceof net.minecraft.world.entity.LivingEntity living) || !living.isUsingItem())return;
+            int[] thresholds={1,8,15,21};
+            if(drawPhotos>=4 || living.getTicksUsingItem()<thresholds[drawPhotos])return;
+        }
         var stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("uwudimension",task.getProperty("item"))));
         if(stack.is(Items.AIR))throw new AssertionError("missing gallery model "+task);
         var model=mc.getItemRenderer().getModel(stack,mc.level,mc.player,0);
@@ -74,8 +90,8 @@ public final class NetworkPolishClient {
         g.drawString(mc.font,ROLE+" "+scene+" "+task.getProperty("item")+" "+task.getProperty("view"),8,8,0xffffffff,false);
         g.renderItem(stack,8,21);g.flush();
         Path dir=mc.gameDirectory.toPath().resolve("screenshots");Files.createDirectories(dir);
-        try(var pixels=Screenshot.takeScreenshot(mc.getMainRenderTarget())){pixels.writeToFile(dir.resolve(String.format(Locale.ROOT,"polish-%03d-%s.png",scene,ROLE)));}
-        captured=true;photos++;
+        try(var pixels=Screenshot.takeScreenshot(mc.getMainRenderTarget())){pixels.writeToFile(dir.resolve(String.format(Locale.ROOT,"polish-%03d-%s-%d.png",scene,ROLE,drawPhotos)));}
+        drawPhotos++;captured=!draw||drawPhotos==4;photos++;
         System.out.println("POLISH CLIENT FRAME "+ROLE+" "+scene+" model="+model.getParticleIcon().contents().name());
     }
 }

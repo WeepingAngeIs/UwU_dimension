@@ -32,7 +32,16 @@ MOTIFS = json.loads((ROOT / 'tools/weapon_pixel_motifs.json').read_text(encoding
 
 
 def write(path, data):
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+    if isinstance(data, dict) and 'elements' in data:
+        header = dict(data)
+        elements = header.pop('elements')
+        text = json.dumps(header, indent=2, ensure_ascii=False).removesuffix('\n}')
+        text += ',\n  "elements": [\n'
+        text += ',\n'.join('    ' + json.dumps(element, separators=(',', ':')) for element in elements)
+        text += '\n  ]\n}\n'
+    else:
+        text = json.dumps(data, indent=2, ensure_ascii=False) + '\n'
+    path.write_text(text, encoding='utf-8')
 
 
 def model(name):

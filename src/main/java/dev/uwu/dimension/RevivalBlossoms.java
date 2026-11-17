@@ -117,11 +117,13 @@ public final class RevivalBlossoms {
 
     private static final class FlowerDirk extends SwordItem {
         FlowerDirk() { super(Tiers.NETHERITE, new Item.Properties().rarity(Rarity.EPIC).attributes(SwordItem.createAttributes(Tiers.NETHERITE, 10, -1.8F))); }
+        @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged) { return slotChanged || before.getItem()!=after.getItem(); }
         @Override public void inventoryTick(ItemStack s, Level l, Entity e, int slot, boolean selected) { super.inventoryTick(s,l,e,slot,selected); inventory(s,l,e); }
         @Override public void appendHoverText(ItemStack s, Item.TooltipContext c, List<Component> tips, TooltipFlag f) { super.appendHoverText(s,c,tips,f); tooltip(s,tips); }
     }
     private static final class FlowerAxe extends AxeItem {
         FlowerAxe() { super(Tiers.NETHERITE, new Item.Properties().rarity(Rarity.EPIC).attributes(AxeItem.createAttributes(Tiers.NETHERITE, 17, -3.05F))); }
+        @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged) { return slotChanged || before.getItem()!=after.getItem(); }
         @Override public void inventoryTick(ItemStack s, Level l, Entity e, int slot, boolean selected) { super.inventoryTick(s,l,e,slot,selected); inventory(s,l,e); }
         @Override public void appendHoverText(ItemStack s, Item.TooltipContext c, List<Component> tips, TooltipFlag f) { super.appendHoverText(s,c,tips,f); tooltip(s,tips); }
     }

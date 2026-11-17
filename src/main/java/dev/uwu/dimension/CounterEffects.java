@@ -61,8 +61,8 @@ public final class CounterEffects {
     public static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition){
         hit(level,owner,target,e,attackPosition,null);
     }
-    static void hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition,Entity abilitySource){
-        if(e==null||!RangedRelics.enemy(owner,target))return;
+    static boolean hit(ServerLevel level,Player owner,LivingEntity target,CounterArsenal.Entry e,Vec3 attackPosition,Entity abilitySource){
+        if(e==null||!RangedRelics.enemy(owner,target)||!BlossomArts.allowedTarget(level,owner,target))return false;
         if(holds(target,e.target())){
             SimplyCounterHooks.interrupt(level,target,e);
             var n=target.getPersistentData();n.putString(MARK,e.id());n.putLong(MARK_END,level.getGameTime()+160);
@@ -79,8 +79,13 @@ public final class CounterEffects {
         if(e.school().equals("FEINT")||e.school().equals("SHATTER")){
             var n=target.getPersistentData();n.putUUID("uwu.echo_owner",owner.getUUID());n.putString("uwu.echo_counter",e.id());n.putLong("uwu.echo_at",level.getGameTime()+14);
             n.putBoolean("uwu.echo_backstab",rear);
-            if(e.school().equals("SHATTER") && target.hurt(owner.damageSources().playerAttack(owner),rear ? 4F : 2F) && rear)owner.crit(target);
-        }else if(target.hurt(owner.damageSources().playerAttack(owner),rear ? e.damage()*2F : e.damage()) && rear)owner.crit(target);
+            boolean applied = e.school().equals("SHATTER") && target.hurt(owner.damageSources().playerAttack(owner),rear ? 4F : 2F);
+            if(applied && rear)owner.crit(target);
+            return applied;
+        }
+        boolean applied = target.hurt(owner.damageSources().playerAttack(owner),rear ? e.damage()*2F : e.damage());
+        if(applied && rear)owner.crit(target);
+        return applied;
     }
     private static void impact(ProjectileImpactEvent event){
         if(!(event.getProjectile() instanceof Snowball p)||!(p.level() instanceof ServerLevel level)||!(p.getOwner() instanceof Player owner)||!p.getPersistentData().contains("uwu.counter"))return;

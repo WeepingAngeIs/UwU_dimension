@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 import net.minecraft.util.Mth;
 
-/** Idle presentation for the historical scythes that have no combat profile. */
+/** Carry and swing presentation for historical scythes that have no combat profile. */
 public final class WeaponPresentation {
     private static Method combatLookup;
     private static boolean lookupAttempted;

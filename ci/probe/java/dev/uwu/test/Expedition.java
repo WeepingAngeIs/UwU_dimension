@@ -59,7 +59,11 @@ public class Expedition {
                     if(restart)BlossomRevivalProof.restart(level);else BlossomRevivalProof.run(level);
                     stage=1;
                 }
-                if(!BlossomArtsProof.tick(level,restart))return;
+                if(stage==1){
+                    if(!BlossomArtsProof.tick(level,restart))return;
+                    stage=2;
+                }
+                if(!restart&&!BlossomRevivalProof.verifyLighting(level))return;
                 System.out.println("WEAPON POLISH SERVER PASS "+(restart?"restart":"first"));
                 stage=-1;server.halt(false);return;
             }
