@@ -31,6 +31,7 @@ public final class UwUDimension {
         });
         CupidParticles.TYPES.register(bus);
         MagicGlowParticles.TYPES.register(bus);
+        ArtParticles.TYPES.register(bus);
         HeartFloor.register(bus);
         PinkRoofTiles.register(bus);
         HeartLanterns.register(bus);

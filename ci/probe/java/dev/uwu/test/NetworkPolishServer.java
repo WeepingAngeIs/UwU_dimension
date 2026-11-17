@@ -25,6 +25,7 @@ final class NetworkPolishServer {
     private static long started;
     private static int shots, shotsBefore;
     private static int baseCount(){return ITEMS.size()*VIEWS.length;}
+    private static ResourceLocation key(String value){return value.contains(":")?ResourceLocation.parse(value):ResourceLocation.fromNamespaceAndPath("uwudimension",value);}
     private static String item(){return scene<baseCount()?ITEMS.get(scene/VIEWS.length):(scene-baseCount())/4==0?"cupid_bow":"ripple_bow";}
     private static String view(){return scene<baseCount()?VIEWS[scene%VIEWS.length]:VIEWS[(scene-baseCount())%4];}
     private static void require(boolean test,String why){if(!test)throw new AssertionError("POLISH NETWORK "+why);}
@@ -48,8 +49,10 @@ final class NetworkPolishServer {
             for(var e:CounterArsenal.ROSTER)ITEMS.add(e.id());
             ITEMS.addAll(List.of("glitch_bow","heart_launcher","bell_hammer","returnbloom_dirk","dawnpetal_axe"));
             require(ITEMS.size()==153,"expected 153 weapons "+ITEMS.size());
+            ITEMS.addAll(List.of("minecraft:bow","simplyswords:soulrender"));
             var level=server.overworld();
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"gamerule doMobSpawning false");
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"gamerule doDaylightCycle false");
             level.setDayTime(6000);
             for(int x=-8;x<=8;x++)for(int z=-5;z<=10;z++)level.setBlockAndUpdate(new BlockPos(x,112,z),Blocks.STONE.defaultBlockState());
             archer.teleportTo(level,.5,113,.5,0,0);
@@ -67,7 +70,7 @@ final class NetworkPolishServer {
         }
         if(!issued){
             if(drop!=null){drop.discard();drop=null;}
-            var key=ResourceLocation.fromNamespaceAndPath("uwudimension",item());
+            var key=key(item());
             var stack=new ItemStack(BuiltInRegistries.ITEM.getOptional(key).orElseThrow());
             archer.stopUsingItem();archer.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);archer.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             String view=view();

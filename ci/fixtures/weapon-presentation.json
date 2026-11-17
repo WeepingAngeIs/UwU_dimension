@@ -2668,7 +2668,76 @@
     "item": "heart_launcher",
     "shape": "launcher",
     "model": "heart_launcher",
-    "display": {},
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          45
+        ],
+        "translation": [
+          0,
+          2.0,
+          1
+        ],
+        "scale": [
+          0.72,
+          0.72,
+          0.72
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          -90,
+          -45
+        ],
+        "translation": [
+          0,
+          2.0,
+          1
+        ],
+        "scale": [
+          0.72,
+          0.72,
+          0.72
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          -90,
+          135
+        ],
+        "translation": [
+          0,
+          5.0,
+          0
+        ],
+        "scale": [
+          0.4,
+          0.4,
+          0.4
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -135
+        ],
+        "translation": [
+          0,
+          5.0,
+          0
+        ],
+        "scale": [
+          0.4,
+          0.4,
+          0.4
+        ]
+      }
+    },
     "overlay": "heart_launcher_glint",
     "source": "uwudimension:item/heart_launcher",
     "motif": {

@@ -219,8 +219,13 @@ public final class BlossomArts {
     private static boolean gate(ServerLevel level, Player owner, String key, int ticks) {
         String name = "uwu.art_gate_" + key;
         long now = level.getServer().overworld().getGameTime();
-        if (owner.getPersistentData().getLong(name) > now) return false;
-        owner.getPersistentData().putLong(name, now + ticks);
+        CompoundTag saved = saved(owner);
+        // Migrate an already active beta13 deadline without opening a respawn/logout bypass.
+        long prior = Math.max(saved.getLong(name), owner.getPersistentData().getLong(name));
+        if (prior > saved.getLong(name)) saved.putLong(name, prior);
+        owner.getPersistentData().remove(name);
+        if (prior > now) return false;
+        saved.putLong(name, now + ticks);
         return true;
     }
 
@@ -232,7 +237,7 @@ public final class BlossomArts {
     }
 
     static void waterRecipient(ServerLevel level, LivingEntity target) {
-        ring(level, target.position().add(0, .08, 0), Math.min(.75, target.getBbWidth()), AQUA, 10);
+        ring(level, target.position().add(0, .08, 0), Math.min(.75, target.getBbWidth()), ArtParticles.WATER.get(), 10);
     }
 
     @SubscribeEvent public static void ownerTick(PlayerTickEvent.Post event) {
@@ -311,9 +316,9 @@ public final class BlossomArts {
             for (int i = 0; i < 24; i++) {
                 double angle = i * Math.PI * 2 / 24;
                 Vec3 p = groundPoint(level, at.add(3 * Math.cos(angle), 0, 3 * Math.sin(angle)), at.y);
-                if (p != null) point(level, AQUA, p, i);
+                if (p != null) point(level, i % 4 == 0 ? ArtParticles.WATER.get() : AQUA, p, i);
             }
-            ring(level, at.add(0, .07, 0), (age % 12) / 4.0, AQUA, 12);
+            ring(level, at.add(0, .07, 0), (age % 12) / 4.0, ArtParticles.WATER.get(), 12);
         }
         ListTag touched = field.getList("touched", Tag.TAG_STRING);
         if (touched.size() >= 4) return;
@@ -336,7 +341,7 @@ public final class BlossomArts {
             double height = (i % 8) / 7.0 * 2.2;
             double angle = age * .3 + i * Math.PI * 2 / 8;
             double radius = 1.7 - height * .45;
-            point(level, i % 3 == 0 ? MagicGlowParticles.FLOWER.get() : IVORY,
+            point(level, i % 3 == 0 ? MagicGlowParticles.FLOWER.get() : i % 3 == 1 ? ArtParticles.WIND.get() : IVORY,
                     at.add(radius * Math.cos(angle), height, radius * Math.sin(angle)), i);
         }
         ListTag selected = field.getList("targets", Tag.TAG_INT_ARRAY);
@@ -391,7 +396,7 @@ public final class BlossomArts {
                     for (int i = 0; i < 9; i++) {
                         double angle = i * Math.PI * 2 / 9;
                         Vec3 at = target.position().add(Math.cos(angle) * .42, height * (i % 3) / 2, Math.sin(angle) * .42);
-                        point(level, MINT, at, i);
+                        point(level, ArtParticles.GRASS.get(), at, i);
                     }
                 }
             }
@@ -407,7 +412,7 @@ public final class BlossomArts {
             double a = side * Math.PI / 2 + Math.PI / 4;
             Vec3 bottom = target.position().add(Math.cos(a) * (target.getBbWidth() * .5 + .25), .05,
                     Math.sin(a) * (target.getBbWidth() * .5 + .25));
-            line(level, bottom, bottom.add(0, Math.min(target.getBbHeight(), (age + 1) * .3), 0), AQUA, 5);
+            line(level, bottom, bottom.add(0, Math.min(target.getBbHeight(), (age + 1) * .3), 0), ArtParticles.ICE.get(), 5);
         }
     }
 

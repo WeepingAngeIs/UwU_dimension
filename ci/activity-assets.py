@@ -29,7 +29,7 @@ with ZipFile(sys.argv[1]) as jar:
 lang='src/main/resources/assets/uwudimension/lang/en_us.json'
 before=json.loads(old(lang));after=json.loads((ROOT/lang).read_text(encoding='utf-8'))
 assert all(after[k]==v for k,v in before.items())
-assert len(after)-len(before)==100
+assert len(after)-len(before)==104
 for file in ['ReachJournal.java','ReachArrival.java','LoreDiscovery.java']:
     p='src/main/java/dev/uwu/dimension/'+file
     assert old(p).replace(b'\r\n',b'\n')==(ROOT/p).read_bytes().replace(b'\r\n',b'\n'),file

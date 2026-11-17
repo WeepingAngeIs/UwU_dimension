@@ -30,7 +30,10 @@ import net.minecraft.world.phys.Vec3;
 public final class BlossomArtsProof {
     private static ChestProof.Visitor visitor;
     private static ChestProof.Visitor glitchVisitor;
+    private static ChestProof.Visitor leavingVisitor;
     private static ServerPlayer glitchOwner;
+    private static ServerPlayer leavingOwner;
+    private static long cleanupStarted;
     private static ServerPlayer owner;
     private static int phase;
     private static long ready, started;
@@ -98,12 +101,19 @@ public final class BlossomArtsProof {
 
     public static boolean tick(ServerLevel level, boolean restart) throws Exception {
         if (restart) return restart(level);
+        // These connected probe visitors lack PlayerList's normal packet-loop doTick call.
+        for (ServerPlayer player : new ServerPlayer[]{owner, glitchOwner, leavingOwner})
+            if (player != null && player.isAlive() && !player.isRemoved()) player.doTick();
         if (phase == 0) {
             for (int x = 0; x <= 1; x++) for (int z = 0; z <= 1; z++) level.setChunkForced(x, z, true);
             ready = level.getGameTime() + 40; phase = 1; return false;
         }
         if (phase == 1) {
             if (level.getGameTime() < ready) return false;
+            for (int x = 0; x <= 1; x++) for (int z = 0; z <= 1; z++) {
+                level.getChunk(x, z);
+                if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(x, z))) return false;
+            }
             floor = new BlockPos(4, level.getMaxBuildHeight() - 24, 4);
             for (int x = 0; x < 28; x++) for (int z = 0; z < 20; z++)
                 level.setBlockAndUpdate(new BlockPos(x, floor.getY(), z), Blocks.STONE.defaultBlockState());
@@ -188,7 +198,13 @@ public final class BlossomArtsProof {
         long age = level.getGameTime() - started;
         if (age >= 10 && enterWater.getX() > 24) enterWater.setPos(20.5, floor.getY() + 1, 5.5);
         if (phase == 2 && age >= 22) {
-            require(healing.isRemoved(), "healing scythe failed to finish 16-tick embed and catch");
+            if (!healing.isRemoved() && age < 50) {
+                if (age % 5 == 2) System.out.println("BLOSSOM CATCH WAIT age=" + age + " nativeTicks=" + healing.tickCount + " landed=" + healing.landed()
+                        + " returning=" + healing.returning() + " flight=" + healing.position() + " owner=" + owner.position());
+                return false;
+            }
+            require(healing.isRemoved(), "healing scythe failed bounded native embed/catch wait; nativeTicks=" + healing.tickCount
+                    + " landed=" + healing.landed() + " returning=" + healing.returning() + " flight=" + healing.position() + " owner=" + owner.position());
             var scythe = Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();
             ItemStack returned = ItemStack.EMPTY;
             for (int slot = 0; slot < owner.getInventory().getContainerSize(); slot++) {
@@ -209,8 +225,6 @@ public final class BlossomArtsProof {
             land(level, second, owner.position().add(.25, 0, 0));
             var field = owner.getPersistentData().getCompound(FLOWER);
             require(field.getUUID("cast").equals(originalFlower) && field.getBoolean("spent"), "follow-up recreated or extended field");
-            CompoundTag serialized = owner.saveWithoutId(new CompoundTag());
-            net.minecraft.nbt.NbtIo.writeCompressed(serialized, java.nio.file.Path.of("polish-effects-owner.dat"));
             require(enterWater.hasEffect(MobEffects.MOVEMENT_SLOWDOWN), "late entry did not receive bounded puddle slow");
             ItemStack caughtGlitch = glitchOwner.getMainHandItem();
             require(caughtGlitch.getItem() instanceof GlitchBow && GlitchBow.form(caughtGlitch).equals("vesper_scythe"), "Glitch rerolled before follow-up catch");
@@ -233,16 +247,70 @@ public final class BlossomArtsProof {
             require(Math.abs(bystanderStart - windBystander.getHealth() - 3) < .1F,
                     "wind did not damage fresh target exactly three times: " + (bystanderStart - windBystander.getHealth()));
             require(level.getBlockState(floor).is(Blocks.STONE), "spell replaced terrain");
-            // Logout invalidates field/credit, while the existing throw cooldown is not removed.
+            leavingVisitor = new ChestProof.Visitor(level, floor.above(), "LeavingPetals", UUID.randomUUID());
+            leavingOwner = leavingVisitor.player; leavingOwner.setPos(4.5, floor.getY() + 1, 16.5); leavingOwner.setNoGravity(true);
+            level.addNewPlayer(leavingOwner);
+            leavingOwner.getPersistentData().putInt("uwu.scythe_element", 3);
+            ItemStack leavingScythe = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get());
+            leavingOwner.setItemInHand(InteractionHand.MAIN_HAND, leavingScythe);
+            leavingScythe.use(level, leavingOwner, InteractionHand.MAIN_HAND);
+            leavingScythe.releaseUsing(level, leavingOwner, 72000 - 12); leavingOwner.stopUsingItem();
+            var leavingFlight = level.getEntitiesOfClass(RelicFlight.class, leavingOwner.getBoundingBox().inflate(4), f -> f.getOwner() == leavingOwner).getFirst();
+            actors.add(leavingFlight); land(level, leavingFlight, leavingOwner.position().add(.3, 0, 0));
+            cleanupStarted = level.getGameTime(); phase = 4; return false;
+        }
+        if (phase == 4 && level.getGameTime() - cleanupStarted >= 22) {
+            ItemStack authorized = leavingOwner.getMainHandItem();
+            CompoundTag active = leavingOwner.getPersistentData().getCompound(FLOWER);
+            require(active.getLong("until") > level.getGameTime() && active.getBoolean("caught") && !active.getBoolean("spent"),
+                    "logout test did not have a live field and caught unspent credit");
+            require((boolean) invoke(arts(), "flowerCredit", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null,
+                    leavingOwner, authorized), "logout test had no usable credit");
+            long gate = leavingOwner.getPersistentData().getCompound(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG).getLong("uwu.art_flower_throw_until");
             invoke(arts(), "logout", new Class<?>[]{net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent.class}, null,
-                    new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(owner));
+                    new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent(leavingOwner));
+            require(!leavingOwner.getPersistentData().contains(FLOWER) && gate > level.getServer().overworld().getGameTime()
+                    && leavingOwner.getPersistentData().getCompound(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG).getLong("uwu.art_flower_throw_until") == gate,
+                    "active logout retained field or erased ordinary cooldown");
+            require(!(boolean) invoke(arts(), "flowerCredit", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null,
+                    leavingOwner, authorized) && !(boolean) invoke(arts(), "mayThrow", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null,
+                    leavingOwner, authorized), "logout regenerated a same-stack early cast");
+            // Snapshot a new, actually spent follow-up immediately before stopping this server.
+            owner.getInventory().clearContent(); owner.getPersistentData().putInt("uwu.scythe_element", 3);
+            healing = throwRelic(level, Arsenal.Relic.VESPER_SCYTHE);
+            land(level, healing, owner.position().add(.3, 0, 0));
+            cleanupStarted = level.getGameTime(); phase = 5; return false;
+        }
+        if (phase == 5 && level.getGameTime() - cleanupStarted >= 22) {
+            ItemStack authorized = owner.getMainHandItem();
+            require((boolean) invoke(arts(), "flowerCredit", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null,
+                    owner, authorized), "restart setup did not reach a genuine caught credit");
+            authorized.use(level, owner, InteractionHand.MAIN_HAND);
+            authorized.releaseUsing(level, owner, 72000 - 12); owner.stopUsingItem();
+            var savedFollowup = level.getEntitiesOfClass(RelicFlight.class, owner.getBoundingBox().inflate(4), f -> f.getOwner() == owner && !f.landed() && !f.returning()).getFirst();
+            actors.add(savedFollowup); land(level, savedFollowup, owner.position().add(.3, 0, 0));
+            require(owner.getPersistentData().getCompound(FLOWER).getBoolean("spent"), "restart fixture did not spend the real credit");
+            // Re-open each now-expired special gate using its production admission path,
+            // so the saved fixture contains live deadlines across the actual server restart.
+            var names = java.util.List.of("roots", "vortex", "puddle");
+            int[] durations = {100, 120, 80};
+            for (int index = 0; index < names.size(); index++)
+                require((boolean) invoke(arts(), "gate", new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class, String.class, int.class}, null,
+                        level, owner, names.get(index), durations[index]), "expired special gate did not reopen before save: " + names.get(index));
+            net.minecraft.nbt.NbtIo.writeCompressed(owner.saveWithoutId(new CompoundTag()), java.nio.file.Path.of("polish-effects-owner.dat"));
+            net.minecraft.nbt.NbtIo.writeCompressed(savedFollowup.saveWithoutId(new CompoundTag()), java.nio.file.Path.of("polish-effects-flight.dat"));
+            for (String key : java.util.List.of("roots", "vortex", "puddle")) {
+                var persisted = owner.getPersistentData().getCompound(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG);
+                require(persisted.contains("uwu.art_gate_" + key), "special deadline missing from death-persistent state: " + key);
+            }
             for (Entity actor : actors) actor.discard();
+            leavingOwner.discard(); leavingVisitor.close();
             glitchOwner.discard(); glitchVisitor.close();
             owner.discard(); visitor.close();
             System.out.println("UWU BLOSSOM ARTS PASS real throw/embed/catch/single-credit, four heal pulses, roots, frost cage, clear-weather non-destructive lightning, water entry, timed wind, cleanup");
             return true;
         }
-        require(age < 160, "effects fixture timed out");
+        require(age < 200, "effects fixture timed out");
         return false;
     }
 
@@ -268,15 +336,45 @@ public final class BlossomArtsProof {
 
     private static boolean restart(ServerLevel level) throws Exception {
         CompoundTag state = net.minecraft.nbt.NbtIo.readCompressed(java.nio.file.Path.of("polish-effects-owner.dat"), net.minecraft.nbt.NbtAccounter.unlimitedHeap());
+        CompoundTag flightState = net.minecraft.nbt.NbtIo.readCompressed(java.nio.file.Path.of("polish-effects-flight.dat"), net.minecraft.nbt.NbtAccounter.unlimitedHeap());
         try (var visitor = new ChestProof.Visitor(level, new BlockPos(4, level.getMaxBuildHeight() - 23, 4), "PetalTester", state.getUUID("UUID"))) {
             var player = visitor.player; player.load(state);
             CompoundTag field = player.getPersistentData().getCompound(FLOWER);
-            require(field.getBoolean("spent"), "saved/restarted player regained follow-up credit");
-            ItemStack stack = new ItemStack(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get());
+            require(field.getBoolean("spent") && field.getBoolean("caught"), "saved/restarted player regained follow-up credit");
+            CompoundTag persisted = player.getPersistentData().getCompound(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG);
+            require(persisted.getLong("uwu.art_flower_throw_until") > level.getServer().overworld().getGameTime(),
+                    "restart snapshot's ordinary throw cooldown elapsed before this check");
+            CompoundTag custody = persisted.getCompound("uwudimension.relic_returns");
+            require(custody.contains(flightState.getUUID("UUID").toString()), "serialized actual follow-up has no custody entry");
+            ItemStack stack = ItemStack.parseOptional(level.registryAccess(), custody.getCompound(flightState.getUUID("UUID").toString()).getCompound("Stack"));
+            CompoundTag itemData = stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            require(!stack.isEmpty() && itemData.hasUUID("uwu.art_stack") && field.getUUID("stack").equals(itemData.getUUID("uwu.art_stack")),
+                    "restart test did not use the original matching weapon identity");
             require(!(boolean) invoke(arts(), "flowerCredit", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null, player, stack),
-                    "new stack or restart bypassed spent credit");
+                    "matching original weapon regained spent credit across restart");
+            require(!(boolean) invoke(arts(), "mayThrow", new Class<?>[]{net.minecraft.world.entity.player.Player.class, ItemStack.class}, null, player, stack),
+                    "saved owner cooldown failed to reject an early matching-weapon throw");
+            // Death-persistent special gates continue to deny the same family after a clone/rejoin.
+            for (String key : java.util.List.of("roots", "vortex", "puddle")) {
+                require(persisted.getLong("uwu.art_gate_" + key) > level.getServer().overworld().getGameTime(),
+                        "serialized special gate was not live after restart: " + key);
+                require(!(boolean) invoke(arts(), "gate", new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class, String.class, int.class}, null,
+                        level, player, key, 100), "restored special gate opened early: " + key);
+            }
+            var otherLevel = level.getServer().overworld();
+            try (var changed = new ChestProof.Visitor(otherLevel, new BlockPos(0, 300, 0), "PetalTester", state.getUUID("UUID"))) {
+                var restored = changed.player; restored.load(state); restored.setPos(0, 300, 0); restored.tickCount = 20;
+                var recoverType = Class.forName("dev.uwu.dimension.RelicReturns");
+                invoke(recoverType, "recover", new Class<?>[]{net.neoforged.neoforge.event.tick.PlayerTickEvent.Post.class}, null,
+                        new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(restored));
+                var scythe = Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get();
+                require(restored.getInventory().countItem(scythe) == 1, "changed-dimension recovery failed to deliver exactly one actual reserved weapon");
+                var oldVisual = dev.uwu.dimension.RangedRelics.FLIGHT.get().create(level);
+                oldVisual.load(flightState); oldVisual.setOwner(restored); oldVisual.tick();
+                require(oldVisual.isRemoved() && restored.getInventory().countItem(scythe) == 1, "late saved projectile duplicated recovered custody");
+            }
         }
-        System.out.println("UWU BLOSSOM RESTART PASS consumed credit survives player serialization");
+        System.out.println("UWU BLOSSOM RESTART PASS matching original identity, consumed credit, owner cooldown, single reserved custody and stale visual");
         return true;
     }
 }

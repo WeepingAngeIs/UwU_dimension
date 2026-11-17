@@ -81,7 +81,7 @@ public final class NetworkPolishClient {
             int[] thresholds={1,8,15,21};
             if(drawPhotos>=4 || living.getTicksUsingItem()<thresholds[drawPhotos])return;
         }
-        var stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("uwudimension",task.getProperty("item"))));
+        var stack=new ItemStack(BuiltInRegistries.ITEM.get(task.getProperty("item").contains(":")?ResourceLocation.parse(task.getProperty("item")):ResourceLocation.fromNamespaceAndPath("uwudimension",task.getProperty("item"))));
         if(stack.is(Items.AIR))throw new AssertionError("missing gallery model "+task);
         var model=mc.getItemRenderer().getModel(stack,mc.level,mc.player,0);
         if(model==mc.getModelManager().getMissingModel())throw new AssertionError("missing baked model "+task);

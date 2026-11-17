@@ -267,7 +267,7 @@ def main():
             element=int(name[-1]) if shape=='scythe' and name[-1:].isdigit() else 0
             glow=overlay(key,name,data,element)
             write(MODELS/(name+'.json'),data)
-            inventory.append({'item':key,'shape':shape,'model':name,'display':display,'overlay':glow,'source':data['textures']['layer0'],'motif':MOTIFS[key]})
+            inventory.append({'item':key,'shape':shape,'model':name,'display':data.get('display',{}),'overlay':glow,'source':data['textures']['layer0'],'motif':MOTIFS[key]})
     bud=Image.new('RGBA',(32,32));bd=ImageDraw.Draw(bud)
     # A spent/available follow-up has a distinct little two-leaf silhouette at the hinge.
     bd.polygon([(22,9),(20,7),(20,9),(22,11),(24,10),(25,7),(23,8)],fill=(141,235,185,255))

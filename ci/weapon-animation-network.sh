@@ -71,5 +71,5 @@ done
 grep -F 'WEAPON NETWORK PASS' "$world/server.log"
 grep -F 'WEAPON CLIENT PASS archer' "$world/archer.log"
 grep -F 'WEAPON CLIENT PASS witness' "$world/witness.log"
-python "$root/ci/renewal-assets.py" "$root"/build/libs/UwU-Dimension-*.jar
-python "$root/ci/anya-tree-contract.py" "$root"/build/libs/UwU-Dimension-*.jar
+git -C "$root" fetch origin 11816cbda60c4e8e53d829b664a42cc37fd2a282 --depth=1
+python "$root/ci/weapon-polish-assets.py" "$root"/build/libs/UwU-Dimension-*.jar

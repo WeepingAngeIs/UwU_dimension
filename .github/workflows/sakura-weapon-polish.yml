@@ -18,6 +18,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: bash ci/get-mods.sh
       - run: ./gradlew jar expeditionJar
+      - run: git fetch origin 11816cbda60c4e8e53d829b664a42cc37fd2a282 --depth=1
+      - run: python ci/weapon-polish-assets.py build/libs/UwU-Dimension-*.jar
       - uses: actions/upload-artifact@v4
         with:
           name: weapon-polish-compiled
@@ -80,3 +82,42 @@ jobs:
             build/weapon-polish-network/crash-reports
             build/weapon-polish-network/archer/run-archer/crash-reports
             build/weapon-polish-network/witness/run-witness/crash-reports
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {ACTIVITY_WORLD: fresh}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/activity-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-polish-regression
+          path: |
+            build/activity-server/first.log
+            build/activity-server/restart.log
+            build/activity-server/crash-reports
+  combat-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {WISH_COMBAT: bettercombat}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
+      - run: bash ci/weapon-animation-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weapon-polish-combat-network
+          path: |
+            build/weapon-animation-network/*.log
+            build/weapon-animation-network/sync
+            build/weapon-animation-network/archer/run-archer/screenshots
+            build/weapon-animation-network/witness/run-witness/screenshots
+            build/weapon-animation-network/crash-reports
