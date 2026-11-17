@@ -45,6 +45,7 @@ public class Expedition {
         try {
             ServerLevel level=server.getLevel(ReefLife.REACH);
             if(level==null)throw new AssertionError("Missing default Blossom Reach");
+            if(System.getenv("UWU_WEAPON_OBSERVE")!=null){WeaponProfileObservation.run();stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_OVERLAP")!=null){OverlapProof.run(level,"restart".equals(System.getenv("UWU_OVERLAP")));stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_ACTIVITY_BASELINE")!=null){ActivityLegacyFixture.run(level);stage=-1;server.halt(false);return;}
             if(System.getenv("UWU_ACTIVITY_RESTART")!=null){ActivityProof.restart(level);stage=-1;server.halt(false);return;}
