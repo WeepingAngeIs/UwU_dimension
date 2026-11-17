@@ -1,0 +1,74 @@
+[
+  {
+    "jar": "ars_nouveau-1.21.1-5.13.1.jar",
+    "sha256": "99dff85e8778f7ae21dfd51cdedadf20f555a834fc757c0afe5f03c10eea96f2",
+    "structures": {
+      "ars_nouveau:guardian_wilden_den": "ars_nouveau:wilden_guardian_den",
+      "ars_nouveau:stalker_wilden_den": "ars_nouveau:wilden_den",
+      "ars_nouveau:hunter_wilden_den": "ars_nouveau:wilden_den"
+    }
+  },
+  {
+    "jar": "ars_additions-1.21.1-21.3.0.jar",
+    "sha256": "e634a3f0c39cd38007608cce1974a7c9bbad7d8202bfb6c75f17c2901f362c9b",
+    "structures": {
+      "ars_additions:nexus_tower": "minecraft:jigsaw",
+      "ars_additions:ruined_portal_large": "minecraft:jigsaw",
+      "ars_additions:arcane_library": "minecraft:jigsaw",
+      "ars_additions:ruined_portal": "minecraft:jigsaw"
+    }
+  },
+  {
+    "jar": "DungeonsArise-1.21.1-2.1.68-release.jar",
+    "sha256": "7eee1eca7e3b2c6c1bede055934f391ae2e8349ffe33e106f451176d2cfcf0e4",
+    "structures": {
+      "dungeons_arise:abandoned_temple": "minecraft:jigsaw",
+      "dungeons_arise:aviary": "minecraft:jigsaw",
+      "dungeons_arise:bandit_towers": "minecraft:jigsaw",
+      "dungeons_arise:bandit_village": "minecraft:jigsaw",
+      "dungeons_arise:bathhouse": "minecraft:jigsaw",
+      "dungeons_arise:ceryneian_hind": "minecraft:jigsaw",
+      "dungeons_arise:coliseum": "minecraft:jigsaw",
+      "dungeons_arise:fishing_hut": "minecraft:jigsaw",
+      "dungeons_arise:foundry": "minecraft:jigsaw",
+      "dungeons_arise:giant_mushroom": "minecraft:jigsaw",
+      "dungeons_arise:greenwood_pub": "minecraft:jigsaw",
+      "dungeons_arise:heavenly_challenger": "minecraft:jigsaw",
+      "dungeons_arise:heavenly_conqueror": "minecraft:jigsaw",
+      "dungeons_arise:heavenly_rider": "minecraft:jigsaw",
+      "dungeons_arise:illager_campsite": "minecraft:jigsaw",
+      "dungeons_arise:illager_corsair": "minecraft:jigsaw",
+      "dungeons_arise:illager_fort": "minecraft:jigsaw",
+      "dungeons_arise:illager_galley": "minecraft:jigsaw",
+      "dungeons_arise:illager_windmill": "minecraft:jigsaw",
+      "dungeons_arise:infested_temple": "minecraft:jigsaw",
+      "dungeons_arise:jungle_tree_house": "minecraft:jigsaw",
+      "dungeons_arise:keep_kayra": "minecraft:jigsaw",
+      "dungeons_arise:kisegi_sanctuary": "minecraft:jigsaw",
+      "dungeons_arise:lighthouse": "minecraft:jigsaw",
+      "dungeons_arise:mechanical_nest": "minecraft:jigsaw",
+      "dungeons_arise:merchant_campsite": "minecraft:jigsaw",
+      "dungeons_arise:mining_complex": "minecraft:jigsaw",
+      "dungeons_arise:mining_system": "minecraft:jigsaw",
+      "dungeons_arise:monastery": "minecraft:jigsaw",
+      "dungeons_arise:mushroom_house": "minecraft:jigsaw",
+      "dungeons_arise:mushroom_mines": "minecraft:jigsaw",
+      "dungeons_arise:mushroom_village": "minecraft:jigsaw",
+      "dungeons_arise:plague_asylum": "minecraft:jigsaw",
+      "dungeons_arise:scorched_mines": "minecraft:jigsaw",
+      "dungeons_arise:shiraz_palace": "minecraft:jigsaw",
+      "dungeons_arise:small_blimp": "minecraft:jigsaw",
+      "dungeons_arise:thornborn_towers": "minecraft:jigsaw",
+      "dungeons_arise:typhon": "minecraft:jigsaw",
+      "dungeons_arise:undead_pirate_ship": "minecraft:jigsaw",
+      "dungeons_arise:wishing_well": "minecraft:jigsaw"
+    }
+  },
+  {
+    "jar": "DungeonCrawl-NeoForge-1.21-2.3.17.jar",
+    "sha256": "853cd59208f17c25188a419b48d1a9fed3acebf676bb1ddd026fa4e7fb56dad4",
+    "structures": {
+      "dungeoncrawl:dungeon": "dungeoncrawl:dungeon"
+    }
+  }
+]

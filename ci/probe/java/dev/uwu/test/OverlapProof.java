@@ -62,13 +62,26 @@ public final class OverlapProof {
             var parts=(List<AuthoredFootprints.Envelope>)result.get(sink);var b=parts.getFirst().box();
             for(int x:new int[]{-7,3})for(int z:new int[]{12,25})check(b.isInside(site.pos(x,0,z)),"rotation misses corner "+turn);
             var v=construct(valleyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class,surveyType},level,site,sink);
-            var p=new BlossomVillage.Plan(site,original.x(),original.z(),original.y(),original.road(),original.bends(),original.houses(),original.dusk());
-            invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"houses_roads_gates",(Runnable)()->invoke(BlossomVillage.class,null,"place",new Class<?>[]{valleyType,BlossomVillage.Plan.class},v,p));
-            invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"moonveil_geometry",(Runnable)()->invoke(MoonveilTreehouse.class,null,"place",new Class<?>[]{valleyType,MoonveilTreehouse.Plot.class},v,new MoonveilTreehouse.Plot(p,0,80,-170,level.getSeed())));
-            check(parts.size()==3,"synthetic rotated builder envelopes missing");
-            check(parts.get(2).box().getYSpan()>30,"Moonveil crown omitted");
+            for(boolean dusk:new boolean[]{false,true}){
+                var p=new BlossomVillage.Plan(site,original.x(),original.z(),original.y(),original.road(),original.bends(),original.houses(),dusk);
+                invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"houses_roads_gates",(Runnable)()->invoke(BlossomVillage.class,null,"place",new Class<?>[]{valleyType,BlossomVillage.Plan.class},v,p));
+                invoke(surveyType,sink,"part",new Class<?>[]{String.class,Runnable.class},"moonveil_geometry",(Runnable)()->invoke(MoonveilTreehouse.class,null,"place",new Class<?>[]{valleyType,MoonveilTreehouse.Plot.class},v,new MoonveilTreehouse.Plot(p,0,80,-170,level.getSeed())));
+            }
+            check(parts.size()==5,"synthetic rotated builder envelopes missing");
+            check(parts.get(2).box().getYSpan()>30&&parts.get(4).box().getYSpan()>30,"Moonveil crown omitted");
+            // Geometry-only fixture: use an Overworld height accessor so the forest's
+            // intentional Cherry Grove suppression cannot hide this synthetic landmark.
+            // No blocks, entities or generation decisions are written in that dimension.
+            var geometry=level.getServer().overworld();
+            var treeSink=construct(surveyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class},geometry,site);
+            var treeValley=construct(valleyType,new Class<?>[]{ServerLevel.class,GroveSites.Site.class,surveyType},geometry,site,treeSink);
+            var treeType=Class.forName("dev.uwu.dimension.VillageSakura"),plotType=Class.forName("dev.uwu.dimension.VillageSakura$Plot");
+            var plot=construct(plotType,new Class<?>[]{int.class,int.class,int.class,int.class},0,80,-170,38);
+            invoke(surveyType,treeSink,"part",new Class<?>[]{String.class,Runnable.class},"village_sakura_geometry",(Runnable)()->invoke(treeType,null,"build",new Class<?>[]{valleyType,plotType},treeValley,plot));
+            var treeParts=(List<AuthoredFootprints.Envelope>)result.get(treeSink);
+            check(treeParts.size()==1&&treeParts.getFirst().box().getYSpan()>30,"VillageSakura authored crown omitted");
         }
-        System.out.println("OVERLAP ROTATIONS PASS four rotated real village and Moonveil builders, full corners and crown");
+        System.out.println("OVERLAP ROTATIONS PASS both factions, four rotated real village, Moonveil and VillageSakura builders, full corners and crowns");
     }
     public static void run(ServerLevel level,boolean restart)throws Exception{
         var first=GroveSites.first(level);check(first.usable(),"no usable entry site");
