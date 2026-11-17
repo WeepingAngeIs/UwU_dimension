@@ -1,6 +1,7 @@
 package dev.uwu.dimension.mixin;
 
 import dev.uwu.dimension.RealmResidents;
+import dev.uwu.dimension.AuthoredFootprints;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.tags.TagKey;
@@ -23,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Intercepts new vanilla and pack-defined villager settlements inside Sakura Reach. */
 @Mixin(StructureManager.class)
 public abstract class RealmVillageStructuresMixin {
+    private static final java.util.Set<ResourceLocation> uwu$warned=java.util.concurrent.ConcurrentHashMap.newKeySet();
     @Shadow @Final private LevelAccessor level;
     @Shadow public abstract RegistryAccess registryAccess();
 
@@ -34,6 +36,19 @@ public abstract class RealmVillageStructuresMixin {
         if (dimension == null || !RealmResidents.appliesDimension(dimension)) return;
         var registry=registryAccess().registryOrThrow(Registries.STRUCTURE);
         var tag=TagKey.create(Registries.STRUCTURE,ResourceLocation.fromNamespaceAndPath("uwudimension","replaced_villages"));
-        if(registry.wrapAsHolder(structure).is(tag))callback.cancel();
+        if(registry.wrapAsHolder(structure).is(tag)){callback.cancel();return;}
+        var server=level instanceof ServerLevel s?s:level instanceof WorldGenRegion r?r.getLevel():null;
+        if(server==null||!start.isValid())return;
+        var result=AuthoredFootprints.check(server,start);
+        if(result!=AuthoredFootprints.Decision.CLEAR){
+            if(result==AuthoredFootprints.Decision.BUDGET){
+                var id=registry.getKey(structure);
+                if(id!=null&&uwu$warned.size()<64&&uwu$warned.add(id))com.mojang.logging.LogUtils.getLogger().warn(
+                        "Declined oversized {} start: authored-footprint query exceeds {} cells",id,AuthoredFootprints.MAX_CELLS);
+            }
+            // Save an invalid start before references/pieces can be generated; never clip placed blocks.
+            chunk.setStartForStructure(structure,StructureStart.INVALID_START);
+            callback.cancel();
+        }
     }
 }

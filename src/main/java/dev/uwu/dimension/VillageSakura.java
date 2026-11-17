@@ -92,6 +92,7 @@ final class VillageSakura {
 
     private static void put(HeartwaterFeature.Valley v, Plot p, int dx, int dy, int dz, BlockState state) {
         int x=p.x+dx,z=p.z+dz;
+        if(v.planning()){v.put(x,p.y+dy,z,state);return;}
         if (!v.inside(x,z)) return;
         BlockPos pos=new BlockPos(v.wx(x,z),p.y+dy,v.wz(x,z));
         BlockState existing=v.chunk.getBlockState(pos);

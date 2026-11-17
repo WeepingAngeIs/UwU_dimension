@@ -107,12 +107,21 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         final boolean shrine;
         final long seed;
         final GroveSites.Site site;
+        final AuthoredFootprints.Survey survey;
+        boolean planning(){return survey!=null;}
+        void part(String name,Runnable action){if(planning())survey.part(name,action);else action.run();}
+        Valley(net.minecraft.server.level.ServerLevel level,GroveSites.Site site,AuthoredFootprints.Survey survey){
+            this.level=level;this.chunk=null;this.site=site;this.survey=survey;
+            seed=level.getSeed();cx=site.x();cz=site.z();turns=site.turns();shrine=GroveSites.shrine(level,site);
+            minX=minZ=-AuthoredFootprints.LOCAL_RADIUS;maxX=maxZ=AuthoredFootprints.LOCAL_RADIUS;
+        }
         final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         final BlockState air = Blocks.AIR.defaultBlockState();
         final BlockState water = Blocks.WATER.defaultBlockState();
         final BlockState falling = water.setValue(LiquidBlock.LEVEL, 8);
         final BlockState leaf = Blocks.CHERRY_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
         Valley(WorldGenLevel level, ChunkAccess chunk,GroveSites.Site site) {
+            survey=null;
             ChunkPos pos=chunk.getPos();
             this.level = level;
             this.chunk = chunk;
@@ -133,9 +142,10 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         int wx(int x,int z) { return cx + switch(turns){case 1->-z;case 2->-x;case 3->z;default->x;}; }
         int wz(int x,int z) { return cz + switch(turns){case 1->x;case 2->-z;case 3->-x;default->z;}; }
         Direction face(Direction d) { for(int i=0;i<turns;i++)d=d.getClockWise();return d; }
-        boolean inside(int x,int z){return x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;}
-        boolean overlaps(int a,int b,int c,int d){return a<=maxX&&c>=minX&&b<=maxZ&&d>=minZ;}
+        boolean inside(int x,int z){return planning()||x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;}
+        boolean overlaps(int a,int b,int c,int d){return planning()||a<=maxX&&c>=minX&&b<=maxZ&&d>=minZ;}
         void put(int x,int y,int z, BlockState s){
+            if(planning()){survey.box(x,y,z,x,y,z);return;}
             if(!inside(x,z))return;
             cursor.set(wx(x,z),y,wz(x,z));
             if(chunk instanceof net.minecraft.world.level.chunk.LevelChunk && !s.hasBlockEntity()
@@ -150,6 +160,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         }
         void block(int x,int y,int z,Block b){put(x,y,z,b.defaultBlockState());}
         void box(int x1,int y1,int z1,int x2,int y2,int z2,BlockState s){
+            if(planning()){if(x1<=x2&&y1<=y2&&z1<=z2)survey.box(x1,y1,z1,x2,y2,z2);return;}
             for(int z=Math.max(minZ,z1);z<=Math.min(maxZ,z2);z++)
                 for(int x=Math.max(minX,x1);x<=Math.min(maxX,x2);x++)
                     for(int y=y1;y<=y2;y++)put(x,y,z,s);
@@ -162,19 +173,20 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
 
             if(overlaps(-211,-205,211,35)) {
                 for(boolean dusk:new boolean[]{false,true})BlossomVillage.plan(level.getLevel(),site,dusk).ifPresent(p->{
-                    BlossomVillage.place(this,p);
-                    MoonveilTreehouse.plan(level.getLevel(),p).ifPresent(tree->MoonveilTreehouse.place(this,tree));
-                    VillageSakura.place(this,p);
+                    part(p.dusk()?"dusk_village":"petal_village",()->BlossomVillage.place(this,p));
+                    MoonveilTreehouse.plan(level.getLevel(),p).ifPresent(tree->part("moonveil_treehouse",()->MoonveilTreehouse.place(this,tree)));
+                    part("village_sakura",()->VillageSakura.place(this,p));
                 });
             }
-            if(GroveSites.adventure(level.getLevel(),site))falls();
+            if(GroveSites.adventure(level.getLevel(),site))part("spring_and_bank",this::falls);
         }
         void draw() {
             if(!overlaps(-62,Math.min(site.lip()-15,8),70,165)||!GroveSites.adventure(level.getLevel(),site))return;
-            pools(); deep(); bathhouse(); archive(); if(shrine)hangingShrine();
+            part("pools_and_boardwalk",this::pools);part("deep_pools_and_connections",this::deep);
+            part("bathhouse",this::bathhouse);part("archive",this::archive);if(shrine)part("hanging_shrine",this::hangingShrine);
 
-            MirrorCourt.build(this);
-            descent();
+            part("mirror_court",()->MirrorCourt.build(this));
+            part("entrance_and_descent",this::descent);
         }
         void falls(){
             int lip=site.lip(),floor=site.entryY();
@@ -186,7 +198,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 double radius=x*x/150.0+(z-lip)*(z-lip)/100.0;
                 if(radius>=1)continue;
                 int ground=GroveSites.height(level.getLevel(),wx(x,z),wz(x,z));
-                int top=chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,wx(x,z)&15,wz(x,z)&15);
+                int top=planning()?level.getMaxBuildHeight()-2:chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,wx(x,z)&15,wz(x,z)&15);
                 int springHeight=z<lip?floor:floor+7;
                 int target=(int)Math.round(ground+(springHeight-ground)*(1-Math.pow(radius,1.5)));
                 boolean lane=Math.abs(x)<=2&&z>=lip-10&&z<=lip;
@@ -391,6 +403,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             chest(55,9,120,"inverted_shrine");
         }
         void chest(int x,int y,int z,String table){
+            if(planning()){survey.box(x,y,z,x,y,z);return;}
             if(!inside(x,z))return;
             BlockPos p=new BlockPos(wx(x,z),y,wz(x,z));
             Block loot=BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("lootr","lootr_chest"));

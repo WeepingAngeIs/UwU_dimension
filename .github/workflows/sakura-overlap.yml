@@ -1,0 +1,53 @@
+name: Sakura authored structure protection
+on:
+  push:
+    branches: [feature/sakura-authored-structure-protection]
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: sakura-overlap-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  overlap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: {seed: [152045, 456789, 8675309]}
+    env: {OVERLAP_SEED: '${{ matrix.seed }}'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/overlap-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: overlap-${{ matrix.seed }}
+          path: |
+            build/libs/*.jar
+            build/overlap-server/first.log
+            build/overlap-server/restart.log
+            build/overlap-server/overlap-checkpoint.json
+            build/overlap-server/crash-reports
+  achievements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env: {ACTIVITY_WORLD: fresh}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ci/activity-proof.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: overlap-achievements
+          path: |
+            build/libs/*.jar
+            build/activity-server/first.log
+            build/activity-server/restart.log
+            build/activity-server/world/advancements
+            build/activity-server/crash-reports

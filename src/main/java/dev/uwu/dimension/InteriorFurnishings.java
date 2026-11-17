@@ -101,6 +101,7 @@ final class InteriorFurnishings {
         if(property!=null) state=set(state,property,direction.getSerializedName());
         if(state.hasProperty(BlockStateProperties.LIT)) state=state.setValue(BlockStateProperties.LIT,true);
         // Use the worldgen API so functional drawers and other block entities are saved.
+        if(v.planning()){v.put(x,y,z,state);return;}
         v.level.setBlock(new BlockPos(v.wx(x,z),y,v.wz(x,z)),state,Block.UPDATE_CLIENTS);
     }
 

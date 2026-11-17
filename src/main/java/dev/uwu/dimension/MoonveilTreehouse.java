@@ -211,8 +211,10 @@ public final class MoonveilTreehouse {
                         double shape=dx*dx/62.0+dz*dz/56.0+dy*dy/(dy<0?9.0:18.0);
                         if(shape>1.02+(j&3)*.035)continue;
                         var at=p.at(x,ty+dy,z);
-                        var old=v.chunk.getBlockState(at);
-                        if(old.is(bark)||old.is(MoonveilWood.LOG.get()))continue;
+                        if(!v.planning()){
+                            var old=v.chunk.getBlockState(at);
+                            if(old.is(bark)||old.is(MoonveilWood.LOG.get()))continue;
+                        }
                         put(x,ty+dy,z,leaves);
                     }
                     if((j&31)==0 && dx*dx+dz*dz<36){
@@ -263,6 +265,7 @@ public final class MoonveilTreehouse {
             }
         }
         void resident(int slot){
+            if(v.planning())return;
             var at=p.resident(slot);
             if(!v.chunk.getPos().equals(new net.minecraft.world.level.ChunkPos(at)))return;
             var keeper=(p.dusk()?People.DUSK_KEEPER:People.PETAL_KEEPER).get().create(v.level.getLevel());

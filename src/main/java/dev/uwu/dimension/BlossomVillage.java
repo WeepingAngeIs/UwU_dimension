@@ -117,7 +117,7 @@ public final class BlossomVillage {
         int bellX=p.x()+2,bellZ=p.z()-2;
         v.block(bellX,p.y(),bellZ,ReachArchitecture.paving(dark));
         v.put(bellX,p.y()+1,bellZ,Blocks.BELL.defaultBlockState().setValue(BellBlock.FACING,v.face(Direction.NORTH)));
-        if(v.inside(p.x(),p.z())){
+        if(!v.planning()&&v.inside(p.x(),p.z())){
             var warden=People.BLOSSOM_WARDEN.get().create(v.level.getLevel());
             if(warden!=null){
                 var at=p.plaza();warden.moveTo(at.getX()+.5,at.getY(),at.getZ()+.5,0,0);
@@ -154,6 +154,7 @@ public final class BlossomVillage {
         for(int end:new int[]{-5,5})v.block(x,y+6,z+end,cap);
     }
     static void floor(HeartwaterFeature.Valley v,int x,int y,int z,Block finish){
+        if(v.planning()){v.survey.box(x,v.level.getMinBuildHeight(),z,x,y,z);return;}
         if(!v.inside(x,z))return;
         // Find solid ground under this individual column, including cave mouths and eroded banks.
         // Stop at the first load-bearing rock. Never leave a hanging pavement or foundation.
@@ -165,6 +166,7 @@ public final class BlossomVillage {
         v.block(x,y,z,finish);
     }
     private static void clear(HeartwaterFeature.Valley v,int x,int y,int z){
+        if(v.planning()){v.survey.box(x,y,z,x,v.level.getMaxBuildHeight()-1,z);return;}
         if(!v.inside(x,z))return;
         int top=v.chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,v.wx(x,z)&15,v.wz(x,z)&15);
         v.box(x,y,z,x,Math.max(y+3,top+1),z,v.air);
@@ -239,6 +241,7 @@ public final class BlossomVillage {
         return HeartFloor.full(DyeColor.WHITE);
     }
     private static void resident(HeartwaterFeature.Valley v,Plan p,int x,int y,int z,boolean baby){
+        if(v.planning())return;
         if(!v.inside(x,z))return;
         var keeper=(p.dusk()?People.DUSK_KEEPER:People.PETAL_KEEPER).get().create(v.level.getLevel());
         if(keeper==null)return;
