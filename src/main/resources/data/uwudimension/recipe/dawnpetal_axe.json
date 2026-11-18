@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": ["NN ", "NSP", " ST"],
+  "key": {
+    "N": {"item": "minecraft:netherite_ingot"},
+    "P": {"item": "uwudimension:roseglass_prism"},
+    "T": {"item": "minecraft:totem_of_undying"},
+    "S": {"item": "minecraft:stick"}
+  },
+  "result": {"id": "uwudimension:dawnpetal_axe", "count": 1}
+}

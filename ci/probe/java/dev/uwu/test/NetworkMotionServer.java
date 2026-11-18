@@ -60,7 +60,7 @@ final class NetworkMotionServer {
     private static boolean ready, issued, go, finished, emptyHand, returned, rooted, iced, vortex, puddle;
     private static int scene, elapsed, landedTicks;
     private static float beforeHealth;
-    private static long started;
+    private static long started, issuedAt;
     private static Vec3 expectedDirection, firstFlight, lastFlight;
     private static double directionDot;
     private static UUID serial;
@@ -141,7 +141,11 @@ final class NetworkMotionServer {
             archer.getAbilities().mayfly = true;
             archer.getAbilities().flying = true;
             archer.onUpdateAbilities();
-            witness.setGameMode(GameType.SPECTATOR);
+            // A non-spectator actor must receive the witness entity before Figura can
+            // bind both avatars. A flying creative observer stays tracked and visible.
+            witness.setGameMode(GameType.CREATIVE);
+            witness.getAbilities().flying = true;
+            witness.onUpdateAbilities();
             observeParticles();
             NeoForge.EVENT_BUS.addListener(NetworkMotionServer::castJoined);
             started = System.nanoTime();
@@ -195,11 +199,15 @@ final class NetworkMotionServer {
             emptyHand = returned = rooted = iced = vortex = puddle = false;
             elapsed = landedTicks = 0;
             task("prepare", "ready");
+            issuedAt = System.nanoTime();
             issued = true;
             go = false;
             return;
         }
         if (!go) {
+            require(System.nanoTime()-issuedAt < 90_000_000_000L,
+                    "prepare timed out, archer=" + Files.exists(SYNC.resolve("motion-ready-" + scene + "-archer"))
+                            + " witness=" + Files.exists(SYNC.resolve("motion-ready-" + scene + "-witness")));
             if (!Files.exists(SYNC.resolve("motion-ready-" + scene + "-archer"))
                     || !Files.exists(SYNC.resolve("motion-ready-" + scene + "-witness"))) return;
             task("go", "input");
@@ -245,7 +253,7 @@ final class NetworkMotionServer {
             require(!physical.isAlive(), "physical weapon was still in flight after the return window");
         if (scene == 0) {
             require(emptyHand && returned, "chakram did not leave and return to its hand");
-            require(landedTicks >= 15 && landedTicks <= 17, "block embed did not hold 16 ticks, observed=" + landedTicks);
+            require(landedTicks == 16, "block embed did not hold 16 server ticks, observed=" + landedTicks);
             require(CASTS.stream().noneMatch(Entity::isAlive), "chakram remained active after catch");
         }
         if (current.action().equals("attack")) {

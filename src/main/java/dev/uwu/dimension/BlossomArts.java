@@ -198,20 +198,12 @@ public final class BlossomArts {
     }
 
     static void counterHit(ServerLevel level, Player owner, LivingEntity target, CounterArsenal.Entry entry) {
-        if (entry == null || !allowedTarget(level, owner, target)) return;
-        ParticleOptions tint = switch (entry.school()) {
-            case "QUENCH", "CLEANSE" -> AQUA;
-            case "ANCHOR", "GUARD" -> MINT;
-            case "REAP", "BANISH", "SILENCE" -> VIOLET;
-            default -> ROSE;
-        };
-        Vec3 at = target.position().add(0, target.getBbHeight() * .45, 0);
-        // Each ward uses a different mark silhouette; these marks report an accepted weapon hit.
-        if (List.of("ANCHOR", "STAGGER", "GUARD").contains(entry.school())) {
-            for (int i = -1; i <= 1; i++) line(level, at.add(i * .22, -.3, 0), at.add(i * .22, .3, 0), tint, 5);
-        } else if (List.of("SHATTER", "FEINT", "SEVER").contains(entry.school())) {
-            line(level, at.add(-.4, -.25, 0), at.add(.4, .25, 0), tint, 8);
-        } else ring(level, at, .5, tint, 10);
+        counterHit(level, owner, target, entry, target.position().subtract(owner.position()));
+    }
+
+    static void counterHit(ServerLevel level, Player owner, LivingEntity target, CounterArsenal.Entry entry, Vec3 direction) {
+        if (entry == null || !canUse(level, owner, target.blockPosition())) return;
+        CounterImpactArt.begin(level, target, entry, direction);
         if (entry.id().equals("counter_tempest") && hostile(level, owner, target) && gate(level, owner, "vortex", 120))
             owner.getPersistentData().put(VORTEX, field(level, target.position(), 40));
     }
@@ -286,8 +278,7 @@ public final class BlossomArts {
         List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(2.5, 1, 2.5));
         targets.sort(java.util.Comparator.comparingDouble(entity -> entity.distanceToSqr(at)));
         for (LivingEntity target : targets) {
-            boolean ally = target == owner || target instanceof TamableAnimal pet && pet.isOwnedBy(owner)
-                    || target instanceof Player other && owner.isAlliedTo(other) && other.getTeam() != null;
+            boolean ally = healingAlly(level, owner, target);
             if (!ally || !target.isAlive() || target.getHealth() >= target.getMaxHealth()
                     || target.position().subtract(at).horizontalDistanceSqr() > 6.25 || Math.abs(target.getY() - at.y) > 1
                     || !canUse(level, owner, target.blockPosition()) || !clearPath(level, at.add(0, .3, 0), target.position().add(0, .3, 0))) continue;
@@ -295,6 +286,19 @@ public final class BlossomArts {
             point(level, MINT, target.position().add(0, .4, 0), 0);
             if (++count >= 6) break;
         }
+    }
+
+    private static boolean healingAlly(ServerLevel level, Player owner, LivingEntity target) {
+        if (target.level() != level || owner.level() != level) return false;
+        if (target == owner || target instanceof TamableAnimal pet && pet.isOwnedBy(owner)) return true;
+        if (target instanceof Player other) return owner.isAlliedTo(other) && other.getTeam() != null;
+        if (!HeartMagic.friendly(owner, target)) return false;
+        CompoundTag data = target.getPersistentData();
+        if (data.hasUUID("uwu.twin_owner") && data.getUUID("uwu.twin_owner").equals(owner.getUUID())
+                && data.getLong("uwu.twin_end") <= level.getGameTime()) return false;
+        if (data.hasUUID("uwudimension.hare_caller") && data.getUUID("uwudimension.hare_caller").equals(owner.getUUID())
+                && data.getLong("uwudimension.hare_end") <= level.getGameTime()) return false;
+        return true;
     }
 
     private static Vec3 groundPoint(ServerLevel level, Vec3 query, double baseY) {
@@ -381,6 +385,7 @@ public final class BlossomArts {
 
     @SubscribeEvent public static void targetTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity target) || !(target.level() instanceof ServerLevel level)) return;
+        CounterImpactArt.tick(level, target);
         CompoundTag root = target.getPersistentData().getCompound(ROOT);
         if (!root.isEmpty()) {
             int age = (int) (level.getGameTime() - root.getLong("start"));
@@ -459,7 +464,7 @@ public final class BlossomArts {
         for (int i = 0; i <= points; i++) point(level, effect, from.lerp(to, (double) i / points), i);
     }
 
-    private static void point(ServerLevel level, ParticleOptions effect, Vec3 at, int ordinal) {
+    static void point(ServerLevel level, ParticleOptions effect, Vec3 at, int ordinal) {
         for (ServerPlayer viewer : level.players()) {
             if (viewer.distanceToSqr(at) > 1024) continue;
             int quality = ReachLife.preference(viewer, "sakura_effects", 2);

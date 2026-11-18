@@ -1,21 +1,29 @@
 package dev.uwu.test;
 
 import dev.uwu.dimension.Moonbells;
+import dev.uwu.dimension.AcquisitionPolicy;
 import dev.uwu.dimension.RevivalBlossoms;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
@@ -47,6 +55,7 @@ public final class BlossomRevivalProof {
             var totem=new ChestProof.Visitor(level,pos.east(6),"BlossomTotem",UUID.randomUUID());
             var rescued=new ChestProof.Visitor(level,pos.east(8),"BlossomOtherRescue",RESCUED);
             var bypass=new ChestProof.Visitor(level,pos.east(10),"BlossomBypass",UUID.randomUUID())) {
+            craftRecipes(level,visitor.player,pos.south(13));
             ItemStack dirk=new ItemStack(RevivalBlossoms.DIRK.get()),axe=new ItemStack(RevivalBlossoms.AXE.get());
             arm(visitor.player,dirk,axe);
             check(RevivalBlossoms.remaining(visitor.player,dirk)==0,"initial readiness");
@@ -94,6 +103,47 @@ public final class BlossomRevivalProof {
             lightPlaced=level.getGameTime();lightBroken=0;
         }
         System.out.println("BLOSSOM PASS full-health dirk/axe, held-only, shared owner, stale copied ID, totem precedence, repeat lethal, two rooted light plants; durable fixture saved");
+    }
+    private static void craftRecipes(ServerLevel level,ServerPlayer player,BlockPos table) {
+        check(AcquisitionPolicy.SPEC.isLoaded()&&AcquisitionPolicy.weaponAcquisitionEnabled(),"default enabled acquisition fixture");
+        level.setBlock(table,Blocks.CRAFTING_TABLE.defaultBlockState(),3);
+        var prism=BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse("uwudimension:roseglass_prism")).orElseThrow();
+        for(boolean axe:new boolean[]{false,true}) {
+            String key=axe?"dawnpetal_axe":"returnbloom_dirk";
+            String[] pattern=axe?new String[]{"NN ","NSP"," ST"}:new String[]{" N "," PT"," S "};
+            var materials=new java.util.ArrayList<ItemStack>();
+            for(String row:pattern)for(char token:row.toCharArray()) materials.add(token==' '?ItemStack.EMPTY:new ItemStack(switch(token){
+                case 'N'->Items.NETHERITE_INGOT;case 'P'->prism;case 'T'->Items.TOTEM_OF_UNDYING;default->Items.STICK;
+            }));
+            long netherite=materials.stream().filter(stack->stack.is(Items.NETHERITE_INGOT)).count();
+            check(netherite==(axe?3:1)&&materials.stream().filter(stack->stack.is(Items.TOTEM_OF_UNDYING)).count()==1,"rare recipe cost "+key);
+            CraftingInput input=CraftingInput.of(3,3,materials);
+            var holder=level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level).orElseThrow(()->new AssertionError("missing revival recipe "+key));
+            check(holder.id().equals(ResourceLocation.fromNamespaceAndPath("uwudimension",key)),"wrong recipe selected "+key);
+            var expected=axe?RevivalBlossoms.AXE.get():RevivalBlossoms.DIRK.get();
+            check(holder.value().assemble(input,level.registryAccess()).is(expected),"recipe assembles wrong item "+key);
+            var oldMenu=player.containerMenu;
+            var menu=new CraftingMenu(71,player.getInventory(),ContainerLevelAccess.create(level,table));
+            player.containerMenu=menu;
+            try {
+                for(int i=0;i<9;i++)menu.getSlot(i+1).set(materials.get(i).copy());
+                check(menu.getSlot(0).getItem().is(expected)&&menu.getSlot(0).getItem().getCount()==1,"native crafting result "+key);
+                menu.clicked(0,0,ClickType.PICKUP,player);
+                check(menu.getCarried().is(expected)&&menu.getCarried().getCount()==1,"actual result pickup "+key);
+                for(int i=1;i<=9;i++)check(menu.getSlot(i).getItem().isEmpty(),"recipe failed to consume ingredient slot "+i+" "+key);
+                check(menu.getSlot(0).getItem().isEmpty(),"recipe left duplicate result "+key);
+                menu.setCarried(ItemStack.EMPTY);
+                AcquisitionPolicy.WEAPON_ACQUISITION.set(false);
+                check(!AcquisitionPolicy.allowsCraft(new ItemStack(expected)),"disabled policy allows new weapon "+key);
+                check(level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level).isEmpty(),"disabled policy recipe lookup bypass "+key);
+                for(int i=0;i<9;i++)menu.getSlot(i+1).set(materials.get(i).copy());
+                check(menu.getSlot(0).getItem().isEmpty(),"disabled policy native crafting bypass "+key);
+            } finally {
+                AcquisitionPolicy.WEAPON_ACQUISITION.set(true);
+                player.containerMenu=oldMenu;
+            }
+        }
+        System.out.println("BLOSSOM CRAFTING PASS both native result pickups consume totem/netherite/prism/sticks once; acquisition-disabled lookup and menu reject both");
     }
     /** Call on server ticks until true. Checks both propagation and removal through the real light engine. */
     public static boolean verifyLighting(ServerLevel level) {

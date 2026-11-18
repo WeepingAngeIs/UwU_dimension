@@ -397,7 +397,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 if(entry!=null && CounterEffects.holds(target,entry.target()))effectTicks=160;
                 else if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))effectTicks=14;
                 applied = CounterEffects.hit(server, player, target, entry, impact,this);
-                if (applied) BlossomArts.counterHit(server, player, target, entry);
+                if (applied) BlossomArts.counterHit(server, player, target, entry, getDeltaMovement());
                 if(entry!=null && (entry.school().equals("FEINT")||entry.school().equals("SHATTER")))GlitchCompletions.track(this,target,"echo");
                 if(entry!=null && CounterEffects.holds(target,entry.target())){
                     GlitchCompletions.track(this,target,"counter_mark");

@@ -37,7 +37,7 @@ public final class NetworkMotionClient {
     private static final Set<String> SPAWNS = ConcurrentHashMap.newKeySet();
     private static final Set<String> VIEWS = new HashSet<>();
     private static boolean connecting, watching, finished, held, reported, sawLive;
-    private static int scene = -1, ticks, photos, lastPhoto;
+    private static int scene = -1, ticks, photos, lastPhoto, warmup;
     private static long started;
     private static Properties task;
 
@@ -99,6 +99,7 @@ public final class NetworkMotionClient {
         if (id != scene) {
             scene = id;
             ticks = photos = 0;
+            warmup = 0;
             lastPhoto = -20;
             reported = held = sawLive = false;
             PARTICLES.clear();
@@ -106,8 +107,12 @@ public final class NetworkMotionClient {
             VIEWS.clear();
         }
         task = next;
-        var actor = mc.level.getEntity(Integer.parseInt(task.getProperty("shooter")));
-        if (actor == null || mc.levelRenderer.countRenderedSections() < 2) return;
+        // A small floating arena can occupy one rendered section. Looking vertically
+        // can legitimately draw none. Frustum count is not a world-readiness signal.
+        var actor = ROLE.equals("archer") ? mc.player : mc.level.getEntity(Integer.parseInt(task.getProperty("shooter")));
+        if (actor == null || !mc.level.hasChunkAt(mc.player.blockPosition())) return;
+        warmup++;
+        if (warmup < 20) return;
         var remote = mc.level.players().stream().filter(player -> player != mc.player).findFirst().orElse(null);
         if (remote == null || !FiguraPivotProof.ready(mc, remote.getUUID())) return;
         if (ROLE.equals("archer")) {

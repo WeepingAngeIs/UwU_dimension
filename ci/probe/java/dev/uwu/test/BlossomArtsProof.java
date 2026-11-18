@@ -41,6 +41,8 @@ public final class BlossomArtsProof {
     private static RelicFlight healing;
     private static UUID originalFlower;
     private static Husk rooted, frozen, windTarget, windBystander, enterWater;
+    private static Husk healingEnemy, expiredAlly;
+    private static List<net.minecraft.world.entity.animal.axolotl.Axolotl> healingCompanions;
     private static float windStart, bystanderStart;
     private static final List<Entity> actors = new ArrayList<>();
     private static final String FLOWER = "uwu.art_flower";
@@ -193,6 +195,24 @@ public final class BlossomArtsProof {
             var glitchFlight = level.getEntitiesOfClass(RelicFlight.class, glitchOwner.getBoundingBox().inflate(4), f -> f.getOwner() == glitchOwner).getFirst();
             actors.add(glitchFlight); land(level, glitchFlight, glitchOwner.position().add(.3, 0, 0));
             require(glitchOwner.getPersistentData().contains(FLOWER), "saved Glitch Vesper did not create healing flower");
+            CounterImpactProof.run(level, owner);
+            Husk summonTarget = mob(level, 9.5, 8.5);
+            require((boolean) invoke(ranged, "strike", new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class,
+                    net.minecraft.world.entity.LivingEntity.class, Arsenal.Relic.class, Vec3.class, Entity.class}, null,
+                    level, owner, summonTarget, Arsenal.Relic.AXOLOTL_WHIP, owner.position(), null), "real companion summon hit rejected");
+            healingCompanions = level.getEntitiesOfClass(net.minecraft.world.entity.animal.axolotl.Axolotl.class,
+                    owner.getBoundingBox().inflate(3), pet -> pet.getPersistentData().hasUUID("uwu.twin_owner")
+                        && pet.getPersistentData().getUUID("uwu.twin_owner").equals(owner.getUUID()));
+            require(healingCompanions.size() == 2, "native Twinfin summon did not create exactly two heal allies");
+            for (int index = 0; index < healingCompanions.size(); index++) {
+                var pet = healingCompanions.get(index);
+                pet.setPos(owner.getX() + (index == 0 ? -1 : 1), owner.getY(), owner.getZ() + .4);
+                pet.setNoAi(true); pet.setNoGravity(true); pet.setHealth(4); actors.add(pet);
+            }
+            healingEnemy = mob(level, 6.1, 3.5); healingEnemy.setHealth(50);
+            expiredAlly = mob(level, 6.1, 5.6); expiredAlly.setHealth(50);
+            expiredAlly.getPersistentData().putUUID("uwu.twin_owner", owner.getUUID());
+            expiredAlly.getPersistentData().putLong("uwu.twin_end", level.getGameTime() - 1);
             owner.setHealth(10); started = level.getGameTime(); phase = 2; return false;
         }
         long age = level.getGameTime() - started;
@@ -242,6 +262,9 @@ public final class BlossomArtsProof {
                     && !owner.getPersistentData().contains("uwu.art_vortex"), "expired field leaked");
             require(!rooted.getPersistentData().contains("uwu.art_root") && !frozen.getPersistentData().contains("uwu.art_ice"), "target geometry leaked past expiry");
             require(owner.getHealth() >= 13.9F && owner.getHealth() <= 14.1F, "field healed wrong total: " + owner.getHealth());
+            require(healingCompanions.stream().allMatch(pet -> pet.getHealth() >= 7.9F && pet.getHealth() <= 8.1F),
+                    "healing field missed an actual owned summoned companion or healed too many pulses");
+            require(healingEnemy.getHealth() == 50 && expiredAlly.getHealth() == 50, "healing field healed an enemy or expired ownership tag");
             require(windStart - windTarget.getHealth() >= 1.9F && windStart - windTarget.getHealth() <= 3.1F,
                     "wind primary target not hit two/three times: " + (windStart - windTarget.getHealth()));
             require(Math.abs(bystanderStart - windBystander.getHealth() - 3) < .1F,
