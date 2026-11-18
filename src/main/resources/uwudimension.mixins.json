@@ -37,6 +37,7 @@
     "ReactiveMusicRealmMixin",
     "WeaponCarryPoseMixin",
     "ScytheFirstPersonMixin",
-    "ScytheAttackInputMixin"
+    "ScytheAttackInputMixin",
+    "VesperSwingViewMixin"
   ]
 }
