@@ -1,0 +1,18 @@
+{
+  "textures": {
+    "particle": "uwudimension:item/fallsong_drop",
+    "drop": "uwudimension:item/fallsong_drop"
+  },
+  "elements": [
+    {
+      "from": [6.9, 4.35, 5.58],
+      "to": [9.1, 7.05, 6.80],
+      "shade": false,
+      "neoforge_data": { "block_light": 15, "sky_light": 15, "ambient_occlusion": false },
+      "faces": {
+        "north": { "texture": "#drop", "uv": [0, 0, 16, 16] },
+        "south": { "texture": "#drop", "uv": [0, 0, 16, 16] }
+      }
+    }
+  ]
+}

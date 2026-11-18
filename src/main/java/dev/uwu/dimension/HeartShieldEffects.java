@@ -16,6 +16,10 @@ final class HeartShieldEffects {
             DeferredRegister.create(Registries.PARTICLE_TYPE, "uwudimension");
     static final Supplier<SimpleParticleType> CIRCUIT = TYPES.register(
             "heartbriar_circuit", () -> new SimpleParticleType(false));
+    static final Supplier<SimpleParticleType> IMPACT = TYPES.register(
+            "heartbriar_impact", () -> new SimpleParticleType(false));
+    static final Supplier<SimpleParticleType> CASCADE = TYPES.register(
+            "fallsong_cascade", () -> new SimpleParticleType(false));
     static final int PULSE_TICKS = 12;
 
     private HeartShieldEffects() {}
@@ -26,7 +30,8 @@ final class HeartShieldEffects {
 
     static void aura(ServerLevel level, LivingEntity holder, long activeTicks) {
         if (Math.floorMod(activeTicks, PULSE_TICKS) != 0) return;
-        Vec3 at = holder.position().add(0, holder.getBbHeight() * .1, 0);
+        Vec3 at = holder.position().add(0, holder.getBbHeight() * .5 + .08, 0);
+        double yRadius = holder.getBbHeight() * .62 + .16;
         double phase = (activeTicks / PULSE_TICKS) * 1.2;
         for (var viewer : level.players()) {
             if (!CupidEffects.inRange(viewer, viewer.distanceToSqr(at))) continue;
@@ -36,8 +41,11 @@ final class HeartShieldEffects {
                     0, holder.getId(), quality, 0, 1);
             for (int i = 0; i <= quality; i++) {
                 double angle = phase + i * 2 * Math.PI / (quality + 1);
+                double latitude = .72 * Math.sin(angle + phase * .3);
+                double horizontal = 1.28 * Math.cos(latitude);
                 level.sendParticles(viewer, MagicGlowParticles.FLOWER.get(), false,
-                        at.x + 1.3 * Math.cos(angle), at.y + .09, at.z + 1.3 * Math.sin(angle),
+                        at.x + horizontal * Math.cos(angle), at.y + yRadius * Math.sin(latitude),
+                        at.z + horizontal * Math.sin(angle),
                         1, 0, 0, 0, 0);
             }
         }
@@ -58,13 +66,21 @@ final class HeartShieldEffects {
         for (var viewer : level.players()) {
             if (!CupidEffects.inRange(viewer, viewer.distanceToSqr(center))) continue;
             int quality = Mth.clamp(ReachLife.preference(viewer, "sakura_effects", 2), 0, 2);
-            for (int sign : new int[]{-1, 1}) {
-                Vec3 petal = center.add(side.scale(sign * .78));
-                level.sendParticles(viewer, MagicGlowParticles.FLOWER.get(), false,
-                        petal.x, petal.y, petal.z, quality + 1, .11, .06, .11, .045);
-                Vec3 heart = petal.add(side.scale(sign * .24)).add(0, .16, 0);
-                level.sendParticles(viewer, MagicGlowParticles.HEART.get(), false,
-                        heart.x, heart.y, heart.z, quality == 2 ? 2 : 1, .09, .05, .09, .03);
+            for (int sign = -1; sign <= 1; sign += 2) {
+                Vec3 outward = side.scale(sign);
+                Vec3 petal = center.add(outward.scale(.78));
+                for (int i = 0; i <= quality; i++) {
+                    Vec3 at = petal.add(horizontal.scale(.12 * i));
+                    Vec3 velocity = outward.scale(.36 + .09 * i).add(horizontal.scale(.14));
+                    level.sendParticles(viewer, MagicGlowParticles.FLOWER.get(), false,
+                            at.x, at.y + .035 * i, at.z, 0, velocity.x, .12, velocity.z, 1);
+                }
+                for (int i = 0; i < (quality == 2 ? 2 : 1); i++) {
+                    Vec3 at = petal.add(outward.scale(.24 + .15 * i));
+                    Vec3 velocity = outward.scale(.45).add(horizontal.scale(.20));
+                    level.sendParticles(viewer, MagicGlowParticles.HEART.get(), false,
+                            at.x, at.y + .16 + .07 * i, at.z, 0, velocity.x, .20, velocity.z, 1);
+                }
             }
         }
     }

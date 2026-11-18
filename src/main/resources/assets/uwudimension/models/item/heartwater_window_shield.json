@@ -6,6 +6,14 @@
         "uwudimension:blocking": 1
       },
       "model": "uwudimension:item/heartwater_window_shield_blocking"
+    },
+    {
+      "predicate": { "uwudimension:fallsong_charged": 1 },
+      "model": "uwudimension:item/heartwater_window_shield_charged"
+    },
+    {
+      "predicate": { "uwudimension:blocking": 1, "uwudimension:fallsong_charged": 1 },
+      "model": "uwudimension:item/heartwater_window_shield_charged_blocking"
     }
   ]
 }

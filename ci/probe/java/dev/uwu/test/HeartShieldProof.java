@@ -1,7 +1,20 @@
 package dev.uwu.test;
 
 import com.mojang.authlib.GameProfile;
+import dev.uwu.dimension.Fallsong;
+import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +45,9 @@ final class HeartShieldProof {
     private static Husk first, second, control;
     private static long started;
     private static boolean finished;
+    private static final boolean FALLSONG = "fallsong".equals(System.getenv("UWU_SHIELD_CASE"));
+    private static final List<ClientboundLevelParticlesPacket> PARTICLES = new ArrayList<>();
+    private static final List<ClientboundSetEntityMotionPacket> MOTION = new ArrayList<>();
 
     static void tick(MinecraftServer server) {
         if (finished) return;
@@ -53,9 +69,10 @@ final class HeartShieldProof {
             for (int x = -4; x <= 4; x++)
                 for (int z = -5; z <= 5; z++)
                     level.setBlockAndUpdate(FLOOR.offset(x, 0, z), Blocks.STONE.defaultBlockState());
-            defender = CounterProof.player(level, new GameProfile(UUID.randomUUID(), "ShieldKeeper"));
+            var profile = new GameProfile(UUID.randomUUID(), "ShieldKeeper");
+            defender = FALLSONG ? packetObserver(level, profile) : CounterProof.player(level, profile);
             defender.moveTo(8.5, 287, 8.5, 0, 0);
-            defender.setNoGravity(true);
+            defender.setNoGravity(!FALLSONG);
             level.addNewPlayer(defender);
             first = attacker(level);
             second = attacker(level);
@@ -67,6 +84,10 @@ final class HeartShieldProof {
         // in the level, but does not have an ordinary ticking packet listener.
         defender.doTick();
         int age = Math.toIntExact(level.getGameTime() - started);
+        if (FALLSONG) {
+            fallsong(level, age);
+            return;
+        }
         switch (age) {
             case 75 -> {
                 equip(shield("heartbriar_shield"));
@@ -132,6 +153,113 @@ final class HeartShieldProof {
                 level.getServer().halt(false);
             }
         }
+    }
+
+    private static ServerPlayer packetObserver(ServerLevel level, GameProfile profile) {
+        var server = level.getServer();
+        var player = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
+        var connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        new ServerGamePacketListenerImpl(server, connection, player, CommonListenerCookie.createInitial(profile, false)) {
+            @Override public void send(Packet<?> packet) {
+                if (packet instanceof ClientboundLevelParticlesPacket particle) PARTICLES.add(particle);
+                if (packet instanceof ClientboundSetEntityMotionPacket velocity) MOTION.add(velocity);
+            }
+            @Override public void send(Packet<?> packet, PacketSendListener callback) { send(packet); }
+        };
+        return player;
+    }
+
+    private static void fallsong(ServerLevel level, int age) {
+        switch (age) {
+            case 75 -> {
+                equip(shield("heartwater_window_shield"));
+                melee(level, control, 3, false);
+                raise(level);
+            }
+            case 82 -> melee(level, control, -3, false);
+            case 84 -> {
+                require(!Fallsong.isCharged(defender.getItemInHand(HAND)), "Idle or failed block stored a drop");
+                melee(level, control, 3, true);
+            }
+            case 86 -> {
+                require(Fallsong.isCharged(defender.getItemInHand(HAND)), "Successful block failed to store a drop");
+                melee(level, first, 3, true);
+            }
+            case 88 -> {
+                defender.stopUsingItem();
+                var held = defender.getItemInHand(HAND);
+                var saved = ItemStack.parseOptional(level.registryAccess(), (CompoundTag)held.save(level.registryAccess()));
+                require(Fallsong.isCharged(saved), "Shield lost its drop during serialization");
+                equip(held.getItem());
+                double ordinary = jump(true);
+                require(ordinary > .3 && ordinary < .6 && Fallsong.isCharged(held), "Charge leaked to another stack");
+                defender.setItemInHand(HAND, saved);
+                PARTICLES.clear();
+                MOTION.clear();
+                require(Math.abs(jump(false) - ordinary) < .001 && Fallsong.isCharged(saved), "Airborne jump consumed the drop");
+                double boosted = jump(true);
+                require(boosted >= .65 && boosted <= .71 && !Fallsong.isCharged(saved), "Charged jump or consumption failed: " + boosted);
+                require(!defender.getAbilities().flying && !defender.getAbilities().mayfly && !defender.isNoGravity(),
+                    "A single Fallsong jump changed flight or gravity");
+                require(MOTION.stream().anyMatch(p -> p.getId() == defender.getId() && Math.abs(p.getYa() - boosted) < .001
+                    && Math.abs(p.getXa() - .08) < .001 && Math.abs(p.getZa() + .04) < .001), "Boost velocity never reached owning connection");
+                require(PARTICLES.stream().anyMatch(p -> particleId(p).equals("uwudimension:fallsong_cascade")
+                    && p.getCount() == 0 && (int)p.getXDist() == defender.getId()), "Missing Fallsong cascade for jumping player");
+                require(Math.abs(jump(true) - ordinary) < .001, "A second stored drop or permanent jump boost remained");
+                System.out.println("FALLSONG JUMP PASS serverY=" + boosted + " ordinaryY=" + ordinary
+                    + " retainedPerStack=true airborneGuard=true singleUse=true");
+                equip(shield("petalfold_shield"));
+                raise(level);
+            }
+            case 96 -> {
+                PARTICLES.clear();
+                melee(level, second, 3, true);
+            }
+            case 98 -> {
+                inspectSpray();
+                System.out.println("FALLSONG AND PETAL SPRAY SERVER PASS");
+                finished = true;
+                level.getServer().halt(false);
+            }
+        }
+    }
+
+    private static double jump(boolean grounded) {
+        defender.setOnGround(grounded);
+        defender.setSprinting(false);
+        defender.setDeltaMovement(.08, 0, -.04);
+        defender.jumpFromGround();
+        Vec3 motion = defender.getDeltaMovement();
+        require(Math.abs(motion.x - .08) < .0001 && Math.abs(motion.z + .04) < .0001, "Fallsong changed horizontal movement");
+        return motion.y;
+    }
+
+    private static String particleId(ClientboundLevelParticlesPacket p) {
+        return BuiltInRegistries.PARTICLE_TYPE.getKey(p.getParticle().getType()).toString();
+    }
+
+    private static void inspectSpray() {
+        // The real attack is due south (+Z), so both outward rays have the
+        // lateral sign of their X offset. Read the recipient's actual packets.
+        int[] flowers = {0, 0}, hearts = {0, 0};
+        double minLateral = Double.POSITIVE_INFINITY;
+        for (var p : PARTICLES) {
+            String id = particleId(p);
+            boolean flower = id.equals("uwudimension:neon_flower");
+            if (!flower && !id.equals("uwudimension:neon_heart")) continue;
+            if (p.getCount() != 0) continue;
+            double side = p.getX() - 8.5;
+            double lateral = Math.signum(side) * p.getXDist() * p.getMaxSpeed();
+            double forward = p.getZDist() * p.getMaxSpeed();
+            require(Math.abs(side) >= .72 && p.getZ() > 8.75 && p.getY() < defender.getEyeY(), "Bloom crossed the sight line");
+            require(lateral >= (flower ? .35 : .44) && forward > .10 && p.getYDist() > 0, "Spray did not travel outwards");
+            minLateral = Math.min(minLateral, lateral);
+            (flower ? flowers : hearts)[side < 0 ? 0 : 1]++;
+        }
+        for (int side = 0; side < 2; side++) require(flowers[side] >= 1 && hearts[side] >= 1, "Both rays need blooms and hearts");
+        System.out.println("PETAL SPRAY PASS flowersL/R=" + flowers[0] + "/" + flowers[1]
+            + " heartsL/R=" + hearts[0] + "/" + hearts[1] + " minOutwardVelocity=" + minLateral);
     }
 
     private static Husk attacker(ServerLevel level) {

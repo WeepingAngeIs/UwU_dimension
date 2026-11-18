@@ -1,0 +1,8 @@
+// Use a single isolated visual fixture for this runClient invocation.
+gradle.afterProject { project ->
+    if (project.plugins.hasPlugin('net.neoforged.moddev')) {
+        def camera = project.sourceSets.getByName('expedition')
+        camera.java.setSrcDirs(['ci/fallsong-camera/java'])
+        camera.resources.setSrcDirs(['ci/fallsong-camera/resources'])
+    }
+}

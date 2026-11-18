@@ -19,6 +19,9 @@ public final class HeartShieldsClient {
                 ItemProperties.register(shield.get(), blocking, (stack, level, holder, seed) ->
                     holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1.0F : 0.0F);
             }
+            ItemProperties.register(HeartShields.HEARTWATER_WINDOW_SHIELD.get(),
+                ResourceLocation.fromNamespaceAndPath("uwudimension", "fallsong_charged"),
+                (stack, level, holder, seed) -> Fallsong.isCharged(stack) ? 1.0F : 0.0F);
         });
     }
 }

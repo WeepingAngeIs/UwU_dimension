@@ -21,6 +21,11 @@ public final class HeartShieldEffectsClient {
 
     @SubscribeEvent
     public static void register(RegisterParticleProvidersEvent event) {
+        event.registerSpecial(HeartShieldEffects.IMPACT.get(), (type, level, x, y, z, holderId, yaw, elevation) -> {
+            if (level.getEntity((int) holderId) instanceof LivingEntity holder)
+                HeartbriarShellClient.impact(holder, yaw, elevation);
+            return null;
+        });
         event.registerSpriteSet(HeartShieldEffects.CIRCUIT.get(), sprites ->
                 (type, level, x, y, z, entityId, quality, unused) ->
                         new Circuit(level, x, y, z, (int) entityId, (int) quality, sprites));
