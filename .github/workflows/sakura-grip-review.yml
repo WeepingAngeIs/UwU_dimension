@@ -1,0 +1,43 @@
+name: Sakura hand grip review
+on:
+  push:
+    branches: [review/sakura-grips-pass-1]
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: grip-review-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  photographs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [before, after]
+    env:
+      WISH_COMBAT: bettercombat
+      UWU_GRIP_VARIANT: ${{ matrix.variant }}
+      UWU_GRIP_BASE: b439443
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Use the approved baseline production code on the before server
+        if: matrix.variant == 'before'
+        run: git restore --source="$UWU_GRIP_BASE" --worktree -- src/main
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
+      - run: bash ci/weapon-polish-network.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: grip-${{ matrix.variant }}
+          path: |
+            build/weapon-polish-network/*.log
+            build/weapon-polish-network/sync/grip.properties
+            build/weapon-polish-network/archer/run-archer/screenshots
+            build/weapon-polish-network/witness/run-witness/screenshots
+            build/weapon-polish-network/crash-reports
+

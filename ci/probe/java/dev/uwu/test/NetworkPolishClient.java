@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.event.*;
 /** No pose override; screenshots use production models and installed animation bridges. */
 @EventBusSubscriber(modid="heartwater_probe",value=Dist.CLIENT)
 public final class NetworkPolishClient {
-    private static final boolean ACTIVE="network-weapon-polish".equals(System.getenv("UWU_VISIT"));
+    private static final boolean ACTIVE="network-weapon-polish".equals(System.getenv("UWU_VISIT")) && System.getenv("UWU_GRIP_VARIANT")==null;
     private static final Path SYNC=Path.of(System.getenv().getOrDefault("WISH_SYNC_DIR","."));
     private static final String ROLE=System.getenv().getOrDefault("WISH_ROLE","");
     private static boolean connecting,finished,captured;

@@ -64,6 +64,23 @@ def transform(rotation, translation, scale):
     return {'rotation': rotation, 'translation': translation, 'scale': scale}
 
 
+def grip_mount(image, pixel, palm, rotation, scale, *, left=False):
+    """Place a painted handle pixel at a point in the held item's local 16-unit frame."""
+    u, v = pixel
+    assert image.getpixel(pixel)[3] >= 128, f'Grip pixel {pixel} must lie on the handle'
+    side = -1 if left else 1
+    # ItemTransform mirrors the left-hand X translation and Y/Z angles, then
+    # applies XYZ rotation to the centered, scaled generated model.
+    rx, ry, rz = map(math.radians, (rotation[0], side * rotation[1], side * rotation[2]))
+    x = ((u + .5) / image.width * 16 - 8) * scale[0]
+    y = (8 - (v + .5) / image.height * 16) * scale[1]
+    x, y = x * math.cos(rz) - y * math.sin(rz), x * math.sin(rz) + y * math.cos(rz)
+    x, z = x * math.cos(ry), -x * math.sin(ry)
+    y, z = y * math.cos(rx) - z * math.sin(rx), y * math.sin(rx) + z * math.cos(rx)
+    translation = [side * (palm[0] - x), palm[1] - y, palm[2] - z]
+    return transform(rotation, [round(value, 3) for value in translation], scale)
+
+
 def mounts(key, shape, image):
     # Match source span, not texture resolution. Each override uses its actual silhouette.
     left, top, right, bottom = image.getchannel('A').getbbox()
@@ -103,6 +120,20 @@ def mounts(key, shape, image):
                 'thirdperson_lefthand': transform([0, 90, -55], [0, lift, .5], [tp, tp, .75]),
             }
         result['ground'] = transform([0, 0, 0], [0, 4 if shape == 'scythe' else 3, 0], [floor, floor, .5])
+        if key == 'vesper_scythe':
+            # Open the sprite plane 17 degrees from edge-on and cant the staff
+            # outward 26 degrees around the lower wrap in each anatomical hand.
+            scale = [tp, tp, .82]
+            result['thirdperson_righthand'] = grip_mount(image, (9, 22), (.5, .5, .5),
+                                                        [-55.11, -59.26, -4.06], scale)
+            result['thirdperson_lefthand'] = grip_mount(image, (9, 22), (-.5, .5, .5),
+                                                       [55.11, 59.26, -114.06], scale, left=True)
+        elif key == 'frost_whip':
+            # The whip's handle is well below its coiled head in this sprite.
+            # Keep its existing orientation and seat the lower grip in the left palm.
+            previous = result['thirdperson_lefthand']
+            result['thirdperson_lefthand'] = grip_mount(image, (8, 24), (0, .5, .5),
+                                                       previous['rotation'], previous['scale'], left=True)
     # Preserve accepted dagger/trident mounts and the existing left-leading scythe/axe art.
     # A GUI reflection is confined to the specific right-leading points and foci.
     if shape in ('spear', 'wand') or key == 'ripple_bow' or shape == 'bow' and key.startswith('counter_'):

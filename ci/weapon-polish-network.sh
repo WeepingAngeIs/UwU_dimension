@@ -20,11 +20,19 @@ python ci/wish-natives.py "$world/natives"
 cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2,simplyswords,fzzy_config,architectury,simplytooltips,opac}.jar build/libs/*.jar build/expedition/*.jar "$world/mods/"
 if [[ "$WISH_COMBAT" = bettercombat ]]; then cp libs/{bettercombat,playeranimator,cloth-config}.jar "$world/mods/"; fi
 for role in archer witness; do
-  git archive HEAD | tar -x -C "$world/$role"
+  if [[ "${UWU_GRIP_VARIANT:-}" = before ]]; then
+    git archive HEAD -- . ':(exclude)src/main' | tar -x -C "$world/$role"
+    git archive "${UWU_GRIP_BASE:?}" src/main | tar -x -C "$world/$role"
+  else
+    git archive HEAD | tar -x -C "$world/$role"
+  fi
   cp -a libs "$world/$role/libs"
   cp build/weapon-compat/*.jar "$world/$role/libs/"
   mkdir -p "$world/$role/run-$role"
   cp -a "$root/ci/fixtures/weapon-compat/pivot-avatar" "$world/$role/run-$role/"
+  if [[ -n "${UWU_GRIP_VARIANT:-}" ]]; then
+    python "$root/ci/grip-review-cuffs.py" "$world/$role/run-$role/pivot-avatar/test.bbmodel"
+  fi
   test -f "$world/$role/run-$role/pivot-avatar/avatar.json"
   cp -a "$world/natives" "$world/$role/natives"
   mkdir -p "$world/$role/build/probe-compile" "$world/$role/run-$role/config"

@@ -9,6 +9,7 @@
     "GlitchBetterCombatMixin",
     "GlitchBetterCombatAttributesMixin",
     "WeaponAnimationMixin",
+    "VesperRestPoseMixin",
     "SakuraPaletteMixin",
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",

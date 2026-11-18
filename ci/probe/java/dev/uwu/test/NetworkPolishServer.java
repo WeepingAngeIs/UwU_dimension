@@ -40,6 +40,7 @@ final class NetworkPolishServer {
         Files.move(temp,SYNC.resolve("polish-task.properties"),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
     }
     static void tick(MinecraftServer server)throws Exception{
+        if(GripReviewServer.VARIANT!=null){GripReviewServer.tick(server);return;}
         if(finished)return;
         if(!ready){
             archer=server.getPlayerList().getPlayers().stream().filter(p->p.getGameProfile().getName().equals("WishArcher")).findFirst().orElse(null);
