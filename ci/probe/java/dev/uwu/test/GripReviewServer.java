@@ -40,6 +40,9 @@ final class GripReviewServer {
         for(int hold:new int[]{0,5,3}) for(int angle:new int[]{1,0}) rows.add(hold*VIEWS.length+angle);
         if(VARIANT==null || !VARIANT.startsWith("native-")){
             for(int i=0;i<HOLDS.length*VIEWS.length;i++) rows.add(i);
+        }else{
+            // Native sleeves and the default item pivot are a separate handedness / first-person control.
+            for(int hold:new int[]{0,1})for(int angle:new int[]{1,2})rows.add(hold*VIEWS.length+angle);
         }
         return rows.stream().mapToInt(Integer::intValue).toArray();
     }

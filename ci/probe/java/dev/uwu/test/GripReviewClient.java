@@ -40,6 +40,7 @@ public final class GripReviewClient {
     private static net.minecraft.world.entity.decoration.ArmorStand cameraAnchor;
     private static int updates;
     private static String trigger;
+    private static String vesperPlayback;
     private static void status(String detail) throws Exception {
         if ((updates % 30) != 1) return;
         String message="scene="+scene+" role="+ROLE+" "+detail+" settle="+settle+" ticks="+ticks+" attack="+attack+" idle="+idle+" photos="+photos;
@@ -107,6 +108,7 @@ public final class GripReviewClient {
         int number=Integer.parseInt(next.getProperty("id"));
         if(number!=scene){
             scene=number;settle=ticks=photos=0;attack=-1;idle=go=done=false;PACKET_ACTOR.set(-1);
+            vesperPlayback=null;
         }
         task=next;
         if(done)return;
@@ -161,8 +163,18 @@ public final class GripReviewClient {
                 trigger=PACKET_ACTOR.get()==actor.getId()?"network-animation":actor.swinging?"native-arm-swing":"physical-attack-key";
                 System.out.println("GRIP ANIMATION "+scene+" "+ROLE+" "+trigger);
             }
+            if (expected.equals("vesper_scythe") && attack>=0 && vesperPlayback==null) {
+                boolean solo = System.getenv("UWU_GRIP_VARIANT").endsWith("after")
+                        && !(SHOOTER && cameraType().isFirstPerson());
+                vesperPlayback=GripPlaybackProof.inspect(actor, solo);
+                if(vesperPlayback!=null)System.out.println("GRIP PLAYBACK scene="+scene+" role="+ROLE
+                        +" primary="+actor.getMainArm()+" camera="+task.getProperty("view")
+                        +" localPerspective="+cameraType()+" actual="+vesperPlayback);
+            }
         }
         if(ticks>65 && (restingOnly||attack>=0&&photos==PHASES.length || !captureThisView())){
+            if(expected.equals("vesper_scythe") && vesperPlayback==null)
+                throw new AssertionError("No live Vesper attack clip on "+ROLE+" in "+task);
             signal("done");done=true;return;
         }
         if(ticks>190)throw new AssertionError("Missing physical swing capture "+ROLE+" "+task+" packet="+PACKET_ACTOR+" photos="+photos);
