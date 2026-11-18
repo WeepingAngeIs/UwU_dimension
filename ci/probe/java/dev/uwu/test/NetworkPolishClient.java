@@ -57,6 +57,10 @@ public final class NetworkPolishClient {
             mc.player.setYRot((float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90));
             mc.player.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z))));
         }
+        var subject=mc.level.getEntity(Integer.parseInt(task.getProperty("shooter")));
+        if(!(subject instanceof net.minecraft.world.entity.LivingEntity pictured))return;
+        var heldStack=view.endsWith("left") ? pictured.getOffhandItem() : pictured.getMainHandItem();
+        if(!BuiltInRegistries.ITEM.getKey(heldStack.getItem()).getPath().equals(task.getProperty("item")))return;
         if(mc.levelRenderer.countRenderedSections()<2)return;
         Files.writeString(SYNC.resolve("polish-ready-"+scene+"-"+ROLE),"ready");
         if(!task.getProperty("state").equals("go"))return;

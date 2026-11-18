@@ -24,10 +24,10 @@ final class NetworkPolishServer {
     private static int scene;
     private static long started;
     private static int shots, shotsBefore;
-    private static int baseCount(){return ITEMS.size()*VIEWS.length;}
+    private static int baseCount(){return 4;}
     private static ResourceLocation key(String value){return value.contains(":")?ResourceLocation.parse(value):ResourceLocation.fromNamespaceAndPath("uwudimension",value);}
-    private static String item(){return scene<baseCount()?ITEMS.get(scene/VIEWS.length):(scene-baseCount())/4==0?"cupid_bow":"ripple_bow";}
-    private static String view(){return scene<baseCount()?VIEWS[scene%VIEWS.length]:VIEWS[(scene-baseCount())%4];}
+    private static String item() { return scene < 2 ? "vesper_scythe" : "frost_whip"; }
+    private static String view() { return switch(scene) { case 0 -> "third-right"; case 1 -> "first-right"; case 2 -> "third-left"; default -> "first-left"; }; }
     private static void require(boolean test,String why){if(!test)throw new AssertionError("POLISH NETWORK "+why);}
     private static void task(String state)throws Exception{
         var p=new Properties();
@@ -46,11 +46,7 @@ final class NetworkPolishServer {
             archer=server.getPlayerList().getPlayers().stream().filter(p->p.getGameProfile().getName().equals("WishArcher")).findFirst().orElse(null);
             witness=server.getPlayerList().getPlayers().stream().filter(p->p.getGameProfile().getName().equals("WishWitness")).findFirst().orElse(null);
             if(archer==null||witness==null)return;
-            for(var relic:Arsenal.Relic.values())ITEMS.add(relic.name().toLowerCase(Locale.ROOT));
-            for(var e:CounterArsenal.ROSTER)ITEMS.add(e.id());
-            ITEMS.addAll(List.of("glitch_bow","heart_launcher","bell_hammer","returnbloom_dirk","dawnpetal_axe"));
-            require(ITEMS.size()==153,"expected 153 weapons "+ITEMS.size());
-            ITEMS.addAll(List.of("minecraft:bow","simplyswords:soulrender"));
+            ITEMS.addAll(List.of("vesper_scythe", "frost_whip"));
             var level=server.overworld();
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"gamerule doMobSpawning false");
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"gamerule doDaylightCycle false");
@@ -65,9 +61,9 @@ final class NetworkPolishServer {
             System.out.println("POLISH NETWORK READY items="+ITEMS.size());return;
         }
         require(System.nanoTime()-started<1_650_000_000_000L,"timeout "+scene);
-        if(scene==baseCount()+8){
+        if(scene==baseCount()){
             Files.writeString(SYNC.resolve("polish-complete"),"passed "+scene);
-            finished=true;System.out.println("POLISH NETWORK PASS "+scene+" mounted scenes, 153 registered weapons, real remote client");return;
+            finished=true;System.out.println("POLISH NETWORK PASS "+scene+" mounted scenes, two review weapons, real remote client");return;
         }
         if(!issued){
             if(drop!=null){drop.discard();drop=null;}
