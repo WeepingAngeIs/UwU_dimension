@@ -19,6 +19,7 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -55,17 +56,27 @@ public final class NetworkMotionClient {
         var channel = mc.getConnection().getConnection().channel();
         channel.eventLoop().execute(() -> channel.pipeline().addBefore("packet_handler", "uwu_motion_client", new ChannelInboundHandlerAdapter() {
             @Override public void channelRead(ChannelHandlerContext context, Object message) throws Exception {
-                if (message instanceof ClientboundLevelParticlesPacket packet) {
-                    String name = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.getParticle().getType()).toString();
-                    PARTICLES.computeIfAbsent(name, unused -> new AtomicInteger()).incrementAndGet();
-                }
-                if (message instanceof ClientboundAddEntityPacket packet) {
-                    var name = BuiltInRegistries.ENTITY_TYPE.getKey(packet.getType());
-                    if (name.getNamespace().equals("uwudimension")) SPAWNS.add(name.toString());
-                }
+                received(message);
                 super.channelRead(context, message);
             }
         }));
+    }
+
+    private static void received(Object message) {
+        // Entity tracking delivers add-entity, metadata and attributes in one bundle.
+        // The observer sits before the packet listener unpacks that bundle.
+        if (message instanceof ClientboundBundlePacket bundle) {
+            for (var packet : bundle.subPackets()) received(packet);
+        } else if (message instanceof ClientboundLevelParticlesPacket packet) {
+            String name = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.getParticle().getType()).toString();
+            PARTICLES.computeIfAbsent(name, unused -> new AtomicInteger()).incrementAndGet();
+        } else if (message instanceof ClientboundAddEntityPacket packet) {
+            var name = BuiltInRegistries.ENTITY_TYPE.getKey(packet.getType());
+            if (name.getNamespace().equals("uwudimension")) {
+                SPAWNS.add(name.toString());
+                System.out.println("MOTION CLIENT TRACKED " + ROLE + " " + name + " entity=" + packet.getId());
+            }
+        }
     }
 
     @SubscribeEvent

@@ -291,7 +291,12 @@ public final class BlossomArts {
     private static boolean healingAlly(ServerLevel level, Player owner, LivingEntity target) {
         if (target.level() != level || owner.level() != level) return false;
         if (target == owner || target instanceof TamableAnimal pet && pet.isOwnedBy(owner)) return true;
-        if (target instanceof Player other) return owner.isAlliedTo(other) && other.getTeam() != null;
+        if (target instanceof Player other) {
+            CompoundTag data = other.getPersistentData();
+            return owner.isAlliedTo(other) && other.getTeam() != null
+                    || data.hasUUID(HeartMagic.OWNER) && data.getUUID(HeartMagic.OWNER).equals(owner.getUUID())
+                        && level.getGameTime() < data.getLong(HeartMagic.END);
+        }
         if (!HeartMagic.friendly(owner, target)) return false;
         CompoundTag data = target.getPersistentData();
         if (data.hasUUID("uwu.twin_owner") && data.getUUID("uwu.twin_owner").equals(owner.getUUID())

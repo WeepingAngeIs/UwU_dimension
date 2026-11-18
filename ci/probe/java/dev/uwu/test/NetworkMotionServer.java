@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -93,13 +94,19 @@ final class NetworkMotionServer {
         var channel = witness.connection.getConnection().channel();
         channel.eventLoop().execute(() -> channel.pipeline().addBefore("packet_handler", "uwu_motion_particles", new ChannelDuplexHandler() {
             @Override public void write(ChannelHandlerContext context, Object message, ChannelPromise promise) throws Exception {
-                if (message instanceof ClientboundLevelParticlesPacket packet) {
-                    String name = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.getParticle().getType()).toString();
-                    PARTICLES.computeIfAbsent(name, unused -> new AtomicInteger()).incrementAndGet();
-                }
+                sent(message);
                 super.write(context, message, promise);
             }
         }));
+    }
+
+    private static void sent(Object message) {
+        if (message instanceof ClientboundBundlePacket bundle) {
+            for (var packet : bundle.subPackets()) sent(packet);
+        } else if (message instanceof ClientboundLevelParticlesPacket packet) {
+            String name = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.getParticle().getType()).toString();
+            PARTICLES.computeIfAbsent(name, unused -> new AtomicInteger()).incrementAndGet();
+        }
     }
 
     private static void castJoined(EntityJoinLevelEvent event) {
@@ -186,8 +193,9 @@ final class NetworkMotionServer {
                 require(target != null, "target factory");
                 target.setNoAi(true);
                 target.setPersistenceRequired();
-                target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);
-                target.setHealth(1000);
+                // Survive the cast while remaining eligible for ordinary root and vortex control.
+                target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(150);
+                target.setHealth(150);
                 target.moveTo(.5, 113, 5.5, 180, 0);
                 require(server.overworld().addFreshEntity(target), "target insertion");
                 beforeHealth = target.getHealth();

@@ -95,6 +95,44 @@ public final class BlossomArtsProof {
         invoke(RelicFlight.class, "onHitEntity", new Class<?>[]{EntityHitResult.class}, flight, new EntityHitResult(target));
     }
 
+    /** Inspect a native player charm and one real healing pulse synchronously, before any minion tick.
+     * The fixture owner is intentionally absent from PlayerList, so it must not pretend to sustain a charm there.
+     */
+    private static void charmedHealingPulse(ServerLevel level) throws Exception {
+        Vec3 originalPosition = owner.position();
+        float originalHealth = owner.getHealth();
+        Vec3 isolated = new Vec3(24.5, floor.getY() + 1, 17.5);
+        try (var activeVisitor = new ChestProof.Visitor(level, BlockPos.containing(isolated), "CharmedPetals", UUID.randomUUID());
+             var expiredVisitor = new ChestProof.Visitor(level, BlockPos.containing(isolated), "ExpiredPetals", UUID.randomUUID())) {
+            ServerPlayer active = activeVisitor.player, expired = expiredVisitor.player;
+            try {
+                owner.setPos(isolated);
+                owner.setHealth(owner.getMaxHealth());
+                active.setPos(isolated.add(0, 0, 1.2)); expired.setPos(isolated.add(0, 0, -1.2));
+                for (ServerPlayer player : new ServerPlayer[]{active, expired}) {
+                    player.setNoGravity(true); player.getFoodData().setFoodLevel(6);
+                    level.addNewPlayer(player); player.setHealth(10);
+                }
+                var charm = Class.forName("dev.uwu.dimension.HeartMagic");
+                Class<?>[] signature = {ServerLevel.class, net.minecraft.world.entity.player.Player.class,
+                        net.minecraft.world.entity.LivingEntity.class, boolean.class, int.class};
+                require((boolean) invoke(charm, "charm", signature, null, level, owner, active, true, 200), "native active player charm rejected");
+                require((boolean) invoke(charm, "charm", signature, null, level, owner, expired, true, 0), "native zero-duration player charm rejected");
+                require(active.getPersistentData().getLong("uwudimension.charm_end") > level.getGameTime()
+                        && expired.getPersistentData().getLong("uwudimension.charm_end") <= level.getGameTime(), "active/expired charm deadline fixture");
+                CompoundTag pulse = (CompoundTag) invoke(arts(), "field", new Class<?>[]{ServerLevel.class, Vec3.class, int.class},
+                        null, level, isolated, 80);
+                invoke(arts(), "flowerTick", new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class, CompoundTag.class, int.class},
+                        null, level, owner, pulse, 0);
+                require(active.getHealth() == 11, "active native charmed player missed one healing pulse");
+                require(expired.getHealth() == 10, "expired native player charm received healing");
+            } finally {
+                active.discard(); expired.discard(); owner.setPos(originalPosition); owner.setHealth(originalHealth);
+            }
+        }
+        System.out.println("BLOSSOM PLAYER ALLY PASS synchronous native active/expired charm healing pulse, hunger6 and isolated from four-pulse fixture");
+    }
+
     private static void land(ServerLevel level, RelicFlight flight, Vec3 spot) throws Exception {
         BlockHitResult hit = new BlockHitResult(spot, Direction.UP, BlockPos.containing(spot.add(0, -.01, 0)), false);
         invoke(RelicFlight.class, "onHitBlock", new Class<?>[]{BlockHitResult.class}, flight, hit);
@@ -213,6 +251,7 @@ public final class BlossomArtsProof {
             expiredAlly = mob(level, 6.1, 5.6); expiredAlly.setHealth(50);
             expiredAlly.getPersistentData().putUUID("uwu.twin_owner", owner.getUUID());
             expiredAlly.getPersistentData().putLong("uwu.twin_end", level.getGameTime() - 1);
+            charmedHealingPulse(level);
             owner.setHealth(10); started = level.getGameTime(); phase = 2; return false;
         }
         long age = level.getGameTime() - started;

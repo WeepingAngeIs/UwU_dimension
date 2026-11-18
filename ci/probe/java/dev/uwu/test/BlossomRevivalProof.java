@@ -134,16 +134,22 @@ public final class BlossomRevivalProof {
                 check(menu.getSlot(0).getItem().isEmpty(),"recipe left duplicate result "+key);
                 menu.setCarried(ItemStack.EMPTY);
                 AcquisitionPolicy.WEAPON_ACQUISITION.set(false);
+                check(AcquisitionPolicy.weaponAcquisitionEnabled(),"world-restart policy changed within a running world");
+                // This policy intentionally takes effect only after world restart. Simulate its
+                // restarted cache in this disposable fixture, without changing production semantics.
+                AcquisitionPolicy.WEAPON_ACQUISITION.clearCache();
+                check(!AcquisitionPolicy.weaponAcquisitionEnabled(),"simulated restart did not load disabled acquisition");
                 check(!AcquisitionPolicy.allowsCraft(new ItemStack(expected)),"disabled policy allows new weapon "+key);
                 check(level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,input,level).isEmpty(),"disabled policy recipe lookup bypass "+key);
                 for(int i=0;i<9;i++)menu.getSlot(i+1).set(materials.get(i).copy());
                 check(menu.getSlot(0).getItem().isEmpty(),"disabled policy native crafting bypass "+key);
             } finally {
                 AcquisitionPolicy.WEAPON_ACQUISITION.set(true);
+                AcquisitionPolicy.WEAPON_ACQUISITION.clearCache();
                 player.containerMenu=oldMenu;
             }
         }
-        System.out.println("BLOSSOM CRAFTING PASS both native result pickups consume totem/netherite/prism/sticks once; acquisition-disabled lookup and menu reject both");
+        System.out.println("BLOSSOM CRAFTING PASS both native result pickups consume totem/netherite/prism/sticks once; world-restart cache respected, simulated-restart disabled lookup and menu reject both");
     }
     /** Call on server ticks until true. Checks both propagation and removal through the real light engine. */
     public static boolean verifyLighting(ServerLevel level) {
