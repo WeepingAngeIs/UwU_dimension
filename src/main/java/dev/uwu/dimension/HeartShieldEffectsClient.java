@@ -55,7 +55,7 @@ public final class HeartShieldEffectsClient {
 
         @Override public void tick() {
             super.tick();
-            if (level.getEntity(holderId) instanceof LivingEntity holder && holder.isBlocking()) {
+            if (level.getEntity(holderId) instanceof LivingEntity holder && guarding(holder)) {
                 setPos(holder.getX(), holder.getY() + holder.getBbHeight() * .1, holder.getZ());
             } else {
                 remove();
@@ -63,7 +63,7 @@ public final class HeartShieldEffectsClient {
         }
 
         @Override public void render(VertexConsumer out, Camera camera, float partial) {
-            if (!(level.getEntity(holderId) instanceof LivingEntity holder) || !holder.isBlocking()) return;
+            if (!(level.getEntity(holderId) instanceof LivingEntity holder) || !guarding(holder)) return;
             Vec3 offset = holder.getPosition(partial).add(0, holder.getBbHeight() * .1, 0)
                     .subtract(camera.getPosition());
             // Choose the visible side without turning the annulus into a billboard.
@@ -95,6 +95,10 @@ public final class HeartShieldEffectsClient {
                 float yaw = (float)angle + (px * nx + pz * nz > 0 ? (float)Math.PI : 0);
                 renderRotatedQuad(out, new Quaternionf().rotateY(yaw), px, py, pz, partial);
             }
+        }
+
+        private static boolean guarding(LivingEntity holder) {
+            return holder.isBlocking() && holder.getUseItem().is(HeartShields.HEARTBRIAR_SHIELD.get());
         }
     }
 }
