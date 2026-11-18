@@ -36,6 +36,7 @@
     "SakuraGrassTintMixin",
     "ReactiveMusicRealmMixin",
     "WeaponCarryPoseMixin",
-    "ScytheFirstPersonMixin"
+    "ScytheFirstPersonMixin",
+    "ScytheAttackInputMixin"
   ]
 }
