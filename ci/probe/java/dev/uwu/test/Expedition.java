@@ -29,6 +29,10 @@ public class Expedition {
     }
     private void tick(ServerTickEvent.Post event) {
         var server=event.getServer();
+        if (server.isDedicatedServer() && "1".equals(System.getenv("UWU_HEART_SHIELDS"))) {
+            HeartShieldProof.tick(server);
+            return;
+        }
         if(server.isDedicatedServer() && "network-weapon-motion".equals(System.getenv("UWU_VISIT"))){
             try{NetworkMotionServer.tick(server);}catch(Exception error){throw new IllegalStateException("Network motion proof",error);}
             return;

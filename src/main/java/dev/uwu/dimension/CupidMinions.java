@@ -96,6 +96,7 @@ final class CupidMinions {
         target.addTag(HeartMagic.OWNER);
         data.putUUID(HeartMagic.OWNER, keeper.getUUID());
         data.putBoolean("uwu.pastel_cupid", pastelCupid);
+        data.remove(HeartMagic.PETALFOLD);
         data.putLong(HeartMagic.END, level.getGameTime() + duration);
         data.remove(COMMAND_TARGET);
         data.remove(COMMAND_END);
@@ -115,7 +116,7 @@ final class CupidMinions {
             release(minion);
             return;
         }
-        if (minion.tickCount % 8 == 0)
+        if (minion.tickCount % 8 == 0 && !data.getBoolean(HeartMagic.PETALFOLD))
             HeartCombatGlow.charmHearts(level, minion.getX(), minion.getY()+minion.getBbHeight()+.38, minion.getZ(),
                 2, .22, .25, .22, .015);
 
@@ -242,11 +243,13 @@ final class CupidMinions {
         var data = player.getPersistentData();
         data.remove(HeartMagic.OWNER);
         data.remove(HeartMagic.END);
+        boolean petalfold = data.getBoolean(HeartMagic.PETALFOLD);
+        data.remove(HeartMagic.PETALFOLD);
         data.remove("uwu.pastel_cupid");
         data.remove(COMMAND_TARGET);
         data.remove(COMMAND_END);
         PacketDistributor.sendToPlayer(player, new Control(false, 0, 0, 0, 0));
-        if (player.level() instanceof ServerLevel level)
+        if (!petalfold && player.level() instanceof ServerLevel level)
             level.sendParticles(ParticleTypes.CHERRY_LEAVES, player.getX(), player.getY() + .8, player.getZ(), 10,
                 .28, .35, .28, .025);
     }

@@ -16,14 +16,15 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 final class HeartMagic {
     static final String OWNER = "uwudimension.charm_owner", END = "uwudimension.charm_end", PREVIOUS = "uwudimension.previous_target";
+    static final String PETALFOLD = "uwudimension.petalfold_charm";
     private static final String CALLER = "uwudimension.hare_caller", THUMP_END = "uwudimension.hare_end";
     private static final TagKey<EntityType<?>> IMMUNE = TagKey.create(Registries.ENTITY_TYPE, Arsenal.id("charm_immune"));
 
     static boolean charm(ServerLevel level, Player keeper, Mob mob) { return charm(level,keeper,mob,false); }
     static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid) {
-        return charm(level, keeper, mob, pastelCupid, 800);
+        return charmMob(level, keeper, mob, pastelCupid, 800, false);
     }
-    private static boolean charm(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid, int duration) {
+    private static boolean charmMob(ServerLevel level, Player keeper, Mob mob, boolean pastelCupid, int duration, boolean petalfold) {
         if (mob.getType().is(IMMUNE) || (mob.getBbWidth() >= 6 && mob.getBbHeight() >= 5)) return false;
         CompoundTag data = mob.getPersistentData();
         if (pastelCupid && data.hasUUID(OWNER) && level.getGameTime()<data.getLong(END)
@@ -32,11 +33,13 @@ final class HeartMagic {
         mob.addTag(OWNER);
         data.putUUID(OWNER, keeper.getUUID());
         data.putBoolean("uwu.pastel_cupid",pastelCupid);
+        if (petalfold) data.putBoolean(PETALFOLD, true);
+        else data.remove(PETALFOLD);
         data.putLong(END, level.getGameTime() + duration);
         data.remove(CupidMinions.COMMAND_TARGET);
         data.remove(CupidMinions.COMMAND_END);
         clearTarget(mob);
-        if (!pastelCupid)
+        if (!pastelCupid && !petalfold)
             level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 10, .5, .2, .5, .05);
         if(pastelCupid)SakuraAchievements.award(keeper,"cupid/charm");
         return true;
@@ -46,9 +49,20 @@ final class HeartMagic {
         return charm(level, keeper, target, pastelCupid, 800);
     }
     static boolean charm(ServerLevel level, Player keeper, LivingEntity target, boolean pastelCupid, int duration) {
-        if (target instanceof Mob mob) return charm(level, keeper, mob, pastelCupid, duration);
+        if (target instanceof Mob mob) return charmMob(level, keeper, mob, pastelCupid, duration, false);
         if (target instanceof net.minecraft.server.level.ServerPlayer player)
             return CupidMinions.charm(level, keeper, player, pastelCupid, duration);
+        return false;
+    }
+
+    // Petalfold places its own particles around the blocker, away from the camera.
+    static boolean charmFromShield(ServerLevel level, Player keeper, LivingEntity target, int duration) {
+        if (target instanceof Mob mob) return charmMob(level, keeper, mob, false, duration, true);
+        if (target instanceof net.minecraft.server.level.ServerPlayer player
+                && CupidMinions.charm(level, keeper, player, false, duration)) {
+            player.getPersistentData().putBoolean(PETALFOLD, true);
+            return true;
+        }
         return false;
     }
 
@@ -93,6 +107,7 @@ final class HeartMagic {
             data.remove(OWNER);
             data.remove(END);
             data.remove("uwu.pastel_cupid");
+            data.remove(PETALFOLD);
             data.remove(CupidMinions.COMMAND_TARGET);
             data.remove(CupidMinions.COMMAND_END);
             clearTarget(mob);
@@ -103,7 +118,7 @@ final class HeartMagic {
         if (mob.tickCount % 5 != 0) return;
         if (data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 8 == 0)
             HeartCombatGlow.charmHearts(level, mob.getX(), mob.getY()+mob.getBbHeight()+.38, mob.getZ(), 2, .17, .06, .17, .01);
-        else if (!data.getBoolean("uwu.pastel_cupid") && mob.tickCount % 20 == 0)
+        else if (!data.getBoolean("uwu.pastel_cupid") && !data.getBoolean(PETALFOLD) && mob.tickCount % 20 == 0)
             level.sendParticles(ParticleTypes.HEART, mob.getX(), mob.getEyeY(), mob.getZ(), 1, .16, .1, .16, 0);
         if (!(level.getEntity(data.getUUID(OWNER)) instanceof Player keeper)) { clearTarget(mob); return; }
         LivingEntity foe = CupidMinions.assignedTarget(level, keeper, mob);
