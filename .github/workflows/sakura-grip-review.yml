@@ -37,6 +37,7 @@ jobs:
           path: |
             build/weapon-polish-network/*.log
             build/weapon-polish-network/sync/grip.properties
+            build/weapon-polish-network/sync/*-status.txt
             build/weapon-polish-network/archer/run-archer/screenshots
             build/weapon-polish-network/witness/run-witness/screenshots
             build/weapon-polish-network/crash-reports

@@ -21,7 +21,8 @@ final class GripReviewServer {
     private record Hold(String item, String hand) { }
     private static final Hold[] HOLDS = {
         new Hold("vesper_scythe", "right"), new Hold("vesper_scythe", "left"),
-        new Hold("frost_whip", "right"), new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand")
+        new Hold("frost_whip", "right"), new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand"),
+        new Hold("simplyswords:soulrender", "right")
     };
     // A player facing +Z has anatomical left on +X. Positions are eye offsets from their feet.
     private record Camera(String name, double x, double y, double z) { }
@@ -69,16 +70,19 @@ final class GripReviewServer {
             witness.setGameMode(GameType.CREATIVE);
             witness.getAbilities().flying=true;
             witness.onUpdateAbilities();
+            witness.setInvisible(true);
+            witness.teleportTo(level, 18.5, 113, 14.5, 0, 0);
             // Keep the low camera above the floor without lowering the actor or moving its pivot.
             archer.teleportTo(level,.5,113,.5,0,0);
         }
-        if(scene==HOLDS.length*VIEWS.length){
+        if(scene>=HOLDS.length*VIEWS.length){
             Files.writeString(SYNC.resolve("polish-complete"),"review complete");
             System.out.println("POLISH NETWORK PASS grip review "+scene+" directed poses");
             finished=true;return;
         }
         if(phase==0){
-            var item=BuiltInRegistries.ITEM.getOptional(ResourceLocation.fromNamespaceAndPath("uwudimension",HOLDS[scene/VIEWS.length].item())).orElseThrow();
+            String key=HOLDS[scene/VIEWS.length].item();
+            var item=BuiltInRegistries.ITEM.getOptional(key.contains(":")?ResourceLocation.parse(key):ResourceLocation.fromNamespaceAndPath("uwudimension",key)).orElseThrow();
             var camera=VIEWS[scene%VIEWS.length];
             boolean offhand = HOLDS[scene/VIEWS.length].hand().equals("offhand");
             archer.setMainArm(HOLDS[scene/VIEWS.length].hand().equals("left")?HumanoidArm.LEFT:HumanoidArm.RIGHT);
@@ -86,17 +90,11 @@ final class GripReviewServer {
             archer.setItemInHand(InteractionHand.OFF_HAND,offhand ? new ItemStack(item) : ItemStack.EMPTY);
             archer.getCooldowns().removeCooldown(item);
             archer.containerMenu.broadcastChanges();
-            // The low camera is just above the stage, so the flying witness stands in an air notch.
             archer.teleportTo(level,.5,113,.5,0,0);
-            double feetY=113+camera.y()-witness.getEyeHeight();
-            int bx=(int)Math.floor(.5+camera.x()), bz=(int)Math.floor(.5+camera.z());
-            if(feetY<113) level.setBlockAndUpdate(new BlockPos(bx,112,bz),Blocks.AIR.defaultBlockState());
-            if(feetY<112) level.setBlockAndUpdate(new BlockPos(bx,111,bz),Blocks.AIR.defaultBlockState());
-            witness.teleportTo(level,.5+camera.x(),feetY,.5+camera.z(),0,0);
-            witness.setDeltaMovement(0,0,0);
             task("prepare");phase=1;began=System.nanoTime();return;
         }
-        if(System.nanoTime()-began>90_000_000_000L)throw new AssertionError("Grip scene timeout "+scene+" phase "+phase);
+        if(System.nanoTime()-began>90_000_000_000L)throw new AssertionError("Grip scene timeout "+scene+" phase "+phase
+                +" archer="+ Files.readString(SYNC.resolve("grip-archer-status.txt"))+" witness="+Files.readString(SYNC.resolve("grip-witness-status.txt")));
         String flag=phase==1?"ready":"done";
         if(!Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-archer")) || !Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-witness")))return;
         if(phase==1){task("go");phase=2;return;}

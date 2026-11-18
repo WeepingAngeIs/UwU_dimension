@@ -37,6 +37,15 @@ public final class GripReviewClient {
     private static int scene=-1,settle,ticks,attack=-1,photos;
     private static boolean connecting,observing,finished,idle,go,done;
     private static Properties task;
+    private static net.minecraft.world.entity.decoration.ArmorStand cameraAnchor;
+    private static int updates;
+    private static String trigger;
+    private static void status(String detail) throws Exception {
+        if ((updates % 30) != 1) return;
+        String message="scene="+scene+" role="+ROLE+" "+detail+" settle="+settle+" ticks="+ticks+" attack="+attack+" idle="+idle+" photos="+photos;
+        Files.writeString(SYNC.resolve("grip-"+ROLE+"-status.txt"),message);
+        System.out.println("GRIP PROGRESS "+message);
+    }
 
     private static void observePacket(Object message) throws ReflectiveOperationException {
         if(message instanceof ClientboundBundlePacket bundle){
@@ -101,9 +110,11 @@ public final class GripReviewClient {
         }
         task=next;
         if(done)return;
-        if(!(mc.level.getEntity(Integer.parseInt(task.getProperty("shooter"))) instanceof Player actor))return;
+        updates++;
+
+        if(!(mc.level.getEntity(Integer.parseInt(task.getProperty("shooter"))) instanceof Player actor)){status("awaiting shooter entity");return;}
         var remote=mc.level.players().stream().filter(p->p!=mc.player).findFirst().orElse(null);
-        if(remote==null||!FiguraPivotProof.ready(mc,remote.getUUID()))return;
+        if(remote==null||!FiguraPivotProof.ready(mc,remote.getUUID())){status("awaiting Figura fixture");return;}
         mc.options.setCameraType(cameraType());
         boolean originalDiagonal = task.getProperty("view").equals("original-diagonal");
         mc.options.hideGui=!SHOOTER && !originalDiagonal;
@@ -115,25 +126,43 @@ public final class GripReviewClient {
             mc.player.setYRot(0);mc.player.setXRot(0);
         }else{
             Vec3 eye=new Vec3(Double.parseDouble(task.getProperty("eyeX")),Double.parseDouble(task.getProperty("eyeY")),Double.parseDouble(task.getProperty("eyeZ")));
-            if(mc.player.getEyePosition().distanceToSqr(eye)>.16)return;
-            Vec3 direction=actor.position().add(0,originalDiagonal ? 1.1 : 1.08,0).subtract(mc.player.getEyePosition());
-            mc.player.setYRot((float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90));
-            mc.player.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z))));
+            // A client-only armor stand is a camera anchor, never spawned or rendered.
+            // The network witness stays well outside both the stills and local F5 shots.
+            if(cameraAnchor==null)cameraAnchor=net.minecraft.world.entity.EntityType.ARMOR_STAND.create(mc.level);
+            Vec3 direction=actor.position().add(0,originalDiagonal ? 1.1 : 1.08,0).subtract(eye);
+            float yaw=(float)(Math.toDegrees(Math.atan2(direction.z,direction.x))-90);
+            float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,Math.hypot(direction.x,direction.z)));
+            cameraAnchor.moveTo(eye.x,eye.y-cameraAnchor.getEyeHeight(),eye.z,yaw,pitch);
+            cameraAnchor.setYHeadRot(yaw);
+            cameraAnchor.yHeadRotO=yaw;
+            cameraAnchor.setOldPosAndRot();
+            if(mc.getCameraEntity()!=cameraAnchor)mc.setCameraEntity(cameraAnchor);
         }
         var item=offhand?actor.getOffhandItem():actor.getMainHandItem();
-        if(!BuiltInRegistries.ITEM.getKey(item.getItem()).getPath().equals(task.getProperty("item"))||actor.getMainArm()!=arm)return;
+        String expected=task.getProperty("item");
+        String expectedID=expected.contains(":")?expected:"uwudimension:"+expected;
+        if(!BuiltInRegistries.ITEM.getKey(item.getItem()).toString().equals(expectedID)||actor.getMainArm()!=arm){
+            status("awaiting equipment actual="+item+" arm="+actor.getMainArm()+" expected="+expectedID+" "+arm);
+            return;
+        }
+        status("camera and equipment ready");
         settle++;
         if(!task.getProperty("state").equals("go")){
             if(idle)signal("ready");
             return;
         }
         go=true;ticks++;
-        if(!offhand){
+        boolean restingOnly=offhand || task.getProperty("item").equals("simplyswords:soulrender");
+        if(!restingOnly){
             if(SHOOTER&&ticks==10)click("mousedown");
             if(SHOOTER&&ticks==12)click("mouseup");
-            if(attack<0&&(PACKET_ACTOR.get()==actor.getId()||actor.swinging))attack=ticks;
+            if(attack<0 && (PACKET_ACTOR.get()==actor.getId() || actor.swinging || SHOOTER && ticks==11)){
+                attack=ticks;
+                trigger=PACKET_ACTOR.get()==actor.getId()?"network-animation":actor.swinging?"native-arm-swing":"physical-attack-key";
+                System.out.println("GRIP ANIMATION "+scene+" "+ROLE+" "+trigger);
+            }
         }
-        if(ticks>65 && (offhand||attack>=0&&photos==PHASES.length || !captureThisView())){
+        if(ticks>65 && (restingOnly||attack>=0&&photos==PHASES.length || !captureThisView())){
             signal("done");done=true;return;
         }
         if(ticks>190)throw new AssertionError("Missing physical swing capture "+ROLE+" "+task+" packet="+PACKET_ACTOR+" photos="+photos);
@@ -151,7 +180,7 @@ public final class GripReviewClient {
         int age=ticks-attack;
         if(age>=PHASES[photos]){
             capture(mc,"attack-"+String.format(java.util.Locale.ROOT,"%02d",PHASES[photos]));
-            System.out.println("GRIP CAPTURE scene="+scene+" role="+ROLE+" swingAge="+age+" targetPhase="+PHASES[photos]);
+            System.out.println("GRIP CAPTURE scene="+scene+" role="+ROLE+" swingAge="+age+" targetPhase="+PHASES[photos]+" trigger="+trigger);
             photos++;
         }
     }
@@ -162,7 +191,7 @@ public final class GripReviewClient {
             case THIRD_PERSON_BACK -> "f5-back";
             default -> "first-person";
         } : task.getProperty("view");
-        String name=System.getenv("UWU_GRIP_VARIANT")+"_"+task.getProperty("item")+"_"+task.getProperty("hand")+"_"+angle+"_"+pose+".png";
+        String name=System.getenv("UWU_GRIP_VARIANT")+"_"+task.getProperty("item").replace(':','-')+"_"+task.getProperty("hand")+"_"+angle+"_"+pose+".png";
         try(var pixels=Screenshot.takeScreenshot(mc.getMainRenderTarget())){pixels.writeToFile(dir.resolve(name));}
     }
 }
