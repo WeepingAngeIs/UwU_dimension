@@ -13,14 +13,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 
 final class GripReviewServer {
     static final String VARIANT = System.getenv("UWU_GRIP_VARIANT");
+    private static final boolean SNOWKISS = "snowkiss".equals(System.getenv("UWU_GRIP_SUITE"));
     private static final Path SYNC = Path.of(System.getenv().getOrDefault("WISH_SYNC_DIR", "."));
     private record Hold(String item, String hand) { }
-    private static final Hold[] HOLDS = {
+    private static final Hold[] HOLDS = SNOWKISS ? new Hold[] {
+        new Hold("frost_whip", "right-shield"), new Hold("frost_whip", "right"),
+        new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand")
+    } : new Hold[] {
         new Hold("vesper_scythe", "right"), new Hold("vesper_scythe", "left"),
         new Hold("frost_whip", "right"), new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand"),
         new Hold("simplyswords:soulrender", "right")
@@ -36,6 +41,13 @@ final class GripReviewServer {
     private static final int[] ORDER=buildOrder();
     private static int[] buildOrder(){
         var rows=new LinkedHashSet<Integer>();
+        if(SNOWKISS){
+            // Publish the true shield pairing first. Test both actual hands with and without a shield.
+            for(int angle:new int[]{1,0,3,2,4,5})rows.add(angle);
+            int[] angles = VARIANT.startsWith("native-") ? new int[]{0,1,2,3,4} : new int[]{0,1,2,3,4,5,6};
+            for(int hold=0;hold<HOLDS.length;hold++)for(int angle:angles)rows.add(hold*VIEWS.length+angle);
+            return rows.stream().mapToInt(Integer::intValue).toArray();
+        }
         // Capture the matched rear, true front and local F5 views before other angles.
         for(int hold:new int[]{0,5,3}) for(int angle:new int[]{1,0}) rows.add(hold*VIEWS.length+angle);
         if(VARIANT==null || !VARIANT.startsWith("native-")){
@@ -100,9 +112,11 @@ final class GripReviewServer {
             var item=BuiltInRegistries.ITEM.getOptional(key.contains(":")?ResourceLocation.parse(key):ResourceLocation.fromNamespaceAndPath("uwudimension",key)).orElseThrow();
             var camera=VIEWS[row()%VIEWS.length];
             boolean offhand = HOLDS[row()/VIEWS.length].hand().equals("offhand");
+            boolean shield = HOLDS[row()/VIEWS.length].hand().equals("right-shield");
             archer.setMainArm(HOLDS[row()/VIEWS.length].hand().equals("left")?HumanoidArm.LEFT:HumanoidArm.RIGHT);
             archer.setItemInHand(InteractionHand.MAIN_HAND,offhand ? ItemStack.EMPTY : new ItemStack(item));
-            archer.setItemInHand(InteractionHand.OFF_HAND,offhand ? new ItemStack(item) : ItemStack.EMPTY);
+            var offStack = shield ? new ItemStack(Items.SHIELD) : ItemStack.EMPTY;
+            archer.setItemInHand(InteractionHand.OFF_HAND,offhand ? new ItemStack(item) : offStack);
             archer.getCooldowns().removeCooldown(item);
             archer.containerMenu.broadcastChanges();
             archer.teleportTo(level,.5,113,.5,0,0);
@@ -113,7 +127,7 @@ final class GripReviewServer {
         String flag=phase==1?"ready":"done";
         if(!Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-archer")) || !Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-witness")))return;
         if(phase==1){task("go");phase=2;return;}
-        System.out.println("GRIP SCENE "+scene+" "+HOLDS[row()/VIEWS.length].item()+" "+VIEWS[row()%VIEWS.length].name());
+        System.out.println("GRIP SCENE "+scene+" "+HOLDS[row()/VIEWS.length]+" "+VIEWS[row()%VIEWS.length].name());
         scene++;phase=0;
         if(scene==6)Files.writeString(SYNC.resolve("grip-first-complete"),"rear/front photographs ready");
     }

@@ -131,11 +131,12 @@ def mounts(key, shape, image):
                 [0, -90, 55], [0, round(8 - shift * math.sin(roll), 4),
                                round(.5 - shift * math.cos(roll), 4)], [1.75, 1.75, .85])
         elif key == 'frost_whip':
-            # The whip's handle is well below its coiled head in this sprite.
-            # Keep its existing orientation and seat the lower grip in the left palm.
-            previous = result['thirdperson_lefthand']
-            result['thirdperson_lefthand'] = grip_mount(image, (8, 24), (0, .5, .5),
-                                                       previous['rotation'], previous['scale'], left=True)
+            # Enlarge the coil around the middle of the wrapped handle. Each palm
+            # keeps the point it already touched at the previous .9813 scale.
+            for hand, palm in [('righthand', (0, -2.506, 1.806)), ('lefthand', (0, .5, .5))]:
+                view = 'thirdperson_' + hand
+                result[view] = grip_mount(image, (8, 24), palm, result[view]['rotation'],
+                                          [1.30, 1.30, .75], left=hand == 'lefthand')
     # Preserve accepted dagger/trident mounts and the existing left-leading scythe/axe art.
     # A GUI reflection is confined to the specific right-leading points and foci.
     if shape in ('spear', 'wand') or key == 'ripple_bow' or shape == 'bow' and key.startswith('counter_'):

@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 export UWU_VISIT=network-weapon-polish
+if [[ -n "${UWU_GRIP_VARIANT:-}" ]]; then
+  production=HEAD
+  if [[ "$UWU_GRIP_VARIANT" = *before ]]; then production="${UWU_GRIP_BASE:?}"; fi
+  git diff --exit-code "$production" -- src/main
+  echo "GRIP SOURCE server ${UWU_GRIP_VARIANT} $(git rev-parse "$production")"
+fi
 bash ci/get-mods.sh
 curl --retry 4 -fsSL 'https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0.jar' -o libs/opac.jar
 echo '77eadbbb7cbd7298d9a99070ebde552b765dd91bdad5054c9f845a17d2931765  libs/opac.jar' | sha256sum -c -
@@ -25,6 +31,10 @@ for role in archer witness; do
     git archive "${UWU_GRIP_BASE:?}" src/main | tar -x -C "$world/$role"
   else
     git archive HEAD | tar -x -C "$world/$role"
+  fi
+  if [[ -n "${UWU_GRIP_VARIANT:-}" ]]; then
+    diff -qr src/main "$world/$role/src/main"
+    echo "GRIP SOURCE $role matches server on $UWU_GRIP_VARIANT"
   fi
   cp -a libs "$world/$role/libs"
   cp build/weapon-compat/*.jar "$world/$role/libs/"
