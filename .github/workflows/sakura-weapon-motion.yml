@@ -2,12 +2,6 @@ name: Sakura travelling weapon effects
 on:
   push:
     branches: [feature/sakura-weapon-polish-beta13]
-    paths:
-      - 'src/main/java/dev/uwu/dimension/ScytheClientInput.java'
-      - 'src/main/java/dev/uwu/dimension/mixin/ScytheAttackInputMixin.java'
-      - 'ci/probe/java/dev/uwu/test/NetworkMotion*.java'
-      - 'ci/weapon-motion-network.sh'
-      - '.github/workflows/sakura-weapon-motion.yml'
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:

@@ -42,6 +42,9 @@ public final class BlossomArtsProof {
     private static UUID originalFlower;
     private static Husk rooted, frozen, windTarget, windBystander, enterWater;
     private static Husk healingEnemy, expiredAlly;
+    private static float enemyInitialHealth, expiredInitialHealth;
+    private static int enemyHealEvents, expiredHealEvents;
+    private static java.util.function.Consumer<net.neoforged.neoforge.event.entity.living.LivingHealEvent> negativeHealWatch;
     private static List<net.minecraft.world.entity.animal.axolotl.Axolotl> healingCompanions;
     private static float windStart, bystanderStart;
     private static final List<Entity> actors = new ArrayList<>();
@@ -58,6 +61,34 @@ public final class BlossomArtsProof {
     }
 
     private static Class<?> arts() throws Exception { return Class.forName("dev.uwu.dimension.BlossomArts"); }
+
+    private static void watchNegativeHealing() {
+        enemyInitialHealth = healingEnemy.getHealth(); expiredInitialHealth = expiredAlly.getHealth();
+        enemyHealEvents = expiredHealEvents = 0;
+        negativeHealWatch = event -> {
+            if (event.getEntity() != healingEnemy && event.getEntity() != expiredAlly) return;
+            boolean enemy = event.getEntity() == healingEnemy;
+            System.out.println("BLOSSOM NEGATIVE HEAL control=" + (enemy ? "other-caster-enemy" : "expired-owner")
+                    + " tick=" + event.getEntity().level().getGameTime() + " health=" + event.getEntity().getHealth()
+                    + " amount=" + event.getAmount() + " canceled=" + event.isCanceled());
+            if (event.getAmount() > 0) {
+                if (enemy) enemyHealEvents++; else expiredHealEvents++;
+            }
+        };
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST,
+                false, net.neoforged.neoforge.event.entity.living.LivingHealEvent.class, negativeHealWatch);
+    }
+
+    private static void finishNegativeHealing() {
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(negativeHealWatch);
+        negativeHealWatch = null;
+        System.out.println("BLOSSOM NEGATIVE HEAL SUMMARY enemyEvents=" + enemyHealEvents + " expiredEvents=" + expiredHealEvents
+                + " enemyHealth=" + enemyInitialHealth + "->" + healingEnemy.getHealth()
+                + " expiredHealth=" + expiredInitialHealth + "->" + expiredAlly.getHealth());
+        require(enemyHealEvents == 0 && expiredHealEvents == 0, "healing event reached an enemy or expired ownership tag");
+        require(healingEnemy.getHealth() <= enemyInitialHealth && expiredAlly.getHealth() <= expiredInitialHealth,
+                "negative control gained health without an accepted heal event");
+    }
 
     private static Husk mob(ServerLevel level, double x, double z) {
         Husk mob = EntityType.HUSK.create(level);
@@ -248,9 +279,16 @@ public final class BlossomArtsProof {
                 pet.setNoAi(true); pet.setNoGravity(true); pet.setHealth(4); actors.add(pet);
             }
             healingEnemy = mob(level, 6.1, 3.5); healingEnemy.setHealth(50);
+            // A follow-up Vesper landing has a legitimate 10% charm proc. Give the enemy a native
+            // charm to a DIFFERENT keeper so it stays hostile to this field and cannot be randomly recruited.
+            require((boolean) invoke(Class.forName("dev.uwu.dimension.HeartMagic"), "charm",
+                    new Class<?>[]{ServerLevel.class, net.minecraft.world.entity.player.Player.class,
+                        net.minecraft.world.entity.LivingEntity.class, boolean.class, int.class}, null,
+                    level, glitchOwner, healingEnemy, false, 200), "other-keeper negative control charm rejected");
             expiredAlly = mob(level, 6.1, 5.6); expiredAlly.setHealth(50);
             expiredAlly.getPersistentData().putUUID("uwu.twin_owner", owner.getUUID());
             expiredAlly.getPersistentData().putLong("uwu.twin_end", level.getGameTime() - 1);
+            watchNegativeHealing();
             charmedHealingPulse(level);
             owner.setHealth(10); started = level.getGameTime(); phase = 2; return false;
         }
@@ -297,13 +335,13 @@ public final class BlossomArtsProof {
             phase = 3;
         }
         if (phase == 3 && age >= 86) {
+            finishNegativeHealing();
             require(!owner.getPersistentData().contains(FLOWER) && !owner.getPersistentData().contains("uwu.art_puddle")
                     && !owner.getPersistentData().contains("uwu.art_vortex"), "expired field leaked");
             require(!rooted.getPersistentData().contains("uwu.art_root") && !frozen.getPersistentData().contains("uwu.art_ice"), "target geometry leaked past expiry");
             require(owner.getHealth() >= 13.9F && owner.getHealth() <= 14.1F, "field healed wrong total: " + owner.getHealth());
             require(healingCompanions.stream().allMatch(pet -> pet.getHealth() >= 7.9F && pet.getHealth() <= 8.1F),
                     "healing field missed an actual owned summoned companion or healed too many pulses");
-            require(healingEnemy.getHealth() == 50 && expiredAlly.getHealth() == 50, "healing field healed an enemy or expired ownership tag");
             require(windStart - windTarget.getHealth() >= 1.9F && windStart - windTarget.getHealth() <= 3.1F,
                     "wind primary target not hit two/three times: " + (windStart - windTarget.getHealth()));
             require(Math.abs(bystanderStart - windBystander.getHealth() - 3) < .1F,
