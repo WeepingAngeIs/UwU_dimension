@@ -114,7 +114,7 @@ public final class GripReviewClient {
 
         if(!(mc.level.getEntity(Integer.parseInt(task.getProperty("shooter"))) instanceof Player actor)){status("awaiting shooter entity");return;}
         var remote=mc.level.players().stream().filter(p->p!=mc.player).findFirst().orElse(null);
-        if(remote==null||!FiguraPivotProof.ready(mc,remote.getUUID())){status("awaiting Figura fixture");return;}
+        if(remote==null||!System.getenv("UWU_GRIP_VARIANT").startsWith("native-")&&!FiguraPivotProof.ready(mc,remote.getUUID())){status("awaiting Figura fixture");return;}
         mc.options.setCameraType(cameraType());
         boolean originalDiagonal = task.getProperty("view").equals("original-diagonal");
         mc.options.hideGui=!SHOOTER && !originalDiagonal;

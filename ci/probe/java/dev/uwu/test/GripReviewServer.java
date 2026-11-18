@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
+import java.util.LinkedHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +33,17 @@ final class GripReviewServer {
         new Camera("above", 0, 4.65, 1.2), new Camera("low-three-quarter", 2.65, .25, 2.15),
         new Camera("original-diagonal", 3, 1.62, 3)
     };
+    private static final int[] ORDER=buildOrder();
+    private static int[] buildOrder(){
+        var rows=new LinkedHashSet<Integer>();
+        // Capture the matched rear, true front and local F5 views before other angles.
+        for(int hold:new int[]{0,5,3}) for(int angle:new int[]{1,0}) rows.add(hold*VIEWS.length+angle);
+        if(VARIANT==null || !VARIANT.startsWith("native-")){
+            for(int i=0;i<HOLDS.length*VIEWS.length;i++) rows.add(i);
+        }
+        return rows.stream().mapToInt(Integer::intValue).toArray();
+    }
+    private static int row(){return ORDER[scene];}
     private static ServerPlayer archer, witness;
     private static int scene, phase;
     private static long began;
@@ -39,11 +51,11 @@ final class GripReviewServer {
 
     private static void task(String stage) throws Exception {
         var p = new Properties();
-        var view=VIEWS[scene%VIEWS.length];
+        var view=VIEWS[row()%VIEWS.length];
         p.setProperty("id", Integer.toString(scene));
         p.setProperty("state", stage);
-        p.setProperty("item", HOLDS[scene/VIEWS.length].item());
-        p.setProperty("hand", HOLDS[scene/VIEWS.length].hand());
+        p.setProperty("item", HOLDS[row()/VIEWS.length].item());
+        p.setProperty("hand", HOLDS[row()/VIEWS.length].hand());
         p.setProperty("view", view.name());
         p.setProperty("shooter", Integer.toString(archer.getId()));
         p.setProperty("eyeX", Double.toString(.5+view.x()));
@@ -75,17 +87,17 @@ final class GripReviewServer {
             // Keep the low camera above the floor without lowering the actor or moving its pivot.
             archer.teleportTo(level,.5,113,.5,0,0);
         }
-        if(scene>=HOLDS.length*VIEWS.length){
+        if(scene>=ORDER.length){
             Files.writeString(SYNC.resolve("polish-complete"),"review complete");
             System.out.println("POLISH NETWORK PASS grip review "+scene+" directed poses");
             finished=true;return;
         }
         if(phase==0){
-            String key=HOLDS[scene/VIEWS.length].item();
+            String key=HOLDS[row()/VIEWS.length].item();
             var item=BuiltInRegistries.ITEM.getOptional(key.contains(":")?ResourceLocation.parse(key):ResourceLocation.fromNamespaceAndPath("uwudimension",key)).orElseThrow();
-            var camera=VIEWS[scene%VIEWS.length];
-            boolean offhand = HOLDS[scene/VIEWS.length].hand().equals("offhand");
-            archer.setMainArm(HOLDS[scene/VIEWS.length].hand().equals("left")?HumanoidArm.LEFT:HumanoidArm.RIGHT);
+            var camera=VIEWS[row()%VIEWS.length];
+            boolean offhand = HOLDS[row()/VIEWS.length].hand().equals("offhand");
+            archer.setMainArm(HOLDS[row()/VIEWS.length].hand().equals("left")?HumanoidArm.LEFT:HumanoidArm.RIGHT);
             archer.setItemInHand(InteractionHand.MAIN_HAND,offhand ? ItemStack.EMPTY : new ItemStack(item));
             archer.setItemInHand(InteractionHand.OFF_HAND,offhand ? new ItemStack(item) : ItemStack.EMPTY);
             archer.getCooldowns().removeCooldown(item);
@@ -98,8 +110,9 @@ final class GripReviewServer {
         String flag=phase==1?"ready":"done";
         if(!Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-archer")) || !Files.exists(SYNC.resolve("grip-"+scene+"-"+flag+"-witness")))return;
         if(phase==1){task("go");phase=2;return;}
-        System.out.println("GRIP SCENE "+scene+" "+HOLDS[scene/VIEWS.length].item()+" "+VIEWS[scene%VIEWS.length].name());
+        System.out.println("GRIP SCENE "+scene+" "+HOLDS[row()/VIEWS.length].item()+" "+VIEWS[row()%VIEWS.length].name());
         scene++;phase=0;
+        if(scene==6)Files.writeString(SYNC.resolve("grip-first-complete"),"rear/front photographs ready");
     }
 }
 

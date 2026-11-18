@@ -20,7 +20,7 @@ python ci/wish-natives.py "$world/natives"
 cp libs/{cobblemon,lootr,kotlinforforge,another_furniture-neoforge-4.0.2,simplyswords,fzzy_config,architectury,simplytooltips,opac}.jar build/libs/*.jar build/expedition/*.jar "$world/mods/"
 if [[ "$WISH_COMBAT" = bettercombat ]]; then cp libs/{bettercombat,playeranimator,cloth-config}.jar "$world/mods/"; fi
 for role in archer witness; do
-  if [[ "${UWU_GRIP_VARIANT:-}" = before ]]; then
+  if [[ "${UWU_GRIP_VARIANT:-}" = *before ]]; then
     git archive HEAD -- . ':(exclude)src/main' | tar -x -C "$world/$role"
     git archive "${UWU_GRIP_BASE:?}" src/main | tar -x -C "$world/$role"
   else

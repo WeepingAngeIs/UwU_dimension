@@ -1,4 +1,4 @@
-"""Mark wrist sides on a copied Figura review fixture, retaining geometry and item pivots."""
+"""Align the isolated Figura review rig to canonical Blockbench arm axes and mark each wrist."""
 import base64
 import json
 from pathlib import Path
@@ -40,5 +40,22 @@ for part in avatar["elements"]:
         assert face["uv"] == [0, 0, 16, 16]
         # Keep the cap cream rather than wrapping the side's stripe over it.
         face["uv"] = [start, 0, start + 8, 1 if direction in ("up", "down") else 16]
+# Figura/Blockbench uses positive local X on the character's anatomical right.
+# The older generic compatibility fixture used the opposite X for all its
+# sleeve geometry and item pivots. Correct both as a pair in the review copy.
+for part in avatar["elements"]:
+    old_min, old_max = part["from"][0], part["to"][0]
+    part["from"][0], part["to"][0] = -old_max, -old_min
+    if "origin" in part:
+        part["origin"][0] *= -1
+for arm in avatar["outliner"]:
+    arm["origin"][0] *= -1
+    pivot = next(n for n in arm["children"] if isinstance(n, dict) and n["name"].endswith("ItemPivot"))
+    pivot["origin"][0] *= -1
+    pivot["origin"][2] = -1
+    assert (pivot["origin"][0] > 0) == (arm["name"] == "RightArm")
+lua_file = model_file.with_name("script.lua")
+with lua_file.open("a", encoding="utf-8") as out:
+    out.write("\nvanilla_model.LEFT_SLEEVE:setVisible(false)\nvanilla_model.RIGHT_SLEEVE:setVisible(false)\n")
 model_file.write_text(json.dumps(avatar, separators=(",", ":")), encoding="utf-8")
 

@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [before, after]
+        variant: [before, after, native-before, native-after]
     env:
       WISH_COMBAT: bettercombat
       UWU_GRIP_VARIANT: ${{ matrix.variant }}
@@ -26,10 +26,30 @@ jobs:
         with: {distribution: temurin, java-version: '21'}
       - uses: gradle/actions/setup-gradle@v4
       - name: Use the approved baseline production code on the before server
-        if: matrix.variant == 'before'
+        if: endsWith(matrix.variant, 'before')
         run: git restore --source="$UWU_GRIP_BASE" --worktree -- src/main
       - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 iproute2 xdotool
-      - run: bash ci/weapon-polish-network.sh
+      - name: Photograph the review and publish the first matched angles
+        shell: bash
+        run: |
+          (set +e; bash ci/weapon-polish-network.sh; echo $? > "$RUNNER_TEMP/grip-exit") > "$RUNNER_TEMP/grip.log" 2>&1 < /dev/null &
+          world=build/weapon-polish-network
+          until [[ -f "$world/sync/grip-first-complete" ]]; do
+            if [[ -f "$RUNNER_TEMP/grip-exit" ]]; then tail -80 "$RUNNER_TEMP/grip.log"; exit 1; fi
+            sleep 2
+          done
+          mkdir -p build/grip-first
+          find "$world" -path '*/screenshots/*' -type f -name '*rest.png' -exec cp '{}' build/grip-first/ ';'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: initial-${{ matrix.variant }}
+          path: build/grip-first/*.png
+      - name: Complete the requested angles and attack sequences
+        shell: bash
+        run: |
+          until [[ -f "$RUNNER_TEMP/grip-exit" ]]; do sleep 2; done
+          tail -35 "$RUNNER_TEMP/grip.log"
+          exit "$(cat "$RUNNER_TEMP/grip-exit")"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
