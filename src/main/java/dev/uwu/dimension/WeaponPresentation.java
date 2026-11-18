@@ -16,11 +16,6 @@ public final class WeaponPresentation {
 
     private WeaponPresentation() {}
 
-    public static boolean isFirstPersonViewer(LivingEntity entity) {
-        var client = net.minecraft.client.Minecraft.getInstance();
-        return client.getCameraEntity() == entity && client.options.getCameraType().isFirstPerson();
-    }
-
     public static void idleScythe(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm) {
         if (entity.isUsingItem() || entity.swinging || model.attackTime > 0
                 || entity.isFallFlying() || entity.isVisuallySwimming()) return;

@@ -121,13 +121,15 @@ def mounts(key, shape, image):
             }
         result['ground'] = transform([0, 0, 0], [0, 4 if shape == 'scythe' else 3, 0], [floor, floor, .5])
         if key == 'vesper_scythe':
-            # Open the sprite plane 17 degrees from edge-on and cant the staff
-            # outward 26 degrees around the lower wrap in each anatomical hand.
-            scale = [tp, tp, .82]
-            result['thirdperson_righthand'] = grip_mount(image, (9, 22), (.5, .5, .5),
-                                                        [-55.11, -59.26, -4.06], scale)
-            result['thirdperson_lefthand'] = grip_mount(image, (9, 22), (-.5, .5, .5),
-                                                       [55.11, 59.26, -114.06], scale, left=True)
+            # Soulrender's shaft runs from (9,22) to (19,12); Vesper's runs
+            # from (10,22) to (20,12) on the same 32 px canvas. Preserve the
+            # native right-hand orientation and register that one-pixel offset.
+            # R_y(-90) R_z(55) maps the sprite X offset into mount Y and Z.
+            roll = math.radians(55)
+            shift = 16 / image.width * 1.75
+            result['thirdperson_righthand'] = transform(
+                [0, -90, 55], [0, round(8 - shift * math.sin(roll), 4),
+                               round(.5 - shift * math.cos(roll), 4)], [1.75, 1.75, .85])
         elif key == 'frost_whip':
             # The whip's handle is well below its coiled head in this sprite.
             # Keep its existing orientation and seat the lower grip in the left palm.
