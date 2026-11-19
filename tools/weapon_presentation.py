@@ -130,6 +130,14 @@ def mounts(key, shape, image):
             result['thirdperson_righthand'] = transform(
                 [0, -90, 55], [0, round(8 - shift * math.sin(roll), 4),
                                round(.5 - shift * math.cos(roll), 4)], [1.75, 1.75, .85])
+        elif key == 'bellheart_axe':
+            # Put the wrap immediately above the brass pommel in the palm.
+            # Rest and swing share the same held model and grip pixel.
+            for hand in ('righthand', 'lefthand'):
+                view = 'thirdperson_' + hand
+                result[view] = grip_mount(image, (7, 24), (0, .5, .5),
+                                          result[view]['rotation'], [1.50, 1.50, .75],
+                                          left=hand == 'lefthand')
         elif key == 'frost_whip':
             # Enlarge the coil around the middle of the wrapped handle. Each palm
             # keeps the point it already touched at the previous .9813 scale.

@@ -19,12 +19,13 @@ import net.minecraft.world.level.block.Blocks;
 
 final class GripReviewServer {
     static final String VARIANT = System.getenv("UWU_GRIP_VARIANT");
-    private static final boolean SNOWKISS = "snowkiss".equals(System.getenv("UWU_GRIP_SUITE"));
+    private static final String REVIEW_ITEM = System.getenv().getOrDefault("UWU_GRIP_ITEM", "");
     private static final Path SYNC = Path.of(System.getenv().getOrDefault("WISH_SYNC_DIR", "."));
     private record Hold(String item, String hand) { }
-    private static final Hold[] HOLDS = SNOWKISS ? new Hold[] {
-        new Hold("frost_whip", "right-shield"), new Hold("frost_whip", "right"),
-        new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand")
+    private static final Hold[] HOLDS = !REVIEW_ITEM.isEmpty() ? new Hold[] {
+        new Hold(REVIEW_ITEM, REVIEW_ITEM.equals("bellheart_axe") ? "right" : "right-shield"),
+        new Hold(REVIEW_ITEM, REVIEW_ITEM.equals("bellheart_axe") ? "right-shield" : "right"),
+        new Hold(REVIEW_ITEM, "left"), new Hold(REVIEW_ITEM, "offhand")
     } : new Hold[] {
         new Hold("vesper_scythe", "right"), new Hold("vesper_scythe", "left"),
         new Hold("frost_whip", "right"), new Hold("frost_whip", "left"), new Hold("frost_whip", "offhand"),
@@ -41,8 +42,8 @@ final class GripReviewServer {
     private static final int[] ORDER=buildOrder();
     private static int[] buildOrder(){
         var rows=new LinkedHashSet<Integer>();
-        if(SNOWKISS){
-            // Publish the true shield pairing first. Test both actual hands with and without a shield.
+        if(!REVIEW_ITEM.isEmpty()){
+            // Publish the priority grip from six angles, then compare the other hands.
             for(int angle:new int[]{1,0,3,2,4,5})rows.add(angle);
             int[] angles = VARIANT.startsWith("native-") ? new int[]{0,1,2,3,4} : new int[]{0,1,2,3,4,5,6};
             for(int hold=0;hold<HOLDS.length;hold++)for(int angle:angles)rows.add(hold*VIEWS.length+angle);

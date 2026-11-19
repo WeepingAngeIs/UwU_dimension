@@ -1,7 +1,7 @@
 name: Sakura hand grip review
 on:
   push:
-    branches: [review/sakura-grips-pass-1, review/sakura-snowkiss-grip]
+    branches: [review/sakura-grips-pass-1, review/sakura-snowkiss-grip, review/sakura-bellheart-grip]
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
@@ -18,8 +18,8 @@ jobs:
     env:
       WISH_COMBAT: bettercombat
       UWU_GRIP_VARIANT: ${{ matrix.variant }}
-      UWU_GRIP_SUITE: ${{ github.ref_name == 'review/sakura-snowkiss-grip' && 'snowkiss' || 'vesper' }}
-      UWU_GRIP_BASE: ${{ github.ref_name == 'review/sakura-snowkiss-grip' && '3ce8cca4a6e8337760d9c2b70bc62a59a5be486c' || 'b439443' }}
+      UWU_GRIP_ITEM: ${{ github.ref_name == 'review/sakura-bellheart-grip' && 'bellheart_axe' || github.ref_name == 'review/sakura-snowkiss-grip' && 'frost_whip' || '' }}
+      UWU_GRIP_BASE: ${{ github.ref_name == 'review/sakura-bellheart-grip' && '8de4ceecbd758869e7700447dacce1b3957e8648' || github.ref_name == 'review/sakura-snowkiss-grip' && '3ce8cca4a6e8337760d9c2b70bc62a59a5be486c' || 'b439443' }}
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}

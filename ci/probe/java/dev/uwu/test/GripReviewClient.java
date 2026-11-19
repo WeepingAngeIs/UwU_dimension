@@ -147,7 +147,7 @@ public final class GripReviewClient {
             status("awaiting equipment actual="+item+" arm="+actor.getMainArm()+" expected="+expectedID+" "+arm);
             return;
         }
-        if ("snowkiss".equals(System.getenv("UWU_GRIP_SUITE"))) {
+        if (!System.getenv().getOrDefault("UWU_GRIP_ITEM", "").isEmpty()) {
             boolean shield=task.getProperty("hand").equals("right-shield");
             var other=offhand?actor.getMainHandItem():actor.getOffhandItem();
             boolean paired = shield ? other.is(net.minecraft.world.item.Items.SHIELD) : other.isEmpty();
