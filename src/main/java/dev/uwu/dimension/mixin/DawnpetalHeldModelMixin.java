@@ -34,7 +34,7 @@ abstract class DawnpetalHeldModelMixin {
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         if ((context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
                 && (stack.is(RevivalBlossoms.AXE.get()) || stack.is(RevivalBlossoms.DIRK.get()))) {
-            RevivalHandPose.observeAnimatedHands(player, context, partial);
+            RevivalHandPose.observeAnimatedHands(player, partial);
         }
         if (!stack.is(RevivalBlossoms.AXE.get())) return model;
         if (context.firstPerson() && RevivalHandPose.drawsAxe(stack)) return RevivalHandPose.restingAxe(model);

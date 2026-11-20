@@ -44,7 +44,10 @@ final class GripRecoveryProbe {
         final String label;
         float previousY = Float.NEGATIVE_INFINITY;
         float lowestY = 0F;
+        float firstEquip = Float.NaN;
+        float lastMovingY;
         int recoveryFrames;
+        int risingSteps;
         int idleFrames;
 
         Slide(Draw idle, ItemStack rendered) {
@@ -57,26 +60,33 @@ final class GripRecoveryProbe {
             Matrix4f transform = current.transform();
             Matrix4f target = idle.transform();
             float deltaY = transform.m31() - target.m31();
+            if (Float.isNaN(firstEquip)) firstEquip = current.equip();
             require(new Matrix4f(transform).setTranslation(transform.m30(), target.m31(), transform.m32()).equals(target, EPSILON),
-                    label + " changed angle, scale, or sideways position during recovery");
+                    label + " changed angle, scale, or sideways position during recovery, equip=" + current.equip()
+                            + ", relative Y=" + deltaY);
             require(deltaY <= EPSILON, label + " rose above the approved idle grip");
             require(deltaY + EPSILON >= previousY, label + " moved down during the recovery rise");
-            previousY = deltaY;
             lowestY = Math.min(lowestY, deltaY);
             if (deltaY < -EPSILON) {
+                if (recoveryFrames != 0 && deltaY > previousY + EPSILON) risingSteps++;
                 recoveryFrames++;
+                lastMovingY = deltaY;
                 idleFrames = 0;
             } else {
                 // The complete transform, including Y, matches the original idle pose here.
                 idleFrames++;
             }
+            previousY = deltaY;
         }
 
         void finish() {
-            require(recoveryFrames >= 2 && lowestY < -.01F,
-                    label + " skipped the visible rise from below the approved grip");
+            require(recoveryFrames >= 2 && risingSteps >= 1 && lowestY < -.01F,
+                    label + " skipped the visible rise from below the approved grip, moving frames=" + recoveryFrames
+                            + ", rising steps=" + risingSteps + ", lowest relative Y=" + lowestY
+                            + ", first vanilla equip=" + firstEquip);
             System.out.println("GRIP RECOVERY PASS " + label + " moving frames=" + recoveryFrames
-                    + " lowest relative Y=" + lowestY + " matching terminal frames=" + idleFrames);
+                    + " lowest relative Y=" + lowestY + " last moving Y=" + lastMovingY
+                    + " first vanilla equip=" + firstEquip + " matching terminal frames=" + idleFrames);
         }
     }
 

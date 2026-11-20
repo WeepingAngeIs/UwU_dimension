@@ -20,41 +20,53 @@ public final class RevivalHandPose {
     // Set only around the normal first-person draw, on the render thread.
     private static ItemStack idleAxe;
     private static AnimatedHands animatedHands;
+    private static double returnStarted = Double.NaN;
 
     private record AnimatedHands(WeakReference<Player> player, int tick, int slot,
             ItemStack main, ItemStack off) {
         boolean recent(Player owner) {
-            return player.get() == owner && owner.tickCount >= tick && owner.tickCount - tick <= 20;
+            return player.get() == owner && owner.tickCount >= tick && owner.tickCount - tick <= 10;
+        }
+
+        boolean stillHeld(Player owner) {
+            return slot == owner.getInventory().selected
+                    && ItemStack.isSameItemSameComponents(main, owner.getMainHandItem())
+                    && ItemStack.isSameItemSameComponents(off, owner.getOffhandItem());
         }
     }
 
     private RevivalHandPose() {}
 
-    public static void observeAnimatedHands(Player player, ItemDisplayContext view, float partial) {
+    public static void observeAnimatedHands(Player player, float partial) {
         Minecraft client = Minecraft.getInstance();
-        if (view.firstPerson() || !localFirstPerson(client, player)
+        if (!localFirstPerson(client, player) || player.isUsingItem() || player.isAutoSpinAttack()
                 || !DawnpetalSpinClient.animatorFirstPersonPass(player)
                 || DawnpetalSpinClient.renderFrame(player, partial) != null
                 || !ModList.get().isLoaded("bettercombat")) return;
         // Player Animator can finish after Better Combat's attack clock. Remember the actual
         // first-person attack pass until the ordinary hand renderer takes over.
         boolean continuing = animatedHands != null && animatedHands.recent(player)
-                && player.tickCount - animatedHands.tick() <= 1;
-        if (continuing && player.tickCount == animatedHands.tick()
-                && player.getInventory().selected == animatedHands.slot()
-                && player.getMainHandItem() == animatedHands.main()
-                && player.getOffhandItem() == animatedHands.off()) return;
+                && player.tickCount - animatedHands.tick() <= 1 && animatedHands.stillHeld(player);
+        if (continuing && player.tickCount == animatedHands.tick() && Double.isNaN(returnStarted)) return;
         if (BetterCombatAttack.active(client) || continuing) {
             animatedHands = new AnimatedHands(new WeakReference<>(player), player.tickCount,
                     player.getInventory().selected, player.getMainHandItem(), player.getOffhandItem());
+            returnStarted = Double.NaN;
         }
     }
 
-    public static boolean animatorRecovery(LivingEntity owner, InteractionHand hand, ItemStack rendered) {
-        if (!(owner instanceof Player player) || animatedHands == null || !animatedHands.recent(player)
-                || animatedHands.slot() != player.getInventory().selected) return false;
-        ItemStack animated = hand == InteractionHand.MAIN_HAND ? animatedHands.main() : animatedHands.off();
-        return ItemStack.isSameItemSameComponents(animated, rendered);
+    private static boolean animatorRecovery(Player player) {
+        return animatedHands != null && animatedHands.recent(player) && animatedHands.stillHeld(player);
+    }
+
+    // The animator can give the camera back after the native equip rise has already finished.
+    public static double recoveryDrop(LivingEntity owner, float partial, float equip) {
+        if (!(owner instanceof Player player) || !animatorRecovery(player)) return 0;
+        double time = player.tickCount + (double)partial;
+        if (Double.isNaN(returnStarted)) returnStarted = time;
+        double progress = Math.clamp((time - returnStarted) / 4, 0, 1);
+        double remain = 1 - progress * progress * (3 - 2 * progress);
+        return Math.max(0, .30 * remain - .6 * equip);
     }
 
     private static boolean localFirstPerson(Minecraft client, Player player) {
@@ -70,7 +82,7 @@ public final class RevivalHandPose {
                 || player.getAttackAnim(partial) != 0 || swing != 0
                 || !ItemStack.isSameItemSameComponents(rendered, player.getItemInHand(hand))) return false;
         if (DawnpetalSpinClient.renderFrame(player, partial) != null) return false;
-        if (animatorRecovery(player, hand, rendered)) {
+        if (animatorRecovery(player)) {
             return !BetterCombatAttack.windingUp(client);
         }
         if (ModList.get().isLoaded("bettercombat") && BetterCombatAttack.active(client)) return false;
