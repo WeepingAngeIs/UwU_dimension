@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Drives real server ticks in a short disposable patrol lane and enclosed door lanes. */
 @Mod("uwu_guardian_home_check")
 public final class GuardianHomeProbe {
-    private enum Phase { PREPARE, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, DOOR, DONE }
+    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, DOOR, DONE }
     private Phase phase = Phase.PREPARE;
     private int tick, phaseStarted;
     private ServerLevel level;
@@ -45,6 +45,14 @@ public final class GuardianHomeProbe {
         try {
             switch (phase) {
                 case PREPARE -> prepare(event.getServer().overworld());
+                case LOAD_ARENA -> {
+                    if (!arena.entitiesReady()) {
+                        require(elapsed() < 600, "Arena failed to reach entity-ticking status within 600 server ticks");
+                        return;
+                    }
+                    remoteEgg = arena.egg(remoteEggStart, false);
+                    next(Phase.PERSONAL);
+                }
                 case PERSONAL -> {
                     if (elapsed() < 6) return;
                     require(villageHome(remoteEgg) == null && savedCourt(remoteEgg).equals(remoteEggStart),
@@ -168,12 +176,18 @@ public final class GuardianHomeProbe {
         eggStart = court.west(7);
         remoteEggStart = court.offset(0, 0, 150);
         arena.floor(remoteEggStart, -3, 3, 3);
-        remoteEgg = arena.egg(remoteEggStart, false);
-        next(Phase.PERSONAL);
+        arena.floor(court, -11, 119, 2);
+        femaleHome = court.offset(0, 0, 200);
+        maleHome = femaleHome.south(10);
+        ironHome = maleHome.south(10);
+        femaleDoor = arena.doorLane(femaleHome, false);
+        maleDoor = arena.doorLane(maleHome, false);
+        ironDoor = arena.doorLane(ironHome, true);
+        // A force ticket loads terrain first. Entity visibility and ticking follow on later server ticks.
+        next(Phase.LOAD_ARENA);
     }
 
     private void seedSettlement() throws ReflectiveOperationException {
-        arena.floor(court, -11, 119, 2);
         plaza(court);
         natural = arena.natural(court);
         nearbyEgg = arena.egg(eggStart, true);
@@ -194,12 +208,6 @@ public final class GuardianHomeProbe {
     }
 
     private void startDoors() {
-        femaleHome = court.offset(0, 0, 200);
-        maleHome = femaleHome.south(10);
-        ironHome = maleHome.south(10);
-        femaleDoor = arena.doorLane(femaleHome, false);
-        maleDoor = arena.doorLane(maleHome, false);
-        ironDoor = arena.doorLane(ironHome, true);
         female = arena.egg(femaleHome, true);
         male = arena.egg(maleHome, false);
         iron = arena.egg(ironHome, true);

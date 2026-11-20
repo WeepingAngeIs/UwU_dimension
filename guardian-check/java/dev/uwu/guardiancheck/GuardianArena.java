@@ -29,6 +29,14 @@ final class GuardianArena {
         this.level = level;
     }
 
+    boolean entitiesReady() {
+        for (ChunkPos chunk : tickets) {
+            if (!level.areEntitiesLoaded(chunk.toLong())
+                    || !level.isPositionEntityTicking(chunk.getWorldPosition())) return false;
+        }
+        return !tickets.isEmpty();
+    }
+
     /** Keep only the short lanes this test touches entity-ticking. */
     void floor(BlockPos home, int fromX, int toX, int halfWidth) {
         for (int x = fromX; x <= toX; x++) {
@@ -81,6 +89,7 @@ final class GuardianArena {
     }
 
     BlossomWarden egg(BlockPos feet, boolean female) {
+        require(level.isPositionEntityTicking(feet), "Egg used before entity tracking at " + feet);
         var before = level.getEntitiesOfClass(BlossomWarden.class, new AABB(feet).inflate(5));
         var player = FakePlayerFactory.getMinecraft(level);
         var stack = People.guardianEgg(female);
@@ -89,8 +98,10 @@ final class GuardianArena {
         var result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         var after = level.getEntitiesOfClass(BlossomWarden.class, new AABB(feet).inflate(5))
                 .stream().filter(guard -> !before.contains(guard)).toList();
-        require(result.consumesAction() && after.size() == 1 && after.getFirst().female() == female,
-                "Real Guardian egg did not create its requested variant");
+        require(result.consumesAction() && stack.isEmpty(), "Guardian egg was not consumed at " + feet);
+        require(after.size() == 1, "Expected one new tracked Guardian at " + feet + ", found " + after.size());
+        require(after.getFirst().female() == female, "Guardian spawned with the wrong variant at " + feet
+                + ", expected female=" + female);
         return after.getFirst();
     }
 
