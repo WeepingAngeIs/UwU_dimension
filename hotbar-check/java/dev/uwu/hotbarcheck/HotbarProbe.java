@@ -6,11 +6,13 @@ import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.SharedAbilityHotbar;
 import dev.uwu.hotbarcheck.mixin.MouseCallbacks;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -23,8 +25,10 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModList;
 import net.neoforged.bus.api.EventPriority;
@@ -33,6 +37,7 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.spell_engine.api.spell.SpellDataComponents;
 import net.spell_engine.api.spell.container.SpellContainer;
 import net.spell_engine.client.input.SpellHotbar;
@@ -61,6 +66,10 @@ public final class HotbarProbe {
     private static volatile int turns, launches;
     private static volatile int axeLaunches;
     private static boolean axeLeftHeldSlot;
+    private static volatile Vec3 lanePosition;
+    private static volatile RelicFlight observedFlight;
+    private static volatile boolean serverSawEmpty, serverSawLanding;
+    private static volatile String flightProgress = "unlaunched";
     private static int useEvents, sent;
     private static volatile int received;
 
@@ -69,6 +78,7 @@ public final class HotbarProbe {
         NeoForge.EVENT_BUS.addListener(HotbarProbe::beforeFrame);
         NeoForge.EVENT_BUS.addListener(HotbarProbe::afterFrame);
         NeoForge.EVENT_BUS.addListener(HotbarProbe::joined);
+        NeoForge.EVENT_BUS.addListener(HotbarProbe::serverTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, HotbarProbe::useEvent);
     }
 
@@ -101,7 +111,9 @@ public final class HotbarProbe {
                 require(player.tickCount - began < (stage == Stage.FLIGHT || stage == Stage.AXE_FLIGHT ? 280 : 120),
                         "Timed out in " + stage + ", slot=" + player.getInventory().selected
                                 + ", icon frames=" + iconFrames + ", casts=" + launches + ", primes=" + turns
-                                + ", use events/sent/received=" + useEvents + "/" + sent + "/" + received);
+                                + ", use events/sent/received=" + useEvents + "/" + sent + "/" + received
+                                + ", observed empty client/server=" + (observedEmptyHand || axeLeftHeldSlot)
+                                + "/" + serverSawEmpty + ", landed=" + serverSawLanding + ", " + flightProgress);
             }
             Inventory inventory = player.getInventory();
             switch (stage) {
@@ -111,6 +123,7 @@ public final class HotbarProbe {
                             "Spell Engine conflict fixture did not load");
                     client.setWindowActive(true);
                     serverAction(client, actor -> {
+                        prepareLandingLane(actor);
                         actor.getInventory().selected = 0;
                         actor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, newDirk());
                         for (int slot = 1; slot <= 8; slot++) {
@@ -121,7 +134,8 @@ public final class HotbarProbe {
                     enter(Stage.EQUIP, player.tickCount);
                 }
                 case EQUIP -> {
-                    if (!hasDirk(player.getMainHandItem()) || iconFrames < 2 || SpellHotbar.INSTANCE.slots.isEmpty()) return;
+                    if (!hasDirk(player.getMainHandItem()) || iconFrames < 2 || SpellHotbar.INSTANCE.slots.isEmpty()
+                            || lanePosition == null || player.distanceToSqr(lanePosition) > .04 || player.getXRot() < 75) return;
                     require(SharedAbilityHotbar.visibleFor(player), "Held Dirk has no ability row");
                     requireCell(0);
                     for (int repeat = 0; repeat < 4; repeat++) {
@@ -217,6 +231,7 @@ public final class HotbarProbe {
                     requireCell(1);
                     require(inventory.selected == 0 && launches == 0, "Selecting Throw used it immediately");
                     if (player.getAttackStrengthScale(0) < 1F) return;
+                    resetFlightObservation();
                     enter(Stage.FLIGHT, player.tickCount);
                     rightClick(client);
                 }
@@ -228,6 +243,7 @@ public final class HotbarProbe {
                     if (launches == 0 || !observedEmptyHand || !hasDirk(player.getMainHandItem())) return;
                     require(launches == 1 && turns == 1 && inventory.selected == 0 && countDirks(inventory) == 1,
                             "Thrown Dirk did not return once and only once to its own held slot");
+                    require(serverSawEmpty && serverSawLanding, "Dirk returned without observed custody and landing");
                     require(sent == 2 && received == 2, "Two mapped mouse clicks did not each send exactly one ability");
                     requireCell(0);
                     require(iconFrames >= 4, "Missing live held-item icon observations");
@@ -274,13 +290,15 @@ public final class HotbarProbe {
                     require(inventory.selected == 4 && axeLaunches == 0, "Slot 2 switched or used the Axe before right-click");
                     requireCell(1);
                     if (player.getAttackStrengthScale(0) < 1F) return;
+                    resetFlightObservation();
                     enter(Stage.AXE_FLIGHT, player.tickCount);
                     rightClick(client);
                 }
                 case AXE_FLIGHT -> {
                     if (player.getMainHandItem().isEmpty()) axeLeftHeldSlot = true;
                     if (!axeLeftHeldSlot || axeLaunches == 0 || !hasAxe(player.getMainHandItem())) return;
-                    require(inventory.selected == 4 && axeLaunches == 1, "Axe Throw did not return to its original slot");
+                    require(inventory.selected == 4 && axeLaunches == 1 && serverSawEmpty && serverSawLanding,
+                            "Axe did not land and return to its original slot");
                     System.out.println("HOTBAR AXE PASS ordinary cell 5 and four ability cells without extra icon; real Spin and Throw");
                     System.out.println("HOTBAR CLIENT PASS");
                     stage = Stage.DONE;
@@ -377,11 +395,50 @@ public final class HotbarProbe {
         if (stage == Stage.FLIGHT && event.getEntity() instanceof RelicFlight flight
                 && flight.physical() && hasDirk(flight.getItem())) {
             launches++;
+            observedFlight = flight;
         }
         if (stage == Stage.AXE_FLIGHT && event.getEntity() instanceof RelicFlight flight
                 && flight.physical() && hasAxe(flight.getItem())) {
             axeLaunches++;
+            observedFlight = flight;
         }
+    }
+
+    private static void serverTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || (stage != Stage.FLIGHT && stage != Stage.AXE_FLIGHT)) return;
+        RelicFlight flight = observedFlight;
+        if (flight == null) return;
+        serverSawEmpty |= player.getMainHandItem().isEmpty();
+        serverSawLanding |= flight.landed();
+        flightProgress = "server slot=" + player.getInventory().selected + ", stack=" + player.getMainHandItem()
+                + ", pitch=" + player.getXRot() + ", flight ticks=" + flight.tickCount + ", returning=" + flight.returning()
+                + ", alive=" + flight.isAlive() + ", distance=" + Math.round(player.distanceTo(flight));
+    }
+
+    private static void resetFlightObservation() {
+        observedFlight = null;
+        serverSawEmpty = false;
+        serverSawLanding = false;
+        flightProgress = "unlaunched";
+    }
+
+    private static void prepareLandingLane(ServerPlayer player) {
+        // Keep the real projectile inside the ticking area. Aim at a solid nearby floor,
+        // so natural terrain and the world's random spawn facing cannot affect custody.
+        BlockPos floor = player.blockPosition().above(16);
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                BlockPos ground = floor.offset(x, 0, z);
+                player.serverLevel().setBlockAndUpdate(ground, Blocks.DEEPSLATE.defaultBlockState());
+                player.serverLevel().setBlockAndUpdate(ground.above(), Blocks.AIR.defaultBlockState());
+                player.serverLevel().setBlockAndUpdate(ground.above(2), Blocks.AIR.defaultBlockState());
+            }
+        }
+        lanePosition = Vec3.atBottomCenterOf(floor.above());
+        require(player.teleportTo(player.serverLevel(), lanePosition.x, lanePosition.y, lanePosition.z,
+                Set.of(), 0F, 82F), "Could not position player and aim at the fixture landing floor");
+        player.fallDistance = 0;
     }
 
     private static ItemStack newDirk() {
