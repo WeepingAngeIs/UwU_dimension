@@ -39,7 +39,7 @@ final class RevivalLotusTerrainLight {
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, "uwudimension");
     private static final String ID = "revival_lotus_light";
-    private static final java.util.function.Supplier<SourceBlock> LIGHT = BLOCKS.register(ID, SourceBlock::new);
+    private static final java.util.function.Supplier<SourceBlock> LIGHT = BLOCKS.register(ID, () -> new SourceBlock());
     private static final java.util.function.Supplier<BlockEntityType<Source>> SOURCE = ENTITIES.register(ID,
             () -> BlockEntityType.Builder.of(Source::new, LIGHT.get()).build(null));
     // Whole-tick samples of Astra's lighting.json. The remaining frames emit no block light.
