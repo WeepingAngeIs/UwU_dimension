@@ -1,0 +1,79 @@
+{
+  "sources": {
+    "Grips": {
+      "jar": "UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-grips.2.jar",
+      "version": "1.5.0-beta.13-combined-rc.2-grips.2",
+      "sha256": "fe28482201b368359d3dfd6da08f3e5a085f30deb211d93eff33415838dcf174"
+    },
+    "Lotus": {
+      "jar": "UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-lotus.1.jar",
+      "version": "1.5.0-beta.13-combined-rc.2-lotus.1",
+      "sha256": "ec5402b257584f23ed4c90e50e7984efab47421a86945e6944d5178da3d768f8"
+    },
+    "Hotbar": {
+      "jar": "UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-hotbar.1.jar",
+      "version": "1.5.0-beta.13-combined-rc.2-hotbar.1",
+      "sha256": "8596eda606b4794910a76f94c4383088ead828be3a47d24de86b18e64da71a0d"
+    }
+  },
+  "metadata": "cd26c3ae58e807d2e5fb1e80ae80c61c7b8e8c5a9e85a7a87c11b91e4beecf0f",
+  "unchanged": {
+    "count": 3938,
+    "sha256": "176ffc19764f693e4800f2e8b91b7e71d41c150a2899b3afa4ad1c01f84248ef"
+  },
+  "features": {
+    "Lotus": {
+      "entries": {
+        "assets/uwudimension/effects/revival_lotus_burst/lighting.json": "ad43d5b937485e3774e419f0b0bee0ac1e9b68adfdecdd81d3b6bdab9b33ade5",
+        "assets/uwudimension/effects/revival_lotus_burst/mesh.json": "f1fdb663313609b1a8e871bfe7f2a8eff38d95a92ecf7ee410008c1835d52c34",
+        "assets/uwudimension/effects/revival_lotus_burst/motion.json": "71a76cf543ac6c074f0fa2f554dc761a8e2d9059cfa36301f98d883bc15f6642",
+        "assets/uwudimension/textures/effect/revival_lotus_burst.png": "74b801074e758b763241bb24fcbe7f4e656e4f1feafc168734eebb79943499b7",
+        "assets/uwudimension/textures/effect/revival_lotus_burst.png.mcmeta": "70c94936472c179af32903a26e9576e0e79c1f17574d236037cb239b259987e9",
+        "assets/uwudimension/textures/effect/revival_lotus_burst_glow.png": "0f198af4df5ddfaf102e2c50bd958a7dcc99c58c9b88f721ce6389d11e4d493f",
+        "assets/uwudimension/textures/effect/revival_lotus_burst_glow.png.mcmeta": "70c94936472c179af32903a26e9576e0e79c1f17574d236037cb239b259987e9",
+        "assets/uwudimension/textures/effect/revival_lotus_halo.png": "79356b981dc34e38e6bf23df073b0314bf5530f06225c4a17c2b0ada8e736386",
+        "assets/uwudimension/textures/effect/revival_lotus_halo.png.mcmeta": "5ecd14569b77926061dae218b07af27a6d70787d6e92540574294a863796f896",
+        "dev/uwu/dimension/RevivalBloom$Cue.class": "e066cb490112d4fefd01b0d851609bd8a2dc1eb91fb977f47dab577e83d24c54",
+        "dev/uwu/dimension/RevivalBloom.class": "61e2fd297a6fb0e93783677df8fb249bcee030f7b2fa8d1667b3b4feca72dca1",
+        "dev/uwu/dimension/RevivalBloomProtection.class": "5c0aafdcd63beb9d7c14c1e6c9c6542a58fa6e89b61c9ab34a58baf9066c9a8b",
+        "dev/uwu/dimension/RevivalBlossoms$FlowerAxe.class": "68c8bc1ba2b46fc42fe470e963cd85f791bdedaac2272a8595fd967808cf05c4",
+        "dev/uwu/dimension/RevivalBlossoms$FlowerDirk.class": "263e51b294ee0909360a2404a5b0ec06fa6970d2b61d03452c26b6172ce87312",
+        "dev/uwu/dimension/RevivalBlossoms$Ledger.class": "8ada5719fe14edb7ac7fccf9520296443dac8927aaf27ecd47eb644b4ac20f15",
+        "dev/uwu/dimension/RevivalBlossoms.class": "6701c77509ac67eb321206ccf9365ddaf62bd6a09627ca43696b13c91f335db1",
+        "dev/uwu/dimension/RevivalLotusTerrainLight$Source.class": "5ecaeb4b5b7d3b5fe9c5611c5dca1117cf320f988f1c8c713eb3262e032dffbe",
+        "dev/uwu/dimension/RevivalLotusTerrainLight$SourceBlock.class": "02388d30db49752bd19fedff324855e3381891e8a2e999a077b9b9f469b19736",
+        "dev/uwu/dimension/RevivalLotusTerrainLight.class": "82a21fc21b87185e9a2b708fa9bed68501fddfdd2c286016bbef5d146a32233e",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Burst.class": "bf995ca8e2bbae6e5b024ef16dd60564eaa2c60fadfbc2caaf9673fd5e25496c",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Halo.class": "affd2a6d3c54d3557096a357a0e8129d37f9b96a4556c84bfed94783d6bc0a2a",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Key.class": "116f69096b423ddcb1f37e25dcf607791ad9b5732c7a6408e8c378a723b41a7f",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Mesh.class": "0c7673c17a01e0c629163057063d00ee09f274956522beea2b377fdadc08cb26",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Model.class": "c8760db6b7c9f30a910b90c1f05f94fee09f3ed034f47ef5c5feb402d672a6b5",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient$Resources.class": "fca955ae3ccacfdc81135c93c9eb60d2b6dd598447fdc58b4560a96ff148b0ff",
+        "dev/uwu/dimension/client/RevivalLotusBurstClient.class": "dc841496c76a2e4d03914117619c4b3493228968241662d5e17047b2e8c4438f"
+      },
+      "removed": []
+    },
+    "Hotbar": {
+      "entries": {
+        "assets/uwudimension/lang/en_us.json": "82807c2d2e6681656e9a09bc6a98661016c83f10f84548f8fcd28020872dd385",
+        "dev/uwu/dimension/DawnpetalAbilities$Spin.class": "6cf11cd8cc47f46c2f3cbf6eaab839181b245275e329a74b199d36537077acd6",
+        "dev/uwu/dimension/DawnpetalAbilities$Use.class": "d3caaa018ed45e2a817354dfdc89b59944a2c8d709ad8339ea2be61f0180a409",
+        "dev/uwu/dimension/DawnpetalAbilities.class": "e55b888a19d6bc5219a36b2820addd0571d33c376a36ed171ed54b3a50c34239",
+        "dev/uwu/dimension/DawnpetalAbility.class": "4186450ea35cb4cbfe05483007344b2586943333a5ad4a2b70dccba8d333b764",
+        "dev/uwu/dimension/RelicFlight$1.class": "1e8dfe101f72b16d6390d0473bbc102d745682ae6b21d72d86c4165c476ab183",
+        "dev/uwu/dimension/RelicFlight.class": "459d1faabfd98db65dee0839c7a85b48fe19de8346f367ad2c11fea4d41b99f9",
+        "dev/uwu/dimension/SharedAbilityHotbar$1.class": "f5ac72b691b549dc24cb0326051fe1e60420bc398139ceeb3cb2f3286ba7bd60",
+        "dev/uwu/dimension/SharedAbilityHotbar$Action.class": "5d1de8b3ff0ebcb9f9be0f589a6211d3f1621485b70aeb2466adeb52fc0decbc",
+        "dev/uwu/dimension/SharedAbilityHotbar.class": "fb0ecab0559a065fd26dd85bfb1b1b58f2f9ae99c0e81fd9a28f134c8421616b",
+        "dev/uwu/dimension/mixin/SharedAbilityGuiMixin.class": "299c464482a9bf330568f75dee050910a495d073bb2eb3ea43340edb125137c3",
+        "dev/uwu/dimension/mixin/SharedAbilityInputMixin.class": "2c5f4fbcc276a24e1179dbffb98e35308160768be9d56f6acfd6be8e5775292c",
+        "dev/uwu/dimension/mixin/SharedAbilitySpellHotbarMixin.class": "c33df6fa1c0c01ec615aab876139f010a33faaa70da80d2fbdfbf967d5668988",
+        "uwudimension.mixins.json": "f1fcc4fbd62cdd4400c274143f6b122aea524747f8dcf52e0a37a5bd473620b3"
+      },
+      "removed": [
+        "dev/uwu/dimension/DawnpetalAbilityClient.class",
+        "dev/uwu/dimension/mixin/DawnpetalAbilityKeyMixin.class"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+gradle.projectsEvaluated {
+    def project = gradle.rootProject
+    def compile = project.tasks.register('compileLotusProbe', JavaCompile) {
+        source(project.fileTree('lotus-check/java') { include '**/*.java' })
+        classpath = project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        destinationDirectory.set(project.layout.buildDirectory.dir('lotus-check/classes'))
+        javaCompiler.set(project.tasks.named('compileJava', JavaCompile).flatMap { it.javaCompiler })
+        options.release.set(21)
+    }
+    project.tasks.register('lotusProbeJar', Jar) {
+        archiveFileName.set('lotus-probe.jar')
+        destinationDirectory.set(project.layout.buildDirectory.dir('lotus-check'))
+        from(compile.flatMap { it.destinationDirectory })
+        from(project.file('lotus-check/resources'))
+    }
+}

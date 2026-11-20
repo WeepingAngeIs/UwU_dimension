@@ -1,0 +1,60 @@
+name: UwU Dimension combined RC.2 playtest
+on:
+  push:
+    branches: ['codex/build/uwu-rc2-playtest-combined']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.1'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.1.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build once and compare the three verified components
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 parity/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+      - name: Prepare the disposable client display
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+      - name: Verify the recovery slide in both hands
+        run: bash held-check/run.sh
+      - name: Verify shared hotbar and both returning weapons with Spell Engine
+        run: bash hotbar-check/run.sh
+      - name: Verify real damage immunity, expiry and overlapping ground light
+        run: bash lotus-check/run.sh "$UWU_JAR"
+      - name: Verify the first-person bloom and shader-off ground light
+        run: bash lotus-client-check/run.sh
+      - name: Record the tested JAR digest
+        id: verified
+        run: |
+          python3 parity/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the single verified playtest JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.verified.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "COMBINED DELIVERY SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

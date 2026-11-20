@@ -1,0 +1,54 @@
+name: Lotus of Life revive protection on RC.2
+on:
+  push:
+    branches: ['codex/build/uwu-lotus-revive']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      LOTUS_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-lotus.1.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build the mod and verify the Lotus timeline
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 lotus-release/verify.py "$LOTUS_JAR"
+      - name: Verify successful, expired and refused revives
+        run: bash lotus-check/run.sh "$LOTUS_JAR"
+      - name: Verify Lotus draw and ground light in a shader-off client
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+          bash lotus-client-check/run.sh
+      - name: Record the tested JAR digest
+        id: verified
+        run: |
+          python3 lotus-release/verify.py "$LOTUS_JAR"
+          echo "sha=$(sha256sum "$LOTUS_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.LOTUS_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.verified.outputs.sha }}
+          ARTIFACT_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${ARTIFACT_SHA#sha256:}"
+          echo "LOTUS DELIVERY SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

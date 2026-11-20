@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_hotbar_check"
+version="1.0"
+displayName="Disposable shared ability hotbar check"
+[[mixins]]
+config="uwu_hotbar_check.mixins.json"

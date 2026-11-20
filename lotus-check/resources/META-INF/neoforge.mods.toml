@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_lotus_probe"
+version="1.0"
+displayName="Disposable Revival Blossom damage check"
+[[dependencies.uwu_lotus_probe]]
+modId="uwudimension"
+type="required"
+versionRange="[1.5.0-beta.13,)"
+ordering="AFTER"
+side="SERVER"
