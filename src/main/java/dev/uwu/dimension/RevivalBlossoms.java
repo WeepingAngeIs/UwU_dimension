@@ -42,6 +42,7 @@ public final class RevivalBlossoms {
         DawnpetalSwing.register(bus);
         DawnpetalAbilities.register(bus);
         RevivalReady.register(bus);
+        RevivalBloom.register(bus);
         ReturnbloomPrime.register();
         ReturnbloomFacing.register(bus);
         // Vanilla totems are checked before die(). Earlier mod rescue cancellations win as well.
@@ -104,16 +105,13 @@ public final class RevivalBlossoms {
         long time = now(player.serverLevel());
         if (!ledger(player.serverLevel()).claim(player.getUUID(), identity(chosen), time)) return;
         // State is committed before cancellation or health changes, including reentrant damage listeners.
+        var bloom = RevivalBloom.begin(player, time);
         event.setCanceled(true);
         player.setHealth(player.getMaxHealth());
         for (ItemStack stack : player.getHandSlots()) if (isWeapon(stack)) refresh(player, stack);
         RevivalReady.consumed(player);
         player.serverLevel().playSound(null, player.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, .9F, 1.3F);
-        for (int petal = 0; petal < 5; petal++) {
-            double angle = petal * Math.PI * 2 / 5;
-            HeartCombatGlow.charmHearts(player.serverLevel(), player.getX() + Math.cos(angle) * .45,
-                    player.getY() + .9, player.getZ() + Math.sin(angle) * .45, 2, .025, .08, .025, .035);
-        }
+        RevivalBloom.broadcast(player, bloom);
     }
 
     private static final class FlowerDirk extends SwordItem {
