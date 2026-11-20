@@ -55,6 +55,7 @@ public final class ThrowProbe {
     private static final String WITNESS = "uwu_throw_check_witness";
     private static final float THROW_PITCH = 3F;
     private static final float MELEE_YAW = 35.54F;
+    private static final float MELEE_PITCH = 12F;
     private static final int MELEE_SLOT = 0;
     private static final double NEAR_DISTANCE = 4.25, FAR_DISTANCE = 10.75;
     private static final double NATIVE_DISTANCE = 8.25;
@@ -100,6 +101,7 @@ public final class ThrowProbe {
         volatile boolean armed, meleeStarted, empty, landed;
         volatile RelicFlight flight;
         volatile int launches;
+        volatile int preThrowDamage, flightDamage = -1;
         volatile long impact = -1, caught = -1, melee = -1;
         volatile float launchStrength, returnStrength, damage;
         volatile double pull = Double.NaN;
@@ -114,12 +116,19 @@ public final class ThrowProbe {
             return tag.hasUUID(WITNESS) && marker.equals(tag.getUUID(WITNESS));
         }
 
+        boolean seesReturn(ItemStack stack) {
+            // A server-side caught flag can arrive ahead of the queued client inventory update.
+            // The UUID is shared with the old held stack, so also require its throw wear.
+            return flightDamage > preThrowDamage && matches(stack) && stack.getDamageValue() == flightDamage;
+        }
+
         String observations(LocalPlayer player) {
             return kind + ", casts=" + launches + ", strength before throw=" + launchStrength
                     + ", empty=" + empty + ", landed=" + landed + ", impact/catch/melee=" + impact + "/"
                     + caught + "/" + melee + ", pull=" + pull + ", damage=" + damage
                     + ", melee attempts=" + meleeAttempts + ", local charge=" + player.getAttackStrengthScale(0)
-                    + ", hand=" + player.getMainHandItem();
+                    + ", damage before/flight/held=" + preThrowDamage + "/" + flightDamage + "/"
+                    + player.getMainHandItem().getDamageValue() + ", hand=" + player.getMainHandItem();
         }
     }
 
@@ -210,9 +219,9 @@ public final class ThrowProbe {
                 case FLIGHT -> {
                     if (trial.flight != null && trial.kind.hasMeleeTarget()) {
                         player.setYRot(MELEE_YAW);
-                        player.setXRot(trial.kind.hasPull() ? 12F : 5F);
+                        player.setXRot(MELEE_PITCH);
                     }
-                    if (trial.caught < 0 || !trial.matches(player.getMainHandItem())) return;
+                    if (trial.caught < 0 || !trial.seesReturn(player.getMainHandItem())) return;
                     checkCatch(client, trial);
                 }
                 case MELEE -> {
@@ -389,7 +398,8 @@ public final class ThrowProbe {
             owner.setItemInHand(InteractionHand.MAIN_HAND, stack);
             owner.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
             require(owner.teleportTo(owner.serverLevel(), trial.position.x, trial.position.y, trial.position.z,
-                            Set.of(), kind == Case.BASELINE ? MELEE_YAW : 0F, kind == Case.BASELINE ? 5F : THROW_PITCH),
+                            Set.of(), kind == Case.BASELINE ? MELEE_YAW : 0F,
+                            kind == Case.BASELINE ? MELEE_PITCH : THROW_PITCH),
                     "Could not position the real player in the throw lane");
             owner.setDeltaMovement(Vec3.ZERO);
             owner.fallDistance = 0;
@@ -433,6 +443,8 @@ public final class ThrowProbe {
                 || !trial.matches(flight.getItem())) return;
         trial.launches++;
         trial.launchStrength = owner.getAttackStrengthScale(.5F);
+        trial.preThrowDamage = owner.getMainHandItem().getDamageValue();
+        trial.flightDamage = flight.getItem().getDamageValue();
         trial.flight = flight;
     }
 

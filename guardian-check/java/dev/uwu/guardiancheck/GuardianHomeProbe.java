@@ -34,6 +34,7 @@ public final class GuardianHomeProbe {
     private boolean femaleOpened;
     private double walkSpeed;
     private Object patrol;
+    private Vec3 morningStart;
 
     public GuardianHomeProbe() {
         NeoForge.EVENT_BUS.addListener(this::tick);
@@ -147,14 +148,20 @@ public final class GuardianHomeProbe {
                             "Guardian resumed normal travel outside its nighttime home");
                     if (elapsed() < 45) return;
                     require(natural.getNavigation().isDone() && !natural.isSprinting(), "Guardian kept patrolling at night");
-                    GuardianArena.move(natural, court);
+                    morningStart = natural.position();
                     level.setDayTime(0);
                     next(Phase.MORNING);
                 }
                 case MORNING -> {
-                    require(elapsed() <= 120, "Guardian did not resume its daytime patrol");
-                    if (natural.distanceToSqr(Vec3.atBottomCenterOf(court)) < 16) return;
+                    require(elapsed() <= 120, "Guardian did not resume its daytime patrol: start=" + morningStart
+                            + ", now=" + natural.position() + ", navigation=" + natural.getNavigation().getTargetPos()
+                            + ", pathDone=" + natural.getNavigation().isDone() + ", returning=" + returning()
+                            + ", offender=" + natural.offender() + ", speed=" + natural.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                    if (natural.position().subtract(morningStart).horizontalDistanceSqr() < 16) return;
                     require(!returning(), "Daytime travel still used the nighttime return");
+                    require(natural.goalSelector.getAvailableGoals().stream()
+                                    .anyMatch(goal -> goal.isRunning() && goal.getGoal() == patrol),
+                            "Morning movement did not come from the village patrol");
                     natural.discard();
                     level.setDayTime(14000);
                     System.out.println("GUARDIAN HOME SCHEDULE PASS daylight limit, 4800 idle ticks, night sprint and morning patrol");
@@ -195,7 +202,10 @@ public final class GuardianHomeProbe {
         eggStart = court.west(7);
         remoteEggStart = court.offset(0, 0, 150);
         arena.floor(remoteEggStart, -3, 3, 3);
-        arena.floor(court, -11, 119, 2);
+        // Day patrol can choose any of eight directions, 20–43 blocks from the court.
+        // Provide ground for the entire route and the adult's footprint at every destination.
+        arena.floor(court, -46, 46, 46);
+        arena.floor(court, 47, 119, 2);
         femaleHome = court.offset(0, 0, 200);
         maleHome = femaleHome.south(10);
         ironHome = maleHome.south(10);

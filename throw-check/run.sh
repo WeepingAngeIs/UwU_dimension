@@ -14,7 +14,10 @@ printf '{"firstPersonAnimations":"AUTO"}\n' > build/throw-client/config/betterco
 printf 'earlyWindowControl = false\n' > build/throw-client/config/fml.toml
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 18m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I throw-check/client.gradle runThrowClient | tee build/throw-client.log
-for marker in 'THROW MELEE BASELINE PASS' 'THROW UNPRIMED_NEAR PASS' 'THROW NEAR PASS' 'THROW UNPRIMED_FAR PASS' 'THROW FAR PASS' 'THROW COOLDOWN PASS' 'THROW MISS PASS' 'THROW BELLHEART PASS' 'THROW TIDELACE PASS' 'THROW CLIENT PASS'; do
+for marker in 'THROW MELEE BASELINE PASS' 'THROW UNPRIMED_NEAR PASS' 'THROW NEAR PASS' \
+    'THROW UNPRIMED_FAR PASS' 'THROW FAR PASS' 'THROW COOLDOWN PASS' 'THROW MISS PASS' \
+    'THROW UNPRIMED_BELLHEART PASS' 'THROW BELLHEART PASS' \
+    'THROW UNPRIMED_TIDELACE PASS' 'THROW TIDELACE PASS' 'THROW CLIENT PASS'; do
   grep -F "$marker" build/throw-client.log
 done
 if grep -F 'THROW CLIENT CHECK FAILED' build/throw-client.log; then exit 1; fi
