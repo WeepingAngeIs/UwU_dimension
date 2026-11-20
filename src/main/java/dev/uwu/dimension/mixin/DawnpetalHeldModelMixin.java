@@ -9,6 +9,7 @@ import dev.uwu.dimension.DawnpetalSwing;
 import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.client.DawnpetalSpinClient;
 import dev.uwu.dimension.client.DawnpetalSpinVisual;
+import dev.uwu.dimension.client.RevivalHandPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
@@ -30,6 +31,7 @@ abstract class DawnpetalHeldModelMixin {
     private BakedModel uwu$dawnpetalBlade(BakedModel model, @Local(argsOnly=true) LivingEntity owner,
             @Local(argsOnly=true) ItemStack stack, @Local(argsOnly=true) ItemDisplayContext context) {
         if (!(owner instanceof Player player) || !stack.is(RevivalBlossoms.AXE.get())) return model;
+        if (context.firstPerson() && RevivalHandPose.drawsAxe(stack)) return RevivalHandPose.restingAxe(model);
         if (context != ItemDisplayContext.FIRST_PERSON_RIGHT_HAND && context != ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 && context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND && context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND) return model;
         HumanoidArm arm = switch (context) {

@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_grip_check"
+version="1.0"
+displayName="Disposable held-grip renderer check"
+[[mixins]]
+config="uwu_grip_check.mixins.json"

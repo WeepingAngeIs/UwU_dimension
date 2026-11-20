@@ -1,0 +1,52 @@
+name: Approved first-person grips on RC.2
+on:
+  push:
+    branches: ['codex/build/uwu-rc2-grips']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 38
+    env:
+      GRIP_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-grips.1.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build the mod and verify unchanged RC.2 content
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 held-release/verify.py "$GRIP_JAR"
+      - name: Verify both hands, swing, Spin and third-person routing
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+          bash held-check/run.sh
+      - name: Record the tested JAR digest
+        id: verified
+        run: |
+          python3 held-release/verify.py "$GRIP_JAR"
+          echo "sha=$(sha256sum "$GRIP_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.GRIP_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.verified.outputs.sha }}
+          ARTIFACT_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${ARTIFACT_SHA#sha256:}"
+          echo "HELD DELIVERY SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

@@ -53,6 +53,7 @@
     "DawnpetalAbilityKeyMixin",
     "DawnpetalVanillaClickMixin",
     "DawnpetalHeldModelMixin",
+    "RevivalRestingHandMixin",
     "TraversalFrameMixin",
     "TraversalItemMixin",
     "TraversalHandMixin",

@@ -160,6 +160,14 @@ public final class DawnpetalSwing {
         }
     }
 
+    /** Includes the opening windup before the model starts growing. */
+    public static boolean hasLocalCue(Player owner, float partialTick) {
+        Cue cue = VISIBLE.get(owner);
+        return cue != null && cue.actorId.equals(owner.getUUID()) && cue.slot == owner.getInventory().selected
+                && (owner.level().getGameTime() - cue.start) + partialTick < cue.duration
+                && cue.axeId.equals(DawnpetalVanillaReach.syncedIdentity(owner.getMainHandItem()));
+    }
+
     /** Normalized growth on a client for the actual attacking stack. */
     public static double expansion(LivingEntity owner, ItemStack rendered, float partialTick) {
         Cue c = VISIBLE.get(owner);
