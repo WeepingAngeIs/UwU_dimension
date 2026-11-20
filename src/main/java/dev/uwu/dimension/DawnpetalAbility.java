@@ -1,10 +1,11 @@
 package dev.uwu.dimension;
 
 import java.util.List;
+import net.minecraft.world.entity.player.Player;
 
 /** Stable wire/slot IDs. Only the first four keys are contextual; unused slots never cast. */
 public enum DawnpetalAbility {
-    SPIN(0, 70), THROW(1, 100);
+    SPIN(0, 70), THROW(1, 100), TURN(0, 0);
 
     public static final List<DawnpetalAbility> POPULATED = List.of(SPIN, THROW);
     public final int index, cooldown;
@@ -12,5 +13,16 @@ public enum DawnpetalAbility {
 
     public static DawnpetalAbility at(int index) {
         return index >= 0 && index < POPULATED.size() ? POPULATED.get(index) : null;
+    }
+
+    public static DawnpetalAbility at(Player player, int index) {
+        var held = player.getMainHandItem();
+        if (held.is(RevivalBlossoms.AXE.get())) return at(index);
+        if (!held.is(RevivalBlossoms.DIRK.get())) return null;
+        return switch (index) {
+            case 0 -> TURN;
+            case 1 -> THROW;
+            default -> null;
+        };
     }
 }

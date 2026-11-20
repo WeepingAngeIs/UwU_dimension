@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -118,14 +119,24 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     /** Dawnpetal uses the existing axe flight visual/custody, but none of Bellheart's hit effects. */
     static boolean castDawnpetal(ServerLevel level, Player owner, InteractionHand hand) {
+        return castRevivalWeapon(level, owner, hand, RevivalBlossoms.AXE.get(), Arsenal.Relic.BELLHEART_AXE);
+    }
+
+    /** Use the dagger's point-first flight and carry the exact reserved Returnbloom stack. */
+    static boolean castReturnbloom(ServerLevel level, Player owner, InteractionHand hand) {
+        return castRevivalWeapon(level, owner, hand, RevivalBlossoms.DIRK.get(), Arsenal.Relic.ROSE_DAGGER);
+    }
+
+    private static boolean castRevivalWeapon(ServerLevel level, Player owner, InteractionHand hand, Item item,
+            Arsenal.Relic shape) {
         ItemStack held = owner.getItemInHand(hand);
-        if (!held.is(RevivalBlossoms.AXE.get()) || held.getCount() != 1) return false;
+        if (!held.is(item) || held.getCount() != 1) return false;
         ItemStack carried = held.copy();
-        // An explicit Throw on the last durability point must not silently delete the axe.
+        // A rejected throw leaves the held item usable, even at its last durability point.
         if (!owner.isCreative() && held.getDamageValue() >= held.getMaxDamage() - 1) return false;
         carried.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
         if (carried.isEmpty() || owner.getItemInHand(hand) != held) return false;
-        return launch(level, owner, Arsenal.Relic.BELLHEART_AXE, false, "", carried, 0, true, hand, false) != null;
+        return launch(level, owner, shape, false, "", carried, 0, true, hand, false) != null;
     }
 
     static void castCounter(ServerLevel level, Player player, CounterArsenal.Entry entry, boolean wave) {
@@ -195,7 +206,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     private static RelicFlight launch(ServerLevel level, Player owner, Arsenal.Relic kind, boolean wave,
             String counter, ItemStack display, int fallbackElement, boolean physical, InteractionHand hand,
             boolean cycleScythe) {
-        ItemStack dawnpetalOriginal = physical && display.is(RevivalBlossoms.AXE.get()) ? owner.getItemInHand(hand) : null;
+        ItemStack revivalOriginal = physical && RevivalBlossoms.isWeapon(display) ? owner.getItemInHand(hand) : null;
         RelicFlight flight = RangedRelics.FLIGHT.get().create(level);
         if (flight == null) return null;
         flight.entityData.set(KIND, kind.ordinal());
@@ -233,8 +244,8 @@ public final class RelicFlight extends ThrowableItemProjectile {
         flight.returnHand = hand;
         flight.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0, wave ? 1.5F : physical ? 2.05F : 1.8F, 0);
         if (!level.addFreshEntity(flight)) return null;
-        if (dawnpetalOriginal != null && (owner.getItemInHand(hand) != dawnpetalOriginal
-                || dawnpetalOriginal.getCount() != 1 || !owner.isAlive() || owner.level() != level)) {
+        if (revivalOriginal != null && (owner.getItemInHand(hand) != revivalOriginal
+                || revivalOriginal.getCount() != 1 || !owner.isAlive() || owner.level() != level)) {
             flight.discard();
             return null;
         }
@@ -407,11 +418,13 @@ public final class RelicFlight extends ThrowableItemProjectile {
                     .clip(position(), position().add(getDeltaMovement())).orElse(position());
             int effectTicks=0;
             boolean applied;
-            if (getItem().is(RevivalBlossoms.AXE.get())) {
+            if (RevivalBlossoms.isWeapon(getItem())) {
                 if (!(target instanceof Player) || server.getServer().isPvpAllowed()) {
                     if (target.isAttackable() && target != player
-                            && target.hurt(server.damageSources().trident(this, player), 10F))
-                        HeartCombatGlow.dawnpetalImpact(server, impact, 1.1, 0, player);
+                            && target.hurt(server.damageSources().trident(this, player), 10F)) {
+                        double radius = getItem().is(RevivalBlossoms.AXE.get()) ? 1.1 : .9;
+                        HeartCombatGlow.dawnpetalImpact(server, impact, radius, 0, player);
+                    }
                 }
                 finish();
                 return;
@@ -454,7 +467,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
     @Override protected void onHitBlock(BlockHitResult hit) {
         if (returning() || landed()) return;
         if (level() instanceof ServerLevel server) {
-            if (getItem().is(RevivalBlossoms.AXE.get()))
+            if (RevivalBlossoms.isWeapon(getItem()))
                 HeartCombatGlow.dawnpetalImpact(server, hit.getLocation(), .9, element(), findOwner(server));
             else HeartCombatGlow.burst(server, hit.getLocation(), .9, element());
         }

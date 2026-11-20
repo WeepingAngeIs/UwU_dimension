@@ -33,7 +33,8 @@ public final class DawnpetalAbilities {
     static final double RADIUS = 5.5;
     private static final int WINDUP = 8, SWEEP_TICKS = 10;
     static final int DURATION = 23;
-    private static final String COOLDOWN = "uwu.dawnpetal_active_until";
+    private static final String AXE_COOLDOWN = "uwu.dawnpetal_active_until";
+    private static final String DIRK_THROW_COOLDOWN = "uwu.returnbloom_throw_until";
     private static final Map<ServerPlayer, Long> LAST_REQUEST = new WeakHashMap<>();
     private static final Map<ServerPlayer, Spin> SPINS = new WeakHashMap<>();
     private static final ThreadLocal<DamageSource> SWEEP_DAMAGE = new ThreadLocal<>();
@@ -56,13 +57,13 @@ public final class DawnpetalAbilities {
                     && player.getMainHandItem() == stack && DawnpetalAbilities.equipped(player);
         }
     }
-    private record Use(long sequence, long tick, ResourceLocation dimension, int slot, UUID axe, int ability)
+    private record Use(long sequence, long tick, ResourceLocation dimension, int slot, UUID weapon, int ability)
             implements CustomPacketPayload {
         static final Type<Use> TYPE = new Type<>(UwUDimension.id("dawnpetal_ability"));
         static final StreamCodec<RegistryFriendlyByteBuf, Use> CODEC = StreamCodec.of(
                 (b,u) -> {
                     b.writeVarLong(u.sequence); b.writeLong(u.tick); b.writeResourceLocation(u.dimension);
-                    b.writeByte(u.slot); b.writeUUID(u.axe); b.writeByte(u.ability);
+                    b.writeByte(u.slot); b.writeUUID(u.weapon); b.writeByte(u.ability);
                 },
                 b -> new Use(b.readVarLong(), b.readLong(), b.readResourceLocation(), b.readUnsignedByte(),
                         b.readUUID(), b.readUnsignedByte()));
@@ -95,12 +96,16 @@ public final class DawnpetalAbilities {
     }
 
     static boolean equipped(Player p) {
-        return p.isAlive() && !p.isRemoved() && !p.isSpectator() && p.getMainHandItem().is(RevivalBlossoms.AXE.get());
+        return hasHotbar(p) && p.getMainHandItem().is(RevivalBlossoms.AXE.get());
     }
 
-    static void send(Player p, long sequence, UUID axe, DawnpetalAbility ability) {
+    static boolean hasHotbar(Player p) {
+        return p.isAlive() && !p.isRemoved() && !p.isSpectator() && RevivalBlossoms.isWeapon(p.getMainHandItem());
+    }
+
+    static void send(Player p, long sequence, UUID weapon, DawnpetalAbility ability) {
         PacketDistributor.sendToServer(new Use(sequence, p.level().getGameTime(), p.level().dimension().location(),
-                p.getInventory().selected, axe, ability.index));
+                p.getInventory().selected, weapon, ability.index));
     }
 
     private static CompoundTag persisted(ServerPlayer p) {
@@ -112,7 +117,7 @@ public final class DawnpetalAbilities {
 
     private static boolean permitted(ServerPlayer p) {
         ServerLevel level = p.serverLevel();
-        return equipped(p) && !p.isUsingItem() && !p.isShiftKeyDown()
+        return hasHotbar(p) && !p.isUsingItem() && !p.isShiftKeyDown()
                 && level.getWorldBorder().isWithinBounds(p.blockPosition()) && level.hasChunkAt(p.blockPosition())
                 && SakuraAccess.mayInteract(p, p.blockPosition());
     }
@@ -120,24 +125,36 @@ public final class DawnpetalAbilities {
     private static void receive(ServerPlayer p, Use u) {
         if (!p.serverLevel().getServer().isSameThread() || u.sequence <= LAST_REQUEST.getOrDefault(p, 0L)) return;
         LAST_REQUEST.put(p, u.sequence);
-        DawnpetalAbility ability = DawnpetalAbility.at(u.ability);
-        if (ability == null || u.slot != p.getInventory().selected
+        ItemStack weapon = p.getMainHandItem();
+        DawnpetalAbility ability = DawnpetalAbility.at(p, u.ability);
+        if (ability == null || !hasHotbar(p) || u.slot != p.getInventory().selected
                 || !p.level().dimension().location().equals(u.dimension)
-                || !u.axe.equals(DawnpetalVanillaReach.syncedIdentity(p.getMainHandItem()))) return;
+                || !u.weapon.equals(DawnpetalVanillaReach.syncedIdentity(weapon))) return;
         long tick = p.level().getGameTime();
-        if (u.tick < tick - 40 || u.tick > tick + 10 || !permitted(p)) return;
+        if (u.tick < tick - 40 || u.tick > tick + 10) return;
+        if (ability == DawnpetalAbility.TURN) {
+            ReturnbloomPrime.arm(p, weapon);
+            return;
+        }
+        if (!permitted(p)) return;
+
+        boolean dirk = weapon.is(RevivalBlossoms.DIRK.get());
+        String cooldown = dirk ? DIRK_THROW_COOLDOWN : AXE_COOLDOWN;
         long now = p.serverLevel().getServer().overworld().getGameTime();
-        if (persisted(p).getLong(COOLDOWN) > now || p.getCooldowns().isOnCooldown(p.getMainHandItem().getItem())) return;
+        if (persisted(p).getLong(cooldown) > now || p.getCooldowns().isOnCooldown(weapon.getItem())) return;
 
         Spin spin = null;
         if (ability == DawnpetalAbility.SPIN) {
-            spin = new Spin(p, u.axe, tick);
+            spin = new Spin(p, u.weapon, tick);
             SPINS.put(p, spin);
-        } else if (!RelicFlight.castDawnpetal(p.serverLevel(), p, InteractionHand.MAIN_HAND)) {
-            return;
+        } else {
+            boolean launched = dirk ? RelicFlight.castReturnbloom(p.serverLevel(), p, InteractionHand.MAIN_HAND)
+                    : RelicFlight.castDawnpetal(p.serverLevel(), p, InteractionHand.MAIN_HAND);
+            if (!launched) return;
+            if (dirk) ReturnbloomPrime.clear(p);
         }
-        persisted(p).putLong(COOLDOWN, now + ability.cooldown);
-        p.getCooldowns().addCooldown(RevivalBlossoms.AXE.get(), ability.cooldown);
+        persisted(p).putLong(cooldown, now + ability.cooldown);
+        p.getCooldowns().addCooldown(weapon.getItem(), ability.cooldown);
         if (spin != null) PacketDistributor.sendToPlayersTrackingEntityAndSelf(p, spin.cue);
     }
 

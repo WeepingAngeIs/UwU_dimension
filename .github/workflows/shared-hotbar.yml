@@ -1,0 +1,50 @@
+name: Shared ability hotbar and Returnbloom Throw on RC.2
+on:
+  push:
+    branches: ['codex/build/uwu-shared-ability-hotbar']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      MOD_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-hotbar.1.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build the mod
+        run: bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+      - name: Verify in-game hotbar, drop and Returnbloom Throw
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+          bash hotbar-check/run.sh
+      - name: Record the tested JAR digest
+        id: verified
+        run: |
+          python3 hotbar-release/verify.py "$MOD_JAR"
+          echo "sha=$(sha256sum "$MOD_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.MOD_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.verified.outputs.sha }}
+          ARTIFACT_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${ARTIFACT_SHA#sha256:}"
+          echo "HOTBAR DELIVERY SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

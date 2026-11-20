@@ -1,0 +1,15 @@
+gradle.beforeProject { project ->
+    project.plugins.withId('net.neoforged.moddev') {
+        def probe = project.sourceSets.create('hotbarCheck')
+        probe.java.srcDirs = [project.file('hotbar-check/java')]
+        probe.resources.srcDirs = [project.file('hotbar-check/resources')]
+        probe.compileClasspath += project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        project.dependencies.add('runtimeOnly', project.fileTree('build/hotbar-check-deps') { include '*.jar' })
+        project.neoForge.mods.create('uwu_hotbar_check') { sourceSet(probe) }
+        project.neoForge.runs.create('hotbarClient') {
+            client()
+            gameDirectory = project.file('build/hotbar-client')
+            jvmArgument('-Xmx3G')
+        }
+    }
+}
