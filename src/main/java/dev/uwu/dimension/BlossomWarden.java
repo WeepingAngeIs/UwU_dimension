@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -35,6 +36,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -90,21 +93,29 @@ public final class BlossomWarden extends PathfinderMob {
             if(max!=null)((GuardianVitality)max).uwu$guardianHealth(isBaby());
         }
         if (FEMALE.equals(key)||JUVENILE.equals(key)) refreshDimensions();
+        if (FEMALE.equals(key) && getNavigation() instanceof GroundPathNavigation ground) {
+            ground.setCanOpenDoors(female());
+            ground.setCanPassDoors(female());
+        }
     }
 
     private boolean summoned;
+    private boolean seeksVillage;
     @Override public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(
             net.minecraft.world.level.ServerLevelAccessor level, net.minecraft.world.DifficultyInstance difficulty,
             net.minecraft.world.entity.MobSpawnType reason, @Nullable net.minecraft.world.entity.SpawnGroupData group) {
-        summoned = reason == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG
-                || reason == net.minecraft.world.entity.MobSpawnType.DISPENSER
-                || reason == net.minecraft.world.entity.MobSpawnType.COMMAND;
+        seeksVillage = reason == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG
+                || reason == net.minecraft.world.entity.MobSpawnType.DISPENSER;
+        summoned = seeksVillage || reason == net.minecraft.world.entity.MobSpawnType.COMMAND;
         return super.finalizeSpawn(level,difficulty,reason,group);
     }
 
     private final ArrayDeque<UUID> offenders = new ArrayDeque<>();
     private final Map<UUID, Long> unreachableUntil = new HashMap<>();
     private BlockPos court;
+    private ResourceLocation villageDimension;
+    private boolean recordedVillage;
+    private GuardianPatrolGoal villagePatrol;
     private int pursueTicks, motionTicks, missingTicks, stallTicks;
     private double bestGap = Double.MAX_VALUE;
     private double takeoffY;
@@ -128,6 +139,12 @@ public final class BlossomWarden extends PathfinderMob {
         builder.define(JUVENILE,false);
     }
 
+    @Override protected PathNavigation createNavigation(Level level) {
+        var ground = new GroundPathNavigation(this, level);
+        ground.setCanPassDoors(false);
+        return ground;
+    }
+
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         // Own MOVE/LOOK throughout pursuit so wandering/home goals cannot overwrite the chase.
@@ -137,15 +154,52 @@ public final class BlossomWarden extends PathfinderMob {
             @Override public boolean canContinueToUse(){return !offenders.isEmpty();}
             @Override public void start(){getNavigation().stop();}
         });
-        goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, .85));
-        goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, .7));
-        goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 7));
-        goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        goalSelector.addGoal(2, new GuardianDoorGoal(this));
+        villagePatrol = new GuardianPatrolGoal(this);
+        goalSelector.addGoal(3, villagePatrol);
+        goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85) {
+            @Override public boolean canUse() { return villageHome() == null && super.canUse(); }
+            @Override public boolean canContinueToUse() { return villageHome() == null && super.canContinueToUse(); }
+        });
+        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .7) {
+            @Override public boolean canUse() { return villageHome() == null && super.canUse(); }
+            @Override public boolean canContinueToUse() { return villageHome() == null && super.canContinueToUse(); }
+        });
+        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 7));
+        goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
 
     public void bindVillage(BlockPos center) {
         court = center.immutable();
+        villageDimension = level().dimension().location();
+        recordedVillage = false;
+        clearRestriction();
+    }
+
+    @Nullable BlockPos villageHome() {
+        return level().dimension().location().equals(villageDimension) ? court : null;
+    }
+
+    boolean hasOffenders() { return !offenders.isEmpty(); }
+
+    private void bindPersonalPatrol(BlockPos center) {
+        court = center.immutable();
+        villageDimension = null;
         restrictTo(court, 22);
+    }
+
+    private BlockPos guardCourt() {
+        return court == null || villageDimension != null && villageHome() == null ? blockPosition() : court;
+    }
+
+    private void resolveVillageHome(ServerLevel level) {
+        if (family.offspring || villageDimension != null || tickCount != 1 && tickCount % 100 != 0) return;
+        if (court != null && GuardianVillageHomes.confirmed(level, court)) {
+            bindVillage(court);
+        } else if (seeksVillage) {
+            BlockPos nearest = GuardianVillageHomes.nearest(level, blockPosition());
+            if (nearest != null) bindVillage(nearest);
+        }
     }
     public boolean chasing() { return entityData.get(POSE) == CHASE; }
     boolean idlePose() { return entityData.get(POSE) == IDLE; }
@@ -174,7 +228,7 @@ public final class BlossomWarden extends PathfinderMob {
         }
         if (guard == null) {
             guard = level.getEntitiesOfClass(BlossomWarden.class, victim.getBoundingBox().inflate(64),
-                e -> e.isAlive() && (home == null || home.equals(e.court))).stream()
+                e -> e.isAlive() && (home == null || home.equals(e.guardCourt()))).stream()
                 .min(Comparator.comparingDouble(victim::distanceToSqr)).orElse(null);
         }
         if (guard != null) guard.accuse(culprit);
@@ -183,25 +237,47 @@ public final class BlossomWarden extends PathfinderMob {
 
     @Nullable static BlossomWarden ensureVillageGuard(ServerLevel level, BlockPos center) {
         if (!level.hasChunkAt(center)) return null;
+        GuardianVillageHomes.remember(level, center);
         Registry directory = directory(level);
         BlossomWarden known = directory.active(level, center);
         if (known != null) return known;
         for (BlossomWarden guard : level.getEntitiesOfClass(BlossomWarden.class, new AABB(center).inflate(42),
-                g -> g.isAlive() && !g.summoned && !g.family.offspring && center.equals(g.court))) {
+                g -> g.isAlive() && !g.summoned && !g.family.offspring && center.equals(g.court)
+                        && (g.villageDimension == null || center.equals(g.villageHome())))) {
+            if (guard.villageDimension == null) guard.bindVillage(center);
             directory.remember(center, guard);
             return guard;
         }
         // Entity storage catches up a few ticks after terrain loads.
         if (directory.guards.containsKey(center) && level.getGameTime() -
                 directory.firstMissing.computeIfAbsent(center, ignored -> level.getGameTime()) < 200) return null;
+        BlossomWarden replacement = spawnGuard(level, center, true);
+        if (replacement != null) directory.remember(center, replacement);
+        return replacement;
+    }
+
+    @Nullable static BlossomWarden replaceNaturalGolem(ServerLevel level, BlockPos position) {
+        BlockPos nearest = GuardianVillageHomes.nearest(level, position);
+        if (nearest != null && GuardianVillageHomes.inPrecinct(nearest, position)) {
+            return ensureVillageGuard(level, nearest);
+        }
+        return spawnGuard(level, position, false);
+    }
+
+    @Nullable private static BlossomWarden spawnGuard(ServerLevel level, BlockPos center, boolean village) {
         BlossomWarden replacement = People.BLOSSOM_WARDEN.get().create(level);
         if (replacement == null) return null;
         for (BlockPos at : BlockPos.withinManhattan(center, 6, 5, 6)) {
-            if (!level.hasChunkAt(at) || !level.getBlockState(at.below()).isFaceSturdy(level, at.below(), Direction.UP)) continue;
+            if (!level.isInWorldBounds(at) || !level.hasChunkAt(at)
+                    || !level.getBlockState(at.below()).isFaceSturdy(level, at.below(), Direction.UP)) continue;
             replacement.moveTo(at.getX()+.5, at.getY(), at.getZ()+.5, 0, 0);
+            AABB box = replacement.getBoundingBox();
+            if (!level.hasChunksAt(BlockPos.containing(box.minX, box.minY, box.minZ),
+                    BlockPos.containing(box.maxX, box.maxY, box.maxZ)) || !level.getWorldBorder().isWithinBounds(box)) continue;
             if (!level.noCollision(replacement) || level.containsAnyLiquid(replacement.getBoundingBox())) continue;
-            replacement.bindVillage(center);
-            if (level.addFreshEntity(replacement)) { directory.remember(center, replacement); return replacement; }
+            if (village) replacement.bindVillage(center);
+            else replacement.bindPersonalPatrol(center);
+            if (level.addFreshEntity(replacement)) return replacement;
         }
         return null;
     }
@@ -246,16 +322,23 @@ public final class BlossomWarden extends PathfinderMob {
         }
         if (!(level() instanceof ServerLevel level)) return;
         family.tick(this,level);
-        if (court == null) bindVillage(blockPosition());
+        resolveVillageHome(level);
+        if (court == null) bindPersonalPatrol(blockPosition());
         else if (family.offspring && distanceToSqr(Vec3.atBottomCenterOf(court)) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE)
             relocateFamilyPatrol(level);
-        if (!summoned && !family.offspring && (tickCount == 1 || tickCount % 120 == 0)) {
+        BlockPos home = villageHome();
+        if (home != null && !recordedVillage) {
+            GuardianVillageHomes.remember(level, home);
+            recordedVillage = true;
+        }
+        if (home != null && !summoned && !family.offspring && (tickCount == 1 || tickCount % 120 == 0)) {
             Registry registry = directory(level);
             BlossomWarden other = registry.active(level, court);
             if (other != null && other != this) { discard(); return; }
             registry.remember(court, this);
         }
         if (offenders.isEmpty() && tickCount%10==0) acquireThreat(level);
+        villagePatrol.observe();
         if (offenders.isEmpty()) return;
         Entity tracked = level.getEntity(offenders.getFirst());
         if (!(tracked instanceof LivingEntity culprit) || !culprit.isAlive()) {
@@ -293,7 +376,7 @@ public final class BlossomWarden extends PathfinderMob {
                 getNavigation().stop();
                 culprit.stopRiding();
                 takeoffY = culprit.getY();
-                Vec3 outward = culprit.position().subtract(Vec3.atBottomCenterOf(court)).multiply(1,0,1).normalize();
+                Vec3 outward = culprit.position().subtract(Vec3.atBottomCenterOf(guardCourt())).multiply(1,0,1).normalize();
                 if (outward.lengthSqr() < .1) outward = new Vec3(1,0,0);
                 double power=isBaby()?GuardianFamily.COMBAT_FRACTION:1.0;
                 Vec3 away = culprit.position().add(outward.scale(96*power));
@@ -331,7 +414,7 @@ public final class BlossomWarden extends PathfinderMob {
     /** Family guardians patrol where their players have brought them, including after a saved move. */
     private void relocateFamilyPatrol(ServerLevel level) {
         UUID previous=offender();
-        bindVillage(blockPosition());
+        bindPersonalPatrol(blockPosition());
         offenders.removeIf(id -> !(level.getEntity(id) instanceof LivingEntity foe)
                 || !foe.isAlive() || distanceToSqr(foe) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE);
         unreachableUntil.clear();
@@ -350,10 +433,11 @@ public final class BlossomWarden extends PathfinderMob {
 
     private void acquireThreat(ServerLevel level) {
         unreachableUntil.values().removeIf(expiry -> expiry <= level.getGameTime());
-        AABB area = new AABB(this.court).inflate(48.0D);
+        BlockPos origin = guardCourt();
+        AABB area = new AABB(origin).inflate(GuardianVillageHomes.PRECINCT_RADIUS);
         List<Keeper> keepers = level.getEntitiesOfClass(Keeper.class, area,
                 keeper -> keeper.isAlive()
-                        && (keeper.villageCourt() == null || this.court.equals(keeper.villageCourt())));
+                        && (keeper.villageCourt() == null || origin.equals(keeper.villageCourt())));
         level.getEntitiesOfClass(Mob.class, area, mob -> isHostileThreat(mob, keepers))
                 .stream()
                 .min(Comparator.comparingDouble((Mob mob) -> this.distanceToSqr(mob)))
@@ -401,9 +485,14 @@ public final class BlossomWarden extends PathfinderMob {
         getNavigation().stop();
         pursueTicks=0; missingTicks=0; stallTicks=0; bestGap=Double.MAX_VALUE;
         transition(offenders.isEmpty()?IDLE:CHASE);
-        if (offenders.isEmpty() && court != null && level.hasChunkAt(court)) {
-            Vec3 home = Vec3.atBottomCenterOf(court);
-            if (distanceToSqr(home) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE && level.noCollision(this, getBoundingBox().move(home.subtract(position())))) {
+        BlockPos returnCourt = guardCourt();
+        if (offenders.isEmpty() && level.hasChunkAt(returnCourt)) {
+            Vec3 home = Vec3.atBottomCenterOf(returnCourt);
+            AABB homeBox = getBoundingBox().move(home.subtract(position()));
+            if (distanceToSqr(home) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE
+                    && level.hasChunksAt(BlockPos.containing(homeBox.minX, homeBox.minY, homeBox.minZ),
+                            BlockPos.containing(homeBox.maxX, homeBox.maxY, homeBox.maxZ))
+                    && level.noCollision(this, homeBox)) {
                 teleportTo(home.x, home.y, home.z);
                 petals(level,position());
             }
@@ -423,7 +512,9 @@ public final class BlossomWarden extends PathfinderMob {
         tag.putInt("GuardianVitalityVersion",1);
         tag.putBoolean("FemaleGuardian", female());
         tag.putBoolean("KeeperSummonedGuardian", summoned);
+        tag.putBoolean("SeekGuardianVillage", seeksVillage);
         if (court != null) tag.putLong("VillageCourt",court.asLong());
+        if (villageDimension != null) tag.putString("VillageHomeDimension", villageDimension.toString());
         ListTag list = new ListTag();
         for (UUID id:offenders) { var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry); }
         tag.put("Offenders",list); tag.putByte("GripPhase",entityData.get(POSE)); tag.putInt("PursueTicks",pursueTicks);
@@ -434,13 +525,20 @@ public final class BlossomWarden extends PathfinderMob {
         super.readAdditionalSaveData(tag);
         setFemale(tag.getBoolean("FemaleGuardian"));
         summoned = tag.getBoolean("KeeperSummonedGuardian");
+        seeksVillage = tag.contains("SeekGuardianVillage") ? tag.getBoolean("SeekGuardianVillage") : summoned;
         double oldMaximum=320;
         var attributes=tag.getList("attributes",Tag.TAG_COMPOUND);
         for(int i=0;i<attributes.size();i++) if(attributes.getCompound(i).getString("id").equals("minecraft:generic.max_health"))oldMaximum=attributes.getCompound(i).getDouble("base");
         getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(6666);
         if(!tag.contains("GuardianVitalityVersion"))setHealth((float)(6666*Math.clamp(tag.getFloat("Health")/Math.max(1,oldMaximum),0,1)));
         family.read(this,tag);
-        if(tag.contains("VillageCourt")) bindVillage(BlockPos.of(tag.getLong("VillageCourt")));
+        if (tag.contains("VillageCourt")) {
+            bindPersonalPatrol(BlockPos.of(tag.getLong("VillageCourt")));
+            if (!family.offspring && tag.contains("VillageHomeDimension")) {
+                villageDimension = ResourceLocation.tryParse(tag.getString("VillageHomeDimension"));
+                if (villageDimension != null) clearRestriction();
+            }
+        }
         offenders.clear();
         var list=tag.getList("Offenders",Tag.TAG_COMPOUND);
         for(int i=0;i<list.size();i++) if(list.getCompound(i).hasUUID("Offender")) offenders.add(list.getCompound(i).getUUID("Offender"));
@@ -463,7 +561,8 @@ public final class BlossomWarden extends PathfinderMob {
         }
         @Nullable BlossomWarden active(ServerLevel level,BlockPos home) {
             UUID id=guards.get(home);
-            return id!=null && level.getEntity(id) instanceof BlossomWarden w && w.isAlive()?w:null;
+            return id != null && level.getEntity(id) instanceof BlossomWarden w && w.isAlive()
+                    && !w.summoned && !w.family.offspring && home.equals(w.villageHome()) ? w : null;
         }
         void remember(BlockPos home,BlossomWarden guardian) {
             if (!guardian.getUUID().equals(guards.put(home,guardian.getUUID()))) setDirty();

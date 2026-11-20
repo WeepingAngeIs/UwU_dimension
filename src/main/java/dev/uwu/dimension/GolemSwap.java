@@ -1,11 +1,9 @@
 package dev.uwu.dimension;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.animal.IronGolem;
@@ -17,7 +15,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Replaces newly spawned vanilla golems with the UwU Guardian in UwU realms. */
 public final class GolemSwap {
-    private static final Map<ServerLevel, Set<BlockPos>> PENDING = new IdentityHashMap<>();
+    private static final Map<ServerLevel, Map<BlockPos, Long>> PENDING = new IdentityHashMap<>();
 
     private GolemSwap() {}
 
@@ -35,8 +33,8 @@ public final class GolemSwap {
 
         // Joining can happen before its chunk is fully promoted. Defer all world access
         // until the next server tick to avoid chunk-loading deadlocks.
-        PENDING.computeIfAbsent(level, ignored -> new LinkedHashSet<>())
-                .add(golem.blockPosition().immutable());
+        PENDING.computeIfAbsent(level, ignored -> new LinkedHashMap<>())
+                .putIfAbsent(golem.blockPosition().immutable(), level.getGameTime() + 240);
         event.setCanceled(true);
     }
 
@@ -48,13 +46,10 @@ public final class GolemSwap {
                 continue;
             }
 
-            Set<BlockPos> positions = entry.getValue();
-            for (BlockPos position : List.copyOf(positions)) {
-                if (!level.hasChunkAt(position)) continue;
-                if (BlossomWarden.ensureVillageGuard(level, position) != null) {
-                    positions.remove(position);
-                }
-            }
+            Map<BlockPos, Long> positions = entry.getValue();
+            positions.entrySet().removeIf(pending -> level.getGameTime() >= pending.getValue()
+                    || level.hasChunkAt(pending.getKey())
+                            && BlossomWarden.replaceNaturalGolem(level, pending.getKey()) != null);
             if (positions.isEmpty()) PENDING.remove(level);
         }
     }

@@ -1,0 +1,46 @@
+name: UwU Dimension Guardian homes
+on:
+  push:
+    branches: ['codex/build/uwu-guardian-home']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-guardian.1'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-guardian.1.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and verify the Guardian patch
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 guardian-check/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+      - name: Exercise home binding, patrol and doors
+        run: bash guardian-check/run.sh "$UWU_JAR"
+      - name: Record the tested JAR digest
+        id: verified
+        run: echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified Guardian JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.verified.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "GUARDIAN DELIVERY SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"
