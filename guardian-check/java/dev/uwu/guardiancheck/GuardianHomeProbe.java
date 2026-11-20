@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Drives real server ticks in a short disposable patrol lane and enclosed door lanes. */
 @Mod("uwu_guardian_home_check")
 public final class GuardianHomeProbe {
-    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_HOME, MORNING, DOOR, DONE }
+    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_DECISION, NIGHT_ROUTE, NIGHT_HOME, MORNING, DOOR, DONE }
     private Phase phase = Phase.PREPARE;
     private int tick, phaseStarted;
     private ServerLevel level;
@@ -35,6 +35,8 @@ public final class GuardianHomeProbe {
     private double walkSpeed;
     private Object patrol;
     private Vec3 morningStart;
+    private int duskEntityTick;
+    private double duskHomeDistance;
 
     public GuardianHomeProbe() {
         NeoForge.EVENT_BUS.addListener(this::tick);
@@ -130,19 +132,36 @@ public final class GuardianHomeProbe {
                     next(Phase.NIGHT);
                 }
                 case NIGHT -> {
-                    if (elapsed() == 3) {
-                        GuardianArena.move(natural, court.east(36));
-                        level.setDayTime(14000);
-                    }
-                    if (elapsed() < 11) return;
-                    require(returning() && stationaryTicks() < 20 && natural.getNavigation().getPath() != null,
-                            "Night return waited for the four-minute timer or failed to plan an inward route");
-                    require(natural.isSprinting(), "Night return was not a sprint");
+                    requireTravel(elapsed() <= 20, "Daytime idle return did not clear at home");
+                    if (returning() || stationaryTicks() != 0) return;
+                    // Finish the speed-zero idle fixture before exercising normal navigation.
                     natural.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(walkSpeed);
+                    GuardianArena.move(natural, court.east(36));
+                    duskEntityTick = natural.tickCount;
+                    duskHomeDistance = natural.position().distanceTo(Vec3.atBottomCenterOf(court));
+                    level.setDayTime(14000);
+                    next(Phase.NIGHT_DECISION);
+                }
+                case NIGHT_DECISION -> {
+                    requireTravel(elapsed() <= 8, "Guardian never received its first night entity tick");
+                    if (natural.tickCount == duskEntityTick) return;
+                    requireTravel(natural.tickCount == duskEntityTick + 1 && returning() && stationaryTicks() <= 1,
+                            "First night entity tick did not request an immediate return");
+                    next(Phase.NIGHT_ROUTE);
+                }
+                case NIGHT_ROUTE -> {
+                    requireTravel(elapsed() <= 60, "Guardian did not start moving inward on a nighttime sprint");
+                    requireTravel(returning(), "Guardian dropped its night return before getting home");
+                    var path = natural.getNavigation().getPath();
+                    if (path == null || path.isDone() || !natural.isSprinting()) return;
+                    Vec3 center = Vec3.atBottomCenterOf(court);
+                    if (Vec3.atBottomCenterOf(path.getTarget()).distanceTo(center) >= duskHomeDistance
+                            || natural.position().distanceTo(center) > duskHomeDistance - 1.0) return;
+                    System.out.println("GUARDIAN NIGHT SPRINT PASS immediate decision and inward movement on a real path");
                     next(Phase.NIGHT_HOME);
                 }
                 case NIGHT_HOME -> {
-                    require(elapsed() <= 300, "Guardian did not return to the plaza at night: " + natural.position());
+                    requireTravel(elapsed() <= 300, "Guardian did not return to the plaza at night");
                     if (returning()) return;
                     require(natural.distanceToSqr(Vec3.atBottomCenterOf(court)) <= 8 * 8,
                             "Guardian resumed normal travel outside its nighttime home");
@@ -153,10 +172,7 @@ public final class GuardianHomeProbe {
                     next(Phase.MORNING);
                 }
                 case MORNING -> {
-                    require(elapsed() <= 120, "Guardian did not resume its daytime patrol: start=" + morningStart
-                            + ", now=" + natural.position() + ", navigation=" + natural.getNavigation().getTargetPos()
-                            + ", pathDone=" + natural.getNavigation().isDone() + ", returning=" + returning()
-                            + ", offender=" + natural.offender() + ", speed=" + natural.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                    requireTravel(elapsed() <= 120, "Guardian did not resume its daytime patrol from " + morningStart);
                     if (natural.position().subtract(morningStart).horizontalDistanceSqr() < 16) return;
                     require(!returning(), "Daytime travel still used the nighttime return");
                     require(natural.goalSelector.getAvailableGoals().stream()
@@ -286,6 +302,21 @@ public final class GuardianHomeProbe {
 
     private int elapsed() {
         return tick - phaseStarted;
+    }
+
+    private void requireTravel(boolean ok, String problem) throws ReflectiveOperationException {
+        if (ok) return;
+        Field retry = patrol.getClass().getDeclaredField("retryAt");
+        retry.setAccessible(true);
+        var active = natural.goalSelector.getAvailableGoals().stream().filter(goal -> goal.isRunning())
+                .map(goal -> goal.getGoal().getClass().getSimpleName()).toList();
+        throw new AssertionError(problem + ": phase=" + phase + ", entityTick=" + natural.tickCount
+                + ", pos=" + natural.position() + ", home=" + villageHome(natural) + ", time=" + level.getDayTime()
+                + ", onGround=" + natural.onGround() + ", width=" + natural.getBbWidth()
+                + ", speed=" + natural.getAttributeValue(Attributes.MOVEMENT_SPEED) + ", sprint=" + natural.isSprinting()
+                + ", stationary=" + stationaryTicks() + ", returning=" + returning() + ", offender=" + natural.offender()
+                + ", goalRetryIn=" + (retry.getLong(patrol) - level.getGameTime()) + ", activeGoals=" + active
+                + ", target=" + natural.getNavigation().getTargetPos() + ", pathDone=" + natural.getNavigation().isDone());
     }
 
     private void next(Phase next) {

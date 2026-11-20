@@ -5,12 +5,15 @@ import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.SharedAbilityHotbar;
 import dev.uwu.throwcheck.mixin.MousePress;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import net.bettercombat.api.AttackHand;
 import net.bettercombat.api.MinecraftClient_BetterCombat;
+import net.bettercombat.api.client.BetterCombatClientEvents;
 import net.bettercombat.logic.WeaponRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -24,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Cow;
@@ -39,12 +43,14 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.lwjgl.glfw.GLFW;
@@ -103,10 +109,12 @@ public final class ThrowProbe {
         volatile int launches;
         volatile int preThrowDamage, flightDamage = -1;
         volatile long impact = -1, caught = -1, melee = -1;
-        volatile float launchStrength, returnStrength, damage;
+        volatile float launchStrength, returnStrength, returnDelay, damage;
         volatile double pull = Double.NaN;
         int seenHeldAt = -1;
-        int meleeAttempts;
+        int meleeAttempts, acceptedSwings, handClearedAt = -1;
+        String clientStarts = "", clientStrike = "none";
+        volatile String serverRequest = "none", serverAttack = "none";
 
         Trial(Case kind) { this.kind = kind; }
 
@@ -124,11 +132,17 @@ public final class ThrowProbe {
 
         String observations(LocalPlayer player) {
             return kind + ", casts=" + launches + ", strength before throw=" + launchStrength
-                    + ", empty=" + empty + ", landed=" + landed + ", impact/catch/melee=" + impact + "/"
+                    + ", empty=" + empty + ", landed=" + landed
+                    + ", server catch charge/delay=" + returnStrength + "/" + returnDelay
+                    + ", impact/catch/melee=" + impact + "/"
                     + caught + "/" + melee + ", pull=" + pull + ", damage=" + damage
                     + ", melee attempts=" + meleeAttempts + ", local charge=" + player.getAttackStrengthScale(0)
                     + ", damage before/flight/held=" + preThrowDamage + "/" + flightDamage + "/"
-                    + player.getMainHandItem().getDamageValue() + ", hand=" + player.getMainHandItem();
+                    + player.getMainHandItem().getDamageValue() + ", hand=" + player.getMainHandItem()
+                    + ", expected target=" + (meleeTarget == null ? -1 : meleeTarget.getId())
+                    + ", accepted swings=" + acceptedSwings + ", client starts=" + clientStarts
+                    + ", client strike=" + clientStrike
+                    + ", server request=" + serverRequest + ", server attack=" + serverAttack;
         }
     }
 
@@ -146,7 +160,9 @@ public final class ThrowProbe {
         NeoForge.EVENT_BUS.addListener(ThrowProbe::playerTick);
         NeoForge.EVENT_BUS.addListener(ThrowProbe::joined);
         NeoForge.EVENT_BUS.addListener(ThrowProbe::projectileTick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, ThrowProbe::attacking);
         NeoForge.EVENT_BUS.addListener(ThrowProbe::damage);
+        BetterCombatClientEvents.ATTACK_HIT.register(ThrowProbe::clientStrike);
     }
 
     private static void clientTick(ClientTickEvent.Post event) {
@@ -217,15 +233,15 @@ public final class ThrowProbe {
                     rightClick(client);
                 }
                 case FLIGHT -> {
-                    if (trial.flight != null && trial.kind.hasMeleeTarget()) {
-                        player.setYRot(MELEE_YAW);
-                        player.setXRot(MELEE_PITCH);
-                    }
+                    if (trial.flight != null && trial.kind.hasMeleeTarget()) aimAtMeleeTarget(client, trial);
                     if (trial.caught < 0 || !trial.seesReturn(player.getMainHandItem())) return;
                     checkCatch(client, trial);
                 }
                 case MELEE -> {
-                    if (trial.melee < 0) return;
+                    if (trial.melee < 0) {
+                        followThrough(client, trial);
+                        return;
+                    }
                     if (trial.kind == Case.BASELINE) {
                         fullChargeDamage = trial.damage;
                         require(fullChargeDamage > 0, "Full-charge baseline dealt no normal melee damage");
@@ -236,6 +252,8 @@ public final class ThrowProbe {
                     long impactToMelee = trial.melee - trial.impact;
                     if (trial.kind.unprimed()) {
                         require(trial.impact >= 0 && impactToMelee > 0, "Unprimed timing missed an actual projectile hit");
+                        require(trial.acceptedSwings == 1,
+                                "A missed first baseline swing would inflate the comparison: " + trial.observations(player));
                         Case variant = trial.kind.fastVariant();
                         unprimedTicks.put(variant, impactToMelee);
                         System.out.println("THROW " + trial.kind + " PASS " + timing(trial));
@@ -338,28 +356,53 @@ public final class ThrowProbe {
         return (MinecraftClient_BetterCombat)(Object)client;
     }
 
+    private static void followThrough(Minecraft client, Trial trial) throws ReflectiveOperationException {
+        aimAtMeleeTarget(client, trial);
+        if (combat(client).getCurrentAttackHand() != null) {
+            trial.handClearedAt = -1;
+            return;
+        }
+        if (trial.handClearedAt < 0) {
+            trial.handClearedAt = client.player.tickCount;
+            return;
+        }
+        // Let the real attack packet reach the server before attempting another normal swing.
+        if (trial.acceptedSwings < 3 && client.player.tickCount - trial.handClearedAt >= 2
+                && trial.matches(client.player.getMainHandItem())) tryMelee(client, trial);
+    }
+
     private static void tryMelee(Minecraft client, Trial trial) throws ReflectiveOperationException {
         var combat = combat(client);
-        if (combat.getCurrentAttackHand() != null) return;
+        if (combat.getCurrentAttackHand() != null || !aimAtMeleeTarget(client, trial)) return;
         if (attackEntry == null) {
             attackEntry = Minecraft.class.getDeclaredMethod("startAttack");
             attackEntry.setAccessible(true);
         }
-        var target = client.level.getEntity(trial.meleeTarget.getId());
-        var previous = client.hitResult;
         trial.meleeAttempts++;
-        try {
-            client.hitResult = new EntityHitResult(target, target.getBoundingBox().getCenter());
-            attackEntry.invoke(client);
-        } finally {
-            client.hitResult = previous;
-        }
+        attackEntry.invoke(client);
         var attack = combat.getCurrentAttackHand();
         if (attack == null) return; // The native input path decides readiness on every attempted tick.
         require(!attack.isOffHand() && trial.matches(attack.itemStack()),
                 "Better Combat did not use the exact caught main-hand weapon");
+        trial.acceptedSwings++;
+        LocalPlayer player = client.player;
+        trial.clientStarts += "[tick " + player.tickCount + " charge " + player.getAttackStrengthScale(.5F)
+                + " delay " + player.getCurrentItemAttackStrengthDelay() + " upswing " + combat.getUpswingTicks() + "]";
+        trial.handClearedAt = -1;
         trial.meleeStarted = true;
-        enter(Stage.MELEE, client.player);
+        if (stage != Stage.MELEE) enter(Stage.MELEE, client.player);
+    }
+
+    private static boolean aimAtMeleeTarget(Minecraft client, Trial trial) {
+        if (!canSeeMeleeTarget(client, trial)) return false;
+        var target = client.level.getEntity(trial.meleeTarget.getId());
+        LocalPlayer player = client.player;
+        Vec3 delta = target.getBoundingBox().getCenter().subtract(player.getEyePosition());
+        player.setYRot((float)Math.toDegrees(Math.atan2(-delta.x, delta.z)));
+        player.setXRot((float)-Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance())));
+        // Use the real renderer pick so both the hit result and cursor entity match the world.
+        client.gameRenderer.pick(1F);
+        return client.hitResult instanceof EntityHitResult hit && hit.getEntity() == target;
     }
 
     private static boolean canSeeMeleeTarget(Minecraft client, Trial trial) {
@@ -459,6 +502,7 @@ public final class ThrowProbe {
             trial.empty = true;
         } else if (trial.empty && trial.caught < 0 && trial.matches(owner.getMainHandItem())) {
             trial.returnStrength = owner.getAttackStrengthScale(0);
+            trial.returnDelay = owner.getCurrentItemAttackStrengthDelay();
             trial.caught = owner.level().getGameTime();
         }
     }
@@ -471,6 +515,36 @@ public final class ThrowProbe {
             // Both targets are due south of the player and throw origin. Negative Z means toward the thrower.
             trial.pull = -trial.projectileTarget.getDeltaMovement().z;
         }
+    }
+
+    private static void clientStrike(LocalPlayer player, AttackHand hand, List<Entity> targets, Entity cursor) {
+        Trial trial = active;
+        if (trial == null || !trial.meleeStarted || !trial.matches(hand.itemStack())) return;
+        trial.clientStrike = "tick " + player.tickCount + " targets " + targets.stream().map(Entity::getId).toList()
+                + " cursor " + (cursor == null ? -1 : cursor.getId())
+                + " charge " + player.getAttackStrengthScale(.5F)
+                + " delay " + player.getCurrentItemAttackStrengthDelay();
+    }
+
+    // Invoked passively at Better Combat's server-thread processing of its real client request.
+    public static void receivedAttack(ServerPlayer player, int[] targets, int cursor, int slot) {
+        Trial trial = active;
+        if (trial == null || !trial.meleeStarted || !trial.matches(player.getMainHandItem())) return;
+        trial.serverRequest = "tick " + player.level().getGameTime() + " targets " + Arrays.toString(targets)
+                + " cursor " + cursor + " slot " + slot + " " + cooldown(player);
+    }
+
+    private static void attacking(AttackEntityEvent event) {
+        Trial trial = active;
+        if (trial == null || !trial.meleeStarted || !(event.getEntity() instanceof ServerPlayer player)
+                || !trial.matches(player.getMainHandItem())) return;
+        trial.serverAttack = "tick " + player.level().getGameTime() + " target " + event.getTarget().getId()
+                + " canceled " + event.isCanceled() + " " + cooldown(player);
+    }
+
+    private static String cooldown(ServerPlayer player) {
+        return "charge " + player.getAttackStrengthScale(.5F) + " delay " + player.getCurrentItemAttackStrengthDelay()
+                + " use cooldown " + player.getCooldowns().getCooldownPercent(player.getMainHandItem().getItem(), 0F);
     }
 
     private static void damage(LivingDamageEvent.Post event) {

@@ -26,15 +26,19 @@ public final class RelicCatchRecovery {
     private static final Map<Player, Pending> SERVER = new WeakHashMap<>();
     private static final Map<Player, Pending> CLIENT = new WeakHashMap<>();
 
-    private record Ready(int slot, UUID stack, ResourceLocation dimension) implements CustomPacketPayload {
+    private record Ready(int slot, UUID stack, ResourceLocation dimension, int damage, float attackDelay)
+            implements CustomPacketPayload {
         static final Type<Ready> TYPE = new Type<>(UwUDimension.id("relic_catch_ready"));
         static final StreamCodec<RegistryFriendlyByteBuf, Ready> CODEC = StreamCodec.of(
                 (buf, cue) -> {
                     buf.writeByte(cue.slot);
                     buf.writeUUID(cue.stack);
                     buf.writeResourceLocation(cue.dimension);
+                    buf.writeVarInt(cue.damage);
+                    buf.writeFloat(cue.attackDelay);
                 },
-                buf -> new Ready(buf.readUnsignedByte(), buf.readUUID(), buf.readResourceLocation()));
+                buf -> new Ready(buf.readUnsignedByte(), buf.readUUID(), buf.readResourceLocation(),
+                        buf.readVarInt(), buf.readFloat()));
         @Override public Type<Ready> type() { return TYPE; }
     }
 
@@ -60,7 +64,8 @@ public final class RelicCatchRecovery {
     public static void register(RegisterPayloadHandlersEvent event) {
         event.registrar("1").playToClient(Ready.TYPE, Ready.CODEC, (cue, context) -> {
             Player player = context.player();
-            if (player.level().isClientSide && cue.slot < 9
+            if (player.level().isClientSide && cue.slot < 9 && cue.damage >= 0
+                    && Float.isFinite(cue.attackDelay) && cue.attackDelay > 0
                     && player.level().dimension().location().equals(cue.dimension))
                 CLIENT.put(player, new Pending(cue, player.tickCount + SYNC_TICKS));
         });
@@ -70,9 +75,9 @@ public final class RelicCatchRecovery {
         if (!supports(stack)) return;
         UUID id = identity(stack);
         if (id == null) return;
-        var cue = new Ready(player.getInventory().selected, id, player.level().dimension().location());
+        var cue = new Ready(player.getInventory().selected, id, player.level().dimension().location(),
+                stack.getDamageValue(), 0);
         SERVER.put(player, new Pending(cue, player.tickCount + SYNC_TICKS));
-        if (player.connection != null) PacketDistributor.sendToPlayer(player, cue);
     }
 
     public static boolean consume(Player player) {
@@ -88,8 +93,25 @@ public final class RelicCatchRecovery {
         }
         ItemStack stack = player.getMainHandItem();
         if (stack.isEmpty()) return false; // The normal inventory update can follow the verdict.
+        if (!supports(stack) || !cue.stack.equals(identity(stack))) {
+            pending.remove(player);
+            return false;
+        }
+        if (stack.getDamageValue() != cue.damage) return false;
+        float delay = player.getCurrentItemAttackStrengthDelay();
+        if (!Float.isFinite(delay) || delay <= 0) {
+            pending.remove(player);
+            return false;
+        }
+        // Inventory and attributes synchronize separately. Priming with the empty hand's
+        // attack speed can start a Better Combat swing that loses its charge before impact.
+        if (player.level().isClientSide
+                && Math.abs(delay - cue.attackDelay) > Math.max(.001F, cue.attackDelay * .0001F)) return false;
+
         pending.remove(player);
-        return supports(stack) && cue.stack.equals(identity(stack));
+        if (player instanceof ServerPlayer server && server.connection != null)
+            PacketDistributor.sendToPlayer(server, new Ready(cue.slot, cue.stack, cue.dimension, cue.damage, delay));
+        return true;
     }
 
     public static void clear(Player player) {
