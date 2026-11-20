@@ -1,0 +1,15 @@
+gradle.beforeProject { project ->
+    project.plugins.withId('net.neoforged.moddev') {
+        def probe = project.sourceSets.create('lotusClientCheck')
+        probe.java.srcDirs = [project.file('lotus-client-check/java')]
+        probe.resources.srcDirs = [project.file('lotus-client-check/resources')]
+        probe.compileClasspath += project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        project.dependencies.add('runtimeOnly', project.fileTree('build/lotus-client-deps') { include '*.jar' })
+        project.neoForge.mods.create('uwu_lotus_client_check') { sourceSet(probe) }
+        project.neoForge.runs.create('lotusClient') {
+            client()
+            gameDirectory = project.file('build/lotus-client')
+            jvmArgument('-Xmx3G')
+        }
+    }
+}

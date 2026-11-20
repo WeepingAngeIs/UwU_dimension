@@ -19,7 +19,7 @@ timeout --kill-after=15s 6m java -Xmx1G -jar installer.jar --installServer
 printf 'eula=true\n' >eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-type=minecraft:flat\nview-distance=3\nsimulation-distance=3\nmax-tick-time=120000\n' >server.properties
 timeout --kill-after=20s 12m java -Xms512m -Xmx3g -XX:+ExitOnOutOfMemoryError @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$root/build/lotus-check/server.log"
-for marker in 'LOTUS ISOLATION PASS' 'LOTUS WINDOW PASS weapon=returnbloom_dirk' 'LOTUS WINDOW PASS weapon=dawnpetal_axe' 'LOTUS DEDICATED SERVER PASS'; do
+for marker in 'LOTUS ISOLATION PASS' 'LOTUS WINDOW PASS weapon=returnbloom_dirk' 'LOTUS WINDOW PASS weapon=dawnpetal_axe' 'LOTUS BLOCK LIGHT PASS' 'LOTUS DEDICATED SERVER PASS'; do
     grep -F "$marker" "$root/build/lotus-check/server.log"
 done
 if grep -Ei 'OutOfMemoryError|LOTUS CHECK FAILED|single server tick has taken' "$root/build/lotus-check/server.log"; then

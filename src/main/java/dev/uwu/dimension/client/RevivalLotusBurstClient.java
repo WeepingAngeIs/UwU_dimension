@@ -4,16 +4,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -33,19 +37,22 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 public final class RevivalLotusBurstClient {
     public static final int DURATION = dev.uwu.dimension.RevivalBloom.DURATION_TICKS;
     private static final ResourceLocation MOTION = id("effects/revival_lotus_burst/motion.json");
+    private static final ResourceLocation LIGHTING = id("effects/revival_lotus_burst/lighting.json");
     private static final ResourceLocation GLOW = id("textures/effect/revival_lotus_burst_glow.png");
     private static final ResourceLocation MIXED = id("dynamic/revival_lotus_burst_mixed");
     private static final RenderType LAYER = RenderType.entityTranslucentEmissive(MIXED, false);
     private static final int GRID = 8;
     private static final float OVERLAY_WEIGHT = .48F;
     private static final Map<Key, Burst> ACTIVE = new HashMap<>();
+    private static final Map<UUID, Long> LATEST_START = new HashMap<>();
     private static ClientLevel level;
     private static Model model;
 
     private record Key(UUID owner, long start) {}
     private record Burst(Vec3 feet, float scale, float cos, float sin) {}
     private record Mesh(float[][] xyz, float[][] uv, int[][] triangles) {}
-    private record Model(Mesh[] parts, float[][][] frames, float step, int maxVertices) {}
+    private record Halo(RenderType layer, Vec3 center, float radius, float near, float far, float[] alpha) {}
+    private record Model(Mesh[] parts, float[][][] frames, float step, int maxVertices, Halo halo) {}
 
     private RevivalLotusBurstClient() {}
 
@@ -62,6 +69,8 @@ public final class RevivalLotusBurstClient {
                 || !Double.isFinite(feetAtRevive.z)) return;
         long age = level.getGameTime() - startGameTick;
         if (age >= DURATION || age < -DURATION) return;
+        if (LATEST_START.getOrDefault(owner, Long.MIN_VALUE) >= startGameTick) return;
+        LATEST_START.put(owner, startGameTick);
         double yaw = Math.toRadians(yawDegrees);
         ACTIVE.putIfAbsent(new Key(owner, startGameTick),
                 new Burst(feetAtRevive, playerScale, (float)Math.cos(yaw), (float)Math.sin(yaw)));
@@ -71,6 +80,7 @@ public final class RevivalLotusBurstClient {
         ClientLevel current = Minecraft.getInstance().level;
         if (current != level) {
             ACTIVE.clear();
+            LATEST_START.clear();
             level = current;
         }
         return level != null;
@@ -162,13 +172,48 @@ public final class RevivalLotusBurstClient {
                 if (keyed[i].length != ordered.length) throw new IllegalArgumentException("Invalid lotus part count");
             }
             var base = ResourceLocation.parse(geometry.get("texture").getAsString());
+            Halo halo = readHalo(resources, frames, step);
             textures.register(MIXED, palette(resources, base));
-            model = new Model(ordered, keyed, step, max);
+            model = new Model(ordered, keyed, step, max, halo);
         } catch (IOException | RuntimeException error) {
             model = null;
             textures.release(MIXED);
             LogUtils.getLogger().warn("Unable to load Lotus of Life burst assets", error);
         }
+    }
+
+    private static Halo readHalo(ResourceManager resources, JsonArray frames, float step) throws IOException {
+        JsonObject data = json(resources, LIGHTING);
+        JsonArray samples = data.getAsJsonArray("frames"), center = data.getAsJsonArray("center_blocks");
+        JsonArray fade = data.getAsJsonArray("halo_near_fade_blocks");
+        if (!"uwudimension:lotus_light_v1".equals(data.get("format").getAsString())
+                || data.get("duration_ticks").getAsInt() != DURATION
+                || data.get("sample_step_ticks").getAsFloat() != step || samples.size() != frames.size()
+                || center.size() != 3 || fade.size() != 2)
+            throw new IllegalArgumentException("Lotus light and motion clocks disagree");
+        float radius = data.get("halo_radius_blocks").getAsFloat();
+        float near = fade.get(0).getAsFloat(), far = fade.get(1).getAsFloat();
+        Vec3 origin = new Vec3(center.get(0).getAsDouble(), center.get(1).getAsDouble(), center.get(2).getAsDouble());
+        if (!(radius > 0 && Float.isFinite(radius) && near >= 0 && far > near && Float.isFinite(far))
+                || !Double.isFinite(origin.x) || !Double.isFinite(origin.y) || !Double.isFinite(origin.z))
+            throw new IllegalArgumentException("Invalid lotus halo dimensions");
+        float[] alpha = new float[samples.size()];
+        for (int i = 0; i < alpha.length; i++) {
+            JsonObject sample = samples.get(i).getAsJsonObject();
+            alpha[i] = sample.get("halo_alpha").getAsFloat();
+            if (sample.get("tick").getAsFloat() != i * step || !(alpha[i] >= 0 && alpha[i] <= 1))
+                throw new IllegalArgumentException("Invalid lotus halo sample");
+        }
+        ResourceLocation texture = ResourceLocation.parse(data.get("halo_texture").getAsString());
+        RenderType layer = RenderType.create("uwudimension_revival_lotus_halo", DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS, 1536, RenderType.CompositeState.builder()
+                        .setShaderState(RenderStateShard.RENDERTYPE_EYES_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, true, false))
+                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setCullState(RenderStateShard.NO_CULL).createCompositeState(false));
+        return new Halo(layer, origin, radius, near, far, alpha);
     }
 
     // Preblend 64 nearest-filtered shades at reload. Each fragment is submitted once,
@@ -211,6 +256,20 @@ public final class RevivalLotusBurstClient {
         Vec3 camera = event.getCamera().getPosition();
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         long now = level.getGameTime();
+        // Draw the soft air glow into color before the petals. It never writes world light or depth.
+        VertexConsumer haloVertices = null;
+        for (var entry : ACTIVE.entrySet()) {
+            float age = (now - entry.getKey().start) + partial;
+            if (age < 0 || age >= DURATION) continue;
+            float sample = age / model.step;
+            int i = Math.min((int) sample, model.frames.length - 2);
+            float[] keys = model.halo.alpha;
+            float alpha = keys[i] + (sample - i) * (keys[i + 1] - keys[i]);
+            if (alpha <= 0) continue;
+            if (haloVertices == null) haloVertices = buffers.getBuffer(model.halo.layer);
+            drawHalo(haloVertices, event.getPoseStack(), event.getCamera(), entry.getValue(), model.halo, alpha);
+        }
+        if (haloVertices != null) buffers.endBatch(model.halo.layer);
         VertexConsumer vertices = null;
         float[] mix = new float[14], xyz = new float[3 * model.maxVertices];
         for (var entry : ACTIVE.entrySet()) {
@@ -228,6 +287,36 @@ public final class RevivalLotusBurstClient {
             }
         }
         if (vertices != null) buffers.endBatch(LAYER);
+    }
+
+    private static void drawHalo(VertexConsumer out, PoseStack poses, Camera camera, Burst burst, Halo halo, float alpha) {
+        Vec3 c = halo.center;
+        Vec3 at = burst.feet.subtract(camera.getPosition()).add(
+                burst.scale * (burst.cos * c.x + burst.sin * c.z), burst.scale * c.y,
+                burst.scale * (burst.cos * c.z - burst.sin * c.x));
+        var forward = camera.getLookVector();
+        double viewDepth = (at.x * forward.x() + at.y * forward.y() + at.z * forward.z()) / burst.scale;
+        float u = (float)Math.clamp((viewDepth - halo.near) / (halo.far - halo.near), 0., 1.);
+        int opacity = Math.round(255 * alpha * u * u * (3 - 2 * u));
+        if (opacity == 0) return;
+        float radius = burst.scale * halo.radius;
+        poses.pushPose();
+        try {
+            poses.translate(at.x, at.y, at.z);
+            poses.mulPose(camera.rotation());
+            var p = poses.last();
+            haloVertex(out, p, -radius, -radius, 0, 1, opacity);
+            haloVertex(out, p,  radius, -radius, 1, 1, opacity);
+            haloVertex(out, p,  radius,  radius, 1, 0, opacity);
+            haloVertex(out, p, -radius,  radius, 0, 0, opacity);
+        } finally {
+            poses.popPose();
+        }
+    }
+
+    private static void haloVertex(VertexConsumer out, PoseStack.Pose pose, float x, float y, float u, float v, int alpha) {
+        out.addVertex(pose, x, y, 0).setColor(255, 255, 255, alpha).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0, 0, 1);
     }
 
     private static void part(VertexConsumer out, PoseStack.Pose pose, Burst burst, Vec3 camera,

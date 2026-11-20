@@ -25,6 +25,13 @@ jobs:
           python3 lotus-release/verify.py "$LOTUS_JAR"
       - name: Verify successful, expired and refused revives
         run: bash lotus-check/run.sh "$LOTUS_JAR"
+      - name: Verify Lotus draw and ground light in a shader-off client
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+          bash lotus-client-check/run.sh
       - name: Record the tested JAR digest
         id: verified
         run: |

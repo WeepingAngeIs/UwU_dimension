@@ -39,6 +39,7 @@ public final class RevivalBloom {
 
     static void register(IEventBus bus) {
         RevivalBloomProtection.register();
+        RevivalLotusTerrainLight.register(bus);
         bus.addListener((RegisterPayloadHandlersEvent event) -> event.registrar("1").playToClient(
                 Cue.TYPE, Cue.CODEC, (cue, context) -> RevivalLotusBurstClient.receive(
                         cue.dimension(), cue.owner(), cue.startTick(), cue.origin(), cue.scale(), cue.yaw())));
@@ -51,6 +52,8 @@ public final class RevivalBloom {
     }
 
     static void broadcast(ServerPlayer player, Cue cue) {
+        if (!player.level().dimension().location().equals(cue.dimension())) return;
+        RevivalLotusTerrainLight.illuminate(player.serverLevel(), cue.origin(), cue.startTick());
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, cue);
     }
 

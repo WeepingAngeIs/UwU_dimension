@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.RevivalBloom;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
@@ -36,10 +37,11 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class LotusProbe {
     private static final ResourceLocation READY = ResourceLocation.fromNamespaceAndPath("uwudimension", "revival_ready");
     private static final float LETHAL = 100F;
+    private static final int OVERLAP_OFFSET = 10;
 
-    private Actor revived;
-    private int scenario;
-    private long successTick;
+    private LotusLightPlot plot;
+    private RevivalWindow dirk;
+    private RevivalWindow axe;
     private boolean finished;
 
     public LotusProbe() {
@@ -52,38 +54,34 @@ public final class LotusProbe {
         if (finished || server.getTickCount() < 12) return;
         try {
             ServerLevel level = server.overworld();
-            if (revived == null) {
+            if (plot == null) {
                 verifyIsolation(level);
-                revived = revive(level, RevivalBlossoms.DIRK.get(), InteractionHand.MAIN_HAND);
+                plot = new LotusLightPlot(level);
                 return;
             }
 
-            int duration = RevivalBloom.DURATION_TICKS;
-            long age = level.getGameTime() - successTick;
-            require(age > 0 && age <= duration, "Missed the exact server tick boundary for the lotus");
-            if (age < duration) {
-                assertProtected(revived, level.damageSources().generic());
-                if (age == duration - 1) assertProtected(revived, level.damageSources().genericKill());
+            if (dirk == null) {
+                if (plot.ready()) dirk = revive(level, RevivalBlossoms.DIRK.get(), InteractionHand.MAIN_HAND, "returnbloom_dirk");
                 return;
             }
-
-            assertDamageWorks(revived, "first tick after the bloom");
-            require(revived.channel().bloomCount == 1, "An incoming hit restarted the lotus");
-            String weapon = scenario == 0 ? "returnbloom_dirk" : "dawnpetal_axe";
-            require(RevivalBlossoms.remaining(revived.player(), revived.player().getOffhandItem())
-                            == RevivalBlossoms.COOLDOWN_TICKS - duration,
-                    "The shared cooldown diverged from the existing cooldown");
-            assertDeath(revived, level.damageSources().generic(), 1, "shared-cooldown refusal");
-            remove(revived);
-            System.out.println("LOTUS WINDOW PASS weapon=" + weapon + " protectedTicks=" + duration
-                    + " firstDamageTick=" + age + " blooms=1");
-            if (scenario++ == 0) {
-                revived = revive(level, RevivalBlossoms.AXE.get(), InteractionHand.OFF_HAND);
-                return;
+            long now = level.getGameTime();
+            long dirkAge = now - dirk.started;
+            if (dirkAge == OVERLAP_OFFSET) {
+                axe = revive(level, RevivalBlossoms.AXE.get(), InteractionHand.OFF_HAND, "dawnpetal_axe");
             }
-            System.out.println("LOTUS DEDICATED SERVER PASS durationTicks=" + duration);
-            finished = true;
-            server.halt(false);
+            long axeAge = axe == null ? -1 : now - axe.started;
+            plot.record(dirkAge, axeAge);
+            dirk.check(level, dirkAge);
+            if (axe != null && axeAge > 0) axe.check(level, axeAge);
+            if (axeAge > RevivalBloom.DURATION_TICKS + 80) {
+                throw new AssertionError("Block light failed to restore its baseline");
+            }
+            if (dirk.expired && axe != null && axe.expired && plot.restored()) {
+                System.out.println("LOTUS DEDICATED SERVER PASS durationTicks=" + RevivalBloom.DURATION_TICKS
+                        + " overlapTicks=" + (RevivalBloom.DURATION_TICKS - OVERLAP_OFFSET));
+                finished = true;
+                server.halt(false);
+            }
         } catch (Throwable failure) {
             finished = true;
             System.err.println("LOTUS CHECK FAILED");
@@ -139,8 +137,9 @@ public final class LotusProbe {
         System.out.println("LOTUS ISOLATION PASS readiness ordinary-death bypass-refusal earlier-rescue vanilla-totem");
     }
 
-    private Actor revive(ServerLevel level, Item weapon, InteractionHand hand) throws ReflectiveOperationException {
-        Actor actor = spawn(level, hand == InteractionHand.MAIN_HAND ? "MainHandRevive" : "OffhandRevive");
+    private RevivalWindow revive(ServerLevel level, Item weapon, InteractionHand hand, String weaponName)
+            throws ReflectiveOperationException {
+        Actor actor = spawn(level, hand == InteractionHand.MAIN_HAND ? "MainHandRevive" : "OffhandRevive", plot.origin());
         ItemStack stack = new ItemStack(weapon);
         actor.player().setItemInHand(hand, stack);
         if (hand == InteractionHand.MAIN_HAND) {
@@ -148,7 +147,7 @@ public final class LotusProbe {
         }
         require(RevivalBloom.DURATION_TICKS > 1 && RevivalBloom.DURATION_TICKS < RevivalBlossoms.COOLDOWN_TICKS,
                 "Bloom duration must fit inside the existing shared cooldown");
-        successTick = level.getGameTime();
+        long successTick = level.getGameTime();
         strike(actor, level.damageSources().generic(), LETHAL);
         require(actor.player().getHealth() == actor.player().getMaxHealth(), "Successful revival did not fully heal");
         require(actor.channel().bloomCount == 1 && actor.channel().lastBloom.startTick() == successTick,
@@ -161,7 +160,41 @@ public final class LotusProbe {
                 "Successful revival did not commit the existing shared cooldown");
         assertProtected(actor, level.damageSources().generic());
         assertProtected(actor, level.damageSources().fall());
-        return actor;
+        return new RevivalWindow(actor, weaponName, successTick);
+    }
+
+    private static final class RevivalWindow {
+        final Actor actor;
+        final String weapon;
+        final long started;
+        boolean expired;
+
+        RevivalWindow(Actor actor, String weapon, long started) {
+            this.actor = actor;
+            this.weapon = weapon;
+            this.started = started;
+        }
+
+        void check(ServerLevel level, long age) {
+            if (expired) return;
+            int duration = RevivalBloom.DURATION_TICKS;
+            require(age > 0 && age <= duration, "Missed the exact server tick boundary for the lotus");
+            if (age < duration) {
+                assertProtected(actor, level.damageSources().generic());
+                if (age == duration - 1) assertProtected(actor, level.damageSources().genericKill());
+                return;
+            }
+            assertDamageWorks(actor, "first tick after the bloom");
+            require(actor.channel().bloomCount == 1, "An incoming hit restarted the lotus");
+            require(RevivalBlossoms.remaining(actor.player(), actor.player().getOffhandItem())
+                            == RevivalBlossoms.COOLDOWN_TICKS - duration,
+                    "The shared cooldown diverged from the existing cooldown");
+            assertDeath(actor, level.damageSources().generic(), 1, "shared-cooldown refusal");
+            remove(actor);
+            expired = true;
+            System.out.println("LOTUS WINDOW PASS weapon=" + weapon + " protectedTicks=" + duration
+                    + " firstDamageTick=" + age + " blooms=1");
+        }
     }
 
     private static void earlierRescue(LivingDeathEvent event) {
@@ -172,6 +205,10 @@ public final class LotusProbe {
     }
 
     private static Actor spawn(ServerLevel level, String name) throws ReflectiveOperationException {
+        return spawn(level, name, null);
+    }
+
+    private static Actor spawn(ServerLevel level, String name, BlockPos location) throws ReflectiveOperationException {
         MinecraftServer server = level.getServer();
         ServerPlayer player = new ServerPlayer(server, level, new GameProfile(UUID.randomUUID(), name),
                 ClientInformation.createDefault());
@@ -179,6 +216,10 @@ public final class LotusProbe {
         var spawnProtection = ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");
         spawnProtection.setAccessible(true);
         spawnProtection.setInt(player, 0);
+        if (location != null) {
+            player.setPos(location.getX() + .5, location.getY(), location.getZ() + .5);
+            player.setNoGravity(true);
+        }
         // Attach to real tracking so sendToPlayersTrackingEntityAndSelf takes its ordinary path.
         level.addNewPlayer(player);
         require(level.getEntity(player.getId()) == player, "Fixture player was not loaded in the world");
@@ -226,6 +267,7 @@ public final class LotusProbe {
     private record Actor(ServerPlayer player, RecordingListener channel) {}
 
     private static final class RecordingListener extends ServerGamePacketListenerImpl {
+        private final UUID actor;
         int readyCount;
         int bloomCount;
         RevivalBloom.Cue lastBloom;
@@ -233,6 +275,7 @@ public final class LotusProbe {
         RecordingListener(MinecraftServer server, ServerPlayer player) {
             super(server, new Connection(PacketFlow.SERVERBOUND), player,
                     CommonListenerCookie.createInitial(player.getGameProfile(), false));
+            actor = player.getUUID();
         }
 
         @Override
@@ -243,7 +286,7 @@ public final class LotusProbe {
             }
             if (packet instanceof ClientboundCustomPayloadPacket payload) {
                 if (payload.payload().type().id().equals(READY)) readyCount++;
-                if (payload.payload() instanceof RevivalBloom.Cue bloom) {
+                if (payload.payload() instanceof RevivalBloom.Cue bloom && bloom.owner().equals(actor)) {
                     bloomCount++;
                     lastBloom = bloom;
                 }

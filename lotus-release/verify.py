@@ -1,6 +1,7 @@
 from hashlib import sha256
 import json
 from pathlib import Path
+import re
 import sys
 from zipfile import ZipFile
 
@@ -15,12 +16,16 @@ CHANGED = {
     JAVA + "RevivalBlossoms$FlowerDirk.class",
 }
 REQUIRED_CLASSES = {JAVA + name + ".class" for name in (
-    "RevivalBloom", "RevivalBloom$Cue", "RevivalBloomProtection", "client/RevivalLotusBurstClient"
+    "RevivalBloom", "RevivalBloom$Cue", "RevivalBloomProtection",
+    "RevivalLotusTerrainLight", "RevivalLotusTerrainLight$SourceBlock", "RevivalLotusTerrainLight$Source",
+    "client/RevivalLotusBurstClient"
 )}
 ART = {
-    EFFECT + "mesh.json", EFFECT + "motion.json",
+    EFFECT + "mesh.json", EFFECT + "motion.json", EFFECT + "lighting.json",
     TEXTURE + ".png", TEXTURE + ".png.mcmeta",
     TEXTURE + "_glow.png", TEXTURE + "_glow.png.mcmeta",
+    "assets/uwudimension/textures/effect/revival_lotus_halo.png",
+    "assets/uwudimension/textures/effect/revival_lotus_halo.png.mcmeta",
 }
 
 
@@ -39,6 +44,13 @@ def verify_timeline(archive):
     for name in ART:
         assert archive.read(name) == Path("src/main/resources", name).read_bytes()
     print(f"LOTUS VISUAL TIMELINE PASS {len(motion['parts'])} parts, {len(frames)} poses over 34 ticks")
+    lighting = json.loads(archive.read(EFFECT + "lighting.json"))
+    assert lighting["duration_ticks"] == motion["duration_ticks"]
+    samples = [frame["block_light_level"] for frame in lighting["frames"] if frame["tick"] % 1 == 0]
+    source = Path("src/main/java", JAVA, "RevivalLotusTerrainLight.java").read_text()
+    native = list(map(int, re.search(r"LEVELS = \{([^}]+)\}", source)[1].split(",")))
+    assert native + [0] * (len(samples) - len(native)) == samples
+    print(f"LOTUS LIGHT TIMELINE PASS peak {max(samples)}, zero from tick {len(native)}")
 
 
 def verify(jar):
@@ -56,6 +68,10 @@ def verify(jar):
             count += 1
         assert digest.hexdigest() == BASELINE, f"Unexpected JAR change: {digest.hexdigest()}"
         assert b'version="1.5.0-beta.13-combined-rc.2-lotus.1"' in archive.read("META-INF/neoforge.mods.toml")
+        compiled = Path("build/classes/java/main")
+        classes = {p.relative_to(compiled).as_posix(): p for p in compiled.rglob("*.class")}
+        assert set(classes) == {name for name in names if name.endswith(".class")}
+        assert all(archive.read(name) == path.read_bytes() for name, path in classes.items())
         verify_timeline(archive)
     print(f"LOTUS RC2 PARITY PASS {count} unchanged entries")
     print(f"LOTUS JAR SHA256 {sha256(jar.read_bytes()).hexdigest()} {jar.name}")
