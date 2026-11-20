@@ -1,6 +1,7 @@
 package dev.uwu.hotbarcheck;
 
 import dev.uwu.dimension.RelicFlight;
+import dev.uwu.dimension.DawnpetalSpinCue;
 import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.SharedAbilityHotbar;
 import dev.uwu.hotbarcheck.mixin.MouseCallbacks;
@@ -42,19 +43,24 @@ import org.lwjgl.glfw.GLFW;
 public final class HotbarProbe {
     private enum Stage {
         LOAD, EQUIP, RAPID, HIGH_SLOT, BACK, SCROLLED, DROP_KEY, DROP,
-        REEQUIP, SELECT_THROW, EMPTY, TURN, THROW_KEY, FLIGHT, DONE
+        REEQUIP, SELECT_THROW, EMPTY, TURN, THROW_KEY, FLIGHT,
+        AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, AXE_THROW, AXE_FLIGHT, DONE
     }
 
     private static final UUID DIRK = UUID.fromString("206e7d9c-e43b-4568-990a-6f789760f17e");
+    private static final UUID AXE = UUID.fromString("67abe257-dc53-4709-a098-bb51da5261cd");
     private static volatile Stage stage = Stage.LOAD;
-    private static boolean opening, observedEmptyHand;
+    private static boolean opening, observedEmptyHand, fifthCellAxe;
     private static int began, highSlot = 4, iconFrames;
+    private static int axeFrames;
     private static int suppressedSpellKeys;
     private static int beforeSlot, beforeIcons, frameCells;
     private static ItemStack[] beforeFrame;
     private static volatile Throwable serverFailure;
     private static volatile ItemEntity dropped;
     private static volatile int turns, launches;
+    private static volatile int axeLaunches;
+    private static boolean axeLeftHeldSlot;
     private static int useEvents, sent;
     private static volatile int received;
 
@@ -92,7 +98,7 @@ public final class HotbarProbe {
         try {
             if (serverFailure != null) throw new AssertionError("Fixture server action failed", serverFailure);
             if (stage != Stage.LOAD) {
-                require(player.tickCount - began < (stage == Stage.FLIGHT ? 280 : 120),
+                require(player.tickCount - began < (stage == Stage.FLIGHT || stage == Stage.AXE_FLIGHT ? 280 : 120),
                         "Timed out in " + stage + ", slot=" + player.getInventory().selected
                                 + ", icon frames=" + iconFrames + ", casts=" + launches + ", primes=" + turns
                                 + ", use events/sent/received=" + useEvents + "/" + sent + "/" + received);
@@ -230,6 +236,52 @@ public final class HotbarProbe {
                             + suppressedSpellKeys + " while physical inventory, Turn and Throw checks passed");
                     System.out.println("DIRK THROW PASS empty cell restored Turn, real right-click launched one Dirk,"
                             + " held slot became empty and the exact Dirk returned to it");
+                    serverAction(client, actor -> {
+                        var axe = new ItemStack(RevivalBlossoms.AXE.get());
+                        CustomData.update(DataComponents.CUSTOM_DATA, axe, tag -> tag.putUUID("uwu_revival_id", AXE));
+                        actor.getInventory().setItem(4, axe);
+                        actor.containerMenu.broadcastChanges();
+                    });
+                    enter(Stage.AXE_SELECT, player.tickCount);
+                }
+                case AXE_SELECT -> {
+                    if (!hasAxe(inventory.getItem(4))) return;
+                    number(client, 4);
+                    enter(Stage.AXE_LAYOUT, player.tickCount);
+                }
+                case AXE_LAYOUT -> {
+                    require(inventory.selected == 4 && hasAxe(player.getMainHandItem()), "Key 5 did not equip the Axe");
+                    require(SharedAbilityHotbar.visibleFor(player) && !SharedAbilityHotbar.showsWeaponIndicator(player),
+                            "Slot 5 should show the skill row and native held item cell");
+                    requireCell(0);
+                    if (axeFrames < 2 || player.getAttackStrengthScale(0) < 1F) return;
+                    number(client, 0);
+                    enter(Stage.AXE_SPIN, player.tickCount);
+                    rightClick(client);
+                }
+                case AXE_SPIN -> {
+                    if (DawnpetalSpinCue.frame(player, 0F, true) == null) return;
+                    require(inventory.selected == 4 && hasAxe(player.getMainHandItem()) && axeLaunches == 0,
+                            "Slot 1 resolved to anything other than the held Axe's Spin");
+                    enter(Stage.AXE_READY, player.tickCount);
+                }
+                case AXE_READY -> {
+                    if (player.tickCount - began < 80 || player.getCooldowns().isOnCooldown(RevivalBlossoms.AXE.get())) return;
+                    number(client, 1);
+                    enter(Stage.AXE_THROW, player.tickCount);
+                }
+                case AXE_THROW -> {
+                    require(inventory.selected == 4 && axeLaunches == 0, "Slot 2 switched or used the Axe before right-click");
+                    requireCell(1);
+                    if (player.getAttackStrengthScale(0) < 1F) return;
+                    enter(Stage.AXE_FLIGHT, player.tickCount);
+                    rightClick(client);
+                }
+                case AXE_FLIGHT -> {
+                    if (player.getMainHandItem().isEmpty()) axeLeftHeldSlot = true;
+                    if (!axeLeftHeldSlot || axeLaunches == 0 || !hasAxe(player.getMainHandItem())) return;
+                    require(inventory.selected == 4 && axeLaunches == 1, "Axe Throw did not return to its original slot");
+                    System.out.println("HOTBAR AXE PASS ordinary cell 5 and four ability cells without extra icon; real Spin and Throw");
                     System.out.println("HOTBAR CLIENT PASS");
                     stage = Stage.DONE;
                 }
@@ -244,7 +296,9 @@ public final class HotbarProbe {
         var player = Minecraft.getInstance().player;
         beforeFrame = null;
         frameCells = 0;
-        if (player == null || stage == Stage.LOAD || stage == Stage.DONE || !hasDirk(player.getMainHandItem())) return;
+        fifthCellAxe = false;
+        if (player == null || stage == Stage.LOAD || stage == Stage.DONE
+                || !hasDirk(player.getMainHandItem()) && !hasAxe(player.getMainHandItem())) return;
         Inventory inventory = player.getInventory();
         beforeSlot = inventory.selected;
         beforeIcons = iconFrames;
@@ -254,10 +308,16 @@ public final class HotbarProbe {
 
     private static void afterFrame(RenderFrameEvent.Post event) {
         var player = Minecraft.getInstance().player;
-        if (player == null || beforeFrame == null || iconFrames == beforeIcons || stage == Stage.DONE) return;
+        if (player == null || beforeFrame == null || stage == Stage.DONE) return;
+        boolean axe = hasAxe(player.getMainHandItem()) && beforeSlot == 4;
+        if (!axe && iconFrames == beforeIcons) return;
         try {
             Inventory inventory = player.getInventory();
             require(frameCells == 0b1111, "HUD did not replace exactly the first four hotbar cells: " + frameCells);
+            if (axe) {
+                require(fifthCellAxe, "Slot 5 did not draw the Axe in its native hotbar cell");
+                axeFrames++;
+            }
             require(beforeSlot == inventory.selected, "HUD changed selected inventory slot");
             for (int slot = 0; slot < beforeFrame.length; slot++) {
                 require(ItemStack.matches(beforeFrame[slot], inventory.getItem(slot)), "HUD mutated inventory slot " + slot);
@@ -269,6 +329,10 @@ public final class HotbarProbe {
 
     public static void drawnIcon(ItemStack stack) {
         var player = Minecraft.getInstance().player;
+        if (player != null && player.getInventory().selected == 4 && hasAxe(player.getMainHandItem())) {
+            fail(new AssertionError("Slot 5 already has its own Axe icon"));
+            return;
+        }
         if (player == null || stage == Stage.LOAD || stage == Stage.DONE || !hasDirk(player.getMainHandItem())) return;
         if (!ItemStack.matches(stack, player.getMainHandItem())) {
             fail(new AssertionError("HUD substituted a stack for the actual held Dirk"));
@@ -279,6 +343,10 @@ public final class HotbarProbe {
 
     public static void drawnCell(int index) {
         if (beforeFrame != null) frameCells |= 1 << index;
+    }
+
+    public static void drawnVanillaFifth(ItemStack stack) {
+        if (beforeFrame != null && beforeSlot == 4 && hasAxe(stack)) fifthCellAxe = true;
     }
 
     public static void suppressedSpellKey() {
@@ -310,6 +378,10 @@ public final class HotbarProbe {
                 && flight.physical() && hasDirk(flight.getItem())) {
             launches++;
         }
+        if (stage == Stage.AXE_FLIGHT && event.getEntity() instanceof RelicFlight flight
+                && flight.physical() && hasAxe(flight.getItem())) {
+            axeLaunches++;
+        }
     }
 
     private static ItemStack newDirk() {
@@ -323,9 +395,16 @@ public final class HotbarProbe {
     }
 
     private static boolean hasDirk(ItemStack stack) {
-        if (!stack.is(RevivalBlossoms.DIRK.get())) return false;
+        return stack.is(RevivalBlossoms.DIRK.get()) && hasIdentity(stack, DIRK);
+    }
+
+    private static boolean hasAxe(ItemStack stack) {
+        return stack.is(RevivalBlossoms.AXE.get()) && hasIdentity(stack, AXE);
+    }
+
+    private static boolean hasIdentity(ItemStack stack, UUID identity) {
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.hasUUID("uwu_revival_id") && DIRK.equals(tag.getUUID("uwu_revival_id"));
+        return tag.hasUUID("uwu_revival_id") && identity.equals(tag.getUUID("uwu_revival_id"));
     }
 
     private static int countDirks(Inventory inventory) {

@@ -34,6 +34,6 @@ cat > build/hotbar-client/config/spell_engine/client.json5 <<'CONFIG'
 CONFIG
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I hotbar-check/client.gradle runHotbarClient 2>&1 | tee build/hotbar-client.log
-for marker in 'HOTBAR INPUT PASS' 'HOTBAR DISPLAY PASS' 'HOTBAR SPELL ENGINE PASS' 'DIRK THROW PASS' 'HOTBAR CLIENT PASS'; do
+for marker in 'HOTBAR INPUT PASS' 'HOTBAR DISPLAY PASS' 'HOTBAR SPELL ENGINE PASS' 'DIRK THROW PASS' 'HOTBAR AXE PASS' 'HOTBAR CLIENT PASS'; do
     grep -F "$marker" build/hotbar-client.log
 done
