@@ -30,7 +30,13 @@ abstract class DawnpetalHeldModelMixin {
             at=@At(value="INVOKE",target="Lnet/minecraft/client/renderer/entity/ItemRenderer;getModel(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;I)Lnet/minecraft/client/resources/model/BakedModel;"))
     private BakedModel uwu$dawnpetalBlade(BakedModel model, @Local(argsOnly=true) LivingEntity owner,
             @Local(argsOnly=true) ItemStack stack, @Local(argsOnly=true) ItemDisplayContext context) {
-        if (!(owner instanceof Player player) || !stack.is(RevivalBlossoms.AXE.get())) return model;
+        if (!(owner instanceof Player player)) return model;
+        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+        if ((context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
+                && (stack.is(RevivalBlossoms.AXE.get()) || stack.is(RevivalBlossoms.DIRK.get()))) {
+            RevivalHandPose.observeAnimatedHands(player, context, partial);
+        }
+        if (!stack.is(RevivalBlossoms.AXE.get())) return model;
         if (context.firstPerson() && RevivalHandPose.drawsAxe(stack)) return RevivalHandPose.restingAxe(model);
         if (context != ItemDisplayContext.FIRST_PERSON_RIGHT_HAND && context != ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 && context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND && context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND) return model;
@@ -39,7 +45,6 @@ abstract class DawnpetalHeldModelMixin {
             default -> HumanoidArm.RIGHT;
         };
         boolean main = owner.getMainArm() == arm;
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         var frame = main && ItemStack.isSameItemSameComponents(stack, player.getMainHandItem())
                 ? DawnpetalSpinClient.renderFrame(player, partial) : null;
         var spin = frame != null && frame.arm() == arm ? frame : null;

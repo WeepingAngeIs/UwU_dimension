@@ -1,7 +1,7 @@
-name: Approved first-person grips on RC.2
+name: First-person grip recovery on RC.2
 on:
   push:
-    branches: ['codex/build/uwu-rc2-grips']
+    branches: ['codex/build/uwu-rc2-grip-recovery']
 permissions:
   contents: read
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 38
     env:
-      GRIP_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-grips.1.jar
+      GRIP_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-grips.2.jar
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -23,7 +23,7 @@ jobs:
         run: |
           bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
           python3 held-release/verify.py "$GRIP_JAR"
-      - name: Verify both hands, swing, Spin and third-person routing
+      - name: Verify real Better Combat recovery, both hands, Spin and third-person routing
         run: |
           if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
             sudo apt-get update -qq

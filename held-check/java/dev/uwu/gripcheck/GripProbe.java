@@ -46,6 +46,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Matrix4f;
@@ -53,17 +54,19 @@ import org.joml.Matrix4f;
 @Mod("uwu_grip_check")
 public final class GripProbe {
     private static boolean starting, done;
-    private enum Stage { START, EQUIP, WINDUP, CLEAR, COMBAT, RECOVER }
+    private enum Stage { START, EQUIP, WINDUP, CLEAR, COMBAT, RECOVER, SLIDE }
     private static Stage stage = Stage.START;
     private static int stageTick;
     private static final UUID networkAxe = UUID.randomUUID();
     private static ItemStack inspecting;
     private static Sample observed;
+    private static final GripRecoveryProbe RECOVERY = new GripRecoveryProbe();
     private record Sample(ItemDisplayContext view, boolean scoped, boolean idleModel, Matrix4f hand, Matrix4f model) {}
 
     public GripProbe() {
         NeoForge.EVENT_BUS.addListener(GripProbe::tick);
         NeoForge.EVENT_BUS.addListener(GripProbe::frame);
+        NeoForge.EVENT_BUS.addListener(GripProbe::afterFrame);
     }
 
     private static void tick(ClientTickEvent.Post event) {
@@ -83,7 +86,11 @@ public final class GripProbe {
     }
 
     public static void observe(ItemStack item, ItemDisplayContext view, boolean left, PoseStack pose, BakedModel model) {
-        if (inspecting == null || item != inspecting) return;
+        if (inspecting == null) {
+            RECOVERY.observe(item, view, left, pose, model);
+            return;
+        }
+        if (item != inspecting) return;
         PoseStack transform = new PoseStack();
         model.applyTransform(view, transform, left);
         observed = new Sample(view, RevivalHandPose.drawsAxe(item),
@@ -92,6 +99,10 @@ public final class GripProbe {
     }
 
     private static void frame(RenderHandEvent event) {
+        if (stage == Stage.SLIDE) {
+            RECOVERY.beforeHand(event);
+            return;
+        }
         var client = Minecraft.getInstance();
         if (!starting || done || client.screen != null || client.player == null || client.player.tickCount < 35
                 || event.getHand() != InteractionHand.MAIN_HAND) return;
@@ -160,10 +171,11 @@ public final class GripProbe {
                     if (combat.getCurrentAttackHand() != null || DawnpetalSwing.hasLocalCue(p,.5F)
                             || p.swinging || p.getAttackAnim(.5F) != 0) return;
                     require(axeIdle(client,p) && dirkAtRest(p),"Better Combat completion did not restore idle");
-                    System.out.println("GRIP BETTER COMBAT PASS actual attack, active state and recovery");
-                    System.out.println("HELD GRIPS CLIENT PASS both hands idle, swing, equip, use, observer, native windup, Better Combat and Spin");
-                    done = true;
+                    System.out.println("GRIP BETTER COMBAT PASS actual attack start and cancellation");
+                    RECOVERY.start(client);
+                    next(p, Stage.SLIDE);
                 }
+                case SLIDE -> throw new AssertionError("Slide sampling must run after rendering");
             }
         } catch (Throwable failure) {
             done = true;
@@ -174,12 +186,25 @@ public final class GripProbe {
         }
     }
 
+    private static void afterFrame(RenderFrameEvent.Post event) {
+        if (stage != Stage.SLIDE || done) return;
+        try {
+            if (!RECOVERY.endFrame(Minecraft.getInstance())) return;
+            System.out.println("HELD GRIPS CLIENT PASS both hands idle, swing, equip, use, observer, native windup, Better Combat recovery slide and Spin");
+            done = true;
+        } catch (Throwable failure) {
+            done = true;
+            System.err.println("HELD GRIPS CLIENT FAILED");
+            failure.printStackTrace();
+        }
+    }
+
     private static void next(LocalPlayer p, Stage nextStage) {
         stageTick = p.tickCount;
         stage = nextStage;
     }
 
-    private static void serverAction(Minecraft client, Consumer<ServerPlayer> action) {
+    static void serverAction(Minecraft client, Consumer<ServerPlayer> action) {
         var server = client.getSingleplayerServer();
         require(server != null, "Fixture world needs an integrated server");
         UUID id = client.player.getUUID();
@@ -193,7 +218,7 @@ public final class GripProbe {
     }
 
     private static boolean dirkAtRest(LocalPlayer p) {
-        return RevivalHandPose.atRest(p,InteractionHand.OFF_HAND,p.getOffhandItem(),.5F,0,0);
+        return RevivalHandPose.usesRestingGrip(p,InteractionHand.OFF_HAND,p.getOffhandItem(),.5F,0);
     }
 
     private static void checkItemUse(Minecraft client, LocalPlayer p) {
@@ -223,15 +248,16 @@ public final class GripProbe {
         } else {
             require(new Matrix4f(raw.hand).translate(0,-.18F,0).equals(idle.hand,.0001F), "Dirk idle translation incorrect");
         }
-        for (boolean swing : List.of(true, false)) {
-            float swinging = swing ? .45F : 0, equipping = swing ? 0 : .5F;
-            var moving = draw(client, p, hand, stack, swinging, equipping);
-            p.setItemInHand(hand, swapped);
-            var reference = draw(client, p, hand, stack, swinging, equipping);
-            require(!moving.idleModel && !moving.scoped && moving.hand.equals(reference.hand,.0001F)
-                    && moving.model.equals(reference.model,.0001F), "Active hand changed under idle patch");
-            p.setItemInHand(hand, stack);
-        }
+        var moving = draw(client, p, hand, stack, .45F, 0);
+        p.setItemInHand(hand, swapped);
+        var reference = draw(client, p, hand, stack, .45F, 0);
+        require(!moving.idleModel && !moving.scoped && moving.hand.equals(reference.hand,.0001F)
+                && moving.model.equals(reference.model,.0001F), "Active hand changed under idle patch");
+        p.setItemInHand(hand, stack);
+        var rising = draw(client, p, hand, stack, 0, .5F);
+        require(rising.scoped == idle.scoped && rising.idleModel == idle.idleModel
+                && new Matrix4f(idle.hand).translate(0, -.3F, 0).equals(rising.hand, .0001F)
+                && rising.model.equals(idle.model,.0001F), "Equip rise used a different grip");
         var restored = draw(client, p, hand, stack, 0, 0);
         require(restored.hand.equals(idle.hand,.0001F) && restored.model.equals(idle.model,.0001F), "Idle did not return");
 
