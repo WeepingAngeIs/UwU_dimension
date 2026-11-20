@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Drives real server ticks in a short disposable patrol lane and enclosed door lanes. */
 @Mod("uwu_guardian_home_check")
 public final class GuardianHomeProbe {
-    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, DOOR, DONE }
+    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_HOME, MORNING, DOOR, DONE }
     private Phase phase = Phase.PREPARE;
     private int tick, phaseStarted;
     private ServerLevel level;
@@ -136,9 +136,28 @@ public final class GuardianHomeProbe {
                     if (elapsed() < 11) return;
                     require(returning() && stationaryTicks() < 20 && natural.getNavigation().getPath() != null,
                             "Night return waited for the four-minute timer or failed to plan an inward route");
+                    require(natural.isSprinting(), "Night return was not a sprint");
                     natural.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(walkSpeed);
+                    next(Phase.NIGHT_HOME);
+                }
+                case NIGHT_HOME -> {
+                    require(elapsed() <= 300, "Guardian did not return to the plaza at night: " + natural.position());
+                    if (returning()) return;
+                    require(natural.distanceToSqr(Vec3.atBottomCenterOf(court)) <= 8 * 8,
+                            "Guardian resumed normal travel outside its nighttime home");
+                    if (elapsed() < 45) return;
+                    require(natural.getNavigation().isDone() && !natural.isSprinting(), "Guardian kept patrolling at night");
+                    GuardianArena.move(natural, court);
+                    level.setDayTime(0);
+                    next(Phase.MORNING);
+                }
+                case MORNING -> {
+                    require(elapsed() <= 120, "Guardian did not resume its daytime patrol");
+                    if (natural.distanceToSqr(Vec3.atBottomCenterOf(court)) < 16) return;
+                    require(!returning(), "Daytime travel still used the nighttime return");
                     natural.discard();
-                    System.out.println("GUARDIAN HOME SCHEDULE PASS daytime limit, 4800 idle ticks and immediate night route");
+                    level.setDayTime(14000);
+                    System.out.println("GUARDIAN HOME SCHEDULE PASS daylight limit, 4800 idle ticks, night sprint and morning patrol");
                     startDoors();
                     next(Phase.DOOR);
                 }

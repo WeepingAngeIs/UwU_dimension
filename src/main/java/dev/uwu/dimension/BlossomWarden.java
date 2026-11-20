@@ -82,7 +82,8 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
-        if (female()) return net.minecraft.world.entity.EntityDimensions.scalable(.78F,1.98F).withEyeHeight(1.64F).scale(getAgeScale());
+        // A centered path through an open ordinary door has 5/8 of a block of clearance.
+        if (female()) return net.minecraft.world.entity.EntityDimensions.scalable(.60F,1.98F).withEyeHeight(1.64F).scale(getAgeScale());
         return super.getDefaultDimensions(pose);
     }
 

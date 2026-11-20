@@ -5,11 +5,13 @@ import dev.uwu.dimension.RevivalBlossoms;
 import dev.uwu.dimension.SharedAbilityHotbar;
 import dev.uwu.throwcheck.mixin.MousePress;
 import java.lang.reflect.Method;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.bettercombat.api.MinecraftClient_BetterCombat;
+import net.bettercombat.logic.WeaponRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -55,29 +57,39 @@ public final class ThrowProbe {
     private static final float MELEE_YAW = 35.54F;
     private static final int MELEE_SLOT = 0;
     private static final double NEAR_DISTANCE = 4.25, FAR_DISTANCE = 10.75;
+    private static final double NATIVE_DISTANCE = 8.25;
 
     private enum Stage { LOAD, EQUIP, SELECT, ARM, FLIGHT, MELEE, COOLDOWN_SELECT, COOLDOWN, DONE }
 
     private enum Case {
         BASELINE(0),
         UNPRIMED_NEAR(NEAR_DISTANCE), NEAR(NEAR_DISTANCE),
-        UNPRIMED_FAR(FAR_DISTANCE), FAR(FAR_DISTANCE),
-        MISS(0), BELLHEART(NEAR_DISTANCE), TIDELACE(NEAR_DISTANCE);
+        UNPRIMED_FAR(FAR_DISTANCE), FAR(FAR_DISTANCE), MISS(0),
+        UNPRIMED_BELLHEART(NATIVE_DISTANCE, "bellheart_axe"), BELLHEART(NATIVE_DISTANCE, "bellheart_axe"),
+        UNPRIMED_TIDELACE(NATIVE_DISTANCE, "tidelace_trident"), TIDELACE(NATIVE_DISTANCE, "tidelace_trident");
 
         final double distance;
-        Case(double distance) { this.distance = distance; }
+        final String nativeItem;
+        Case(double distance) { this(distance, null); }
+        Case(double distance, String nativeItem) {
+            this.distance = distance;
+            this.nativeItem = nativeItem;
+        }
 
-        boolean unprimed() { return this == UNPRIMED_NEAR || this == UNPRIMED_FAR; }
-        boolean hasMeleeTarget() { return unprimed() || this == BASELINE || this == NEAR || this == FAR; }
-        boolean hasPull() { return this == BELLHEART || this == TIDELACE; }
-
-        Item item() {
+        Case fastVariant() {
             return switch (this) {
-                case BELLHEART -> relic("bellheart_axe");
-                case TIDELACE -> relic("tidelace_trident");
-                default -> RevivalBlossoms.AXE.get();
+                case UNPRIMED_NEAR -> NEAR;
+                case UNPRIMED_FAR -> FAR;
+                case UNPRIMED_BELLHEART -> BELLHEART;
+                case UNPRIMED_TIDELACE -> TIDELACE;
+                default -> this;
             };
         }
+
+        boolean unprimed() { return fastVariant() != this; }
+        boolean hasMeleeTarget() { return this != MISS; }
+        boolean hasPull() { return nativeItem != null; }
+        Item item() { return hasPull() ? relic(nativeItem) : RevivalBlossoms.AXE.get(); }
     }
 
     private static final class Trial {
@@ -117,7 +129,7 @@ public final class ThrowProbe {
     private static boolean opening;
     private static int entered;
     private static float fullChargeDamage;
-    private static long unprimedNearTicks, unprimedFarTicks;
+    private static final EnumMap<Case, Long> unprimedTicks = new EnumMap<>(Case.class);
     private static Method attackEntry;
 
     public ThrowProbe() {
@@ -168,6 +180,8 @@ public final class ThrowProbe {
                     if (!trial.matches(player.getMainHandItem()) || trial.position == null
                             || player.distanceToSqr(trial.position) > .04 || !player.onGround()) return;
                     if (combat(client).getCurrentAttackHand() != null || combat(client).getComboCount() != 0) return;
+                    require(WeaponRegistry.getAttributes(player.getMainHandItem()) != null,
+                            "Better Combat did not assign a melee profile to " + trial.kind);
                     if (trial.kind == Case.BASELINE) {
                         if (player.getAttackStrengthScale(0) < 1F || !canSeeMeleeTarget(client, trial)) return;
                         tryMelee(client, trial);
@@ -187,13 +201,16 @@ public final class ThrowProbe {
                 }
                 case ARM -> {
                     if (!trial.armed) return;
+                    // Better Combat gates native item use after an equip. The server stays
+                    // undercharged for the throw check while the client reaches its input threshold.
+                    if (trial.kind.hasPull() && player.getAttackStrengthScale(0) < 1F) return;
                     enter(Stage.FLIGHT, player);
                     rightClick(client);
                 }
                 case FLIGHT -> {
                     if (trial.flight != null && trial.kind.hasMeleeTarget()) {
                         player.setYRot(MELEE_YAW);
-                        player.setXRot(5);
+                        player.setXRot(trial.kind.hasPull() ? 12F : 5F);
                     }
                     if (trial.caught < 0 || !trial.matches(player.getMainHandItem())) return;
                     checkCatch(client, trial);
@@ -210,24 +227,35 @@ public final class ThrowProbe {
                     long impactToMelee = trial.melee - trial.impact;
                     if (trial.kind.unprimed()) {
                         require(trial.impact >= 0 && impactToMelee > 0, "Unprimed timing missed an actual projectile hit");
-                        if (trial.kind == Case.UNPRIMED_NEAR) unprimedNearTicks = impactToMelee;
-                        else unprimedFarTicks = impactToMelee;
+                        Case variant = trial.kind.fastVariant();
+                        unprimedTicks.put(variant, impactToMelee);
                         System.out.println("THROW " + trial.kind + " PASS " + timing(trial));
-                        prepare(client, trial.kind == Case.UNPRIMED_NEAR ? Case.NEAR : Case.FAR);
+                        prepare(client, variant);
                         return;
                     }
-                    require(Math.abs(trial.damage - fullChargeDamage) < .05F,
-                            "Post-catch melee damage " + trial.damage + " differs from full charge " + fullChargeDamage);
-                    long previous = trial.kind == Case.NEAR ? unprimedNearTicks : unprimedFarTicks;
+                    if (!trial.kind.hasPull()) {
+                        require(Math.abs(trial.damage - fullChargeDamage) < .05F,
+                                "Post-catch melee damage " + trial.damage + " differs from full charge " + fullChargeDamage);
+                    }
+                    long previous = unprimedTicks.getOrDefault(trial.kind, 0L);
                     require(impactToMelee > 0 && 2 * impactToMelee < previous,
                             "Impact-to-melee was " + impactToMelee + "t versus " + previous
                                     + "t without the change: " + trial.observations(player));
                     System.out.println("THROW " + trial.kind + " PASS " + timing(trial)
                             + " unprimed-impact-to-melee=" + previous + "t");
-                    if (trial.kind == Case.NEAR) {
-                        selectThrow(client);
-                        enter(Stage.COOLDOWN_SELECT, player);
-                    } else prepare(client, Case.MISS);
+                    switch (trial.kind) {
+                        case NEAR -> {
+                            selectThrow(client);
+                            enter(Stage.COOLDOWN_SELECT, player);
+                        }
+                        case FAR -> prepare(client, Case.MISS);
+                        case BELLHEART -> prepare(client, Case.UNPRIMED_TIDELACE);
+                        case TIDELACE -> {
+                            System.out.println("THROW CLIENT PASS");
+                            stage = Stage.DONE;
+                        }
+                        default -> throw new AssertionError("Unexpected timing trial " + trial.kind);
+                    }
                 }
                 case COOLDOWN_SELECT -> {
                     require(SharedAbilityHotbar.selectedCell() == 1
@@ -263,10 +291,12 @@ public final class ThrowProbe {
                             && player.getAttackStrengthScale(0) < .5F,
                     "Ground-only return erroneously granted combat recharge: " + trial.observations(player));
             System.out.println("THROW MISS PASS block landing returned the stack without granting charge");
-            prepare(client, Case.BELLHEART);
+            prepare(client, Case.UNPRIMED_BELLHEART);
             return;
         }
         require(trial.impact >= 0 && !trial.landed, "No accepted projectile hit: " + trial.observations(player));
+        require(!Double.isNaN(trial.pull) && (trial.kind.hasPull() ? trial.pull > .25 : trial.pull < .15),
+                "Incorrect pull on the struck target: " + trial.observations(player));
         if (trial.kind.unprimed()) {
             require(trial.returnStrength < .5F, "Unprimed baseline received the new catch charge");
             if (canSeeMeleeTarget(client, trial)) tryMelee(client, trial);
@@ -274,27 +304,11 @@ public final class ThrowProbe {
         }
         require(trial.caught - trial.impact <= 6,
                 "Accepted projectile hit did not get a fast catch: " + trial.observations(player));
-        require(!Double.isNaN(trial.pull) && (trial.kind.hasPull() ? trial.pull > .25 : trial.pull < .15),
-                "Incorrect pull on the struck target: " + trial.observations(player));
-        if (!trial.kind.hasPull()) {
-            if (canSeeMeleeTarget(client, trial)) tryMelee(client, trial);
-            require(player.tickCount - trial.seenHeldAt <= 4,
-                    "Catch did not enable immediate Better Combat input: " + trial.observations(player));
-            return;
-        }
-        if (player.getAttackStrengthScale(0) < .98F) {
-            require(player.tickCount - trial.seenHeldAt <= 4,
-                    "Catch did not grant immediate client-side melee charge: " + trial.observations(player));
-            return;
-        }
-        require(trial.returnStrength >= .98F, "Successful hit did not recharge the server player");
-        System.out.println("THROW " + trial.kind + " PASS pull=" + trial.pull
-                + " impact-to-catch=" + (trial.caught - trial.impact) + "t; vanilla melee bar full");
-        if (trial.kind == Case.BELLHEART) prepare(client, Case.TIDELACE);
-        else {
-            System.out.println("THROW CLIENT PASS");
-            stage = Stage.DONE;
-        }
+        if (trial.kind.hasPull())
+            require(trial.returnStrength >= .98F, "Successful hit did not recharge the server player");
+        if (canSeeMeleeTarget(client, trial)) tryMelee(client, trial);
+        require(player.tickCount - trial.seenHeldAt <= 4,
+                "Catch did not enable immediate Better Combat input: " + trial.observations(player));
     }
 
     private static String timing(Trial trial) {
@@ -302,7 +316,7 @@ public final class ThrowProbe {
                 + " catch-to-melee=" + (trial.melee - trial.caught) + "t"
                 + " impact-to-melee=" + (trial.melee - trial.impact) + "t"
                 + " pre-throw charge=" + trial.launchStrength + " damage=" + trial.damage
-                + " melee attempts=" + trial.meleeAttempts;
+                + " pull=" + trial.pull + " melee attempts=" + trial.meleeAttempts;
     }
 
     // Called only by the disposable probe mixin. Leave every other player and trial untouched.
