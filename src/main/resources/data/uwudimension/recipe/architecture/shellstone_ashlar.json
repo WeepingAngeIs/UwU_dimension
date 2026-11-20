@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:sakura_stone"
+  },
+  "result": {
+    "id": "uwudimension:shellstone_ashlar",
+    "count": 1
+  }
+}

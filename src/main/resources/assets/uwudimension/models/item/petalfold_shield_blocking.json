@@ -1,0 +1,73 @@
+{
+  "parent": "uwudimension:item/petalfold_shield_body",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -12,
+        -3
+      ],
+      "translation": [
+        0.55,
+        2.1,
+        -6
+      ],
+      "scale": [
+        0.82,
+        0.82,
+        0.82
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -12,
+        -3
+      ],
+      "translation": [
+        0.55,
+        2.1,
+        -6
+      ],
+      "scale": [
+        0.82,
+        0.82,
+        0.82
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        45,
+        -25,
+        0
+      ],
+      "translation": [
+        0.93,
+        -0.59,
+        0.34
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        45,
+        -25,
+        0
+      ],
+      "translation": [
+        0.93,
+        -0.59,
+        0.34
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  }
+}

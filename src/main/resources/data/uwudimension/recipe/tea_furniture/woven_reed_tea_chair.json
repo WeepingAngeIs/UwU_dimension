@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "P  ",
+    "PUP",
+    "S S"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:bamboo_mosaic"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "U": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "uwudimension:woven_reed_tea_chair",
+    "count": 1
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_sky_tower.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue110"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_belfry.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue111"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_lower_twin.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue112"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_turn.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue113"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_pencil.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue114"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_borrowed_faces.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue115"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_latch.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue116"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/one_knock_late/the_map_at_dawn.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue117"
+      ]
+    }
+  ]
+}

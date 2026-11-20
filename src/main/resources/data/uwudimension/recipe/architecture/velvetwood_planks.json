@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "uwudimension:velvetwood_beam"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:velvetwood_planks",
+    "count": 4
+  }
+}

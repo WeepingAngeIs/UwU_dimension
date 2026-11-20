@@ -1,0 +1,43 @@
+{
+  "parent": "uwudimension:a_rather_pretty_place",
+  "display": {
+    "icon": {
+      "id": "uwudimension:sakura_rice_seeds"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.garden/seeds.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.garden/seeds.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "uwudimension:heartberry_seeds",
+              "uwudimension:sakura_rice_seeds",
+              "uwudimension:starfruit_seeds",
+              "uwudimension:frostpetal_seeds",
+              "uwudimension:sweetbean_seeds",
+              "uwudimension:glowginger_seeds",
+              "uwudimension:vanilla_bean_seeds"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

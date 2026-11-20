@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "uwudimension:heartsill_slab",
+  "pattern": [
+    "HHH"
+  ],
+  "key": {
+    "H": {
+      "item": "uwudimension:gray_heartsill"
+    }
+  },
+  "result": {
+    "id": "uwudimension:gray_heartsill_slab",
+    "count": 6
+  }
+}

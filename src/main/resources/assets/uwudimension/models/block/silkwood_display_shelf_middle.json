@@ -1,0 +1,83 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "boards": "uwudimension:block/silkwood_display_shelf/boards",
+    "upper": "uwudimension:block/silkwood_display_shelf/upper",
+    "edge": "uwudimension:block/silkwood_display_shelf/edge",
+    "cherry": "uwudimension:block/silkwood_display_shelf/cherry",
+    "pearl": "uwudimension:block/silkwood_display_shelf/pearl",
+    "brass": "uwudimension:block/silkwood_display_shelf/brass",
+    "particle": "uwudimension:block/silkwood_display_shelf/boards"
+  },
+  "elements": [
+    {
+      "name": "Sanded display surface",
+      "from": [
+        0,
+        14,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "texture": "#edge"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#upper"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#boards"
+        }
+      }
+    }
+  ]
+}

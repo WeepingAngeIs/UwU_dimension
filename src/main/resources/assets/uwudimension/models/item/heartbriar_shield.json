@@ -1,0 +1,11 @@
+{
+  "parent": "uwudimension:item/heartbriar_shield_body",
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:blocking": 1
+      },
+      "model": "uwudimension:item/heartbriar_shield_blocking"
+    }
+  ]
+}

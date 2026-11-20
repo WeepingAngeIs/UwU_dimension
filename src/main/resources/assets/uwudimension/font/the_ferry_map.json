@@ -1,0 +1,40 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_ferry_map/map_at_the_ferry.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue120"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_ferry_map/gran_at_the_bench.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue121"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_ferry_map/the_big_kettle.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue122"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_ferry_map/four_slices.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue123"
+      ]
+    }
+  ]
+}

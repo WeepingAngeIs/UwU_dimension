@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "uwudimension:block/dew_leaded_glass"
+  },
+  "render_type": "minecraft:translucent"
+}

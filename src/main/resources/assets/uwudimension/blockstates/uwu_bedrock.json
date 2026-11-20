@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "uwudimension:block/uwu_bedrock"
+      },
+      {
+        "model": "uwudimension:block/uwu_bedrock_mirrored"
+      },
+      {
+        "model": "uwudimension:block/uwu_bedrock",
+        "y": 180
+      },
+      {
+        "model": "uwudimension:block/uwu_bedrock_mirrored",
+        "y": 180
+      }
+    ]
+  }
+}

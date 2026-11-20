@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:dusk_frost_sorrel"
+    }
+  ],
+  "result": {
+    "id": "minecraft:light_gray_dye",
+    "count": 1
+  }
+}

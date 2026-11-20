@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "P  ",
+    "PUP",
+    "S S"
+  ],
+  "key": {
+    "P": {
+      "item": "uwudimension:velvetwood_planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "U": {
+      "item": "minecraft:purple_wool"
+    }
+  },
+  "result": {
+    "id": "uwudimension:velvetwood_tea_chair",
+    "count": 1
+  }
+}

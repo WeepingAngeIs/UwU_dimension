@@ -1,0 +1,58 @@
+{
+  "parent": "uwudimension:activities/wardrobe/petalweave_gem",
+  "display": {
+    "icon": {
+      "id": "uwudimension:petalweave_chestplate"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.wardrobe/petalweave_crafted.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.wardrobe/petalweave_crafted.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "helmet": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:petalweave_helmet"
+      }
+    },
+    "chestplate": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:petalweave_chestplate"
+      }
+    },
+    "leggings": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:petalweave_leggings"
+      }
+    },
+    "boots": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:petalweave_boots"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "helmet"
+    ],
+    [
+      "chestplate"
+    ],
+    [
+      "leggings"
+    ],
+    [
+      "boots"
+    ]
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_mirrored",
+  "textures": {
+    "side": "uwudimension:block/uwu_cave/strata/sakura_deepslate_side_b",
+    "end": "uwudimension:block/uwu_cave/strata/sakura_deepslate_top_b"
+  }
+}

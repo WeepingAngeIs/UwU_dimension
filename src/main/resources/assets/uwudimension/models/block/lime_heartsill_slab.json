@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "top": "uwudimension:block/lime_heartsill",
+    "bottom": "uwudimension:block/lime_heartsill",
+    "side": "uwudimension:block/lime_heartsill"
+  }
+}

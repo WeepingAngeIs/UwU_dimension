@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/sweetbean_plant",
+  "textures": {
+    "crop": "uwudimension:block/sweetbean_crop_stage6",
+    "particle": "uwudimension:block/sweetbean_crop_stage6"
+  }
+}

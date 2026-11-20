@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SPS",
+    "SIS",
+    " I "
+  ],
+  "key": {
+    "S": {
+      "item": "uwudimension:silver_ingot"
+    },
+    "P": {
+      "item": "uwudimension:roseglass_prism"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "id": "uwudimension:bell_hammer",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "uwudimension:block/petal_moonbell_lower"
+    },
+    "half=upper": {
+      "model": "uwudimension:block/petal_moonbell_upper"
+    }
+  }
+}

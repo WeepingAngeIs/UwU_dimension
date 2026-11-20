@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:vesper_ashlar"
+  },
+  "result": {
+    "id": "uwudimension:vesper_steps",
+    "count": 1
+  }
+}

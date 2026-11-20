@@ -1,0 +1,178 @@
+{
+  "ambientocclusion": true,
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        0.5,
+        -1,
+        8
+      ],
+      "to": [
+        13.5,
+        13.08,
+        8
+      ],
+      "rotation": {
+        "origin": [
+          7,
+          -1,
+          8
+        ],
+        "axis": "y",
+        "angle": -45,
+        "rescale": false
+      },
+      "shade": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#crop"
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#crop"
+        }
+      }
+    },
+    {
+      "from": [
+        0.5,
+        -1,
+        8
+      ],
+      "to": [
+        13.5,
+        13.08,
+        8
+      ],
+      "rotation": {
+        "origin": [
+          7,
+          -1,
+          8
+        ],
+        "axis": "y",
+        "angle": 45,
+        "rescale": false
+      },
+      "shade": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#crop"
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#crop"
+        }
+      }
+    },
+    {
+      "from": [
+        7.5,
+        -1,
+        5
+      ],
+      "to": [
+        14.5,
+        7.96,
+        5
+      ],
+      "rotation": {
+        "origin": [
+          11,
+          -1,
+          5
+        ],
+        "axis": "y",
+        "angle": -45,
+        "rescale": false
+      },
+      "shade": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#crop"
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#crop"
+        }
+      }
+    },
+    {
+      "from": [
+        7.5,
+        -1,
+        5
+      ],
+      "to": [
+        14.5,
+        7.96,
+        5
+      ],
+      "rotation": {
+        "origin": [
+          11,
+          -1,
+          5
+        ],
+        "axis": "y",
+        "angle": 45,
+        "rescale": false
+      },
+      "shade": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#crop"
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#crop"
+        }
+      }
+    }
+  ]
+}

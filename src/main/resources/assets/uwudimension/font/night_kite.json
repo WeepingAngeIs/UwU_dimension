@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/the_last_kite.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue160"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/the_kiln_window.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue161"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/a_new_knot.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue162"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/the_taut_string.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue163"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/across_the_moon.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue164"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/night_kite/the_clay_bird.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue165"
+      ]
+    }
+  ]
+}

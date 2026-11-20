@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,open=false": {
+      "model": "uwudimension:block/silkwood_drawer"
+    },
+    "facing=north,open=true": {
+      "model": "uwudimension:block/silkwood_drawer_open"
+    },
+    "facing=east,open=false": {
+      "model": "uwudimension:block/silkwood_drawer",
+      "y": 90
+    },
+    "facing=east,open=true": {
+      "model": "uwudimension:block/silkwood_drawer_open",
+      "y": 90
+    },
+    "facing=south,open=false": {
+      "model": "uwudimension:block/silkwood_drawer",
+      "y": 180
+    },
+    "facing=south,open=true": {
+      "model": "uwudimension:block/silkwood_drawer_open",
+      "y": 180
+    },
+    "facing=west,open=false": {
+      "model": "uwudimension:block/silkwood_drawer",
+      "y": 270
+    },
+    "facing=west,open=true": {
+      "model": "uwudimension:block/silkwood_drawer_open",
+      "y": 270
+    }
+  }
+}

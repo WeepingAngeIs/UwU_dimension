@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:block",
+  "pools": [{
+    "rolls": 1,
+    "conditions": [{ "condition": "minecraft:survives_explosion" }],
+    "entries": [{ "type": "minecraft:item", "name": "uwudimension:silkwood_flower_box" }]
+  }],
+  "random_sequence": "uwudimension:blocks/silkwood_flower_box"
+}

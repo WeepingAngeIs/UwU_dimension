@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:egg"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:milk_bucket"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    },
+    {
+      "item": "uwudimension:petal_sugar"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:starberry_waffle_stack",
+    "count": 1
+  }
+}

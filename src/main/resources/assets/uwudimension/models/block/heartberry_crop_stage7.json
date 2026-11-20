@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/heartberry_plant",
+  "textures": {
+    "crop": "uwudimension:block/heartberry_crop_stage7",
+    "particle": "uwudimension:block/heartberry_crop_stage7"
+  }
+}

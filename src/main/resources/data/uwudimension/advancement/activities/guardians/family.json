@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/guardians/feed",
+  "display": {
+    "icon": {
+      "id": "uwudimension:uwu_guardian_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.guardians/family.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.guardians/family.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

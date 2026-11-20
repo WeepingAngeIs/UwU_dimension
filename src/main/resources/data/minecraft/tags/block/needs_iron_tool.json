@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:roseglass_ore",
+    "uwudimension:sakura_gold_ore",
+    "uwudimension:deepslate_sakura_gold_ore",
+    "uwudimension:sakura_redstone_ore",
+    "uwudimension:deepslate_sakura_redstone_ore",
+    "uwudimension:sakura_diamond_ore",
+    "uwudimension:deepslate_sakura_diamond_ore",
+    "uwudimension:sakura_emerald_ore",
+    "uwudimension:deepslate_sakura_emerald_ore"
+  ]
+}

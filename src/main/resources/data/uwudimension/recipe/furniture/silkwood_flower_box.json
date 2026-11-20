@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["SDS", "PPP"],
+  "key": {
+    "S": { "item": "uwudimension:silkwood_slab" },
+    "D": { "item": "minecraft:dirt" },
+    "P": { "item": "uwudimension:silkwood_planks" }
+  },
+  "result": { "id": "uwudimension:silkwood_flower_box", "count": 1 }
+}

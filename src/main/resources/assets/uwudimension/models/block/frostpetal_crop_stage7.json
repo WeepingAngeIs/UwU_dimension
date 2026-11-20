@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/frostpetal_plant",
+  "textures": {
+    "crop": "uwudimension:block/frostpetal_crop_stage7",
+    "particle": "uwudimension:block/frostpetal_crop_stage7"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/lantern_storybook",
+  "textures": {
+    "atlas": "uwudimension:block/lantern_storybook_petal",
+    "particle": "uwudimension:block/lantern_storybook_petal_binding"
+  }
+}

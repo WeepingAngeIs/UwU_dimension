@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/grass_block",
+  "textures": {
+    "particle": "uwudimension:block/dusk_loam",
+    "bottom": "uwudimension:block/dusk_loam",
+    "top": "uwudimension:block/dusk_grass_top",
+    "side": "uwudimension:block/dusk_loam",
+    "overlay": "uwudimension:block/dusk_grass_overlay"
+  },
+  "render_type": "minecraft:cutout_mipped"
+}

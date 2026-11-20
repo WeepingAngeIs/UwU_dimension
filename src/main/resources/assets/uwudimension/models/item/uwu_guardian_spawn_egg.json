@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "uwudimension:item/uwu_guardian_spawn_egg"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "uwudimension:item/owl_guardian_male_egg"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "uwudimension:item/owl_guardian_girl_egg"
+    }
+  ]
+}

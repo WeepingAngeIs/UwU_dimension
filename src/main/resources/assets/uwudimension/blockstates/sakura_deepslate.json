@@ -1,0 +1,62 @@
+{
+  "variants": {
+    "axis=x": [
+      {
+        "model": "uwudimension:block/sakura_deepslate",
+        "x": 90,
+        "y": 90
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_b",
+        "x": 90,
+        "y": 90
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_c",
+        "x": 90,
+        "y": 90
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_d",
+        "x": 90,
+        "y": 90
+      }
+    ],
+    "axis=y": [
+      {
+        "model": "uwudimension:block/sakura_deepslate"
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_b"
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_c",
+        "y": 180
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_d",
+        "y": 180
+      }
+    ],
+    "axis=z": [
+      {
+        "model": "uwudimension:block/sakura_deepslate",
+        "x": 90
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_b",
+        "x": 90
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_c",
+        "x": 90,
+        "y": 180
+      },
+      {
+        "model": "uwudimension:block/uwu_cave/strata/sakura_deepslate_d",
+        "x": 90,
+        "y": 180
+      }
+    ]
+  }
+}

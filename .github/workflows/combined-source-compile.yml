@@ -1,0 +1,141 @@
+name: UwU combined playtest 2 compile verification
+
+on:
+  push:
+    branches:
+      - 'codex/build/uwu-combined-test-2-40e0ad2ca8ef-compile'
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    if: >-
+      github.repository == 'WeepingAngeIs/UwU_dimension' &&
+      toJSON(github.event.repository.private) == 'false' &&
+      github.ref == 'refs/heads/codex/build/uwu-combined-test-2-40e0ad2ca8ef-compile' &&
+      github.event.created &&
+      !github.event.deleted &&
+      github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Validate the requested revision
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          if [[ ! "$EXPECTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Enter the full lowercase Git commit SHA." >&2
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify the checkout matches the requested commit
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          actual_commit="$(git rev-parse HEAD)"
+          if [[ "$actual_commit" != "$EXPECTED_COMMIT" ]]; then
+            echo "Checkout revision did not match the requested commit." >&2
+            exit 1
+          fi
+          echo "Compiling $actual_commit from the cleaned UwU snapshot 40e0ad2ca8ef7c7de6c7b073245e050cf0e99cc3"
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Package the complete mod
+        shell: bash
+        run: bash ./gradlew --no-daemon --max-workers=2 jar
+      - name: Verify and summarize the packaged mod
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import tomllib
+          import zipfile
+
+          metadata_path = "META-INF/neoforge.mods.toml"
+          source_metadata = tomllib.loads(Path("src/main/resources", metadata_path).read_text(encoding="utf-8"))
+          version = next(mod["version"] for mod in source_metadata["mods"] if mod["modId"] == "uwudimension")
+          jar = Path("build/libs", f"UwU-Dimension-1.21.1-{version}.jar")
+          required = {
+              "dev/uwu/dimension/UwUDimension.class",
+              "dev/uwu/dimension/SilkwoodDrawerBlockEntity.class",
+              "dev/uwu/dimension/SilkwoodShelfBlockEntity.class",
+              "dev/uwu/dimension/SilkwoodFlowerBoxBlockEntity.class",
+              "dev/uwu/dimension/SakuraMaterials.class",
+              "dev/uwu/dimension/mixin/SakuraPaletteMixin.class",
+              "assets/uwudimension/textures/block/uwu_cave/bedrock.png",
+              "assets/uwudimension/models/item/heartbriar_shield_body.obj",
+              "assets/uwudimension/models/item/heartwater_window_shield_body.obj",
+              "assets/uwudimension/models/item/petalfold_shield_body.obj",
+              "dev/uwu/dimension/GeneratedRewardPlacement.class",
+              "dev/uwu/dimension/SakuraAmbientDialogue.class",
+              "dev/uwu/dimension/DawnpetalAbilities.class",
+              "dev/uwu/dimension/DawnpetalSpinCue.class",
+              "dev/uwu/dimension/client/DawnpetalSpinAnimator.class",
+              "dev/uwu/dimension/lush/client/LushCaveModels.class",
+              "dev/uwu/dimension/mixin/DawnpetalHeldModelMixin.class",
+              "dev/uwu/dimension/mixin/LushGeodeRollbackMixin.class",
+              "dev/uwu/dimension/mixin/LushGeodeSnapshotMixin.class",
+              "assets/uwudimension/player_animations/dawnpetal_spin.json",
+              "assets/uwudimension/player_animations/dawnpetal_spin_left.json",
+              "assets/uwudimension/textures/block/uwu_cave/geode/pink_cluster.png",
+              "assets/uwudimension/textures/block/uwu_cave/geode/silver_cluster.png",
+              metadata_path,
+              "uwudimension.mixins.json",
+          }
+          with zipfile.ZipFile(jar) as archive:
+              corrupt_entry = archive.testzip()
+              if corrupt_entry:
+                  raise SystemExit(f"Corrupt JAR entry: {corrupt_entry}")
+              missing = required.difference(archive.namelist())
+              if missing:
+                  raise SystemExit(f"Incomplete JAR: {', '.join(sorted(missing))}")
+              resource_dir = Path("src/main/resources")
+              for path in sorted(resource_dir.rglob("*")):
+                  if not path.is_file():
+                      continue
+                  entry = path.relative_to(resource_dir).as_posix()
+                  if archive.read(entry) != path.read_bytes():
+                      raise SystemExit(f"Packaged resource differs from checked-out source: {entry}")
+              metadata = tomllib.loads(archive.read(metadata_path).decode("utf-8"))
+              if not any(mod["modId"] == "uwudimension" and mod["version"] == version for mod in metadata["mods"]):
+                  raise SystemExit("Packaged mod version does not match the checked-out source.")
+              dependencies = metadata["dependencies"]["uwudimension"]
+              required_mods = {entry["modId"] for entry in dependencies if entry["type"] == "required"}
+              if not {"lootr", "another_furniture"}.issubset(required_mods):
+                  raise SystemExit("A required runtime dependency was lost.")
+              mixins = json.loads(archive.read("uwudimension.mixins.json"))
+              if not {"LushGeodeSnapshotMixin", "LushGeodeRollbackMixin"}.issubset(mixins["mixins"]):
+                  raise SystemExit("Geode rollback mixins are missing from the packaged configuration.")
+              if "DawnpetalHeldModelMixin" not in mixins["client"]:
+                  raise SystemExit("The Dawnpetal held-model mixin is missing from the packaged configuration.")
+
+          revision = os.environ["EXPECTED_COMMIT"]
+          source_commit = "40e0ad2ca8ef7c7de6c7b073245e050cf0e99cc3"
+          digest = hashlib.sha256(jar.read_bytes()).hexdigest()
+          report = (
+              "### UwU Dimension combined playtest 2 — compile verification\n\n"
+              f"Source commit: `{source_commit}`\n\n"
+              f"Published snapshot: `{revision}`\n\n"
+              f"JAR: `{jar.name}`\n\n"
+              f"SHA-256: `{digest}`\n\n"
+              "Checks passed: JAR ZIP integrity, expected classes and assets, resource byte parity, "
+              "mod version, Lootr and Another Furniture requirements, and mixin declarations.\n\n"
+              "Compile-only run. The JAR was not uploaded.\n"
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write(report)
+          print(report)
+          PY

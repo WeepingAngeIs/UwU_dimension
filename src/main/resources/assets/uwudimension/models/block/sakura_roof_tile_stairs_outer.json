@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "uwudimension:block/sakura_roof_tile",
+    "side": "uwudimension:block/sakura_roof_tile",
+    "top": "uwudimension:block/sakura_roof_tile"
+  }
+}

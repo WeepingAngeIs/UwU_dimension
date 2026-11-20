@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "render_type": "minecraft:cutout_mipped",
+  "textures": {
+    "all": "uwudimension:block/moonberry_leaves_fruiting_v2"
+  }
+}

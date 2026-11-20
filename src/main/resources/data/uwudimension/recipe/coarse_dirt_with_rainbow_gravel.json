@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "D": {
+      "item": "minecraft:dirt"
+    },
+    "G": [
+      {
+        "item": "minecraft:gravel"
+      },
+      {
+        "item": "uwudimension:rainbow_gravel"
+      }
+    ]
+  },
+  "pattern": [
+    "DG",
+    "GD"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:coarse_dirt"
+  }
+}

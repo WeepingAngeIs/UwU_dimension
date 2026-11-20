@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:bowl"
+    },
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:cooked_porkchop"
+    },
+    {
+      "item": "minecraft:egg"
+    },
+    {
+      "item": "minecraft:kelp"
+    },
+    {
+      "item": "minecraft:brown_mushroom"
+    },
+    {
+      "item": "uwudimension:glowginger"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:cozy_udon_hotpot",
+    "count": 1
+  }
+}

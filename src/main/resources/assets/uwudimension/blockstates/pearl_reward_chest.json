@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "uwudimension:block/pearl_reward_chest"
+    },
+    "facing=east": {
+      "model": "uwudimension:block/pearl_reward_chest",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "uwudimension:block/pearl_reward_chest",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "uwudimension:block/pearl_reward_chest",
+      "y": 270
+    }
+  }
+}

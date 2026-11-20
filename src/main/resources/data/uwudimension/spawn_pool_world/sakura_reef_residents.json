@@ -1,0 +1,75 @@
+{
+  "enabled": true,
+  "neededInstalledMods": [],
+  "neededUninstalledMods": [],
+  "spawns": [
+    {
+      "id": "uwu-luvdisc-blush_reef",
+      "pokemon": "luvdisc",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "bucket": "uncommon",
+      "level": "10-24",
+      "weight": 10,
+      "presets": [
+        "water"
+      ],
+      "condition": {
+        "biomes": [
+          "uwudimension:blush_reef"
+        ]
+      }
+    },
+    {
+      "id": "uwu-chinchou-moonwake_trench",
+      "pokemon": "chinchou",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "bucket": "uncommon",
+      "level": "14-28",
+      "weight": 12,
+      "presets": [
+        "water"
+      ],
+      "condition": {
+        "biomes": [
+          "uwudimension:moonwake_trench"
+        ]
+      }
+    },
+    {
+      "id": "uwu-clamperl-moonwake_trench",
+      "pokemon": "clamperl",
+      "type": "pokemon",
+      "spawnablePositionType": "seafloor",
+      "bucket": "uncommon",
+      "level": "14-32",
+      "weight": 5,
+      "presets": [
+        "water"
+      ],
+      "condition": {
+        "biomes": [
+          "uwudimension:moonwake_trench"
+        ]
+      }
+    },
+    {
+      "id": "uwu-wooper-lantern_grotto",
+      "pokemon": "wooper",
+      "type": "pokemon",
+      "spawnablePositionType": "submerged",
+      "bucket": "uncommon",
+      "level": "8-20",
+      "weight": 6,
+      "presets": [
+        "water"
+      ],
+      "condition": {
+        "biomes": [
+          "uwudimension:lantern_grotto"
+        ]
+      }
+    }
+  ]
+}

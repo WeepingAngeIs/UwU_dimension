@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "uwudimension:silver_ingot"
+    }
+  },
+  "result": {
+    "id": "uwudimension:silver_block",
+    "count": 1
+  }
+}

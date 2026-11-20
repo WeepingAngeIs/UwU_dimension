@@ -1,0 +1,23 @@
+newmtl front
+Ka 0 0 0
+Kd 1 1 1
+d 1
+map_Kd #front
+
+newmtl back
+Ka 0 0 0
+Kd 1 1 1
+d 1
+map_Kd #back
+
+newmtl rim
+Ka 0 0 0
+Kd 1 1 1
+d 1
+map_Kd #rim
+
+newmtl grip
+Ka 0 0 0
+Kd 1 1 1
+d 1
+map_Kd #grip

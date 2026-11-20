@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:sakura_deepslate"
+  },
+  "result": {
+    "id": "uwudimension:vesper_ashlar",
+    "count": 1
+  }
+}

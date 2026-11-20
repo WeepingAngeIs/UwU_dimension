@@ -1,0 +1,17 @@
+{
+  "parent": "uwudimension:item/heart_shield_pose",
+  "textures": {
+    "particle": "uwudimension:item/heartwater_window_shield",
+    "front": "uwudimension:item/heartwater_window_shield",
+    "back": "uwudimension:item/shield_back",
+    "rim": "uwudimension:item/shield_rim",
+    "grip": "uwudimension:item/shield_grip"
+  },
+  "loader": "neoforge:obj",
+  "model": "uwudimension:models/item/heartwater_window_shield_body.obj",
+  "render_type": "minecraft:cutout",
+  "flip_v": false,
+  "automatic_culling": false,
+  "shade_quads": true,
+  "emissive_ambient": false
+}

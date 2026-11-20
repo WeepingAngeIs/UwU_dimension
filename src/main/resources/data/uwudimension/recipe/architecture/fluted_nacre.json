@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:sakura_stone"
+  },
+  "result": {
+    "id": "uwudimension:fluted_nacre",
+    "count": 1
+  }
+}

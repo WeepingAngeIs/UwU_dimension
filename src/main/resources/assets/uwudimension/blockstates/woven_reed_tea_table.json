@@ -1,0 +1,80 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_top",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_top",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "north": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_leg",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "north": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_leg",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_leg",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "uwudimension:block/woven_reed_tea_table_leg",
+        "y": 270
+      }
+    }
+  ]
+}

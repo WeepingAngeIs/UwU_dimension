@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/sakura_rice_plant",
+  "textures": {
+    "crop": "uwudimension:block/sakura_rice_crop_stage2",
+    "particle": "uwudimension:block/sakura_rice_crop_stage2"
+  }
+}

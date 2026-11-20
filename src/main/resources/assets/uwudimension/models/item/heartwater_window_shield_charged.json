@@ -1,0 +1,8 @@
+{
+  "parent": "uwudimension:item/heartwater_window_shield_body",
+  "loader": "neoforge:composite",
+  "children": {
+    "shell": { "parent": "uwudimension:item/heartwater_window_shield_body" },
+    "stored_drop": { "parent": "uwudimension:item/fallsong_stored_drop" }
+  }
+}

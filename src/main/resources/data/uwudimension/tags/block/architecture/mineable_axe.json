@@ -1,0 +1,28 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:silkwood_planks",
+    "uwudimension:silkwood_beam",
+    "uwudimension:silkwood_stairs",
+    "uwudimension:silkwood_slab",
+    "uwudimension:silkwood_fence",
+    "uwudimension:silkwood_shutter",
+    "uwudimension:silkwood_door",
+    "uwudimension:velvetwood_planks",
+    "uwudimension:velvetwood_beam",
+    "uwudimension:velvetwood_stairs",
+    "uwudimension:velvetwood_slab",
+    "uwudimension:velvetwood_fence",
+    "uwudimension:velvetwood_shutter",
+    "uwudimension:velvetwood_door",
+    "uwudimension:silkwood_drawer",
+    "uwudimension:silkwood_display_shelf",
+    "uwudimension:silkwood_flower_box",
+    "uwudimension:silkwood_tea_chair",
+    "uwudimension:silkwood_tea_table",
+    "uwudimension:velvetwood_tea_chair",
+    "uwudimension:velvetwood_tea_table",
+    "uwudimension:woven_reed_tea_chair",
+    "uwudimension:woven_reed_tea_table"
+  ]
+}

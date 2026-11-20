@@ -1,0 +1,1534 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "boards": "uwudimension:block/tea_furniture/woven_reed_boards",
+    "post": "uwudimension:block/tea_furniture/woven_reed_post",
+    "seat": "uwudimension:block/tea_furniture/woven_reed_seat",
+    "top": "uwudimension:block/tea_furniture/woven_reed_top",
+    "rim": "uwudimension:block/tea_furniture/woven_reed_rim",
+    "carved": "uwudimension:block/tea_furniture/woven_reed_carved",
+    "trim": "uwudimension:block/tea_furniture/woven_reed_trim",
+    "cord": "uwudimension:block/tea_furniture/woven_reed_cord",
+    "particle": "uwudimension:block/tea_furniture/woven_reed_boards"
+  },
+  "elements": [
+    {
+      "name": "Reed foot",
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        5,
+        5,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Reed foot",
+      "from": [
+        3,
+        0,
+        11
+      ],
+      "to": [
+        5,
+        5,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Back stile",
+      "from": [
+        3,
+        7,
+        11
+      ],
+      "to": [
+        5,
+        15,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Reed foot",
+      "from": [
+        11,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        5,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Reed foot",
+      "from": [
+        11,
+        0,
+        11
+      ],
+      "to": [
+        13,
+        5,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Back stile",
+      "from": [
+        11,
+        7,
+        11
+      ],
+      "to": [
+        13,
+        15,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Seat rail",
+      "from": [
+        2,
+        5,
+        2
+      ],
+      "to": [
+        14,
+        6,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "south": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "west": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "east": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Woven rush seat",
+      "from": [
+        2,
+        6,
+        2
+      ],
+      "to": [
+        14,
+        7,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "south": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "west": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "east": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#seat"
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        3,
+        15,
+        11
+      ],
+      "to": [
+        13,
+        16,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            3,
+            0,
+            13,
+            1
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            0,
+            13,
+            1
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            0,
+            5,
+            1
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            3,
+            11,
+            13,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        6,
+        13,
+        11
+      ],
+      "to": [
+        7,
+        14,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            2,
+            10,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            6,
+            2,
+            7,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            2,
+            13,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            5,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            6,
+            11,
+            7,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            6,
+            3,
+            7,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        9,
+        13,
+        11
+      ],
+      "to": [
+        10,
+        14,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            2,
+            7,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            9,
+            2,
+            10,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            2,
+            13,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            5,
+            3
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            9,
+            11,
+            10,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            9,
+            3,
+            10,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        7,
+        12,
+        11
+      ],
+      "to": [
+        9,
+        13,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7,
+            3,
+            9,
+            4
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            7,
+            3,
+            9,
+            4
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            3,
+            13,
+            4
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            3,
+            5,
+            4
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            7,
+            11,
+            9,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            7,
+            3,
+            9,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        6,
+        11,
+        11
+      ],
+      "to": [
+        7,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            4,
+            10,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            6,
+            4,
+            7,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            4,
+            13,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            4,
+            5,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            6,
+            11,
+            7,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            6,
+            3,
+            7,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        9,
+        11,
+        11
+      ],
+      "to": [
+        10,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            4,
+            7,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            9,
+            4,
+            10,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            4,
+            13,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            4,
+            5,
+            5
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            9,
+            11,
+            10,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            9,
+            3,
+            10,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        7,
+        10,
+        11
+      ],
+      "to": [
+        9,
+        11,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7,
+            5,
+            9,
+            6
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            7,
+            5,
+            9,
+            6
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            5,
+            13,
+            6
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            5,
+            5,
+            6
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            7,
+            11,
+            9,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            7,
+            3,
+            9,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        6,
+        9,
+        11
+      ],
+      "to": [
+        7,
+        10,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            6,
+            10,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            6,
+            6,
+            7,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            6,
+            13,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            5,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            6,
+            11,
+            7,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            6,
+            3,
+            7,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        9,
+        9,
+        11
+      ],
+      "to": [
+        10,
+        10,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            6,
+            7,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            9,
+            6,
+            10,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            6,
+            13,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            5,
+            7
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            9,
+            11,
+            10,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            9,
+            3,
+            10,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        5,
+        8,
+        11
+      ],
+      "to": [
+        11,
+        9,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            7,
+            11,
+            8
+          ],
+          "texture": "#boards"
+        },
+        "south": {
+          "uv": [
+            5,
+            7,
+            11,
+            8
+          ],
+          "texture": "#boards"
+        },
+        "west": {
+          "uv": [
+            11,
+            7,
+            13,
+            8
+          ],
+          "texture": "#boards"
+        },
+        "east": {
+          "uv": [
+            3,
+            7,
+            5,
+            8
+          ],
+          "texture": "#boards"
+        },
+        "up": {
+          "uv": [
+            5,
+            11,
+            11,
+            13
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            5,
+            3,
+            11,
+            5
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Rose cord",
+      "from": [
+        2.88,
+        8,
+        10.86
+      ],
+      "to": [
+        5.12,
+        8.55,
+        13.14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10.879999999999999,
+            7.449999999999999,
+            13.120000000000001,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "south": {
+          "uv": [
+            2.88,
+            7.449999999999999,
+            5.12,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            7.449999999999999,
+            13.14,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            7.449999999999999,
+            5.140000000000001,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "up": {
+          "uv": [
+            2.88,
+            10.86,
+            5.12,
+            13.14
+          ],
+          "texture": "#cord"
+        },
+        "down": {
+          "uv": [
+            2.88,
+            2.8599999999999994,
+            5.12,
+            5.140000000000001
+          ],
+          "texture": "#cord"
+        }
+      }
+    },
+    {
+      "name": "Rose cord",
+      "from": [
+        2.88,
+        13.5,
+        10.86
+      ],
+      "to": [
+        5.12,
+        14.05,
+        13.14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10.879999999999999,
+            1.9499999999999993,
+            13.120000000000001,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "south": {
+          "uv": [
+            2.88,
+            1.9499999999999993,
+            5.12,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            1.9499999999999993,
+            13.14,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            1.9499999999999993,
+            5.140000000000001,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "up": {
+          "uv": [
+            2.88,
+            10.86,
+            5.12,
+            13.14
+          ],
+          "texture": "#cord"
+        },
+        "down": {
+          "uv": [
+            2.88,
+            2.8599999999999994,
+            5.12,
+            5.140000000000001
+          ],
+          "texture": "#cord"
+        }
+      }
+    },
+    {
+      "name": "Rose cord",
+      "from": [
+        10.88,
+        8,
+        10.86
+      ],
+      "to": [
+        13.120000000000001,
+        8.55,
+        13.14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.879999999999999,
+            7.449999999999999,
+            5.119999999999999,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "south": {
+          "uv": [
+            10.88,
+            7.449999999999999,
+            13.120000000000001,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            7.449999999999999,
+            13.14,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            7.449999999999999,
+            5.140000000000001,
+            8
+          ],
+          "texture": "#cord"
+        },
+        "up": {
+          "uv": [
+            10.88,
+            10.86,
+            13.120000000000001,
+            13.14
+          ],
+          "texture": "#cord"
+        },
+        "down": {
+          "uv": [
+            10.88,
+            2.8599999999999994,
+            13.120000000000001,
+            5.140000000000001
+          ],
+          "texture": "#cord"
+        }
+      }
+    },
+    {
+      "name": "Rose cord",
+      "from": [
+        10.88,
+        13.5,
+        10.86
+      ],
+      "to": [
+        13.120000000000001,
+        14.05,
+        13.14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.879999999999999,
+            1.9499999999999993,
+            5.119999999999999,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "south": {
+          "uv": [
+            10.88,
+            1.9499999999999993,
+            13.120000000000001,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            1.9499999999999993,
+            13.14,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            1.9499999999999993,
+            5.140000000000001,
+            2.5
+          ],
+          "texture": "#cord"
+        },
+        "up": {
+          "uv": [
+            10.88,
+            10.86,
+            13.120000000000001,
+            13.14
+          ],
+          "texture": "#cord"
+        },
+        "down": {
+          "uv": [
+            10.88,
+            2.8599999999999994,
+            13.120000000000001,
+            5.140000000000001
+          ],
+          "texture": "#cord"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/over_the_bridge.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue170"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/on_the_gate.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue171"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/the_cooling_kiln.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue172"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/off_you_go.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue173"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/cup_and_spoon.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue174"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/kiln_watch/the_landing.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue175"
+      ]
+    }
+  ]
+}

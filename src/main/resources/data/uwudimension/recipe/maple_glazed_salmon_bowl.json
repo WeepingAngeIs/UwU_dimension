@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:cooked_salmon"
+    },
+    {
+      "item": "uwudimension:maple_syrup"
+    },
+    {
+      "item": "minecraft:bowl"
+    },
+    {
+      "item": "minecraft:carrot"
+    },
+    {
+      "item": "minecraft:beetroot"
+    },
+    {
+      "item": "uwudimension:sakura_rice"
+    },
+    {
+      "item": "uwudimension:glowginger"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:maple_glazed_salmon_bowl",
+    "count": 1
+  }
+}

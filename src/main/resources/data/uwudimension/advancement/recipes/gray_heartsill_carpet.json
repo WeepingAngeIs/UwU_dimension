@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "uwudimension:gray_heartsill"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "uwudimension:gray_heartsill_carpet"
+    ]
+  }
+}

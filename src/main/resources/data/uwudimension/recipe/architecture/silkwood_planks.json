@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "uwudimension:silkwood_beam"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:silkwood_planks",
+    "count": 4
+  }
+}

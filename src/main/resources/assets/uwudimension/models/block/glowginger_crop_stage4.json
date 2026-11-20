@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/glowginger_plant",
+  "textures": {
+    "crop": "uwudimension:block/glowginger_crop_stage4",
+    "particle": "uwudimension:block/glowginger_crop_stage4"
+  }
+}

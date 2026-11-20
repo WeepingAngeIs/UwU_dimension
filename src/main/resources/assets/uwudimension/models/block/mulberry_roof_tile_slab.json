@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "uwudimension:block/mulberry_roof_tile",
+    "side": "uwudimension:block/mulberry_roof_tile",
+    "top": "uwudimension:block/mulberry_roof_tile"
+  }
+}

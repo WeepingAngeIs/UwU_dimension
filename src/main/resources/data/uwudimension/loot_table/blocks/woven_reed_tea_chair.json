@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:woven_reed_tea_chair"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "uwudimension:blocks/woven_reed_tea_chair"
+}

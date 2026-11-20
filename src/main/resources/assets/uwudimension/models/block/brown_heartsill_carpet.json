@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/carpet",
+  "textures": {
+    "wool": "uwudimension:block/brown_heartsill_carpet"
+  }
+}
