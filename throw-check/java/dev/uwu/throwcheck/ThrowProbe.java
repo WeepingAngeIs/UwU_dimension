@@ -110,6 +110,7 @@ public final class ThrowProbe {
         volatile int preThrowDamage, flightDamage = -1;
         volatile long impact = -1, caught = -1, melee = -1;
         volatile float launchStrength, returnStrength, returnDelay, damage;
+        volatile float meleeStrength = Float.NaN;
         volatile double pull = Double.NaN;
         int seenHeldAt = -1;
         int meleeAttempts, acceptedSwings, handClearedAt = -1;
@@ -260,6 +261,8 @@ public final class ThrowProbe {
                         prepare(client, variant);
                         return;
                     }
+                    require(trial.meleeStrength >= .98F,
+                            "Actual melee damage lacked server-authoritative charge: " + trial.observations(player));
                     if (!trial.kind.hasPull()) {
                         require(Math.abs(trial.damage - fullChargeDamage) < .05F,
                                 "Post-catch melee damage " + trial.damage + " differs from full charge " + fullChargeDamage);
@@ -331,8 +334,6 @@ public final class ThrowProbe {
         }
         require(trial.caught - trial.impact <= 6,
                 "Accepted projectile hit did not get a fast catch: " + trial.observations(player));
-        if (trial.kind.hasPull())
-            require(trial.returnStrength >= .98F, "Successful hit did not recharge the server player");
         if (canSeeMeleeTarget(client, trial)) tryMelee(client, trial);
         require(player.tickCount - trial.seenHeldAt <= 4,
                 "Catch did not enable immediate Better Combat input: " + trial.observations(player));
@@ -343,7 +344,8 @@ public final class ThrowProbe {
                 + " catch-to-melee=" + (trial.melee - trial.caught) + "t"
                 + " impact-to-melee=" + (trial.melee - trial.impact) + "t"
                 + " pre-throw charge=" + trial.launchStrength + " damage=" + trial.damage
-                + " pull=" + trial.pull + " melee attempts=" + trial.meleeAttempts;
+                + " melee charge=" + trial.meleeStrength + " pull=" + trial.pull
+                + " melee attempts=" + trial.meleeAttempts;
     }
 
     // Called only by the disposable probe mixin. Leave every other player and trial untouched.
@@ -538,6 +540,8 @@ public final class ThrowProbe {
         Trial trial = active;
         if (trial == null || !trial.meleeStarted || !(event.getEntity() instanceof ServerPlayer player)
                 || !trial.matches(player.getMainHandItem())) return;
+        if (event.getTarget() == trial.meleeTarget && !event.isCanceled())
+            trial.meleeStrength = player.getAttackStrengthScale(.5F);
         trial.serverAttack = "tick " + player.level().getGameTime() + " target " + event.getTarget().getId()
                 + " canceled " + event.isCanceled() + " " + cooldown(player);
     }
