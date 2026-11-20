@@ -1,0 +1,35 @@
+{
+  "parent": "uwudimension:activities/pantry/snack",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heartberry_burger"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.pantry/burger.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.pantry/burger.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:heartberry_burger"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

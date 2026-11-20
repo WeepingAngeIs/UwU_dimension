@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:starfruit"
+    },
+    {
+      "item": "uwudimension:pink_shaved_ice"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:pink_melon_popsicle",
+    "count": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:cooked_chicken"
+    },
+    {
+      "item": "minecraft:potato"
+    },
+    {
+      "item": "minecraft:egg"
+    },
+    {
+      "item": "uwudimension:heartberry_jam"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:blossom_hot_pocket",
+    "count": 1
+  }
+}

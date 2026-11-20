@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "uwudimension:item/heart_launcher"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        26
+      ],
+      "translation": [
+        0.0,
+        5.358,
+        -1.251
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        -90,
+        -26
+      ],
+      "translation": [
+        -0.0,
+        5.358,
+        -1.251
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        27.130102,
+        90.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        4.987324,
+        -1.083845
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        27.130102,
+        -90.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        4.987324,
+        -1.083845
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "parent": "uwudimension:activities/journey/canopy_club",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heartwater_locket"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/scenic_route.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/scenic_route.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "reef": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:blush_reef"
+          }
+        }
+      }
+    },
+    "bluffs": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:ribbon_bluffs"
+          }
+        }
+      }
+    },
+    "petal_snow": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:starlace_frostlands"
+          }
+        }
+      }
+    },
+    "dusk_snow": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:dusk_frostlands"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "reef"
+    ],
+    [
+      "bluffs"
+    ],
+    [
+      "petal_snow"
+    ],
+    [
+      "dusk_snow"
+    ]
+  ]
+}

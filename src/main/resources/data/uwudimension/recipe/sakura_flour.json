@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_rice"
+    },
+    {
+      "item": "uwudimension:sakura_rice"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:sakura_flour",
+    "count": 1
+  }
+}

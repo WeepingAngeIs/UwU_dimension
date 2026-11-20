@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:pink_shaved_ice"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    },
+    {
+      "item": "uwudimension:sakura_rice"
+    },
+    {
+      "item": "uwudimension:vanilla_extract"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:sakura_mochi_ice_cream",
+    "count": 1
+  }
+}

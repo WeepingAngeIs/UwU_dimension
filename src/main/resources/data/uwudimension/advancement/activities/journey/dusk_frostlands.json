@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/journey/starlace_frostlands",
+  "display": {
+    "icon": {
+      "id": "uwudimension:rough_vesper_opal"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/dusk_frostlands.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/dusk_frostlands.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:dusk_frostlands"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

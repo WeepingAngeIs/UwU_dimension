@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "uwudimension:sweetbean_paste"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:egg"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:golden_taiyaki",
+    "count": 1
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:cooked_salmon"
+    },
+    {
+      "item": "minecraft:dried_kelp"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    },
+    {
+      "item": "minecraft:baked_potato"
+    },
+    {
+      "item": "minecraft:carrot"
+    },
+    {
+      "item": "uwudimension:sakura_rice"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:cherry_picnic_bento",
+    "count": 1
+  }
+}

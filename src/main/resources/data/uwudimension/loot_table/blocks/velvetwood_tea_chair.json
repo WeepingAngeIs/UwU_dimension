@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "uwudimension:velvetwood_tea_chair"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "uwudimension:blocks/velvetwood_tea_chair"
+}

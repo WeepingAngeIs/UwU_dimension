@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "uwudimension:velvetwood_planks"
+    }
+  },
+  "result": {
+    "id": "uwudimension:velvetwood_shutter",
+    "count": 2
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/book_navigation/bookmark.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": [
+        "\ue180"
+      ]
+    },
+    {
+      "type": "space",
+      "advances": {
+        "\ue201": 1,
+        "\ue202": 2,
+        "\ue214": 20,
+        "\ue229": 41,
+        "\ue257": 87,
+        "\ue258": 88,
+        "\ue259": 89
+      }
+    }
+  ]
+}

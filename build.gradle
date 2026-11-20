@@ -1,0 +1,38 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+group = 'dev.uwu.dimension'
+version = '1.5.0-beta.13-combined-rc.1'
+base.archivesName = 'UwU-Dimension-1.21.1'
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+neoForge {
+    version = '21.1.249'
+    mods { uwudimension { sourceSet(sourceSets.main) } }
+}
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://maven.gegy.dev')
+        content { includeGroup('dev.lambdaurora.lambdynamiclights') }
+    }
+    maven {
+        url = uri('https://www.cursemaven.com')
+        content { includeGroup('curse.maven') }
+    }
+    maven {
+        url = uri('https://api.modrinth.com/maven')
+        content { includeModule('maven.modrinth', 'gedNE4y2') }
+    }
+}
+dependencies {
+    // The optional lighting mod supplies the API at runtime on clients that use it.
+    compileOnly('dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:4.8.11+1.21.1:mojmap@jar') { transitive = false }
+    compileOnly 'curse.maven:better-combat-639842:8430183'
+    compileOnly 'curse.maven:simply-swords-659887:8746001'
+    compileOnly 'curse.maven:architectury-api-419699:8492726'
+    // PlayerAnimator 2.0.4 for NeoForge 1.21.1 is optional at runtime.
+    compileOnly('maven.modrinth:gedNE4y2:HJZB6bmA') { transitive = false }
+    implementation 'curse.maven:another-furniture-610492:7355747'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

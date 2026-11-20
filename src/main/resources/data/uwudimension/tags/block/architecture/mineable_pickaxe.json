@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:petalsilk_plaster",
+    "uwudimension:camellia_glaze",
+    "uwudimension:shellstone_ashlar",
+    "uwudimension:vesper_ashlar",
+    "uwudimension:lotus_scale_tile",
+    "uwudimension:fluted_nacre",
+    "uwudimension:starvein_frieze",
+    "uwudimension:moonpearl_lamp",
+    "uwudimension:shellstone_steps",
+    "uwudimension:vesper_steps",
+    "uwudimension:nightbriar_shingles",
+    "uwudimension:nightbriar_shingle_stairs",
+    "uwudimension:nightbriar_shingle_slab"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:egg"
+    },
+    {
+      "item": "minecraft:milk_bucket"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "uwudimension:starfruit"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:uwu_pancake_stack",
+    "count": 1
+  }
+}

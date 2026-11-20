@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "uwudimension:block/velvetwood_beam_x"
+    },
+    "axis=y": {
+      "model": "uwudimension:block/velvetwood_beam_y"
+    },
+    "axis=z": {
+      "model": "uwudimension:block/velvetwood_beam_z"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,tucked=false": {
+      "model": "uwudimension:block/velvetwood_tea_chair"
+    },
+    "facing=north,tucked=true": {
+      "model": "uwudimension:block/velvetwood_tea_chair_tucked"
+    },
+    "facing=east,tucked=false": {
+      "model": "uwudimension:block/velvetwood_tea_chair",
+      "y": 90
+    },
+    "facing=east,tucked=true": {
+      "model": "uwudimension:block/velvetwood_tea_chair_tucked",
+      "y": 90
+    },
+    "facing=south,tucked=false": {
+      "model": "uwudimension:block/velvetwood_tea_chair",
+      "y": 180
+    },
+    "facing=south,tucked=true": {
+      "model": "uwudimension:block/velvetwood_tea_chair_tucked",
+      "y": 180
+    },
+    "facing=west,tucked=false": {
+      "model": "uwudimension:block/velvetwood_tea_chair",
+      "y": 270
+    },
+    "facing=west,tucked=true": {
+      "model": "uwudimension:block/velvetwood_tea_chair_tucked",
+      "y": 270
+    }
+  }
+}

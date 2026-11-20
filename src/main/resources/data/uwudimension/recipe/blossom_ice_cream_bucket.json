@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:milk_bucket"
+    },
+    {
+      "item": "uwudimension:pink_shaved_ice"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "uwudimension:heartberry_jam"
+    },
+    {
+      "item": "uwudimension:vanilla_extract"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:blossom_ice_cream_bucket",
+    "count": 1
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "uwudimension:item/counter_mjolnir",
+    "layer1": "uwudimension:item/animated/counter_mjolnir_0_glint"
+  },
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        25
+      ],
+      "translation": [
+        1.13,
+        3.8,
+        0.85
+      ],
+      "scale": [
+        1.3653,
+        1.3653,
+        0.64
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        1.13,
+        3.8,
+        0.85
+      ],
+      "scale": [
+        1.3653,
+        1.3653,
+        0.64
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        55
+      ],
+      "translation": [
+        -0.0,
+        5.132,
+        -1.503
+      ],
+      "scale": [
+        1.7493,
+        1.7493,
+        0.82
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -55
+      ],
+      "translation": [
+        0.0,
+        5.132,
+        -1.503
+      ],
+      "scale": [
+        1.7493,
+        1.7493,
+        0.82
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        4,
+        0
+      ],
+      "scale": [
+        1.0667,
+        1.0667,
+        0.5
+      ]
+    }
+  },
+  "loader": "neoforge:item_layers",
+  "render_types": {
+    "minecraft:cutout": [
+      0,
+      1
+    ]
+  },
+  "neoforge_data": {
+    "layers": {
+      "1": {
+        "block_light": 15,
+        "sky_light": 15,
+        "ambient_occlusion": false
+      }
+    }
+  }
+}

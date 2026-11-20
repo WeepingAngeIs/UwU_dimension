@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:egg"
+    },
+    {
+      "item": "uwudimension:maple_syrup"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:maple_butter_tart",
+    "count": 1
+  }
+}

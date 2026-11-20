@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/community/both_trades",
+  "display": {
+    "icon": {
+      "id": "uwudimension:vesper_opal"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.community/court.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.community/court.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

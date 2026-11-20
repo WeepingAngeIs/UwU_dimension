@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "uwudimension:heartsill_carpet",
+  "pattern": [
+    "WW",
+    "H "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:red_wool"
+    },
+    "H": {
+      "item": "uwudimension:red_heartsill"
+    }
+  },
+  "result": {
+    "id": "uwudimension:red_heartsill_carpet",
+    "count": 4
+  }
+}

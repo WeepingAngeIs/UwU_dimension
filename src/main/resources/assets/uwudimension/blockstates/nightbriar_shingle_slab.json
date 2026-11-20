@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "uwudimension:block/nightbriar_shingle_slab"
+    },
+    "type=double": {
+      "model": "uwudimension:block/nightbriar_shingles"
+    },
+    "type=top": {
+      "model": "uwudimension:block/nightbriar_shingle_slab_top"
+    }
+  }
+}

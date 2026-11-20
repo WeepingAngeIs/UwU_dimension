@@ -1,0 +1,1602 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "boards": "uwudimension:block/tea_furniture/velvetwood_boards",
+    "post": "uwudimension:block/tea_furniture/velvetwood_post",
+    "seat": "uwudimension:block/tea_furniture/velvetwood_seat",
+    "top": "uwudimension:block/tea_furniture/velvetwood_top",
+    "rim": "uwudimension:block/tea_furniture/velvetwood_rim",
+    "carved": "uwudimension:block/tea_furniture/velvetwood_carved",
+    "trim": "uwudimension:block/tea_furniture/velvetwood_trim",
+    "particle": "uwudimension:block/tea_furniture/velvetwood_boards"
+  },
+  "elements": [
+    {
+      "name": "Turned foot",
+      "from": [
+        3,
+        0,
+        -5
+      ],
+      "to": [
+        5,
+        5,
+        -3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Turned foot",
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        5,
+        5,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Back stile",
+      "from": [
+        3,
+        7,
+        3
+      ],
+      "to": [
+        5,
+        15,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            3,
+            11,
+            5,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            5,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Turned foot",
+      "from": [
+        11,
+        0,
+        -5
+      ],
+      "to": [
+        13,
+        5,
+        -3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Turned foot",
+      "from": [
+        11,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        5,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            11,
+            13,
+            16
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            11,
+            5,
+            16
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Back stile",
+      "from": [
+        11,
+        7,
+        3
+      ],
+      "to": [
+        13,
+        15,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            11,
+            1,
+            13,
+            9
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            3,
+            1,
+            5,
+            9
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            11,
+            11,
+            13,
+            13
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            11,
+            3,
+            13,
+            5
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Seat rail",
+      "from": [
+        2,
+        5,
+        -6
+      ],
+      "to": [
+        14,
+        6,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "south": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "west": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "east": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#rim"
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Upholstered seat",
+      "from": [
+        2,
+        6,
+        -6
+      ],
+      "to": [
+        14,
+        7,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "south": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "west": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "east": {
+          "uv": [
+            2,
+            9,
+            14,
+            10
+          ],
+          "texture": "#seat"
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#seat"
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#boards"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        4,
+        15,
+        3
+      ],
+      "to": [
+        6,
+        16,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            0,
+            12,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            0,
+            13,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            0,
+            5,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            4,
+            11,
+            6,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            4,
+            3,
+            6,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        10,
+        15,
+        3
+      ],
+      "to": [
+        12,
+        16,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            10,
+            0,
+            12,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            0,
+            13,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            0,
+            5,
+            1
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            10,
+            11,
+            12,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            10,
+            3,
+            12,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        5,
+        14,
+        3
+      ],
+      "to": [
+        11,
+        15,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            1,
+            11,
+            2
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            5,
+            1,
+            11,
+            2
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            1,
+            13,
+            2
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            1,
+            5,
+            2
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            5,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            5,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        5,
+        13,
+        3
+      ],
+      "to": [
+        6,
+        14,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            2,
+            11,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            5,
+            2,
+            6,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            2,
+            13,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            5,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            5,
+            11,
+            6,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            5,
+            3,
+            6,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        9,
+        13,
+        3
+      ],
+      "to": [
+        11,
+        14,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            2,
+            7,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            9,
+            2,
+            11,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            2,
+            13,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            5,
+            3
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            9,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            9,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        7,
+        12,
+        3
+      ],
+      "to": [
+        11,
+        13,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            3,
+            9,
+            4
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            7,
+            3,
+            11,
+            4
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            3,
+            13,
+            4
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            3,
+            5,
+            4
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            7,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            7,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        7,
+        11,
+        3
+      ],
+      "to": [
+        11,
+        12,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            4,
+            9,
+            5
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            7,
+            4,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            4,
+            13,
+            5
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            4,
+            5,
+            5
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            7,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            7,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        8,
+        10,
+        3
+      ],
+      "to": [
+        11,
+        11,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            5,
+            8,
+            6
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            8,
+            5,
+            11,
+            6
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            5,
+            13,
+            6
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            5,
+            5,
+            6
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            8,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            8,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        5,
+        9,
+        3
+      ],
+      "to": [
+        6,
+        10,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            6,
+            11,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            5,
+            6,
+            6,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            6,
+            13,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            5,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            5,
+            11,
+            6,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            5,
+            3,
+            6,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        10,
+        9,
+        3
+      ],
+      "to": [
+        11,
+        10,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            6,
+            6,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            10,
+            6,
+            11,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            6,
+            13,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            5,
+            7
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            10,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            10,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Openwork rail",
+      "from": [
+        5,
+        8,
+        3
+      ],
+      "to": [
+        11,
+        9,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            7,
+            11,
+            8
+          ],
+          "texture": "#carved"
+        },
+        "south": {
+          "uv": [
+            5,
+            7,
+            11,
+            8
+          ],
+          "texture": "#carved"
+        },
+        "west": {
+          "uv": [
+            11,
+            7,
+            13,
+            8
+          ],
+          "texture": "#carved"
+        },
+        "east": {
+          "uv": [
+            3,
+            7,
+            5,
+            8
+          ],
+          "texture": "#carved"
+        },
+        "up": {
+          "uv": [
+            5,
+            11,
+            11,
+            13
+          ],
+          "texture": "#carved"
+        },
+        "down": {
+          "uv": [
+            5,
+            3,
+            11,
+            5
+          ],
+          "texture": "#carved"
+        }
+      }
+    },
+    {
+      "name": "Peg",
+      "from": [
+        3.55,
+        9.2,
+        2.8599999999999994
+      ],
+      "to": [
+        4.4,
+        9.92,
+        5.140000000000001
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11.6,
+            6.08,
+            12.45,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "south": {
+          "uv": [
+            3.55,
+            6.08,
+            4.4,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            6.08,
+            13.14,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            6.08,
+            5.140000000000001,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "up": {
+          "uv": [
+            3.55,
+            10.86,
+            4.4,
+            13.14
+          ],
+          "texture": "#trim"
+        },
+        "down": {
+          "uv": [
+            3.55,
+            2.8599999999999994,
+            4.4,
+            5.140000000000001
+          ],
+          "texture": "#trim"
+        }
+      }
+    },
+    {
+      "name": "Peg",
+      "from": [
+        3.55,
+        13.2,
+        2.8599999999999994
+      ],
+      "to": [
+        4.4,
+        13.92,
+        5.140000000000001
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11.6,
+            2.08,
+            12.45,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "south": {
+          "uv": [
+            3.55,
+            2.08,
+            4.4,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            2.08,
+            13.14,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            2.08,
+            5.140000000000001,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "up": {
+          "uv": [
+            3.55,
+            10.86,
+            4.4,
+            13.14
+          ],
+          "texture": "#trim"
+        },
+        "down": {
+          "uv": [
+            3.55,
+            2.8599999999999994,
+            4.4,
+            5.140000000000001
+          ],
+          "texture": "#trim"
+        }
+      }
+    },
+    {
+      "name": "Peg",
+      "from": [
+        11.55,
+        9.2,
+        2.8599999999999994
+      ],
+      "to": [
+        12.4,
+        9.92,
+        5.140000000000001
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5999999999999996,
+            6.08,
+            4.449999999999999,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "south": {
+          "uv": [
+            11.55,
+            6.08,
+            12.4,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            6.08,
+            13.14,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            6.08,
+            5.140000000000001,
+            6.800000000000001
+          ],
+          "texture": "#trim"
+        },
+        "up": {
+          "uv": [
+            11.55,
+            10.86,
+            12.4,
+            13.14
+          ],
+          "texture": "#trim"
+        },
+        "down": {
+          "uv": [
+            11.55,
+            2.8599999999999994,
+            12.4,
+            5.140000000000001
+          ],
+          "texture": "#trim"
+        }
+      }
+    },
+    {
+      "name": "Peg",
+      "from": [
+        11.55,
+        13.2,
+        2.8599999999999994
+      ],
+      "to": [
+        12.4,
+        13.92,
+        5.140000000000001
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5999999999999996,
+            2.08,
+            4.449999999999999,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "south": {
+          "uv": [
+            11.55,
+            2.08,
+            12.4,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "west": {
+          "uv": [
+            10.86,
+            2.08,
+            13.14,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "east": {
+          "uv": [
+            2.8599999999999994,
+            2.08,
+            5.140000000000001,
+            2.8000000000000007
+          ],
+          "texture": "#trim"
+        },
+        "up": {
+          "uv": [
+            11.55,
+            10.86,
+            12.4,
+            13.14
+          ],
+          "texture": "#trim"
+        },
+        "down": {
+          "uv": [
+            11.55,
+            2.8599999999999994,
+            12.4,
+            5.140000000000001
+          ],
+          "texture": "#trim"
+        }
+      }
+    }
+  ]
+}

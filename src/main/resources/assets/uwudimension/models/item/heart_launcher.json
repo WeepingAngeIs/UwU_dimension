@@ -1,0 +1,113 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "uwudimension:item/heart_launcher",
+    "layer1": "uwudimension:item/animated/heart_launcher_glint"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "uwudimension:recoil": 0.01
+      },
+      "model": "uwudimension:item/heart_launcher_recoil_1"
+    },
+    {
+      "predicate": {
+        "uwudimension:recoil": 0.34
+      },
+      "model": "uwudimension:item/heart_launcher_recoil_2"
+    },
+    {
+      "predicate": {
+        "uwudimension:recoil": 0.67
+      },
+      "model": "uwudimension:item/heart_launcher_recoil_3"
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        45
+      ],
+      "translation": [
+        0.0,
+        4.955,
+        0.182
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        -90,
+        -45
+      ],
+      "translation": [
+        -0.0,
+        4.955,
+        0.182
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        8.130102,
+        90.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        3.642355,
+        -0.678823
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        8.130102,
+        -90.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        3.642355,
+        -0.678823
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    }
+  },
+  "loader": "neoforge:item_layers",
+  "render_types": {
+    "minecraft:cutout": [
+      0,
+      1
+    ]
+  },
+  "neoforge_data": {
+    "layers": {
+      "1": {
+        "block_light": 15,
+        "sky_light": 15,
+        "ambient_occlusion": false
+      }
+    }
+  }
+}

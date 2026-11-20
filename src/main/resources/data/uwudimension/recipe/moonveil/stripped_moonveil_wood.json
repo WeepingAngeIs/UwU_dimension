@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "result": {
+    "id": "uwudimension:stripped_moonveil_wood",
+    "count": 3
+  },
+  "pattern": [
+    "LL",
+    "LL"
+  ],
+  "key": {
+    "L": {
+      "item": "uwudimension:stripped_moonveil_log"
+    }
+  }
+}

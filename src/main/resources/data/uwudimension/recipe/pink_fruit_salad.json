@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:apple"
+    },
+    {
+      "item": "uwudimension:starfruit"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    },
+    {
+      "item": "uwudimension:moonberry"
+    },
+    {
+      "item": "minecraft:bowl"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:pink_fruit_salad",
+    "count": 1
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "dialogues": [
+    {
+      "id": "dusk_village_open",
+      "speaker": "Dusk Keeper",
+      "text": "The windows go violet before the street goes dark. That's usually when I remember I left the broom outside."
+    },
+    {
+      "id": "dusk_village_steps",
+      "speaker": "Dusk Keeper",
+      "text": "There’s always one petal stuck in the corner of the top step. I sweep the whole street, and that one gets to stay."
+    },
+    {
+      "id": "dusk_village_lamps",
+      "speaker": "Dusk Keeper",
+      "text": "I like the lantern light best on the stair edges. You can see every nick in the stone."
+    },
+    {
+      "id": "dusk_village_crow",
+      "speaker": "Dusk Keeper",
+      "text": "That black crow sits so still against the dark roof that I only notice it when it calls."
+    },
+    {
+      "id": "moonveil_lower_open",
+      "speaker": "Moonveil shepherd",
+      "text": "If you hear a clack downstairs, that's my loom. If you hear a thump, I've dropped the shuttle again."
+    },
+    {
+      "id": "moonveil_lower_landing",
+      "speaker": "Moonveil shepherd",
+      "text": "When I carry a basket up, I set it on the landing and take a breath. Nobody in this house will rush you past a good place to sit."
+    },
+    {
+      "id": "moonveil_lower_loom",
+      "speaker": "Moonveil shepherd",
+      "text": "I started a mat for the door. It came out too nice to wipe boots on, so now I'm making a worse one."
+    },
+    {
+      "id": "moonveil_upper_open",
+      "speaker": "Moonveil cartographer",
+      "text": "My map has a mark for every stair and none for the view. I keep meaning to fix that."
+    },
+    {
+      "id": "moonveil_upper_map",
+      "speaker": "Moonveil cartographer",
+      "text": "I tried drawing the whole staircase on one sheet. It looked like a snail. I left it that way."
+    },
+    {
+      "id": "moonveil_upper_view",
+      "speaker": "Moonveil cartographer",
+      "text": "From below you see the trunk. Up here you can watch the branches move one at a time."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "dusk_village",
+      "label": "Dusk village",
+      "opening": "dusk_village_open",
+      "choices": [
+        {"id": "steps", "label": "Ask about the stone steps", "reply": "dusk_village_steps"},
+        {"id": "lamps", "label": "Ask about the lanterns", "reply": "dusk_village_lamps"},
+        {"id": "crow", "label": "Ask about the crow", "reply": "dusk_village_crow", "requires": "nearby_dusk_crow"}
+      ]
+    },
+    {
+      "id": "moonveil_lower",
+      "label": "Moonveil treehouse · shepherd",
+      "opening": "moonveil_lower_open",
+      "choices": [
+        {"id": "landing", "label": "Ask about the landing", "reply": "moonveil_lower_landing"},
+        {"id": "loom", "label": "Ask about the loom", "reply": "moonveil_lower_loom"}
+      ]
+    },
+    {
+      "id": "moonveil_upper",
+      "label": "Moonveil treehouse · cartographer",
+      "opening": "moonveil_upper_open",
+      "choices": [
+        {"id": "map", "label": "Ask about the map", "reply": "moonveil_upper_map"},
+        {"id": "view", "label": "Ask about the view", "reply": "moonveil_upper_view"}
+      ]
+    }
+  ]
+}

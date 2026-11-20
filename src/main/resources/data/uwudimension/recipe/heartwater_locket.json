@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:compass"
+    },
+    {
+      "tag": "minecraft:small_flowers"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:heartwater_locket",
+    "count": 1
+  }
+}

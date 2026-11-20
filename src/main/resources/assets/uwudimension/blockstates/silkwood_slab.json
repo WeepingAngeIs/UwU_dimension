@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "uwudimension:block/silkwood_slab"
+    },
+    "type=double": {
+      "model": "uwudimension:block/silkwood_planks"
+    },
+    "type=top": {
+      "model": "uwudimension:block/silkwood_slab_top"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:dusk_short_grass",
+    "uwudimension:dusk_tall_grass",
+    "uwudimension:dusk_lace_fern",
+    "uwudimension:dusk_star_clover",
+    "uwudimension:dusk_rain_bell",
+    "uwudimension:dusk_wood_aster",
+    "uwudimension:dusk_frost_sorrel"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/journey/blush_reef",
+  "display": {
+    "icon": {
+      "id": "uwudimension:moonwake_shellstone"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/moonwake_trench.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/moonwake_trench.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:moonwake_trench"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

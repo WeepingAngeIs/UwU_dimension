@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "uwudimension:block/moonberry_log"
+    },
+    "axis=z": {
+      "model": "uwudimension:block/moonberry_log",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "uwudimension:block/moonberry_log",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

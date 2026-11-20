@@ -1,0 +1,110 @@
+package dev.uwu.dimension;
+import java.util.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+/** Factory replacement keeps UUID/NBT intact before registration; deferred fallback covers direct constructors. */
+public final class RealmResidents {
+    public static final String ORIGIN="uwu.keeper_origin";
+    private static final Set<Villager> pending=Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<ZombieVillager> pendingUndead=Collections.newSetFromMap(new IdentityHashMap<>());
+    public static boolean applies(Level level){
+        return level instanceof ServerLevel&&appliesDimension(level.dimension());
+    }
+    public static boolean appliesDimension(net.minecraft.resources.ResourceKey<Level> dimension){
+        return dimension.equals(ReefLife.REACH);
+    }
+    public static void register(){
+        NeoForge.EVENT_BUS.addListener(RealmResidents::join);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::tick);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::converted);
+        NeoForge.EVENT_BUS.addListener(RealmResidents::stopped);
+    }
+    private static void stopped(net.neoforged.neoforge.event.server.ServerStoppedEvent event) {
+        pending.removeIf(v -> v.getServer() == event.getServer());
+        pendingUndead.removeIf(v -> v.getServer() == event.getServer());
+    }
+    private static void join(EntityJoinLevelEvent event){
+        if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.VILLAGER&&event.getEntity() instanceof Villager v)pending.add(v);
+        else if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.ZOMBIE_VILLAGER
+                &&event.getEntity() instanceof ZombieVillager zombie)pendingUndead.add(zombie);
+    }
+    private static void tick(ServerTickEvent.Post event){
+        for(var zombie:List.copyOf(pendingUndead)){
+            if(zombie.isRemoved()||!zombie.isAlive()){pendingUndead.remove(zombie);continue;}
+            if(!applies(zombie.level())){pendingUndead.remove(zombie);continue;}
+            if(!(zombie.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(zombie.blockPosition()))continue;
+            if(level.getEntity(zombie.getUUID())!=zombie)continue;
+            boolean dusk=zombie.getPersistentData().getCompound(ORIGIN).getBoolean("WasDusk");
+            var custom=(dusk?People.DUSK_ZOMBIE:People.PETAL_ZOMBIE).get().create(level);if(custom==null)continue;
+            var saved=new CompoundTag();zombie.saveWithoutId(saved);custom.load(saved);
+            var passengers=List.copyOf(zombie.getPassengers());var vehicle=zombie.getVehicle();
+            zombie.setRemoved(Entity.RemovalReason.DISCARDED);
+            if(level.addFreshEntity(custom)){
+                if(vehicle!=null)custom.startRiding(vehicle,true);
+                passengers.forEach(p->p.startRiding(custom,true));pendingUndead.remove(zombie);
+            }else{
+                zombie.revive();
+                if(level.addFreshEntity(zombie)){
+                    if(vehicle!=null)zombie.startRiding(vehicle,true);
+                    passengers.forEach(p->p.startRiding(zombie,true));
+                }
+            }
+        }
+        for(var v:List.copyOf(pending)){
+            if(v.isRemoved()||!v.isAlive()){pending.remove(v);continue;}
+            if(!applies(v.level())){pending.remove(v);continue;}
+            if(!(v.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(v.blockPosition()))continue;
+            if(level.getEntity(v.getUUID())!=v)continue;
+            var keeper=People.PETAL_KEEPER.get().create(level);if(keeper==null)continue;
+            var saved=new CompoundTag();v.saveWithoutId(saved);keeper.markAdaptedResident();keeper.load(saved);
+            // Preserve exact live POI references; ordinary brain validation still runs afterward.
+            for(var memory:List.of(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.JOB_SITE,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.POTENTIAL_JOB_SITE,
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.MEETING_POINT))
+                keeper.getBrain().setMemory(memory,v.getBrain().getMemory(memory));
+            var passengers=List.copyOf(v.getPassengers());var vehicle=v.getVehicle();
+            // Keep the original until replacement is ready. Failed registration restores it for retry.
+            // This is a transfer, not a death: LivingEntity.remove clears brain memories and
+            // triggers removal effects, corrupting the original if registration needs retry.
+            // Entity.setRemoved still performs native tracking/UUID removal and rider detachment.
+            v.setRemoved(Entity.RemovalReason.DISCARDED);
+            if(level.addFreshEntity(keeper)){
+                if(vehicle!=null)keeper.startRiding(vehicle,true);
+                passengers.forEach(p->p.startRiding(keeper,true));pending.remove(v);
+            }else{
+                v.revive();
+                if(level.addFreshEntity(v)){
+                    if(vehicle!=null)v.startRiding(vehicle,true);
+                    passengers.forEach(p->p.startRiding(v,true));
+                }
+            }
+        }
+    }
+    private static void converted(LivingConversionEvent.Post event){
+        if (!(event.getEntity().level() instanceof ServerLevel)) return;
+        if(event.getEntity() instanceof Keeper keeper&&event.getOutcome() instanceof ZombieVillager zombie){
+            var tag=new CompoundTag();keeper.saveWithoutId(tag);tag.putBoolean("WasDusk",keeper.getType()==People.DUSK_KEEPER.get());
+            zombie.getPersistentData().put(ORIGIN,tag);
+            // Mob.convertTo already picked the correct type, so vanilla finishes filling
+            // profession, gossip and trade XP into the very same zombie instance.
+        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof ZombieVillager undead
+                &&zombie.getPersistentData().contains(ORIGIN)){
+            undead.getPersistentData().put(ORIGIN,zombie.getPersistentData().getCompound(ORIGIN).copy());
+        }else if(event.getEntity() instanceof ZombieVillager zombie&&event.getOutcome() instanceof Keeper keeper
+                &&zombie.getPersistentData().contains(ORIGIN)){
+            var prior=zombie.getPersistentData().getCompound(ORIGIN);var now=new CompoundTag();keeper.saveWithoutId(now);
+            for(String key:List.of("Companion","Hearth","Settled","NextGift","OfferedJobLevel","VillageCourt","SeekLegacyCourt","Inventory"))if(prior.contains(key))now.put(key,prior.get(key).copy());
+            keeper.readAdditionalSaveData(now);
+            KeeperSociety.remember((ServerLevel) keeper.level(), keeper);
+        }
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "uwudimension:block/light_blue_heartsill_slab"
+    },
+    "type=top": {
+      "model": "uwudimension:block/light_blue_heartsill_slab_top"
+    },
+    "type=double": {
+      "model": "uwudimension:block/light_blue_heartsill"
+    }
+  }
+}

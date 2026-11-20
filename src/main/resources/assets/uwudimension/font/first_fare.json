@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/best_seat.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue150"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/singing_passenger.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue151"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/a_squeak.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue152"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/grans_crock.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue153"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/two_scarves.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue154"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/first_fare/round_trip.png",
+      "ascent": 7,
+      "height": 46,
+      "chars": [
+        "\ue155"
+      ]
+    }
+  ]
+}

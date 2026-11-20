@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "top": "uwudimension:block/yellow_heartsill",
+    "bottom": "uwudimension:block/yellow_heartsill",
+    "side": "uwudimension:block/yellow_heartsill"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.uwu.dimension.compat.sodium.liquidmixin",
+  "plugin": "dev.uwu.dimension.client.compat.ReachLiquidSodiumPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ReachLiquidSodiumContextMixin",
+    "ReachLiquidSodiumQuadAccessor",
+    "ReachLiquidSodiumColorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

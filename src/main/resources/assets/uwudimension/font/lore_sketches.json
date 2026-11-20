@@ -1,0 +1,6 @@
+{"providers":[
+  {"type":"bitmap","file":"uwudimension:block/heartbloom_leaves.png","height":18,"ascent":16,"chars":["A"]},
+  {"type":"bitmap","file":"uwudimension:block/moonveil_leaves.png","height":18,"ascent":16,"chars":["B"]},
+  {"type":"bitmap","file":"uwudimension:item/heartwater_locket.png","height":18,"ascent":16,"chars":["C"]},
+  {"type":"bitmap","file":"uwudimension:item/cupid_bow.png","height":18,"ascent":16,"chars":["D"]}
+]}

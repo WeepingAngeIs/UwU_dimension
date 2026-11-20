@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "uwudimension:shellstone_ashlar"
+  },
+  "result": {
+    "id": "uwudimension:shellstone_steps",
+    "count": 1
+  }
+}

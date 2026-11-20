@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:moonveil_log",
+    "uwudimension:moonveil_wood",
+    "uwudimension:stripped_moonveil_log",
+    "uwudimension:stripped_moonveil_wood"
+  ]
+}

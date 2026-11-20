@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "uwudimension:moonberry_log"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:velvetwood_beam",
+    "count": 1
+  }
+}

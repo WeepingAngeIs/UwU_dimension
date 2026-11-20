@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:petal_frost_sorrel"
+    }
+  ],
+  "result": {
+    "id": "minecraft:magenta_dye",
+    "count": 1
+  }
+}

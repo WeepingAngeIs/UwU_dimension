@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:silkwood_tea_table",
+    "uwudimension:velvetwood_tea_table",
+    "uwudimension:woven_reed_tea_table",
+    "uwudimension:moonveil_table"
+  ]
+}

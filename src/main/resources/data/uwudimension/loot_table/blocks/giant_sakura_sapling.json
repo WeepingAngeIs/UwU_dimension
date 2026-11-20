@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:block",
+  "pools": [{
+    "rolls": 1,
+    "conditions": [{"condition": "minecraft:survives_explosion"}],
+    "entries": [{"type": "minecraft:item", "name": "uwudimension:giant_sakura_sapling"}]
+  }],
+  "random_sequence": "uwudimension:blocks/giant_sakura_sapling"
+}

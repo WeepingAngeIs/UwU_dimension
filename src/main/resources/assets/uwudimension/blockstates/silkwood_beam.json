@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "uwudimension:block/silkwood_beam_x"
+    },
+    "axis=y": {
+      "model": "uwudimension:block/silkwood_beam_y"
+    },
+    "axis=z": {
+      "model": "uwudimension:block/silkwood_beam_z"
+    }
+  }
+}

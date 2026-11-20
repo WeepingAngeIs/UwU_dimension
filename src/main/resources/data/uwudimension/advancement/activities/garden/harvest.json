@@ -1,0 +1,28 @@
+{
+  "parent": "uwudimension:activities/garden/plant",
+  "display": {
+    "icon": {
+      "id": "uwudimension:sakura_rice"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.garden/harvest.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.garden/harvest.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

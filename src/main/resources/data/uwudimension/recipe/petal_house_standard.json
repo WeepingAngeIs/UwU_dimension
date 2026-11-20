@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:pink_banner"
+    },
+    {
+      "item": "minecraft:pink_petals"
+    },
+    {
+      "item": "uwudimension:roseglass_prism"
+    }
+  ],
+  "result": {
+    "id": "minecraft:pink_banner",
+    "components": {
+      "minecraft:banner_patterns": [
+        {
+          "pattern": "minecraft:rhombus",
+          "color": "magenta"
+        },
+        {
+          "pattern": "minecraft:flower",
+          "color": "white"
+        },
+        {
+          "pattern": "minecraft:border",
+          "color": "pink"
+        }
+      ],
+      "minecraft:item_name": "{\"translate\": \"banner.uwudimension.petal_house\"}"
+    }
+  }
+}

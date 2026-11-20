@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "found_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "uwudimension:vesper_opal"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "uwudimension:dusk_house_standard"
+    ]
+  }
+}

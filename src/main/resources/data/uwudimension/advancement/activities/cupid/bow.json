@@ -1,0 +1,37 @@
+{
+  "parent": "uwudimension:a_rather_pretty_place",
+  "display": {
+    "icon": {
+      "id": "uwudimension:cupid_bow"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.cupid/bow.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.cupid/bow.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "uwudimension:cupid_bow"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

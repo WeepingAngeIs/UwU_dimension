@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "uwudimension:rough_roseglass"
+  },
+  "result": {
+    "id": "uwudimension:roseglass_prism"
+  },
+  "experience": 0.7,
+  "cookingtime": 100
+}

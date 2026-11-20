@@ -1,0 +1,61 @@
+{
+  "parent": "uwudimension:activities/pantry/burger",
+  "display": {
+    "icon": {
+      "id": "uwudimension:cherry_picnic_bento"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.pantry/three_course.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.pantry/three_course.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "burger": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:heartberry_burger"
+          ]
+        }
+      }
+    },
+    "hotpot": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:cozy_udon_hotpot"
+          ]
+        }
+      }
+    },
+    "dessert": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:sakura_mochi_ice_cream"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "burger"
+    ],
+    [
+      "hotpot"
+    ],
+    [
+      "dessert"
+    ]
+  ]
+}

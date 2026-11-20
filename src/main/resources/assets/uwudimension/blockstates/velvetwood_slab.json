@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "uwudimension:block/velvetwood_slab"
+    },
+    "type=double": {
+      "model": "uwudimension:block/velvetwood_planks"
+    },
+    "type=top": {
+      "model": "uwudimension:block/velvetwood_slab_top"
+    }
+  }
+}

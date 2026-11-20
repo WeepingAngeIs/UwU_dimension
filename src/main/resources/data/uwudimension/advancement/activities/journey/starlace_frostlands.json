@@ -1,0 +1,36 @@
+{
+  "parent": "uwudimension:activities/journey/canopy_club",
+  "display": {
+    "icon": {
+      "id": "uwudimension:frostpetal"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.journey/starlace_frostlands.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.journey/starlace_frostlands.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "location": {
+            "dimension": "uwudimension:sakura_reach",
+            "biomes": "uwudimension:starlace_frostlands"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

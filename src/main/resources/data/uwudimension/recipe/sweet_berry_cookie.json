@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "uwudimension:sakura_flour"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "uwudimension:heartberry"
+    }
+  ],
+  "result": {
+    "id": "uwudimension:sweet_berry_cookie",
+    "count": 1
+  }
+}

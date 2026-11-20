@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_uv_locked_z",
+  "textures": {
+    "end": "uwudimension:block/velvetwood_beam_top",
+    "side": "uwudimension:block/velvetwood_beam"
+  }
+}

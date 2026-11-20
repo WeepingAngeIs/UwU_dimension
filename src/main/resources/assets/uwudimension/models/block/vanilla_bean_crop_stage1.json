@@ -1,0 +1,7 @@
+{
+  "parent": "uwudimension:block/vanilla_bean_plant",
+  "textures": {
+    "crop": "uwudimension:block/vanilla_bean_crop_stage1",
+    "particle": "uwudimension:block/vanilla_bean_crop_stage1"
+  }
+}

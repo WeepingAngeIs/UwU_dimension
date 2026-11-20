@@ -1,0 +1,35 @@
+{
+  "parent": "uwudimension:activities/pantry/snack",
+  "display": {
+    "icon": {
+      "id": "uwudimension:cozy_udon_hotpot"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.pantry/hotpot.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.pantry/hotpot.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:cozy_udon_hotpot"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "edition=petal,facing=north": { "model": "uwudimension:block/lantern_storybook_petal" },
+    "edition=petal,facing=east": { "model": "uwudimension:block/lantern_storybook_petal", "y": 90 },
+    "edition=petal,facing=south": { "model": "uwudimension:block/lantern_storybook_petal", "y": 180 },
+    "edition=petal,facing=west": { "model": "uwudimension:block/lantern_storybook_petal", "y": 270 },
+    "edition=dusk,facing=north": { "model": "uwudimension:block/lantern_storybook_dusk" },
+    "edition=dusk,facing=east": { "model": "uwudimension:block/lantern_storybook_dusk", "y": 90 },
+    "edition=dusk,facing=south": { "model": "uwudimension:block/lantern_storybook_dusk", "y": 180 },
+    "edition=dusk,facing=west": { "model": "uwudimension:block/lantern_storybook_dusk", "y": 270 }
+  }
+}

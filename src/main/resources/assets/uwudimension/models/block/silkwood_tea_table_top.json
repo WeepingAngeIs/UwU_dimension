@@ -1,0 +1,84 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "boards": "uwudimension:block/tea_furniture/silkwood_boards",
+    "post": "uwudimension:block/tea_furniture/silkwood_post",
+    "seat": "uwudimension:block/tea_furniture/silkwood_seat",
+    "top": "uwudimension:block/tea_furniture/silkwood_top",
+    "rim": "uwudimension:block/tea_furniture/silkwood_rim",
+    "carved": "uwudimension:block/tea_furniture/silkwood_carved",
+    "trim": "uwudimension:block/tea_furniture/silkwood_trim",
+    "particle": "uwudimension:block/tea_furniture/silkwood_boards"
+  },
+  "elements": [
+    {
+      "name": "Aproned tabletop",
+      "from": [
+        0,
+        13,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            3
+          ],
+          "texture": "#rim"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            3
+          ],
+          "texture": "#rim"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            3
+          ],
+          "texture": "#rim"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            3
+          ],
+          "texture": "#rim"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#top"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#boards"
+        }
+      }
+    }
+  ]
+}

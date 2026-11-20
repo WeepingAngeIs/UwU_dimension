@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "uwudimension:block/shellstone_ashlar",
+    "side": "uwudimension:block/shellstone_ashlar",
+    "top": "uwudimension:block/shellstone_ashlar"
+  }
+}

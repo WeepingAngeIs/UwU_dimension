@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "uwudimension:sakura_stone",
+    "uwudimension:sakura_coal_ore",
+    "uwudimension:sakura_copper_ore",
+    "uwudimension:sakura_iron_ore",
+    "uwudimension:sakura_emerald_ore"
+  ]
+}

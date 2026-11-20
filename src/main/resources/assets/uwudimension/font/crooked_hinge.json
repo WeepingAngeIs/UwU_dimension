@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/the_wet_street.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue140"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/two_cups.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue141"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/two_clicks.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue142"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/just_the_wick.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue143"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/the_candle_stub.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue144"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/crooked_hinge/across_the_street.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue145"
+      ]
+    }
+  ]
+}

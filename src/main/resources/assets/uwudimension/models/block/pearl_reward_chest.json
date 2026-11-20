@@ -1,0 +1,6 @@
+{
+  "parent": "uwudimension:block/reward_chest_base",
+  "textures": {
+    "skin": "uwudimension:block/pearl_reward_chest"
+  }
+}

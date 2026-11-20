@@ -1,0 +1,58 @@
+{
+  "parent": "uwudimension:activities/wardrobe/nightbriar_gem",
+  "display": {
+    "icon": {
+      "id": "uwudimension:nightbriar_chestplate"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.wardrobe/nightbriar_crafted.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.wardrobe/nightbriar_crafted.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "helmet": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:nightbriar_helmet"
+      }
+    },
+    "chestplate": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:nightbriar_chestplate"
+      }
+    },
+    "leggings": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:nightbriar_leggings"
+      }
+    },
+    "boots": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "uwudimension:nightbriar_boots"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "helmet"
+    ],
+    [
+      "chestplate"
+    ],
+    [
+      "leggings"
+    ],
+    [
+      "boots"
+    ]
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "fruiting": "false"
+      },
+      "apply": [
+        {
+          "model": "uwudimension:block/starpetal_leaves_v0",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_v1",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_v2",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "when": {
+        "fruiting": "true"
+      },
+      "apply": [
+        {
+          "model": "uwudimension:block/starpetal_leaves_fruiting_v0",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_fruiting_v1",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_fruiting_v2",
+          "weight": 1
+        },
+        {
+          "model": "uwudimension:block/starpetal_leaves_fruiting_v3",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

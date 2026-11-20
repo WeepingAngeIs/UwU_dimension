@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "uwudimension:item/rose_berry_pie_slice"
+  }
+}

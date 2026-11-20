@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/the_lunch_tin.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue130"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/the_wall.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue131"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/the_mat.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue132"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/the_thread.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue133"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/the_side_door.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue134"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/the_side_door/a_small_table.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue135"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "uwudimension:block/petal_tall_grass_lower"
+    },
+    "half=upper": {
+      "model": "uwudimension:block/petal_tall_grass_upper"
+    }
+  }
+}

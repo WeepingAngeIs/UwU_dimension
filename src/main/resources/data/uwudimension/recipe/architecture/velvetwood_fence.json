@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#S#",
+    "#S#"
+  ],
+  "key": {
+    "#": {
+      "item": "uwudimension:velvetwood_planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "uwudimension:velvetwood_fence",
+    "count": 3
+  }
+}

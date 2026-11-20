@@ -1,0 +1,41 @@
+{
+  "parent": "uwudimension:a_rather_pretty_place",
+  "display": {
+    "icon": {
+      "id": "uwudimension:heartberry"
+    },
+    "title": {
+      "translate": "advancements.uwudimension.activities.pantry/snack.title"
+    },
+    "description": {
+      "translate": "advancements.uwudimension.activities.pantry/snack.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "uwudimension:heartberry",
+            "uwudimension:sakura_rice",
+            "uwudimension:starfruit",
+            "uwudimension:frostpetal",
+            "uwudimension:sweetbean_pods",
+            "uwudimension:glowginger",
+            "uwudimension:vanilla_bean"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

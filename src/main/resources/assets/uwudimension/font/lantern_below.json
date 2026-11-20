@@ -1,0 +1,58 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/twin_lights.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue100"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/three_knocks.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue101"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/cracked_bell.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue102"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/inverted_shrine.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue103"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/cold_supper.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue104"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "uwudimension:font/lantern_below/the_way_home.png",
+      "height": 46,
+      "ascent": 7,
+      "chars": [
+        "\ue105"
+      ]
+    }
+  ]
+}

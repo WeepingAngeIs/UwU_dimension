@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "uwudimension:silkwood_planks"
+    }
+  },
+  "result": {
+    "id": "uwudimension:silkwood_door",
+    "count": 3
+  }
+}

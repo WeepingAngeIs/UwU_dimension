@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "uwudimension:block/stripped_moonveil_log_x"
+    },
+    "axis=y": {
+      "model": "uwudimension:block/stripped_moonveil_log_y"
+    },
+    "axis=z": {
+      "model": "uwudimension:block/stripped_moonveil_log_z"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "uwudimension:block/silkwood_planks"
+  }
+}
