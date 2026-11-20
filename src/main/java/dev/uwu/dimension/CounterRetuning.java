@@ -95,7 +95,12 @@ public final class CounterRetuning {
             player.sendSystemMessage(Component.literal("Wait for the counter to finish cooling down before retuning.").withStyle(ChatFormatting.RED));
             return false;
         }
-        player.setItemInHand(hand, current.transmuteCopy(target));
+        ItemStack tuned = current.transmuteCopy(target);
+        if (tuned.getMaxDamage() < current.getMaxDamage() && current.getDamageValue() >= tuned.getMaxDamage()) {
+            player.sendSystemMessage(Component.literal("Repair the counter before retuning into this form.").withStyle(ChatFormatting.RED));
+            return false;
+        }
+        player.setItemInHand(hand, tuned);
         player.sendSystemMessage(Component.literal("Counter tuned to " + entry.sourceName() + ".").withStyle(ChatFormatting.LIGHT_PURPLE));
         return true;
     }

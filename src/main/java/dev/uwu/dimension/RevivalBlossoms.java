@@ -26,6 +26,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -35,10 +36,16 @@ public final class RevivalBlossoms {
     public static final java.util.function.Supplier<Item> DIRK = ITEMS.register("returnbloom_dirk", FlowerDirk::new);
     public static final java.util.function.Supplier<Item> AXE = ITEMS.register("dawnpetal_axe", FlowerAxe::new);
     public static final int COOLDOWN_TICKS = 1200;
+    private static final int WEAPON_DURABILITY = 6060;
     private static final String ID = "uwu_revival_id", PHASE = "uwu_revival_phase", LEFT = "uwu_revival_left";
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
+        // TieredItem supplies Netherite's durability in its constructor.
+        bus.addListener((ModifyDefaultComponentsEvent event) -> {
+            event.modify(DIRK.get(), patch -> patch.set(DataComponents.MAX_DAMAGE, WEAPON_DURABILITY));
+            event.modify(AXE.get(), patch -> patch.set(DataComponents.MAX_DAMAGE, WEAPON_DURABILITY));
+        });
         DawnpetalSwing.register(bus);
         DawnpetalAbilities.register(bus);
         RevivalReady.register(bus);

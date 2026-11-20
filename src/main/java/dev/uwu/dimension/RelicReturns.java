@@ -30,6 +30,7 @@ final class RelicReturns {
         CompoundTag entry = new CompoundTag();
         entry.put("Stack", stack.save(owner.registryAccess()));
         entry.putBoolean("Offhand", hand == InteractionHand.OFF_HAND);
+        entry.putInt("LaunchSlot", owner.getInventory().selected);
         entry.putString("Level", flight.level().dimension().location().toString());
         entry.putLong("Launched", flight.level().getGameTime());
         child(saved(owner), FLIGHTS).put(flight.getStringUUID(), entry);
@@ -88,8 +89,12 @@ final class RelicReturns {
     static void returned(Player owner, RelicFlight flight) {
         CompoundTag flights = saved(owner).getCompound(FLIGHTS);
         if (flights.contains(flight.getStringUUID())) {
-            flights.getCompound(flight.getStringUUID()).putBoolean("Ready", true);
-            deliver(owner, flights, flight.getStringUUID());
+            CompoundTag entry = flights.getCompound(flight.getStringUUID());
+            entry.putBoolean("Ready", true);
+            boolean quickCatch = flight.recoveredHit() && owner.level() == flight.level()
+                    && !entry.getBoolean("Offhand") && entry.contains("LaunchSlot", Tag.TAG_INT)
+                    && entry.getInt("LaunchSlot") == owner.getInventory().selected;
+            deliver(owner, flights, flight.getStringUUID(), quickCatch);
         }
     }
 
@@ -114,18 +119,19 @@ final class RelicReturns {
                 if(reserved.getItem() instanceof GlitchBow && data.hasUUID("uwu_glitch_id") && data.hasUUID("uwu_glitch_token"))
                     GlitchCompletions.complete(player.serverLevel(),data.getUUID("uwu_glitch_id"),data.getUUID("uwu_glitch_token"));
             }
-            deliver(player, flights, key);
+            deliver(player, flights, key, false);
         }
         if (flights.isEmpty()) root.remove(FLIGHTS);
     }
 
-    private static void deliver(Player owner, CompoundTag flights, String key) {
+    private static void deliver(Player owner, CompoundTag flights, String key, boolean quickCatch) {
         if (!owner.isAlive()) return;
         CompoundTag entry = flights.getCompound(key);
         ItemStack stack = ItemStack.parseOptional(owner.registryAccess(), entry.getCompound("Stack"));
         if (stack.isEmpty()) return;
         InteractionHand hand = entry.getBoolean("Offhand") ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-        if (owner.getItemInHand(hand).isEmpty()) {
+        boolean caughtInHand = owner.getItemInHand(hand).isEmpty();
+        if (caughtInHand) {
             owner.setItemInHand(hand, stack);
         } else if (owner.getInventory().getFreeSlot() >= 0) {
             // Physical weapons are unstackable. Do not rely on Inventory.add's
@@ -141,6 +147,8 @@ final class RelicReturns {
         }
         BlossomArts.caught(owner, stack);
         flights.remove(key);
+        if (quickCatch && caughtInHand && owner instanceof ServerPlayer player)
+            RelicCatchRecovery.caught(player, stack);
         SakuraAchievements.award(owner,"utility/return");
     }
 }

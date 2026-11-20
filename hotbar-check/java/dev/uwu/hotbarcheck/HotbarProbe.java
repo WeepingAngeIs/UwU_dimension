@@ -14,6 +14,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -47,7 +49,7 @@ import org.lwjgl.glfw.GLFW;
 @Mod("uwu_hotbar_check")
 public final class HotbarProbe {
     private enum Stage {
-        LOAD, EQUIP, RAPID, HIGH_SLOT, BACK, SCROLLED, DROP_KEY, DROP,
+        LOAD, CUPID_CONTROLS, TOOL_CONTROLS, ORDINARY_CONTROLS, EQUIP, RAPID, HIGH_SLOT, BACK, SCROLLED, DROP_KEY, DROP,
         REEQUIP, SELECT_THROW, EMPTY, TURN, THROW_KEY, FLIGHT,
         AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, AXE_THROW, AXE_FLIGHT, DONE
     }
@@ -125,12 +127,41 @@ public final class HotbarProbe {
                     serverAction(client, actor -> {
                         prepareLandingLane(actor);
                         actor.getInventory().selected = 0;
+                        actor.getInventory().setItem(0, uwuItem("cupid_bow"));
+                        actor.getInventory().setItem(1, uwuItem("bell_hammer"));
+                        actor.getInventory().setItem(2, new ItemStack(Items.DIAMOND_SWORD));
+                        actor.containerMenu.broadcastChanges();
+                    });
+                    enter(Stage.CUPID_CONTROLS, player.tickCount);
+                }
+                case CUPID_CONTROLS -> {
+                    if (!isUwu(player.getMainHandItem(), "cupid_bow")) return;
+                    require(player.getMainHandItem().getMaxDamage() == 6666, "Cupid durability differs from 6666");
+                    requireOrdinaryKeys(client, player);
+                    number(client, 1);
+                    enter(Stage.TOOL_CONTROLS, player.tickCount);
+                }
+                case TOOL_CONTROLS -> {
+                    require(inventory.selected == 1, "Cupid Bow intercepted number key 2");
+                    if (!isUwu(player.getMainHandItem(), "bell_hammer")) return;
+                    requireOrdinaryKeys(client, player);
+                    number(client, 2);
+                    enter(Stage.ORDINARY_CONTROLS, player.tickCount);
+                }
+                case ORDINARY_CONTROLS -> {
+                    require(inventory.selected == 2 && player.getMainHandItem().is(Items.DIAMOND_SWORD),
+                            "Bell Hammer intercepted number key 3");
+                    requireOrdinaryKeys(client, player);
+                    System.out.println("HOTBAR EXCLUSIONS PASS Cupid, mining tool and ordinary weapon keep normal keys");
+                    serverAction(client, actor -> {
+                        actor.getInventory().selected = 0;
                         actor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, newDirk());
                         for (int slot = 1; slot <= 8; slot++) {
                             actor.getInventory().setItem(slot, new ItemStack(Items.STICK, slot));
                         }
                         actor.containerMenu.broadcastChanges();
                     });
+                    number(client, 0);
                     enter(Stage.EQUIP, player.tickCount);
                 }
                 case EQUIP -> {
@@ -421,6 +452,22 @@ public final class HotbarProbe {
         serverSawEmpty = false;
         serverSawLanding = false;
         flightProgress = "unlaunched";
+    }
+
+    private static ItemStack uwuItem(String name) {
+        return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("uwudimension", name)));
+    }
+
+    private static boolean isUwu(ItemStack stack, String name) {
+        return stack.is(uwuItem(name).getItem());
+    }
+
+    private static void requireOrdinaryKeys(Minecraft client, net.minecraft.world.entity.player.Player player) {
+        require(!SharedAbilityHotbar.visibleFor(player), "Ability row appeared for " + player.getMainHandItem());
+        require(!SharedAbilityHotbar.ownsMappedKey(client.options.keyUse), "Mod intercepted normal item use");
+        for (var key : client.options.keyHotbarSlots) {
+            require(!SharedAbilityHotbar.ownsMappedKey(key), "Mod intercepted a normal number key");
+        }
     }
 
     private static void prepareLandingLane(ServerPlayer player) {

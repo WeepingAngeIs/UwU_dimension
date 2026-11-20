@@ -29,7 +29,7 @@ public final class GlitchBow extends Item {
         return !id.equals(Arsenal.Relic.CUPID_BOW.id())
                 && !id.equals("dawnpetal_axe") && !id.equals("returnbloom_dirk");
     }
-    public GlitchBow(){super(new Properties().durability(1536).rarity(Rarity.EPIC));}
+    public GlitchBow(){super(new Properties().durability(1666).rarity(Rarity.EPIC));}
     public static int currentIndex(ItemStack stack){
         CompoundTag n=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         return resolvedIndex(n.contains("uwu_form") ? n.getInt("uwu_form") : SAFE_FORM);

@@ -62,7 +62,10 @@ public final class CounterArsenal {
         public final Entry entry;
         CounterItem(Entry entry){super(properties(entry));this.entry=entry;}
         private static Properties properties(Entry entry) {
-            Properties properties = new Properties().durability(1100).rarity(Rarity.EPIC).attributes(
+            String id = entry.id();
+            boolean basicMaterial = id.startsWith("counter_iron_") || id.startsWith("counter_gold_")
+                    || id.startsWith("counter_diamond_") || id.startsWith("counter_netherite_");
+            Properties properties = new Properties().durability(basicMaterial ? 1100 : 1666).rarity(Rarity.EPIC).attributes(
                 net.minecraft.world.item.component.ItemAttributeModifiers.builder()
                     .add(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,
                         new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_DAMAGE_ID,entry.damage()-1,

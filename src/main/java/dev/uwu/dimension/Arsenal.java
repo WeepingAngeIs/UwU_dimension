@@ -104,7 +104,9 @@ public final class Arsenal {
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, relic.speed - 4, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
             if (relic == Relic.BLOSSOM_GREATSWORD || relic == Relic.VESPER_SCYTHE)
                 attributes.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(id("bladed_reach"), 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
-            Item.Properties properties = new Item.Properties().durability(1024).rarity(relic == Relic.CUPID_BOW ? Rarity.EPIC : Rarity.RARE).attributes(attributes.build());
+            boolean cupid = relic == Relic.CUPID_BOW;
+            Item.Properties properties = new Item.Properties().durability(cupid ? 6666 : 1666)
+                    .rarity(cupid ? Rarity.EPIC : Rarity.RARE).attributes(attributes.build());
             if (relic.axe()) properties.component(net.minecraft.core.component.DataComponents.TOOL,
                 Tiers.DIAMOND.createToolProperties(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE));
             if (relic == Relic.VESPER_SCYTHE) properties.component(net.minecraft.core.component.DataComponents.TOOL,

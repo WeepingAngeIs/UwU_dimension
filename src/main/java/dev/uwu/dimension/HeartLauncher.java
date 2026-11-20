@@ -73,7 +73,7 @@ final class HeartLauncher {
 
     static final class LauncherItem extends Item {
         LauncherItem() {
-            super(new Item.Properties().durability(1024).rarity(Rarity.EPIC)
+            super(new Item.Properties().durability(1666).rarity(Rarity.EPIC)
                 .component(net.minecraft.core.component.DataComponents.TOOL,
                     Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE)));
         }

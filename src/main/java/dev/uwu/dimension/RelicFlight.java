@@ -53,6 +53,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     private boolean physicalWeapon;
     private boolean reserved;
+    private boolean recoveredHit;
     private UUID physicalOwner;
     private InteractionHand returnHand = InteractionHand.MAIN_HAND;
     private int landedTicks;
@@ -93,6 +94,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
 
     public boolean landed() { return entityData.get(LANDED); }
     public boolean returning() { return entityData.get(RETURNING); }
+    boolean recoveredHit() { return physicalWeapon && recoveredHit && RelicCatchRecovery.supports(getItem()); }
 
     /** Legacy visual cast used for the Glitch Bow and scythe's detached wave. */
     static void cast(ServerLevel level, Player owner, Arsenal.Relic kind, boolean wave) {
@@ -382,6 +384,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 }
                 double distance = delta.length();
                 double speed = Math.min(3.6, Math.max(2.2, distance * .48));
+                if (recoveredHit()) speed = Math.min(distance, speed * 2.25);
                 noPhysics = true;
                 setNoGravity(true);
                 setDeltaMovement(delta.scale(speed / distance));
@@ -422,6 +425,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
                 if (!(target instanceof Player) || server.getServer().isPvpAllowed()) {
                     if (target.isAttackable() && target != player
                             && target.hurt(server.damageSources().trident(this, player), 10F)) {
+                        recoveredHit = RelicCatchRecovery.supports(getItem());
                         double radius = getItem().is(RevivalBlossoms.AXE.get()) ? 1.1 : .9;
                         HeartCombatGlow.dawnpetalImpact(server, impact, radius, 0, player);
                     }
@@ -431,6 +435,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
             }
             if (counter().isEmpty()) {
                 applied=RangedRelics.strike(server, player, target, relic(), impact,this);
+                recoveredHit = applied && RelicCatchRecovery.supports(getItem());
                 if(applied && (switch(relic()){case RIBBONHARE_SCEPTER,BLOSSOM_GREATSWORD,ROSE_DAGGER,LANTERN_SPEAR -> true;default -> false;})){
                     effectTicks=100;
                 }
@@ -510,6 +515,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         tag.putInt("landed_ticks", landedTicks);
         tag.putBoolean("returning", returning());
         tag.putBoolean("physical_weapon", physicalWeapon);
+        if (recoveredHit()) tag.putBoolean("melee_recovery_hit", true);
         tag.putBoolean("reserved", reserved);
         tag.putInt("return_hand", returnHand == InteractionHand.OFF_HAND ? 1 : 0);
         if (physicalOwner != null) tag.putUUID("physical_owner", physicalOwner);
@@ -528,6 +534,7 @@ public final class RelicFlight extends ThrowableItemProjectile {
         landedTicks = Math.max(0, Math.min(15, tag.getInt("landed_ticks")));
         entityData.set(RETURNING, tag.getBoolean("returning"));
         physicalWeapon = tag.getBoolean("physical_weapon");
+        recoveredHit = tag.getBoolean("melee_recovery_hit") && RelicCatchRecovery.supports(getItem());
         reserved = tag.getBoolean("reserved");
         returnHand = tag.getInt("return_hand") == 1 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         physicalOwner = tag.hasUUID("physical_owner") ? tag.getUUID("physical_owner") : null;

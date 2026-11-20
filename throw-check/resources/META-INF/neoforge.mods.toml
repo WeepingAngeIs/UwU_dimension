@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_throw_check"
+version="1.0"
+displayName="Disposable throw and melee check"
+[[mixins]]
+config="uwu_throw_check.mixins.json"

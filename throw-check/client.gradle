@@ -1,0 +1,15 @@
+gradle.beforeProject { project ->
+    project.plugins.withId('net.neoforged.moddev') {
+        def probe = project.sourceSets.create('throwCheck')
+        probe.java.srcDirs = [project.file('throw-check/java')]
+        probe.resources.srcDirs = [project.file('throw-check/resources')]
+        probe.compileClasspath += project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        project.dependencies.add('runtimeOnly', project.fileTree('build/throw-check-deps') { include '*.jar' })
+        project.neoForge.mods.create('uwu_throw_check') { sourceSet(probe) }
+        project.neoForge.runs.create('throwClient') {
+            client()
+            gameDirectory = project.file('build/throw-client')
+            jvmArgument('-Xmx3G')
+        }
+    }
+}

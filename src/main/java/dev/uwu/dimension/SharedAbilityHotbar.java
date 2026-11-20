@@ -52,11 +52,13 @@ public final class SharedAbilityHotbar {
         if (stack.is(RevivalBlossoms.AXE.get()) || stack.is(RevivalBlossoms.DIRK.get())) return Action.CONTEXTUAL;
         if (item instanceof Arsenal.RelicItem relic) {
             return switch (relic.relic) {
-                case CUPID_BOW, RIPPLE_BOW -> Action.DRAW;
+                case CUPID_BOW -> null;
+                case RIPPLE_BOW -> Action.DRAW;
                 case RIBBONHARE_SCEPTER -> Action.SUMMON;
                 case AXOLOTL_WHIP, FROST_WHIP, RIFT_WHIP, SATIN_WHIP -> Action.LASH;
                 case BLUE_HOUR_WAND -> Action.RAY;
-                default -> Action.THROW;
+                case BLOSSOM_GREATSWORD, BELLHEART_AXE, LOCKKEEPER_AXE, VESPER_SCYTHE,
+                     ROSE_DAGGER, LANTERN_SPEAR, TIDELACE_TRIDENT -> Action.THROW;
             };
         }
         if (item instanceof CounterArsenal.CounterItem || item instanceof GlitchBow) return Action.CAST;
