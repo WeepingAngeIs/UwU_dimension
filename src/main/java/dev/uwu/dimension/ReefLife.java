@@ -15,6 +15,7 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.*;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -62,10 +63,12 @@ public final class ReefLife {
         if (!(e.getEntity() instanceof ServerPlayer player) || player.isSpectator() || !isReach(player.level())) return;
         ServerLevel level=player.serverLevel();
         long clock=level.getGameTime()+player.getId();
-        if (clock%10==0 && player.isUnderWater() && seaBiome(level, player.blockPosition())) {
+        if (clock%10==0 && player.isUnderWater() && biomeChunksReady(level, player.blockPosition())
+                && seaBiome(level, player.blockPosition())) {
             RandomSource rng=player.getRandom();
             BlockPos glint=player.blockPosition().offset(rng.nextInt(13)-6,rng.nextInt(7)-3,rng.nextInt(13)-6);
-            if (level.getFluidState(glint).is(FluidTags.WATER))
+            LevelChunk glintChunk = level.getChunkSource().getChunkNow(glint.getX() >> 4, glint.getZ() >> 4);
+            if (glintChunk != null && glintChunk.getFluidState(glint).is(FluidTags.WATER))
                 level.sendParticles(player,ParticleTypes.END_ROD,false,glint.getX()+.5,glint.getY()+.5,glint.getZ()+.5,2,.35,.22,.35,.004);
         }
         if(clock%160!=0 || !level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) return;
@@ -74,14 +77,17 @@ public final class ReefLife {
             double angle=rng.nextDouble()*Math.PI*2;
             int radius=24+rng.nextInt(23);
             BlockPos axis=player.blockPosition().offset((int)(Math.cos(angle)*radius),0,(int)(Math.sin(angle)*radius));
-            if(!level.hasChunkAt(axis))continue;
-            int surface=level.getHeight(Heightmap.Types.WORLD_SURFACE,axis.getX(),axis.getZ());
+            LevelChunk chunk = level.getChunkSource().getChunkNow(axis.getX() >> 4, axis.getZ() >> 4);
+            if (chunk == null) continue;
+            // Level.getHeight returns the first free block above the chunk's highest occupied block.
+            int surface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, axis.getX() & 15, axis.getZ() & 15) + 1;
             int y=surface-2-rng.nextInt(3);
             // Also allow closed lakes at other elevations when the observer is actually in one.
             if(Math.abs(y-player.getY())>26 && player.isInWater())y=player.getBlockY()+rng.nextInt(5)-2;
             if(Math.abs(y-player.getY())>28)continue;
             BlockPos at=new BlockPos(axis.getX(),y,axis.getZ());
-            if(!clearWater(level,at)||level.getNearestPlayer(at.getX()+.5,y,at.getZ()+.5,18,false)!=null)continue;
+            if (!clearWater(chunk, at) || !biomeChunksReady(level, at)
+                    || level.getNearestPlayer(at.getX()+.5,y,at.getZ()+.5,18,false)!=null) continue;
             AABB area=new AABB(at).inflate(42,16,42);
             boolean sea=seaBiome(level, at);
             if(sea && surface-y<=8 && level.canSeeSkyFromBelowWater(at) && rng.nextBoolean()
@@ -93,7 +99,8 @@ public final class ReefLife {
                 int count=3+rng.nextInt(3);
                 for(int n=0;n<count;n++) {
                     BlockPos point=at.offset(rng.nextInt(5)-2,0,rng.nextInt(5)-2);
-                    if(!clearWater(level,point))continue;
+                    LevelChunk fishChunk = level.getChunkSource().getChunkNow(point.getX() >> 4, point.getZ() >> 4);
+                    if (fishChunk == null || !clearWater(fishChunk, point) || !biomeChunksReady(level, point)) continue;
                     AbstractSchoolingFish fish=species.spawn(level,point,MobSpawnType.NATURAL);
                     if(fish==null)continue;
                     if(leader==null)leader=fish;else fish.startFollowing(leader);
@@ -102,9 +109,20 @@ public final class ReefLife {
             return;
         }
     }
-    private static boolean clearWater(LevelReader l,BlockPos p) {
-        return l.getBlockState(p).is(Blocks.WATER) && l.getBlockState(p.above()).is(Blocks.WATER)
-                && l.getBlockState(p.below()).is(Blocks.WATER);
+    private static boolean clearWater(LevelChunk chunk, BlockPos pos) {
+        return chunk.getBlockState(pos).is(Blocks.WATER) && chunk.getBlockState(pos.above()).is(Blocks.WATER)
+                && chunk.getBlockState(pos.below()).is(Blocks.WATER);
+    }
+    private static boolean biomeChunksReady(ServerLevel level, BlockPos pos) {
+        // Vanilla's biome lookup chooses between neighboring four-block cells, including during fish spawning.
+        int minX = (pos.getX() - 2) >> 4, maxX = (pos.getX() + 2) >> 4;
+        int minZ = (pos.getZ() - 2) >> 4, maxZ = (pos.getZ() + 2) >> 4;
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                if (level.getChunkSource().getChunkNow(x, z) == null) return false;
+            }
+        }
+        return true;
     }
     private static boolean seaBiome(LevelReader level, BlockPos at) {
         var biome = level.getBiome(at);

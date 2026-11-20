@@ -1,9 +1,9 @@
-name: UwU Dimension RC.1 JAR delivery
+name: UwU Dimension RC.2 JAR delivery
 
 on:
   push:
     branches:
-      - 'codex/build/uwu-rc-1-0ca52217baed-delivery'
+      - 'codex/build/sakura-arrival-rc2'
 
 permissions:
   contents: read
@@ -13,12 +13,12 @@ jobs:
     if: >-
       github.repository == 'WeepingAngeIs/UwU_dimension' &&
       toJSON(github.event.repository.private) == 'false' &&
-      github.ref == 'refs/heads/codex/build/uwu-rc-1-0ca52217baed-delivery' &&
+      github.ref == 'refs/heads/codex/build/sakura-arrival-rc2' &&
       github.event.created &&
       !github.event.deleted &&
       github.run_attempt == '1'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - name: Validate the requested revision
         env:
@@ -43,7 +43,7 @@ jobs:
             echo "Checkout revision did not match the requested commit." >&2
             exit 1
           fi
-          echo "Compiling $actual_commit from the frozen UwU RC.1 source 0ca52217baed27c7fc130aebaf2bc77489958a9c"
+          echo "Compiling $actual_commit for the Sakura Reach arrival fix"
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
@@ -68,14 +68,17 @@ jobs:
           metadata_path = "META-INF/neoforge.mods.toml"
           source_metadata = tomllib.loads(Path("src/main/resources", metadata_path).read_text(encoding="utf-8"))
           version = next(mod["version"] for mod in source_metadata["mods"] if mod["modId"] == "uwudimension")
-          if version != "1.5.0-beta.13-combined-rc.1":
-              raise SystemExit("Unexpected RC.1 mod version.")
-          jar = Path("build/libs", "UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.1.jar")
+          if version != "1.5.0-beta.13-combined-rc.2":
+              raise SystemExit("Unexpected RC.2 mod version.")
+          jar = Path("build/libs", "UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2.jar")
           if jar.stat().st_size > 8 * 1024 * 1024:
-              raise SystemExit("RC.1 JAR exceeds the 8 MiB delivery bound.")
+              raise SystemExit("RC.2 JAR exceeds the 8 MiB delivery bound.")
           required = {
               "dev/uwu/dimension/UwUDimension.class",
               "dev/uwu/dimension/HeartwaterFeature.class",
+              "dev/uwu/dimension/ForestHeights.class",
+              "dev/uwu/dimension/mixin/ForestFluidPickerAccessor.class",
+              "dev/uwu/dimension/ReefLife.class",
               "dev/uwu/dimension/lush/LushGeodes.class",
               "dev/uwu/dimension/client/ReachLiquidArt.class",
               "dev/uwu/dimension/client/compat/ReachLiquidSodiumPlugin.class",
@@ -133,12 +136,12 @@ jobs:
                   "lootr": "[1.21.1-1.11.38.125,1.21.2)",
                   "another_furniture": "[4.0.2]",
               }:
-                  raise SystemExit("The packaged required dependency set differs from RC.1.")
+                  raise SystemExit("The packaged required dependency set differs from RC.2.")
               sodium = {"config": "uwudimension.reach_liquid_sodium.mixins.json", "requiredMods": ["sodium"]}
               if sodium not in metadata["mixins"]:
                   raise SystemExit("The optional Sodium liquid declaration is missing.")
               mixins = json.loads(archive.read("uwudimension.mixins.json"))
-              if not {"LushGeodeSnapshotMixin", "LushGeodeRollbackMixin"}.issubset(mixins["mixins"]):
+              if not {"LushGeodeSnapshotMixin", "LushGeodeRollbackMixin", "ForestFluidPickerAccessor"}.issubset(mixins["mixins"]):
                   raise SystemExit("Geode rollback mixins are missing from the packaged configuration.")
               if "DawnpetalHeldModelMixin" not in mixins["client"]:
                   raise SystemExit("The Dawnpetal held-model mixin is missing from the packaged configuration.")
@@ -148,8 +151,7 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as outputs:
               print(f"sha256={digest}", file=outputs)
           report = (
-              f"### UwU Dimension RC.1\n\n"
-              f"Source commit: `0ca52217baed27c7fc130aebaf2bc77489958a9c`\n\n"
+              f"### UwU Dimension RC.2\n\n"
               f"Published snapshot: `{revision}`\n\n"
               f"JAR: `{jar.name}`\n\n"
               f"SHA-256: `{digest}`\n\n"
@@ -160,11 +162,13 @@ jobs:
               summary.write(report)
           print(report)
           PY
-      - name: Retain the single verified RC.1 JAR for one day
+      - name: Generate Sakura Reach and test arrival on a disposable C2ME server
+        run: bash hosted-check/run.sh build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2.jar
+      - name: Retain the single verified RC.2 JAR for one day
         id: delivery
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          path: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.1.jar
+          path: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2.jar
           retention-days: 1
           archive: false
           if-no-files-found: error
@@ -183,4 +187,4 @@ jobs:
             echo "GitHub artifact digest did not match the verified JAR." >&2
             exit 1
           fi
-          printf '\n[Download the verified RC.1 artifact](%s)\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+          printf '\n[Download the verified RC.2 artifact](%s)\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"

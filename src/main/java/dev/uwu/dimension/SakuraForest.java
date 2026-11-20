@@ -43,7 +43,9 @@ public final class SakuraForest {
     private static synchronized Map<Long,Optional<Tree>> cache(ServerLevel level){return CACHE.computeIfAbsent(level,k->new ConcurrentHashMap<>());}
     public static boolean target(ServerLevel level,int x,int z){
         if(!level.dimension().equals(ReefLife.REACH))return false;
-        int y=GroveSites.height(level,x,z)+1;
+        return targetAtHeight(level,x,z,ForestHeights.height(level,x,z)+1);
+    }
+    private static boolean targetAtHeight(ServerLevel level,int x,int z,int y){
         var map=biomes(level);if(map.size()>32768)map.clear();
         // Match Minecraft's fuzzy biome zoom exactly, but replace chunk reads with pure noise.
         return level.getBiomeManager().withDifferentSource((qx,qy,qz)->map.computeIfAbsent(BlockPos.asLong(qx,qy,qz),key->{
@@ -88,19 +90,25 @@ public final class SakuraForest {
         if(!target(level,x,z)||!SettlementLayout.untouchedForForest(level,x-17,z-17,x+17,z+17))return Optional.empty();
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
         for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){
-            int h=GroveSites.height(level,x+dx,z+dz);low=Math.min(low,h);high=Math.max(high,h);
+            int h=ForestHeights.height(level,x+dx,z+dz);low=Math.min(low,h);high=Math.max(high,h);
         }
         if(low<64||high-low>3||high+39>=level.getMaxBuildHeight())return Optional.empty();
         if(!level.getWorldBorder().isWithinBounds(new BlockPos(x-17,high,z-17))||!level.getWorldBorder().isWithinBounds(new BlockPos(x+17,high,z+17)))return Optional.empty();
+        if(reserved(level,x,z))return Optional.empty();
         // A full rectangular biome buffer keeps every authored block inside this biome.
         // Noise/base-height sampling never requests any live or generating neighbor chunk.
-        for(int dx=-17;dx<=17;dx++)for(int dz=-17;dz<=17;dz++){
-            int h=GroveSites.height(level,x+dx,z+dz);
-            if(h<64||h>high+8||!target(level,x+dx,z+dz))return Optional.empty();
+        int side=RADIUS*2+1;
+        int[] heights=new int[side*side];
+        for(int dx=-RADIUS;dx<=RADIUS;dx++)for(int dz=-RADIUS;dz<=RADIUS;dz++){
+            int h=ForestHeights.height(level,x+dx,z+dz);
+            if(h<64||h>high+8||!targetAtHeight(level,x+dx,z+dz,h+1))return Optional.empty();
+            heights[(dx+RADIUS)*side+dz+RADIUS]=h;
         }
-        if(reserved(level,x,z))return Optional.empty();
         var tree=new Tree(x,high+1,z,(hash>>>8)&3);
-        for(var at:shape(tree).keySet())if(GroveSites.height(level,x+at.getX(),z+at.getZ())>=tree.y()+at.getY())return Optional.empty();
+        for(var at:shape(tree).keySet()){
+            int ground=heights[(at.getX()+RADIUS)*side+at.getZ()+RADIUS];
+            if(ground>=tree.y()+at.getY())return Optional.empty();
+        }
         return Optional.of(tree);
     }
     private static boolean reserved(ServerLevel level,int x,int z){
@@ -178,7 +186,7 @@ public final class SakuraForest {
             // Only the authorized short roots vary: bridge at most three blocks to real soil.
             for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){
                 int x=tree.x+dx,z=tree.z+dz;if((x>>4)!=own.x||(z>>4)!=own.z)continue;
-                int ground=GroveSites.height(level,x,z);
+                int ground=ForestHeights.height(level,x,z);
                 for(int y=ground+1;y<tree.y;y++){
                     var p=new BlockPos(x,y,z);var old=chunk.getBlockState(p);
                     if(replaceable(old)&&old.getFluidState().isEmpty()){

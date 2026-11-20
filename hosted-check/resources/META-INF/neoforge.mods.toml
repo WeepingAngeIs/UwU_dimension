@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_arrival_probe"
+version="1.0"
+displayName="Disposable Sakura arrival test"
+[[dependencies.uwu_arrival_probe]]
+modId="uwudimension"
+type="required"
+versionRange="[1.5.0-beta.13-combined-rc.2]"
+ordering="AFTER"
+side="SERVER"

@@ -65,7 +65,7 @@ public final class Moonbells {
             int x = tree.x() + (int)Math.round(Math.cos(angle) * distance);
             int z = tree.z() + (int)Math.round(Math.sin(angle) * distance);
             if ((x >> 4) != chunk.getPos().x || (z >> 4) != chunk.getPos().z) continue;
-            int y = GroveSites.height(level,x,z) + 1;
+            int y = ForestHeights.height(level,x,z) + 1;
             BlockPos lower = new BlockPos(x,y,z), upper = lower.above(), ground = lower.below();
             if (y + 1 >= level.getMaxBuildHeight() || !chunk.getBlockState(lower).isAir()
                     || !chunk.getBlockState(upper).isAir() || !soil(chunk.getBlockState(ground),chunk,ground)) continue;

@@ -1,0 +1,16 @@
+gradle.projectsEvaluated {
+    def p = gradle.rootProject
+    def compile = p.tasks.register('compileArrivalProbe', JavaCompile) {
+        source(p.fileTree('hosted-check/java') { include '**/*.java' })
+        classpath = p.sourceSets.main.compileClasspath + p.sourceSets.main.output
+        destinationDirectory.set(p.layout.buildDirectory.dir('arrival-check/classes'))
+        javaCompiler.set(p.tasks.named('compileJava', JavaCompile).flatMap { it.javaCompiler })
+        options.release.set(21)
+    }
+    p.tasks.register('arrivalProbeJar', Jar) {
+        archiveFileName.set('arrival-probe.jar')
+        destinationDirectory.set(p.layout.buildDirectory.dir('arrival-check'))
+        from(compile.flatMap { it.destinationDirectory })
+        from(p.file('hosted-check/resources'))
+    }
+}
