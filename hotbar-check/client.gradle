@@ -4,6 +4,7 @@ gradle.beforeProject { project ->
         probe.java.srcDirs = [project.file('hotbar-check/java')]
         probe.resources.srcDirs = [project.file('hotbar-check/resources')]
         probe.compileClasspath += project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        project.dependencies.add(probe.compileOnlyConfigurationName, project.files('build/hotbar-check-deps/spell-engine.jar'))
         project.dependencies.add('runtimeOnly', project.fileTree('build/hotbar-check-deps') { include '*.jar' })
         project.neoForge.mods.create('uwu_hotbar_check') { sourceSet(probe) }
         project.neoForge.runs.create('hotbarClient') {

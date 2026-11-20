@@ -25,10 +25,16 @@ import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModList;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.spell_engine.api.spell.SpellDataComponents;
+import net.spell_engine.api.spell.container.SpellContainer;
+import net.spell_engine.client.input.SpellHotbar;
 import org.lwjgl.glfw.GLFW;
 
 /** Drives the normal input callbacks and watches actual integrated-server gameplay and HUD rendering. */
@@ -43,17 +49,21 @@ public final class HotbarProbe {
     private static volatile Stage stage = Stage.LOAD;
     private static boolean opening, observedEmptyHand;
     private static int began, highSlot = 4, iconFrames;
+    private static int suppressedSpellKeys;
     private static int beforeSlot, beforeIcons, frameCells;
     private static ItemStack[] beforeFrame;
     private static volatile Throwable serverFailure;
     private static volatile ItemEntity dropped;
     private static volatile int turns, launches;
+    private static int useEvents, sent;
+    private static volatile int received;
 
     public HotbarProbe() {
         NeoForge.EVENT_BUS.addListener(HotbarProbe::tick);
         NeoForge.EVENT_BUS.addListener(HotbarProbe::beforeFrame);
         NeoForge.EVENT_BUS.addListener(HotbarProbe::afterFrame);
         NeoForge.EVENT_BUS.addListener(HotbarProbe::joined);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, HotbarProbe::useEvent);
     }
 
     private static void tick(ClientTickEvent.Post event) {
@@ -84,12 +94,15 @@ public final class HotbarProbe {
             if (stage != Stage.LOAD) {
                 require(player.tickCount - began < (stage == Stage.FLIGHT ? 280 : 120),
                         "Timed out in " + stage + ", slot=" + player.getInventory().selected
-                                + ", icon frames=" + iconFrames + ", casts=" + launches + ", primes=" + turns);
+                                + ", icon frames=" + iconFrames + ", casts=" + launches + ", primes=" + turns
+                                + ", use events/sent/received=" + useEvents + "/" + sent + "/" + received);
             }
             Inventory inventory = player.getInventory();
             switch (stage) {
                 case LOAD -> {
                     if (player.tickCount < 45) return;
+                    require(ModList.get().isLoaded("spell_engine") && ModList.get().isLoaded("spell_power"),
+                            "Spell Engine conflict fixture did not load");
                     client.setWindowActive(true);
                     serverAction(client, actor -> {
                         actor.getInventory().selected = 0;
@@ -102,17 +115,23 @@ public final class HotbarProbe {
                     enter(Stage.EQUIP, player.tickCount);
                 }
                 case EQUIP -> {
-                    if (!hasDirk(player.getMainHandItem()) || iconFrames < 2) return;
+                    if (!hasDirk(player.getMainHandItem()) || iconFrames < 2 || SpellHotbar.INSTANCE.slots.isEmpty()) return;
                     require(SharedAbilityHotbar.visibleFor(player), "Held Dirk has no ability row");
                     requireCell(0);
                     for (int repeat = 0; repeat < 4; repeat++) {
                         for (int slot = 0; slot < 4; slot++) number(client, slot);
                     }
+                    // Spell Engine also polls held keys outside the vanilla click queue.
+                    for (int slot = 0; slot < 4; slot++) keyAction(client, GLFW.GLFW_KEY_1 + slot, GLFW.GLFW_PRESS);
                     enter(Stage.RAPID, player.tickCount);
                 }
                 case RAPID -> {
                     require(inventory.selected == 0 && hasDirk(player.getMainHandItem()),
                             "An ability key switched the real held inventory slot");
+                    if (player.tickCount - began == 2) {
+                        for (int slot = 0; slot < 4; slot++) keyAction(client, GLFW.GLFW_KEY_1 + slot, GLFW.GLFW_RELEASE);
+                        require(suppressedSpellKeys > 0, "Spell Engine did not poll any held mapped ability key");
+                    }
                     if (player.tickCount - began < 6) return;
                     number(client, highSlot);
                     enter(Stage.HIGH_SLOT, player.tickCount);
@@ -175,6 +194,7 @@ public final class HotbarProbe {
                     require(inventory.selected == 0, "Empty ability cell selected inventory slot");
                     requireCell(0);
                     require(turns == 0 && launches == 0, "Ability key alone invoked a server ability");
+                    if (player.getAttackStrengthScale(0) < 1F) return;
                     enter(Stage.TURN, player.tickCount);
                     rightClick(client);
                 }
@@ -190,6 +210,7 @@ public final class HotbarProbe {
                 case THROW_KEY -> {
                     requireCell(1);
                     require(inventory.selected == 0 && launches == 0, "Selecting Throw used it immediately");
+                    if (player.getAttackStrengthScale(0) < 1F) return;
                     enter(Stage.FLIGHT, player.tickCount);
                     rightClick(client);
                 }
@@ -201,9 +222,12 @@ public final class HotbarProbe {
                     if (launches == 0 || !observedEmptyHand || !hasDirk(player.getMainHandItem())) return;
                     require(launches == 1 && turns == 1 && inventory.selected == 0 && countDirks(inventory) == 1,
                             "Thrown Dirk did not return once and only once to its own held slot");
+                    require(sent == 2 && received == 2, "Two mapped mouse clicks did not each send exactly one ability");
                     requireCell(0);
                     require(iconFrames >= 4, "Missing live held-item icon observations");
                     System.out.println("HOTBAR DISPLAY PASS current held item, unchanged inventory through HUD frames=" + iconFrames);
+                    System.out.println("HOTBAR SPELL ENGINE PASS bound spell slots loaded and shared keys blocked="
+                            + suppressedSpellKeys + " while physical inventory, Turn and Throw checks passed");
                     System.out.println("DIRK THROW PASS empty cell restored Turn, real right-click launched one Dirk,"
                             + " held slot became empty and the exact Dirk returned to it");
                     System.out.println("HOTBAR CLIENT PASS");
@@ -257,8 +281,24 @@ public final class HotbarProbe {
         if (beforeFrame != null) frameCells |= 1 << index;
     }
 
+    public static void suppressedSpellKey() {
+        if (stage == Stage.RAPID) suppressedSpellKeys++;
+    }
+
     public static void armedTurn() {
         if (stage == Stage.TURN) turns++;
+    }
+
+    private static void useEvent(InputEvent.InteractionKeyMappingTriggered event) {
+        if (event.isUseItem() && (stage == Stage.TURN || stage == Stage.FLIGHT)) useEvents++;
+    }
+
+    public static void sentUse() {
+        if (stage == Stage.TURN || stage == Stage.FLIGHT) sent++;
+    }
+
+    public static void receivedUse() {
+        if (stage == Stage.TURN || stage == Stage.FLIGHT) received++;
     }
 
     private static void joined(EntityJoinLevelEvent event) {
@@ -275,6 +315,10 @@ public final class HotbarProbe {
     private static ItemStack newDirk() {
         var stack = new ItemStack(RevivalBlossoms.DIRK.get());
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putUUID("uwu_revival_id", DIRK));
+        // Force genuine competing Spell Engine slots using stock spells in the disposable world.
+        stack.set(SpellDataComponents.SPELL_CONTAINER, new SpellContainer(SpellContainer.ContentType.ANY, "", "", 5,
+                List.of("rpg_series:swift_strikes", "rpg_series:cleave", "rpg_series:swipe",
+                        "rpg_series:thrust", "rpg_series:whirlwind")));
         return stack;
     }
 
@@ -302,8 +346,12 @@ public final class HotbarProbe {
     }
 
     private static void key(Minecraft client, int key) {
-        client.keyboardHandler.keyPress(window(client), key, 0, GLFW.GLFW_PRESS, 0);
-        client.keyboardHandler.keyPress(window(client), key, 0, GLFW.GLFW_RELEASE, 0);
+        keyAction(client, key, GLFW.GLFW_PRESS);
+        keyAction(client, key, GLFW.GLFW_RELEASE);
+    }
+
+    private static void keyAction(Minecraft client, int key, int action) {
+        client.keyboardHandler.keyPress(window(client), key, 0, action, 0);
     }
 
     private static void rightClick(Minecraft client) {
