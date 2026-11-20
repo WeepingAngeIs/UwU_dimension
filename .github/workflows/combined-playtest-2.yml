@@ -1,0 +1,63 @@
+name: UwU Dimension combined RC.2 playtest 2
+on:
+  push:
+    branches: ['codex/build/uwu-rc2-playtest-2']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/UwU_dimension' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.2'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.2.jar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and check contents against playtest 1
+        id: build
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 playtest-2/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+      - name: Exercise home binding, patrol and doors
+        run: bash guardian-check/run.sh "$UWU_JAR"
+      - name: Prepare the disposable client display
+        id: display
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+      - name: Verify shared hotbar exclusions and preservation
+        if: ${{ !cancelled() && steps.display.outcome == 'success' }}
+        run: bash hotbar-check/run.sh
+      - name: Compare heavy throw impact to first damaging melee
+        if: ${{ !cancelled() && steps.display.outcome == 'success' }}
+        run: bash throw-check/run.sh
+      - name: Record the verified JAR digest
+        id: packet
+        run: |
+          python3 playtest-2/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified playtest JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.packet.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "PLAYTEST 2 SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

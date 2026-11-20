@@ -52,6 +52,8 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
     }
 
     public static final class DressModel extends HierarchicalModel<Keeper> {
+        // Clearance in model pixels between overlapping hair, hat and clothing faces.
+        private static final float SEAM = 1F / 16F;
         private final ModelPart root, head, rightArm, leftArm, rightLeg, leftLeg;
         private final EnumMap<KeeperOutfit, List<ModelPart>> accessories = new EnumMap<>(KeeperOutfit.class);
         DressModel(ModelPart root) {
@@ -88,8 +90,8 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
             PartDefinition body = mesh.getRoot();
             PartDefinition face = body.addOrReplaceChild("head", CubeListBuilder.create()
                     .texOffs(0, 0).addBox(-4, -8, -4, 8, 8, 8)
-                    .texOffs(34, 0).addBox(-4.5F, -8.5F, -4.5F, 9, 3, 9)
-                    .texOffs(72, 0).addBox(-4, -6, 3, 8, 10, 2)
+                    .texOffs(34, 0).addBox(-4.5F, -8.5F, -4.5F, 9, 3, 9, new CubeDeformation(-SEAM, 0, -SEAM))
+                    .texOffs(72, 0).addBox(-4, -6, 3, 8, 10, 2, new CubeDeformation(SEAM, 0, 0))
                     .texOffs(94, 0).addBox(-4.5F, -6, -4.15F, 1.35F, 8, 3)
                     .texOffs(94, 0).addBox(3.15F, -6, -4.15F, 1.35F, 8, 3),
                     PartPose.offset(0, 3, 0));
@@ -100,7 +102,7 @@ public final class KeeperRenderer extends MobRenderer<Keeper, KeeperRenderer.Dre
                         .addBox(-2, -2, -1, 4, 4, 2), PartPose.offsetAndRotation(s * 4.5F, -6F, -1.5F, 0, s * 0.25F, s * 0.55F));
             }
             body.addOrReplaceChild("body", CubeListBuilder.create()
-                    .texOffs(0, 20).addBox(-3.5F, 3, -2, 7, 9, 4)
+                    .texOffs(0, 20).addBox(-3.5F, 3, -2, 7, 9, 4, new CubeDeformation(0, 0, -SEAM))
                     .texOffs(24, 20).addBox(-4, 10, -2.5F, 8, 3, 5)
                     .texOffs(52, 20).addBox(-4.5F, 12, -3, 9, 3, 6)
                     .texOffs(84, 20).addBox(-5, 14, -3.5F, 10, 3, 7)
