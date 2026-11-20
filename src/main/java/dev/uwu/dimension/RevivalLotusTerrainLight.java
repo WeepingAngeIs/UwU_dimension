@@ -111,7 +111,9 @@ final class RevivalLotusTerrainLight {
         if (positions == null) return;
         positions.removeIf(pos -> {
             LevelChunk chunk = chunkAt(level, pos);
-            return chunk == null || !update(level, chunk, pos);
+            // A just-loaded chunk may not be visible to getChunkNow until it is promoted.
+            // The unload event removes the entry if promotion never happens.
+            return chunk != null && !update(level, chunk, pos);
         });
         if (positions.isEmpty()) LOADED.remove(level);
     }
