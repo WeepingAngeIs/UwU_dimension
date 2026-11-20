@@ -47,10 +47,10 @@ public final class GuardianHomeProbe {
                 case PREPARE -> prepare(event.getServer().overworld());
                 case PERSONAL -> {
                     if (elapsed() < 6) return;
-                    require(remoteEgg.villageHome() == null && savedCourt(remoteEgg).equals(remoteEggStart),
+                    require(villageHome(remoteEgg) == null && savedCourt(remoteEgg).equals(remoteEggStart),
                             "Egg Guardian without a known settlement should keep a personal patrol");
                     remoteEgg = arena.restore(remoteEgg);
-                    require(remoteEgg.villageHome() == null && savedCourt(remoteEgg).equals(remoteEggStart)
+                    require(villageHome(remoteEgg) == null && savedCourt(remoteEgg).equals(remoteEggStart)
                             && !remoteEgg.female(), "Personal egg anchor or sex changed on reload");
                     remoteEgg.discard();
                     seedSettlement();
@@ -58,15 +58,15 @@ public final class GuardianHomeProbe {
                 }
                 case BIND -> {
                     if (elapsed() < 6) return;
-                    require(court.equals(natural.villageHome()), "Natural guardian lost its supplied village plaza");
-                    require(court.equals(nearbyEgg.villageHome()), "Nearby egg Guardian did not bind to the loaded village");
+                    require(court.equals(villageHome(natural)), "Natural guardian lost its supplied village plaza");
+                    require(court.equals(villageHome(nearbyEgg)), "Nearby egg Guardian did not bind to the loaded village");
                     require(nearbyEgg.female(), "Village egg variant did not survive initial ticks");
 
                     GuardianArena.move(natural, court.east(38));
                     GuardianArena.move(nearbyEgg, court.east(40));
                     natural = arena.restore(natural);
                     nearbyEgg = arena.restore(nearbyEgg);
-                    require(court.equals(natural.villageHome()) && court.equals(nearbyEgg.villageHome()) && nearbyEgg.female(),
+                    require(court.equals(villageHome(natural)) && court.equals(villageHome(nearbyEgg)) && nearbyEgg.female(),
                             "Guardian reload changed its home or sex");
                     String dimension = level.dimension().location().toString();
                     require(dimension.equals(natural.saveWithoutId(new CompoundTag()).getString("VillageHomeDimension"))
@@ -227,6 +227,12 @@ public final class GuardianHomeProbe {
         var method = patrol.getClass().getDeclaredMethod("outsideDistanceSquared", Vec3.class, BlockPos.class);
         method.setAccessible(true);
         return (Double) method.invoke(null, natural.position(), court);
+    }
+
+    private static BlockPos villageHome(BlossomWarden guard) throws ReflectiveOperationException {
+        var method = BlossomWarden.class.getDeclaredMethod("villageHome");
+        method.setAccessible(true);
+        return (BlockPos) method.invoke(guard);
     }
 
     private int stationaryTicks() throws ReflectiveOperationException {
