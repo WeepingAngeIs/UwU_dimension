@@ -7,7 +7,8 @@ REQUIRED = ('CupidShrine', 'CupidShrineRenderer')
 PREFIX = 'dev/uwu/dimension/'
 METADATA = 'META-INF/neoforge.mods.toml'
 CHANGED_RESOURCES = ('META-INF/neoforge.mods.toml',
- 'assets/uwudimension/models/item/cupid_shrine.json')
+ 'assets/uwudimension/models/item/cupid_shrine.json',
+ 'assets/uwudimension/textures/item/cupid_shrine.png')
 PLAYTEST_8_ENTRIES = 4072
 PLAYTEST_8_DIGEST = 'e5b6573db937a91c460908a09599868a0fe9d61d4bcd8b9e77d592c23fc62da1'
 

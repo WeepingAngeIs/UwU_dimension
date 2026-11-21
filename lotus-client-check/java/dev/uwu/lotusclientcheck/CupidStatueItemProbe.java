@@ -91,7 +91,11 @@ final class CupidStatueItemProbe {
             require(tab.getDisplayItems().stream().filter(stack -> stack.is(item)).count() == (uwu ? 1 : 0),
                     "Unexpected Creative tab listing");
         }
-        System.out.println("CUPID STATUE CREATIVE LISTING PASS UwU tab and search");
+        var portrait = client.getItemRenderer().getModel(new ItemStack(item), level, null, 0);
+        require(portrait.getParticleIcon().contents().name().equals(
+                        ResourceLocation.fromNamespaceAndPath("uwudimension", "item/cupid_shrine")),
+                "The Creative statue portrait was missing from the item atlas");
+        System.out.println("CUPID STATUE CREATIVE LISTING PASS UwU tab, search and baked portrait");
     }
 
     private static void mine(ServerPlayer player, BlockPos pos, Action action) {
