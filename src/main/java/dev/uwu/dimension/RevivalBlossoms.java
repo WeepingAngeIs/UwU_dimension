@@ -80,6 +80,26 @@ public final class RevivalBlossoms {
     public static int visualPhase(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt(PHASE);
     }
+    public static boolean sameDirkIgnoringCountdown(ItemStack rendered, ItemStack held) {
+        if (!rendered.is(DIRK.get()) || !held.is(DIRK.get())) return false;
+        CustomData renderedData = rendered.get(DataComponents.CUSTOM_DATA);
+        CustomData heldData = held.get(DataComponents.CUSTOM_DATA);
+        if (renderedData == null || heldData == null) return false;
+
+        CompoundTag oldTag = renderedData.copyTag();
+        CompoundTag newTag = heldData.copyTag();
+        if (!oldTag.hasUUID(ID) || !newTag.hasUUID(ID)) return false;
+        oldTag.remove(PHASE);
+        oldTag.remove(LEFT);
+        newTag.remove(PHASE);
+        newTag.remove(LEFT);
+        // Keep the stored identity and all other custom data in the comparison.
+        if (!oldTag.equals(newTag)) return false;
+        ItemStack comparison = rendered.copy();
+        comparison.set(DataComponents.CUSTOM_DATA, heldData);
+        return ItemStack.isSameItemSameComponents(comparison, held);
+    }
+
     private static void refresh(ServerPlayer owner, ItemStack stack) {
         long left = remaining(owner, stack);
         int phase = left == 0 ? 0 : 1 + (int)((COOLDOWN_TICKS - left) / 240);

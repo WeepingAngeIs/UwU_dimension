@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.uwu.dimension.DawnpetalMotion;
 import dev.uwu.dimension.DawnpetalSwing;
+import dev.uwu.dimension.RevivalBlossoms;
 import java.lang.ref.WeakReference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
@@ -79,8 +80,11 @@ public final class RevivalHandPose {
         Minecraft client = Minecraft.getInstance();
         if (!(owner instanceof Player player) || !localFirstPerson(client, player)
                 || player.isUsingItem() || player.isAutoSpinAttack() || player.swinging
-                || player.getAttackAnim(partial) != 0 || swing != 0
-                || !ItemStack.isSameItemSameComponents(rendered, player.getItemInHand(hand))) return false;
+                || player.getAttackAnim(partial) != 0 || swing != 0) return false;
+        ItemStack held = player.getItemInHand(hand);
+        // A countdown packet can replace the inventory stack between first-person hand ticks.
+        if (!ItemStack.isSameItemSameComponents(rendered, held)
+                && !RevivalBlossoms.sameDirkIgnoringCountdown(rendered, held)) return false;
         if (DawnpetalSpinClient.renderFrame(player, partial) != null) return false;
         if (animatorRecovery(player)) {
             return !BetterCombatAttack.windingUp(client);

@@ -156,8 +156,25 @@ public final class DirkCountdownProbe {
                 System.out.printf(Locale.ROOT, "DIRK NATIVE PACKET REPLAY grip=%s->%s->%s sameIdentity=true"
                                 + " nativeEquipUnchanged=true renderedPoseDelta=%.6f%n",
                         restingBefore, restingBetween, restingAfter, replayPoseDelta);
-                require(restingBetween || replayPoseDelta >= .10F,
-                        "Resting predicate changed during the replay without a witnessed render offset");
+                require(restingBetween && replayPoseDelta < .02F && poseDelta < .02F
+                                && !activeReequip && models.size() == 1 && transformDelta < .001F,
+                        "A native countdown update still altered the settled grip: pose=" + poseDelta
+                                + ", packet pose=" + replayPoseDelta + ", equip=" + activeReequip);
+                ItemStack actual = client.player.getMainHandItem();
+                ItemStack changedDamage = actual.copy();
+                changedDamage.setDamageValue(changedDamage.getDamageValue() + 1);
+                ItemStack differentDirk = actual.copy();
+                CustomData.update(DataComponents.CUSTOM_DATA, differentDirk, tag -> tag.putUUID("uwu_revival_id", UUID.randomUUID()));
+                ItemStack changedName = actual.copy();
+                changedName.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Other Dirk"));
+                ItemStack changedCustom = actual.copy();
+                CustomData.update(DataComponents.CUSTOM_DATA, changedCustom, tag -> tag.putBoolean("fixture_other", true));
+                require(!RevivalHandPose.usesRestingGrip(client.player, InteractionHand.MAIN_HAND, changedDamage, .5F, 0F)
+                                && !RevivalHandPose.usesRestingGrip(client.player, InteractionHand.MAIN_HAND, differentDirk, .5F, 0F)
+                                && !RevivalHandPose.usesRestingGrip(client.player, InteractionHand.MAIN_HAND, changedName, .5F, 0F)
+                                && !RevivalHandPose.usesRestingGrip(client.player, InteractionHand.MAIN_HAND, changedCustom, .5F, 0F)
+                                && !RevivalHandPose.usesRestingGrip(client.player, InteractionHand.MAIN_HAND, actual, .5F, .5F),
+                        "A normal stack change or swing was treated as idle countdown presentation");
                 System.out.printf(Locale.ROOT, "DIRK COUNTDOWN OBSERVED outcome=%s syncs=%d drawnOffsets=%d phases=%s models=%d"
                                 + " baselineHeight=%.4f minIdleHeight=%.4f intentionalSlotDrop=%.4f unexpectedEquip=%s"
                                 + " maxIdlePoseDelta=%.6f maxDeclaredTransformDelta=%.6f idleDraws=%d expiryDraws=%d age=%d%n",

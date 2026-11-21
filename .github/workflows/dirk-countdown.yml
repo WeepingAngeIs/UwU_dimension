@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 20
     env:
       UWU_DIRK_COUNTDOWN_CHECK: 'true'
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.6'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.6.jar
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -19,6 +21,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Build and verify the JAR against playtest 5
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 dirk-check/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
       - name: Prepare the disposable client display
         run: |
           if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
@@ -27,3 +33,27 @@ jobs:
           fi
       - name: Observe the native Dirk countdown and first-person pose
         run: bash lotus-client-check/run.sh
+      - name: Confirm the countdown held a steady grip
+        run: |
+          grep -F 'DIRK NATIVE PACKET REPLAY grip=true->true->true' build/dirk-countdown-client.log
+          grep -F 'DIRK COUNTDOWN OBSERVED outcome=NO_SNAP_OBSERVED' build/dirk-countdown-client.log
+      - name: Record the verified JAR digest
+        id: packet
+        run: |
+          python3 dirk-check/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified follow-up JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.packet.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "PLAYTEST 6 SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"
