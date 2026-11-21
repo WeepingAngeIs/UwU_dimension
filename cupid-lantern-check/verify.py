@@ -45,7 +45,10 @@ def source_scope():
         source = f'src/main/resources/{MODEL_PREFIX}{suffix}.json'
         fixture = Path(f'lotus-client-check/resources/assets/uwu_lotus_client_check/models/item/playtest9_smooth_cupid_bow{suffix}.json')
         assert fixture.read_bytes() == baseline(source), f'Comparison is not the exact shipped model: {fixture}'
-    subprocess.run(['git', 'diff', '--check', BASE, 'HEAD'], check=True)
+    # The shipped source includes CRLF files. Retain those bytes and check actual whitespace,
+    # rather than treating their existing line-ending convention as a new trailing-space error.
+    subprocess.run(['git', '-c', 'core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol',
+                    'diff', '--check', BASE, 'HEAD'], check=True)
     print(f'CUPID LANTERN SOURCE SCOPE PASS {len(paths)} approved paths; baseline {BASE}')
 
 
