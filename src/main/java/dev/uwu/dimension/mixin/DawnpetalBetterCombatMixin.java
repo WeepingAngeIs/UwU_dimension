@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.uwu.dimension.DawnpetalBetterCombat;
 import dev.uwu.dimension.DawnpetalReach;
+import dev.uwu.dimension.ReturnbloomTurnBack;
 import net.bettercombat.api.AttackHand;
 import net.bettercombat.network.Packets;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -42,6 +43,10 @@ abstract class DawnpetalBetterCombatMixin {
         if (actor == player && player.connection == connection && player.serverLevel() == level
                 && DawnpetalBetterCombat.strike(player, hand, request)) {
             DawnpetalReach.nativeStrike(player, request, hand.itemStack(), () -> original.call(actor, offhand, swing));
+        } else if (actor == player && player.connection == connection && player.serverLevel() == level && hand != null) {
+            ReturnbloomTurnBack.betterCombat(player, hand.itemStack(),
+                    !offhand && !hand.isOffHand() && request.selectedSlot() == player.getInventory().selected,
+                    () -> original.call(actor, offhand, swing));
         } else {
             original.call(actor, offhand, swing);
         }

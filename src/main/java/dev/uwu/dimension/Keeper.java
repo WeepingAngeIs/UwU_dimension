@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -38,9 +37,6 @@ import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -48,12 +44,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class Keeper extends Villager {
     private static final String ALLEGIANCE = "uwudimension_fellowship";
     private final Map<UUID, Long> peacefulUntil = new HashMap<>();
+    private final KeeperDoorPassage doors = new KeeperDoorPassage(this);
     private UUID companion;
     private boolean settled;
     private BlockPos home;
@@ -170,6 +166,16 @@ public final class Keeper extends Villager {
     }
 
     @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        doors.tick((ServerLevel) level());
+    }
+
+    boolean usesPassage(BlockPos door) {
+        return doors.uses(door);
+    }
+
+    @Override
     public void aiStep() {
         if (level() instanceof ServerLevel server) {
             MoonveilTreehouse.settle(this,server);
@@ -242,8 +248,7 @@ public final class Keeper extends Villager {
             this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 3, false, true, true));
         }
         runToUwuRefuge(level);
-        if (this.horizontalCollision && this.onGround()) this.jumpFromGround();
-        if (this.tickCount % 5 == 0) closeDoorsBehind(level);
+        if (this.horizontalCollision && this.onGround() && !doors.guiding()) this.jumpFromGround();
         if (this.tickCount % 60 == 0) {
             this.playSound(SoundEvents.VILLAGER_HURT, 1.0F, 1.2F + this.random.nextFloat() * 0.2F);
         }
@@ -306,29 +311,6 @@ public final class Keeper extends Villager {
         this.uwuLastRefuge = null;
         this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         this.getNavigation().stop();
-    }
-
-    /** Closes open nearby doors once the doorway is clear. */
-    private void closeDoorsBehind(ServerLevel level) {
-        BlockPos origin = this.blockPosition();
-        for (BlockPos spot : BlockPos.betweenClosed(origin.offset(-2, -1, -2), origin.offset(2, 1, 2))) {
-            BlockPos doorPos = spot.immutable();
-            BlockState state = level.getBlockState(doorPos);
-            if (!(state.getBlock() instanceof DoorBlock) || !state.getValue(DoorBlock.OPEN)) continue;
-            if (!level.getEntitiesOfClass(LivingEntity.class, new AABB(doorPos), entity -> true).isEmpty()) continue;
-            setUwuDoorOpen(level, doorPos, state, false);
-        }
-    }
-
-    private void setUwuDoorOpen(ServerLevel level, BlockPos pos, BlockState state, boolean open) {
-        level.setBlock(pos, state.setValue(DoorBlock.OPEN, open), 10);
-        BlockPos otherHalf = state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
-        BlockState other = level.getBlockState(otherHalf);
-        if (other.getBlock() instanceof DoorBlock && other.getValue(DoorBlock.OPEN) != open) {
-            level.setBlock(otherHalf, other.setValue(DoorBlock.OPEN, open), 10);
-        }
-        level.playSound(null, pos, open ? SoundEvents.WOODEN_DOOR_OPEN : SoundEvents.WOODEN_DOOR_CLOSE,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     // Worldgen writes the house into a protochunk before the live POI manager is available.

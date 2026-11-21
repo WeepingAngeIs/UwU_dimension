@@ -50,8 +50,8 @@ import org.lwjgl.glfw.GLFW;
 public final class HotbarProbe {
     private enum Stage {
         LOAD, CUPID_CONTROLS, TOOL_CONTROLS, ORDINARY_CONTROLS, EQUIP, RAPID, HIGH_SLOT, BACK, SCROLLED, DROP_KEY, DROP,
-        REEQUIP, SELECT_THROW, EMPTY, TURN, THROW_KEY, FLIGHT,
-        AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, AXE_THROW, AXE_FLIGHT, DONE
+        REEQUIP, SELECT_THROW, EMPTY, EMPTY_USE, THROW_KEY, FLIGHT,
+        AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, AXE_THROW, AXE_FLIGHT, TURN_BACK, DONE
     }
 
     private static final UUID DIRK = UUID.fromString("206e7d9c-e43b-4568-990a-6f789760f17e");
@@ -64,8 +64,10 @@ public final class HotbarProbe {
     private static int beforeSlot, beforeIcons, frameCells;
     private static ItemStack[] beforeFrame;
     private static volatile Throwable serverFailure;
+    private static volatile ReturnbloomProbe turnBack;
+    private static volatile boolean turnBackPassed;
     private static volatile ItemEntity dropped;
-    private static volatile int turns, launches;
+    private static volatile int launches;
     private static volatile int axeLaunches;
     private static boolean axeLeftHeldSlot;
     private static volatile Vec3 lanePosition;
@@ -110,9 +112,9 @@ public final class HotbarProbe {
         try {
             if (serverFailure != null) throw new AssertionError("Fixture server action failed", serverFailure);
             if (stage != Stage.LOAD) {
-                require(player.tickCount - began < (stage == Stage.FLIGHT || stage == Stage.AXE_FLIGHT ? 280 : 120),
+                require(player.tickCount - began < (stage == Stage.TURN_BACK ? 550 : stage == Stage.FLIGHT || stage == Stage.AXE_FLIGHT ? 280 : 120),
                         "Timed out in " + stage + ", slot=" + player.getInventory().selected
-                                + ", icon frames=" + iconFrames + ", casts=" + launches + ", primes=" + turns
+                                + ", icon frames=" + iconFrames + ", casts=" + launches
                                 + ", use events/sent/received=" + useEvents + "/" + sent + "/" + received
                                 + ", observed empty client/server=" + (observedEmptyHand || axeLeftHeldSlot)
                                 + "/" + serverSawEmpty + ", landed=" + serverSawLanding + ", " + flightProgress);
@@ -244,15 +246,14 @@ public final class HotbarProbe {
                 case EMPTY -> {
                     require(inventory.selected == 0, "Empty ability cell selected inventory slot");
                     requireCell(0);
-                    require(turns == 0 && launches == 0, "Ability key alone invoked a server ability");
+                    require(sent == 0 && launches == 0, "Ability key alone invoked a server ability");
                     if (player.getAttackStrengthScale(0) < 1F) return;
-                    enter(Stage.TURN, player.tickCount);
+                    enter(Stage.EMPTY_USE, player.tickCount);
                     rightClick(client);
                 }
-                case TURN -> {
-                    if (turns == 0) return;
-                    require(turns == 1 && launches == 0 && hasDirk(player.getMainHandItem()),
-                            "Right-click after empty cell fired anything other than Turn");
+                case EMPTY_USE -> {
+                    require(sent == 0 && received == 0 && launches == 0 && hasDirk(player.getMainHandItem()),
+                            "The retired manual Turn Back cell still sent an ability");
                     // The next legitimate click should not be throttled by the vanilla right-click delay.
                     if (player.tickCount - began < 5) return;
                     number(client, 1);
@@ -272,16 +273,16 @@ public final class HotbarProbe {
                         require(!SharedAbilityHotbar.visibleFor(player), "Held-weapon UI remained during flight");
                     }
                     if (launches == 0 || !observedEmptyHand || !hasDirk(player.getMainHandItem())) return;
-                    require(launches == 1 && turns == 1 && inventory.selected == 0 && countDirks(inventory) == 1,
+                    require(launches == 1 && inventory.selected == 0 && countDirks(inventory) == 1,
                             "Thrown Dirk did not return once and only once to its own held slot");
                     require(serverSawEmpty && serverSawLanding, "Dirk returned without observed custody and landing");
-                    require(sent == 2 && received == 2, "Two mapped mouse clicks did not each send exactly one ability");
+                    require(sent == 1 && received == 1, "Only the mapped Throw click should send an ability");
                     requireCell(0);
                     require(iconFrames >= 4, "Missing live held-item icon observations");
                     System.out.println("HOTBAR DISPLAY PASS current held item, unchanged inventory through HUD frames=" + iconFrames);
                     System.out.println("HOTBAR SPELL ENGINE PASS bound spell slots loaded and shared keys blocked="
-                            + suppressedSpellKeys + " while physical inventory, Turn and Throw checks passed");
-                    System.out.println("DIRK THROW PASS empty cell restored Turn, real right-click launched one Dirk,"
+                            + suppressedSpellKeys + " while physical inventory and Throw checks passed");
+                    System.out.println("DIRK THROW PASS retired Turn Back cell was inert, real right-click launched one Dirk,"
                             + " held slot became empty and the exact Dirk returned to it");
                     serverAction(client, actor -> {
                         var axe = new ItemStack(RevivalBlossoms.AXE.get());
@@ -331,6 +332,11 @@ public final class HotbarProbe {
                     require(inventory.selected == 4 && axeLaunches == 1 && serverSawEmpty && serverSawLanding,
                             "Axe did not land and return to its original slot");
                     System.out.println("HOTBAR AXE PASS ordinary cell 5 and four ability cells without extra icon; real Spin and Throw");
+                    serverAction(client, actor -> turnBack = new ReturnbloomProbe(actor));
+                    enter(Stage.TURN_BACK, player.tickCount);
+                }
+                case TURN_BACK -> {
+                    if (!turnBackPassed) return;
                     System.out.println("HOTBAR CLIENT PASS");
                     stage = Stage.DONE;
                 }
@@ -402,20 +408,16 @@ public final class HotbarProbe {
         if (stage == Stage.RAPID) suppressedSpellKeys++;
     }
 
-    public static void armedTurn() {
-        if (stage == Stage.TURN) turns++;
-    }
-
     private static void useEvent(InputEvent.InteractionKeyMappingTriggered event) {
-        if (event.isUseItem() && (stage == Stage.TURN || stage == Stage.FLIGHT)) useEvents++;
+        if (event.isUseItem() && (stage == Stage.EMPTY_USE || stage == Stage.FLIGHT)) useEvents++;
     }
 
     public static void sentUse() {
-        if (stage == Stage.TURN || stage == Stage.FLIGHT) sent++;
+        if (stage == Stage.EMPTY_USE || stage == Stage.FLIGHT) sent++;
     }
 
     public static void receivedUse() {
-        if (stage == Stage.TURN || stage == Stage.FLIGHT) received++;
+        if (stage == Stage.EMPTY_USE || stage == Stage.FLIGHT) received++;
     }
 
     private static void joined(EntityJoinLevelEvent event) {
@@ -436,8 +438,15 @@ public final class HotbarProbe {
     }
 
     private static void serverTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)
-                || (stage != Stage.FLIGHT && stage != Stage.AXE_FLIGHT)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (stage == Stage.TURN_BACK && turnBack != null && !turnBackPassed && serverFailure == null) {
+            try {
+                turnBackPassed = turnBack.tick();
+            } catch (Throwable failure) {
+                serverFailure = failure;
+            }
+        }
+        if (stage != Stage.FLIGHT && stage != Stage.AXE_FLIGHT) return;
         RelicFlight flight = observedFlight;
         if (flight == null) return;
         serverSawEmpty |= player.getMainHandItem().isEmpty();

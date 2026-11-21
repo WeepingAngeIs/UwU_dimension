@@ -32,9 +32,10 @@ import net.neoforged.neoforge.common.NeoForge;
 /** Opens a disposable world and samples real owner-camera geometry and block light. */
 @Mod("uwu_lotus_client_check")
 public final class LotusClientProbe {
-    private enum Stage { LOAD, POSITION, REPLAY, DONE }
+    private enum Stage { LOAD, POSITION, REPLAY, JADE, DONE }
     private static Stage stage = Stage.LOAD;
     private static boolean opening;
+    private static JadeFluidProbe jade;
     private static int stageTick;
     private static volatile Vec3 testPosition;
     private static volatile long reviveTick = -1;
@@ -66,13 +67,24 @@ public final class LotusClientProbe {
                 }
             }
         }
+        if (stage == Stage.JADE) {
+            try {
+                if (jade == null) jade = new JadeFluidProbe();
+                if (jade.tick(client)) stage = Stage.DONE;
+            } catch (Throwable failure) {
+                System.err.println("JADE FLUID CHECK FAILED");
+                failure.printStackTrace();
+                stage = Stage.DONE;
+            }
+        }
         if (stage == Stage.DONE) client.stop();
     }
 
     private static void frame(RenderFrameEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
         var player = client.player;
-        if (player == null || client.level == null || client.screen != null || stage == Stage.DONE) return;
+        if (player == null || client.level == null || client.screen != null
+                || stage == Stage.JADE || stage == Stage.DONE) return;
         try {
             if (serverError != null) throw new AssertionError("Server action failed", serverError);
             if (stage != Stage.LOAD) {
@@ -83,6 +95,7 @@ public final class LotusClientProbe {
                 case LOAD -> {
                     if (player.tickCount < 85) return;
                     require(RevivalBloom.DURATION_TICKS == 34, "Unexpected bloom duration");
+                    CompanionMotionProbe.verify();
                     require(!ModList.get().isLoaded("lambdynlights"), "Block-light test needs no dynamic lighting mod");
                     client.options.setCameraType(CameraType.FIRST_PERSON);
                     serverAction(client, actor -> {
@@ -138,9 +151,9 @@ public final class LotusClientProbe {
                             + ", peak alpha=" + peakAlpha + ", low alpha fade frames=" + fadeFrames + ", cutoff=34");
                     System.out.println("LOTUS DYNAMIC LIGHT PASS server block light in shader-free client at " + lightSample
                             + ", block light " + baseLight + " -> " + peakLight + " -> " + current);
-                    stage = Stage.DONE;
+                    stage = Stage.JADE;
                 }
-                case DONE -> {}
+                case JADE, DONE -> {}
             }
         } catch (Throwable failure) {
             System.err.println("LOTUS CLIENT CHECK FAILED");

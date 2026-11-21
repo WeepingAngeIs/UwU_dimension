@@ -168,12 +168,12 @@ public final class SharedAbilityHotbar {
                 || !DawnpetalAbilities.hasHotbar(client.player)) return;
         DawnpetalAbility move = DawnpetalAbility.at(client.player, selectedCell);
         if (move == DawnpetalAbility.THROW) selectedCell = 0;
-        if (move == null || client.player.isUsingItem() || onCooldown(client.player, move)) return;
+        if (move == null || client.player.isUsingItem() || onCooldown(client.player)) return;
         DawnpetalAbilities.send(client.player, ++sequence, equippedId, move);
     }
 
-    private static boolean onCooldown(Player player, DawnpetalAbility move) {
-        return move != DawnpetalAbility.TURN && player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem());
+    private static boolean onCooldown(Player player) {
+        return player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem());
     }
 
     public static boolean drawSlot(GuiGraphics gui, Player player, int index, int iconX, int iconY) {
@@ -183,7 +183,7 @@ public final class SharedAbilityHotbar {
         if (action == null || player != client.player) return false;
         var ability = action == Action.CONTEXTUAL ? DawnpetalAbility.at(player, index) : null;
         boolean filled = action == Action.CONTEXTUAL ? ability != null : index == 0;
-        boolean cooldown = filled && onCooldown(player, ability);
+        boolean cooldown = filled && onCooldown(player);
         boolean selected = filled && selectedCell == index;
         int x = iconX - 2, y = iconY - 2;
         gui.fill(x, y, x + 20, y + 20, selected ? 0xfff597c4 : 0xff745269);
@@ -191,7 +191,6 @@ public final class SharedAbilityHotbar {
         if (filled) {
             String icon = ability == null ? action.icon : switch (ability) {
                 case SPIN -> "↻";
-                case TURN -> "↪";
                 case THROW -> "➶";
             };
             gui.drawCenteredString(client.font, icon, x + 7, y + 4, cooldown ? 0xffb5a8b5 : 0xffffdbf0);

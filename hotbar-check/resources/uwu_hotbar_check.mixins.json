@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "dev.uwu.hotbarcheck.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["MouseCallbacks", "HotbarIconObserver", "DirkTurnObserver", "AbilityNetworkObserver", "VanillaHotbarObserver"],
+  "client": ["MouseCallbacks", "HotbarIconObserver", "AbilityNetworkObserver", "VanillaHotbarObserver"],
   "injectors": {"defaultRequire": 1}
 }

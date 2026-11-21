@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.148'
 }
 group = 'dev.uwu.dimension'
-version = '1.5.0-beta.13-combined-rc.2-playtest.2'
+version = '1.5.0-beta.13-combined-rc.2-playtest.3'
 base.archivesName = 'UwU-Dimension-1.21.1'
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 neoForge {
@@ -29,6 +29,7 @@ dependencies {
     // The optional lighting mod supplies the API at runtime on clients that use it.
     compileOnly('dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:4.8.11+1.21.1:mojmap@jar') { transitive = false }
     compileOnly 'curse.maven:better-combat-639842:8430183'
+    compileOnly('curse.maven:jade-324717:8591319') { transitive = false }
     compileOnly 'curse.maven:simply-swords-659887:8746001'
     compileOnly 'curse.maven:architectury-api-419699:8492726'
     // PlayerAnimator 2.0.4 for NeoForge 1.21.1 is optional at runtime.

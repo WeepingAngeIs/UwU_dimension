@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.uwu.dimension.DawnpetalAttackWindow;
 import dev.uwu.dimension.DawnpetalAbilities;
 import dev.uwu.dimension.DawnpetalReach;
-import dev.uwu.dimension.ReturnbloomPrime;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -28,7 +27,6 @@ abstract class DawnpetalPacketRangeMixin {
         if (player.getInventory().selected != packet.getSlot()) {
             DawnpetalAttackWindow.cancel(player);
             DawnpetalAbilities.slotChanged(player);
-            ReturnbloomPrime.clear(player);
         }
     }
 

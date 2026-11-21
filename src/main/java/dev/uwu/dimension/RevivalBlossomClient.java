@@ -2,6 +2,8 @@ package dev.uwu.dimension;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -10,11 +12,13 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 @EventBusSubscriber(modid = "uwudimension", value = Dist.CLIENT)
@@ -28,6 +32,8 @@ public final class RevivalBlossomClient {
     private static final int TICKS_PER_FRAME = 2;
     // The widest nontransparent silhouette spans 92 of the 96 frame pixels.
     private static final float QUAD_SIZE = .40F * FRAME_PIXELS / 92F;
+    private static final Map<Player, RevivalBlossomMotion> MOTION = new IdentityHashMap<>();
+    private static Level motionLevel;
 
     @EventBusSubscriber(modid = "uwudimension", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class ItemModels {
@@ -42,11 +48,51 @@ public final class RevivalBlossomClient {
         }
     }
 
+    private static void observeLevel(Level level) {
+        if (level != motionLevel) {
+            MOTION.clear();
+            motionLevel = level;
+        }
+    }
+
+    private static RevivalBlossomMotion motion(Player player) {
+        observeLevel(player.level());
+        var follow = MOTION.computeIfAbsent(player,
+                actor -> new RevivalBlossomMotion(actor.position(), actor.tickCount));
+        follow.follow(player.position(), player.tickCount, player.getScale());
+        return follow;
+    }
+
+    @SubscribeEvent
+    public static void tick(ClientTickEvent.Post event) {
+        Minecraft client = Minecraft.getInstance();
+        observeLevel(client.level);
+        if (client.level == null) return;
+        Vec3 eye = client.gameRenderer.getMainCamera().getPosition();
+        MOTION.keySet().removeIf(Player::isRemoved);
+        for (Player player : client.level.players()) {
+            if (nearby(player, eye)) motion(player);
+            else MOTION.remove(player);
+        }
+    }
+
+    public static void resetCompanionMotion(Player player, int interpolationTicks) {
+        var follow = MOTION.get(player);
+        if (follow != null) follow.reset(player.position(), player.tickCount, interpolationTicks);
+    }
+
+    public static void resetCompanionAfterRemoteRelocation(Player player, double x, double y, double z) {
+        // Regular remote jumps and periodic absolute position updates use this packet too.
+        if (player.distanceToSqr(x, y, z) >= RevivalBlossomMotion.SNAP_DISTANCE_SQUARED) {
+            resetCompanionMotion(player, 3);
+        }
+    }
+
     static Vec3 anchor(Player player, float partialTick) {
         double yaw = Math.toRadians(Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot));
         double back = .55 * player.getScale();
         double right = -1.05 * player.getScale();
-        return player.getPosition(partialTick).add(
+        return motion(player).sample(partialTick).add(
                 Math.cos(yaw) * right + Math.sin(yaw) * back,
                 player.getBbHeight() * 1.15,
                 Math.sin(yaw) * right - Math.cos(yaw) * back);

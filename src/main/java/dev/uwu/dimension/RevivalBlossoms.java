@@ -14,8 +14,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -50,7 +48,7 @@ public final class RevivalBlossoms {
         DawnpetalAbilities.register(bus);
         RevivalReady.register(bus);
         RevivalBloom.register(bus);
-        ReturnbloomPrime.register();
+        ReturnbloomTurnBack.register();
         ReturnbloomFacing.register(bus);
         // Vanilla totems are checked before die(). Earlier mod rescue cancellations win as well.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, RevivalBlossoms::preventDeath);
@@ -98,6 +96,8 @@ public final class RevivalBlossoms {
         if (owner.tickCount % 20 == 0) refresh(owner, stack);
     }
     private static void tooltip(ItemStack stack, List<Component> tips) {
+        if (stack.is(DIRK.get())) tips.add(Component.translatable("uwudimension.ability.returnbloom_turn_back")
+                .withStyle(ChatFormatting.LIGHT_PURPLE));
         tips.add(Component.literal("A ready sakura restores full health when a fatal blow lands.").withStyle(ChatFormatting.LIGHT_PURPLE));
         long left = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLong(LEFT);
         tips.add(Component.literal(left > 0 ? "Blossom recharging: " + (left + 19) / 20 + "s"
@@ -123,14 +123,6 @@ public final class RevivalBlossoms {
 
     private static final class FlowerDirk extends SwordItem {
         FlowerDirk() { super(Tiers.NETHERITE, new Item.Properties().rarity(Rarity.EPIC).attributes(SwordItem.createAttributes(Tiers.NETHERITE, 10, -1.8F))); }
-        @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-            ItemStack stack = player.getItemInHand(hand);
-            if (hand != InteractionHand.MAIN_HAND) return InteractionResultHolder.pass(stack);
-            if (player instanceof ServerPlayer serverPlayer && !ReturnbloomPrime.arm(serverPlayer, stack)) {
-                return InteractionResultHolder.pass(stack);
-            }
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-        }
         @Override public boolean shouldCauseReequipAnimation(ItemStack before,ItemStack after,boolean slotChanged) { return slotChanged || before.getItem()!=after.getItem(); }
         @Override public void inventoryTick(ItemStack s, Level l, Entity e, int slot, boolean selected) { super.inventoryTick(s,l,e,slot,selected); inventory(s,l,e); }
         @Override public void appendHoverText(ItemStack s, Item.TooltipContext c, List<Component> tips, TooltipFlag f) { super.appendHoverText(s,c,tips,f); tooltip(s,tips); }

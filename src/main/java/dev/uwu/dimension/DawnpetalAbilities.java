@@ -132,10 +132,6 @@ public final class DawnpetalAbilities {
                 || !u.weapon.equals(DawnpetalVanillaReach.syncedIdentity(weapon))) return;
         long tick = p.level().getGameTime();
         if (u.tick < tick - 40 || u.tick > tick + 10) return;
-        if (ability == DawnpetalAbility.TURN) {
-            ReturnbloomPrime.arm(p, weapon);
-            return;
-        }
         if (!permitted(p)) return;
 
         boolean dirk = weapon.is(RevivalBlossoms.DIRK.get());
@@ -151,7 +147,6 @@ public final class DawnpetalAbilities {
             boolean launched = dirk ? RelicFlight.castReturnbloom(p.serverLevel(), p, InteractionHand.MAIN_HAND)
                     : RelicFlight.castDawnpetal(p.serverLevel(), p, InteractionHand.MAIN_HAND);
             if (!launched) return;
-            if (dirk) ReturnbloomPrime.clear(p);
         }
         persisted(p).putLong(cooldown, now + ability.cooldown);
         p.getCooldowns().addCooldown(weapon.getItem(), ability.cooldown);

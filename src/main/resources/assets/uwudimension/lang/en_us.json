@@ -1,7 +1,9 @@
 {
+  "tooltip.uwudimension.sakura_water": "UwU Water",
+  "tooltip.uwudimension.sakura_lava": "UwU Lava",
   "uwudimension.ability.spin": "Spin",
   "uwudimension.ability.throw": "Throw",
-  "uwudimension.ability.turn": "Turn",
+  "uwudimension.ability.returnbloom_turn_back": "Turn Back • Melee hits turn struck enemies away once every 6 seconds.",
   "uwudimension.ability.draw": "Draw",
   "uwudimension.ability.summon": "Summon",
   "uwudimension.ability.lash": "Lash",
