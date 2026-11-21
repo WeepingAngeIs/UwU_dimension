@@ -21,10 +21,12 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
+import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,6 +50,7 @@ public final class DuskChestProbe {
     private static final ResourceLocation OPEN = id("dusk_chest_open");
     private static final ResourceLocation CLOSE = id("dusk_chest_close");
     private static final BlockPos CHEST = new BlockPos(5173, 195, 5173);
+    private static final ChunkPos CHEST_CHUNK = new ChunkPos(CHEST);
     private static final BlockPos LOCKED = CHEST.east(5);
     private static final BlockPos PETAL = CHEST.south(5);
     private static final BlockPos PEARL = PETAL.east(5);
@@ -86,12 +89,12 @@ public final class DuskChestProbe {
                 level = server.getLevel(ReefLife.REACH);
                 require(level != null, "Sakura Reach did not load");
                 started = level.getGameTime();
-                var chunk = new ChunkPos(CHEST);
-                level.setChunkForced(chunk.x, chunk.z, true);
+                level.setChunkForced(CHEST_CHUNK.x, CHEST_CHUNK.z, true);
                 next(Step.TICKING);
             }
             case TICKING -> {
-                if (!level.isPositionEntityTicking(CHEST)) return false;
+                if (!level.isPositionEntityTicking(CHEST)
+                        || level.getChunkSource().chunkMap.getChunkToSend(CHEST_CHUNK.toLong()) == null) return false;
                 UUID namespace = UUID.randomUUID();
                 for (BlockPos floor : BlockPos.betweenClosed(CHEST.offset(-2, -1, -2), PEARL.offset(2, -1, 2))) {
                     level.setBlock(floor, Blocks.CALCITE.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -109,6 +112,9 @@ public final class DuskChestProbe {
             }
             case TRACK -> {
                 if (a.wire.chunkSnapshots.isEmpty() || b.wire.chunkSnapshots.isEmpty()) return false;
+                var watchers = level.getChunkSource().chunkMap.getPlayers(CHEST_CHUNK, false);
+                require(watchers.contains(a.player) && watchers.contains(b.player),
+                        "Native ChunkMap does not recognize both viewers as active chest chunk trackers");
                 move(a, LOCKED.north());
                 interact(a, LOCKED);
                 require(a.player.containerMenu == a.player.inventoryMenu && !tag(chest(LOCKED)).getBoolean("LidOpen"),
@@ -341,6 +347,14 @@ public final class DuskChestProbe {
         onlinePlayers(server).add(player);
         level.addNewPlayer(player);
         require(level.getEntity(player.getId()) == player, "Fixture player was not tracked: " + name);
+        // These test players skip login/configuration. Queue the exact loaded chest chunk
+        // so the native chunk sender supplies the real block-entity snapshot.
+        var chunk = level.getChunkSource().getChunkNow(CHEST_CHUNK.x, CHEST_CHUNK.z);
+        require(chunk != null, "Chest chunk is unavailable to fixture viewer " + name);
+        if (!player.getChunkTrackingView().contains(CHEST_CHUNK)) {
+            player.setChunkTrackingView(ChunkTrackingView.of(CHEST_CHUNK, 2));
+        }
+        listener.chunkSender.markChunkPendingToSend(chunk);
         actors.add(actor);
         return actor;
     }
@@ -391,12 +405,15 @@ public final class DuskChestProbe {
 
     private record Actor(ServerPlayer player, RecordingListener wire) {
         void receiveChunks() {
+            int previous = wire.batches;
             wire.chunkSender.sendNextChunks(player);
+            if (wire.batches > previous) wire.chunkSender.onChunkBatchReceivedByClient(16F);
         }
 
         String describe() {
             return player.getName().getString() + ": sound=" + wire.cues + ", lidEvents=" + wire.lidEvents
-                    + ", snapshots=" + wire.chunkSnapshots + ", updates=" + wire.updates;
+                    + ", snapshots=" + wire.chunkSnapshots + ", updates=" + wire.updates
+                    + ", batches=" + wire.batches + ", queued=" + wire.chunkSender.isPending(CHEST_CHUNK.toLong());
         }
     }
 
@@ -406,6 +423,7 @@ public final class DuskChestProbe {
         final List<CompoundTag> updates = new ArrayList<>();
         final List<CompoundTag> chunkSnapshots = new ArrayList<>();
         final EmbeddedChannel transport;
+        int batches;
 
         RecordingListener(MinecraftServer server, ServerPlayer player) {
             this(server, player, new Connection(PacketFlow.SERVERBOUND));
@@ -420,7 +438,9 @@ public final class DuskChestProbe {
         }
 
         @Override public void send(Packet<?> packet, PacketSendListener listener) {
-            if (packet instanceof ClientboundSoundPacket sound) {
+            if (packet instanceof ClientboundChunkBatchFinishedPacket) {
+                ++batches;
+            } else if (packet instanceof ClientboundSoundPacket sound) {
                 var key = sound.getSound().value().getLocation();
                 if (key.equals(OPEN) || key.equals(CLOSE)) {
                     require(sound.getSource() == SoundSource.BLOCKS && near(sound.getVolume(), .5F)
@@ -434,7 +454,7 @@ public final class DuskChestProbe {
             } else if (packet instanceof ClientboundBlockEntityDataPacket change && CHEST.equals(change.getPos())) {
                 captureTag(change.getTag(), updates);
             } else if (packet instanceof ClientboundLevelChunkWithLightPacket chunk
-                    && new ChunkPos(CHEST).equals(new ChunkPos(chunk.getX(), chunk.getZ()))) {
+                    && CHEST_CHUNK.x == chunk.getX() && CHEST_CHUNK.z == chunk.getZ()) {
                 chunk.getChunkData().getBlockEntitiesTagsConsumer(chunk.getX(), chunk.getZ()).accept(
                         (pos, type, tag) -> { if (CHEST.equals(pos)) captureTag(tag, chunkSnapshots); });
             }
