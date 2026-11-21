@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
@@ -140,6 +141,7 @@ public final class CupidParityProbe {
                 for (Cow baby : babies) baby.discard();
                 for (Cow entity : List.of(first, second, foe)) entity.discard();
                 onlinePlayers(server).remove(archer);
+                playersByUuid(server).remove(archer.getUUID(), archer);
                 level.removePlayerImmediately(archer, Entity.RemovalReason.DISCARDED);
                 channel.finishAndReleaseAll();
                 if (!smooth) {
@@ -202,7 +204,10 @@ public final class CupidParityProbe {
         archer.setNoGravity(true);
         archer.moveTo(Vec3.atBottomCenterOf(START));
         onlinePlayers(server).add(archer);
+        playersByUuid(server).put(archer.getUUID(), archer);
         level.addNewPlayer(archer);
+        require(server.getPlayerList().getPlayer(archer.getUUID()) == archer,
+                "The wish ticker cannot find its test archer by UUID");
     }
 
     @SuppressWarnings("unchecked")
@@ -210,6 +215,13 @@ public final class CupidParityProbe {
         var players = PlayerList.class.getDeclaredField("players");
         players.setAccessible(true);
         return (List<ServerPlayer>) players.get(server.getPlayerList());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<UUID, ServerPlayer> playersByUuid(MinecraftServer server) throws ReflectiveOperationException {
+        var players = PlayerList.class.getDeclaredField("playersByUUID");
+        players.setAccessible(true);
+        return (Map<UUID, ServerPlayer>) players.get(server.getPlayerList());
     }
 
     private long elapsed() { return level.getGameTime() - stageStart; }
