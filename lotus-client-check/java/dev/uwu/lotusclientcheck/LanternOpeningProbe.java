@@ -125,8 +125,11 @@ final class LanternOpeningProbe {
             }
             if (trial.kind == Kind.NATURAL) {
                 if (age >= 5 && age < 12) capture("lantern-lift");
+                if (age >= 12 && age < 16) capture("lantern-cover-raised");
                 if (age >= 18 && age < 26) capture("lantern-cover-open");
-                if (age >= 29 && age < 44) capture("lantern-decorative-flutter");
+                if (age >= 30 && age < 44) capture("lantern-decorative-flutter");
+                if (age >= 36 && age < 44) capture("lantern-decorative-leaf-two");
+                if (age >= 42 && age < 44) capture("lantern-decorative-leaf-three");
                 if (age >= 47) capture("lantern-settle-page-one");
             }
             if (trial.kind == Kind.RENAMED_OFF_HAND && age >= 18) capture("lantern-left-hand-renamed");

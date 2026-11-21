@@ -28,6 +28,12 @@ final class LanternBookOpeningScreen extends Screen {
     static final int FLUTTER_TICKS = 18;
     static final int SETTLE_TICKS = 8;
     static final int DURATION_TICKS = LIFT_TICKS + COVER_TICKS + FLUTTER_TICKS + SETTLE_TICKS;
+    // The shipped 48px portrait has a tilted body around (21,21.5), plus lace/ribbons.
+    // Correct the portrait inside its own cover frame; the paper and hinge stay upright.
+    private static final float PORTRAIT_ROLL = 12.5F;
+    private static final float SPINE_X = -15F;
+    private static final int COVER_WIDTH = 29;
+    private static final int PAGE_WIDTH = 26;
 
     private final LocalPlayer owner;
     private final ClientLevel level;
@@ -123,7 +129,7 @@ final class LanternBookOpeningScreen extends Screen {
             graphics.setColor(1, 1, 1, 1);
         }
 
-        float target = Math.min(width * .44F, height * .72F);
+        float target = Math.min(192F, Math.min(width * .44F, height * .72F));
         float size = Mth.lerp(lift, Math.min(target * .58F, 78F), target);
         float centerX = Mth.lerp(lift, width * (.5F + side * .30F), width * .5F);
         float centerY = Mth.lerp(lift, height + size * .15F, Math.min(height * .48F, 102F));
@@ -131,7 +137,7 @@ final class LanternBookOpeningScreen extends Screen {
         poses.pushPose();
         poses.translate(centerX, centerY, 220);
         poses.scale(size / 48F, size / 48F, size / 48F);
-        poses.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(lift, side * 8F, 14F)));
+        poses.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(lift, side * 8F, 0F)));
         graphics.setColor(1, 1, 1, 1 - settle);
 
         if (cover > 0) {
@@ -140,27 +146,16 @@ final class LanternBookOpeningScreen extends Screen {
             page(graphics, 0, 0xFFFFF3E5, 1);
         }
 
-        poses.pushPose();
-        poses.translate(-13, 0, 2);
-        poses.mulPose(Axis.YP.rotationDegrees(-168F * cover));
-        poses.translate(13, 0, 0);
-        if (cover < .54F) {
-            // The same animated atlas sprite retains the pastel cover, heart clasp, lace and ribbons.
-            var sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(COVER);
-            graphics.blit(-24, -24, 0, 48, 48, sprite);
-        } else {
-            graphics.fill(-15, -18, 14, 18, 0xFFDBA7BB);
-            graphics.fill(-13, -16, 12, 16, 0xFFF5D3DD);
-        }
-        poses.popPose();
+        cover(graphics, -168F * cover);
 
         float flutterStart = LIFT_TICKS + COVER_TICKS;
-        if (time >= flutterStart && time < flutterStart + FLUTTER_TICKS) {
+        if (time >= flutterStart) {
             float flutter = (time - flutterStart) / 6F;
             // Three independent decorative leaves. None can call setPage/pageForward on the reader.
             for (int leaf = 0; leaf < 3; leaf++) {
                 float phase = Mth.clamp(flutter - leaf, 0, 1);
-                if (phase > 0 && phase < 1) page(graphics, -170F * ease(phase), 0xFFFFF8EB, 3 + leaf);
+                // Completed leaves remain on the left, making a visible opened stack until settling.
+                if (phase > 0) page(graphics, -170F * ease(phase), 0xFFFFF8EB, 3 + leaf);
             }
         }
 
@@ -169,14 +164,41 @@ final class LanternBookOpeningScreen extends Screen {
         poses.popPose();
     }
 
+    private void cover(GuiGraphics graphics, float angle) {
+        var poses = graphics.pose();
+        poses.pushPose();
+        poses.translate(SPINE_X, 0, 2);
+        poses.mulPose(Axis.YP.rotationDegrees(angle));
+        if (angle > -90F) {
+            // Untilt the existing art around its body, then turn that body around the same spine as the paper.
+            poses.translate(-SPINE_X, 0, 0);
+            poses.mulPose(Axis.ZP.rotationDegrees(PORTRAIT_ROLL));
+            poses.translate(-21, -21.5, 0);
+            var sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(COVER);
+            graphics.blit(0, 0, 0, 48, 48, sprite);
+        } else {
+            // GUI quads have one facing. Turn the reverse face back toward the camera on the SAME plane.
+            poses.translate(COVER_WIDTH, 0, 0);
+            poses.mulPose(Axis.YP.rotationDegrees(180));
+            graphics.fill(0, -16, COVER_WIDTH, 16, 0xFFDBA7BB);
+            graphics.fill(1, -15, COVER_WIDTH - 1, 15, 0xFFF5D3DD);
+            graphics.fill(COVER_WIDTH - 2, -15, COVER_WIDTH - 1, 15, 0xFFC98CA6);
+        }
+        poses.popPose();
+    }
+
     private static void page(GuiGraphics graphics, float angle, int color, int depth) {
         var poses = graphics.pose();
         poses.pushPose();
-        poses.translate(-12, 0, depth);
+        poses.translate(SPINE_X + 1, 0, depth);
         poses.mulPose(Axis.YP.rotationDegrees(angle));
-        graphics.fill(0, -15, 24, 16, 0xFFD9BFB3);
-        graphics.fill(1, -14, 23, 15, color);
-        graphics.fill(1, -14, 2, 15, 0xFFE8D3C8);
+        if (angle <= -90F) {
+            poses.translate(PAGE_WIDTH, 0, 0);
+            poses.mulPose(Axis.YP.rotationDegrees(180));
+        }
+        graphics.fill(0, -15, PAGE_WIDTH, 15, 0xFFD9BFB3);
+        graphics.fill(1, -14, PAGE_WIDTH - 1, 14, color);
+        graphics.fill(1, -14, 2, 14, 0xFFE8D3C8);
         poses.popPose();
     }
 
