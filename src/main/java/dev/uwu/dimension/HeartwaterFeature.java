@@ -178,6 +178,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                     part(p.dusk()?"dusk_village":"petal_village",()->BlossomVillage.place(this,p));
                     MoonveilTreehouse.plan(level.getLevel(),p).ifPresent(tree->part("moonveil_treehouse",()->MoonveilTreehouse.place(this,tree)));
                     part("village_sakura",()->VillageSakura.place(this,p));
+                    if(!p.dusk())part("cupid_shrine",()->PetalShrinePlacement.place(this,p));
                 });
             }
             if(GroveSites.adventure(level.getLevel(),site))part("spring_and_bank",this::falls);

@@ -1,0 +1,31 @@
+newmtl pedestal
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+illum 1
+map_Kd #pedestal
+
+newmtl cupid
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+illum 1
+map_Kd #cupid
+
+newmtl eyes
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+illum 1
+map_Kd #eyes
+
+newmtl head_wings
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+illum 1
+map_Kd #head_wings

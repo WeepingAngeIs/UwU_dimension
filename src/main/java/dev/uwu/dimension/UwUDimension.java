@@ -40,6 +40,7 @@ public final class UwUDimension {
         PinkRoofTiles.register(bus);
         HeartLanterns.register(bus);
         LanternStorybook.register(bus);
+        CupidShrine.register(bus);
         CupidWishes.register();
         ReefLife.register(bus);
         dev.uwu.dimension.lush.LushGeodes.register(bus);

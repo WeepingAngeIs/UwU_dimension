@@ -1,0 +1,79 @@
+name: UwU Dimension Petal shrine playtest
+on:
+  push:
+    branches: ['codex/prep/uwu-petal-shrine-placement']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    if: github.repository == 'weepingangeis/z-uwu_dm' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 34
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.7'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.7.jar
+      UWU_SHRINE_CLIENT_CHECK: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and verify the scope against Playtest 6
+        id: build
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 shrine-check/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+      - name: Recover the exact build used before the shrine update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          baseline="$RUNNER_TEMP/playtest-6.jar"
+          if gh api 'repos/${{ github.repository }}/actions/artifacts/14691247099/zip' > "$baseline"; then
+            echo "e8bb79c6ba9903b76a16907cd7ecb3b19ed1a83d91f06c5151a777a250cd348c  $baseline" | sha256sum --check
+          else
+            git fetch --no-tags --depth=1 origin 8e6b19d11a9e5174c9728e11bbac22828b6c026a
+            git worktree add --detach "$RUNNER_TEMP/uwu-before-shrine" FETCH_HEAD
+            (
+              cd "$RUNNER_TEMP/uwu-before-shrine"
+              test "$(git rev-parse HEAD)" = 8e6b19d11a9e5174c9728e11bbac22828b6c026a
+              bash ./gradlew --no-daemon --max-workers=2 jar
+              cp build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.6.jar "$baseline"
+            )
+          fi
+      - name: Check native Petal placement, both chunk orders, older saves and Cupid Grace
+        run: bash shrine-check/run-server.sh "$UWU_JAR" "$RUNNER_TEMP/playtest-6.jar"
+      - name: Prepare the disposable client display
+        id: display
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+      - name: Check the exact seated statue, all four facings and its 64-frame Lotus
+        if: ${{ !cancelled() && steps.display.outcome == 'success' }}
+        run: bash lotus-client-check/run.sh
+      - name: Record the exact JAR digest
+        id: packet
+        run: |
+          python3 shrine-check/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified test JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.packet.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "PETAL SHRINE SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

@@ -2,7 +2,10 @@
 set -euo pipefail
 game_dir=build/lotus-client
 log=build/lotus-client.log
-if [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then
+if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
+    game_dir=build/shrine-client
+    log=build/shrine-client.log
+elif [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then
     game_dir=build/dirk-countdown-client
     log=build/dirk-countdown-client.log
 fi
@@ -17,6 +20,10 @@ printf 'version:3955\nonboardAccessibility:false\ntutorialStep:none\nrenderDista
 printf 'earlyWindowControl = false\n' > "$game_dir/config/fml.toml"
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I lotus-client-check/client.gradle runLotusClient 2>&1 | tee "$log"
+if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
+    grep -F 'CUPID SHRINE CLIENT PASS' "$log"
+    exit 0
+fi
 if [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then
     grep -F 'DIRK NATIVE PACKET REPLAY' "$log"
     grep -F 'DIRK COUNTDOWN OBSERVED' "$log"

@@ -32,13 +32,15 @@ import net.neoforged.neoforge.common.NeoForge;
 /** Opens a disposable world and samples real owner-camera geometry and block light. */
 @Mod("uwu_lotus_client_check")
 public final class LotusClientProbe {
-    private enum Stage { LOAD, POSITION, DIRK_COUNTDOWN, REPLAY, JADE, CUPID, DONE }
+    private enum Stage { LOAD, POSITION, DIRK_COUNTDOWN, REPLAY, JADE, CUPID, CUPID_SHRINE, DONE }
     private static Stage stage = Stage.LOAD;
     private static final boolean DIRK_ONLY = Boolean.getBoolean("uwu.check.dirkCountdown");
+    private static final boolean SHRINE_ONLY = Boolean.getBoolean("uwu.check.shrine");
     private static boolean opening;
     private static DirkCountdownProbe dirk;
     private static JadeFluidProbe jade;
     private static CupidBowProbe cupid;
+    private static CupidShrineClientProbe shrine;
     private static int stageTick;
     private static volatile Vec3 testPosition;
     private static volatile long reviveTick = -1;
@@ -102,6 +104,15 @@ public final class LotusClientProbe {
                 stage = Stage.DONE;
             }
         }
+        if (stage == Stage.CUPID_SHRINE) {
+            try {
+                if (shrine.tick(client)) stage = Stage.DONE;
+            } catch (Throwable failure) {
+                System.err.println("CUPID SHRINE CLIENT CHECK FAILED");
+                failure.printStackTrace();
+                stage = Stage.DONE;
+            }
+        }
         if (stage == Stage.DONE) client.stop();
     }
 
@@ -109,7 +120,8 @@ public final class LotusClientProbe {
         Minecraft client = Minecraft.getInstance();
         var player = client.player;
         if (player == null || client.level == null || client.screen != null
-                || stage == Stage.DIRK_COUNTDOWN || stage == Stage.JADE || stage == Stage.CUPID || stage == Stage.DONE) return;
+                || stage == Stage.DIRK_COUNTDOWN || stage == Stage.JADE || stage == Stage.CUPID
+                || stage == Stage.CUPID_SHRINE || stage == Stage.DONE) return;
         try {
             if (serverError != null) throw new AssertionError("Server action failed", serverError);
             if (stage != Stage.LOAD) {
@@ -119,6 +131,11 @@ public final class LotusClientProbe {
             switch (stage) {
                 case LOAD -> {
                     if (player.tickCount < 85) return;
+                    if (SHRINE_ONLY) {
+                        shrine = new CupidShrineClientProbe(client);
+                        stage = Stage.CUPID_SHRINE;
+                        return;
+                    }
                     require(RevivalBloom.DURATION_TICKS == 34, "Unexpected bloom duration");
                     if (!DIRK_ONLY) {
                         CompanionMotionProbe.verify();
@@ -186,7 +203,7 @@ public final class LotusClientProbe {
                             + ", block light " + baseLight + " -> " + peakLight + " -> " + current);
                     stage = Boolean.getBoolean("uwu.check.decor") ? Stage.CUPID : Stage.JADE;
                 }
-                case DIRK_COUNTDOWN, JADE, CUPID, DONE -> {}
+                case DIRK_COUNTDOWN, JADE, CUPID, CUPID_SHRINE, DONE -> {}
             }
         } catch (Throwable failure) {
             System.err.println("LOTUS CLIENT CHECK FAILED");

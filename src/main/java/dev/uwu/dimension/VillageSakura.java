@@ -25,11 +25,30 @@ final class VillageSakura {
     }
 
     static void place(HeartwaterFeature.Valley valley, BlossomVillage.Plan village) {
-        ServerLevel level = valley.level.getLevel();
+        plan(valley.level.getLevel(), village).ifPresent(plot -> build(valley, plot));
+    }
+
+    private static Optional<Plot> plan(ServerLevel level, BlossomVillage.Plan village) {
         var cache = cache(level);
         if (cache.size() > 4096) cache.clear();
         Key key = new Key(village.site().gx(), village.site().gz(), village.dusk());
-        cache.computeIfAbsent(key, ignored -> survey(level, village)).ifPresent(plot -> build(valley, plot));
+        return cache.computeIfAbsent(key, ignored -> survey(level, village));
+    }
+
+    /** Test the exact authored tree at shrine height without asking for a generating chunk. */
+    static boolean overlapsShrine(ServerLevel level, BlossomVillage.Plan village, int x, int floor, int z, int radius) {
+        var tree = plan(level, village);
+        if (tree.isEmpty()) return false;
+        var plot = tree.orElseThrow();
+        if (Math.abs(x - plot.x) > radius + RADIUS || Math.abs(z - plot.z) > radius + RADIUS) return false;
+        if (SakuraForest.target(level, village.site().wx(plot.x, plot.z), village.site().wz(plot.x, plot.z))) return false;
+        var blocks = GiantSakuraTree.plan(plot.trunk, level.getSeed() ^ plot.x * 31L ^ plot.z);
+        for (int y = floor - 1; y <= floor + 3; y++) {
+            for (int px = x - radius; px <= x + radius; px++) for (int pz = z - radius; pz <= z + radius; pz++) {
+                if (blocks.containsKey(new BlockPos(px - plot.x, y - plot.y - 1, pz - plot.z))) return true;
+            }
+        }
+        return false;
     }
 
     private static Optional<Plot> survey(ServerLevel level, BlossomVillage.Plan village) {
