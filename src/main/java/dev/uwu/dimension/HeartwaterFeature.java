@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -345,7 +344,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
         private void tickOutletHead(int x, int y, int z) {
             if (!planning() && inside(x, z)) {
                 BlockPos pos = new BlockPos(wx(x, z), y, wz(x, z));
-                level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+                var fluid = chunk.getFluidState(pos).getType();
+                level.scheduleTick(pos, fluid, fluid.getTickDelay(level));
             }
         }
         void buriedStairs(){

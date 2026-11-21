@@ -6,6 +6,7 @@ import dev.uwu.dimension.NativeRewardChestMenu;
 import dev.uwu.dimension.ReefLife;
 import dev.uwu.dimension.loot.NativeRewardSite;
 import dev.uwu.dimension.loot.PersonalLootStore;
+import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -348,6 +349,7 @@ public final class DuskChestProbe {
         onlinePlayers(level.getServer()).remove(actor.player);
         level.removePlayerImmediately(actor.player, Entity.RemovalReason.DISCARDED);
         actors.remove(actor);
+        actor.wire.transport.finishAndReleaseAll();
     }
 
     @SuppressWarnings("unchecked")
@@ -403,10 +405,18 @@ public final class DuskChestProbe {
         final List<Integer> lidEvents = new ArrayList<>();
         final List<CompoundTag> updates = new ArrayList<>();
         final List<CompoundTag> chunkSnapshots = new ArrayList<>();
+        final EmbeddedChannel transport;
 
         RecordingListener(MinecraftServer server, ServerPlayer player) {
-            super(server, new Connection(PacketFlow.SERVERBOUND), player,
-                    CommonListenerCookie.createInitial(player.getGameProfile(), false));
+            this(server, player, new Connection(PacketFlow.SERVERBOUND));
+        }
+
+        private RecordingListener(MinecraftServer server, ServerPlayer player, Connection connection) {
+            super(server, connection, player, CommonListenerCookie.createInitial(player.getGameProfile(), false));
+            // Run Connection.channelActive so NeoForge's per-channel protocol attributes are available.
+            // The recorder still handles outbound packets without a socket or a Minecraft login.
+            transport = new EmbeddedChannel(connection);
+            require(connection.channel() == transport, "Fixture connection did not attach to its memory channel");
         }
 
         @Override public void send(Packet<?> packet, PacketSendListener listener) {

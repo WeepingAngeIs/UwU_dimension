@@ -54,6 +54,8 @@ def verify(jar_path, version, classes):
         entries = sorted(info.filename for info in jar.infolist() if not info.is_dir())
         assert len(set(entries)) == len(entries), 'Duplicate JAR entries'
         assert f'version="{version}"'.encode() in jar.read(METADATA), 'Incorrect mod version'
+        for resource in CHANGED_RESOURCES:
+            assert resource in entries, f'Missing {resource}'
         for name in REQUIRED:
             assert f'{PREFIX}{name}.class' in entries, f'Missing {name}'
         for name in REMOVED:

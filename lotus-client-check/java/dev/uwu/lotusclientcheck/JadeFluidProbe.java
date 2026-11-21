@@ -1,10 +1,11 @@
 package dev.uwu.lotusclientcheck;
 
 import dev.uwu.dimension.ReefLife;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,7 +14,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -22,11 +25,13 @@ import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IWailaConfig;
@@ -51,6 +56,7 @@ final class JadeFluidProbe {
         }
     }
     private record Target(BlockPos block, Vec3 feet, float pitch) {}
+    private record HarvestDrops(Level level, BlockPos block, List<ItemStack> stacks) {}
 
     private final List<Sample> samples = List.of(
             new Sample(Level.OVERWORLD, Blocks.WATER.defaultBlockState(), "Water", false),
@@ -74,12 +80,14 @@ final class JadeFluidProbe {
     private boolean preparing;
     private boolean harvesting;
     private volatile boolean harvested;
+    private HarvestDrops serverHarvest; // Only accessed on the integrated server thread.
     private volatile Target target;
     private volatile Throwable serverFailure;
     private String latestTitle = "";
 
     JadeFluidProbe() {
         require(ModList.get().isLoaded("jade"), "The pinned Jade overlay must be loaded");
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::recordDrop);
         var config = IWailaConfig.get().getGeneral();
         config.setDisplayTooltip(true);
         config.setDisplayBlocks(true);
@@ -189,24 +197,37 @@ final class JadeFluidProbe {
                 var world = owner.serverLevel();
                 var before = world.getBlockState(pos);
                 require(before.getLightEmission() == 14 && before.getValue(CaveVines.BERRIES), "Vine lost ripe state before harvest");
-                var nearby = new AABB(pos).inflate(2);
-                var existing = world.getEntitiesOfClass(ItemEntity.class, nearby).stream()
-                        .map(ItemEntity::getUUID).collect(Collectors.toSet());
+                require(world.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS), "Fixture disabled block drops");
+                var drops = new ArrayList<ItemStack>();
                 var hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.WEST, pos, false);
-                require(before.useWithoutItem(world, owner, hit).consumesAction(), "Vanilla vine harvest did not accept");
+                serverHarvest = new HarvestDrops(world, pos, drops);
+                try {
+                    require(before.useWithoutItem(world, owner, hit).consumesAction(), "Vanilla vine harvest did not accept");
+                } finally {
+                    serverHarvest = null;
+                }
                 var after = world.getBlockState(pos);
                 require(after.is(before.getBlock()) && !after.getValue(CaveVines.BERRIES) && after.getLightEmission() == 0,
                         "Harvest changed the block type or left fruit/light");
-                var drops = world.getEntitiesOfClass(ItemEntity.class, nearby, entity -> !existing.contains(entity.getUUID()));
-                require(drops.size() == 1 && drops.getFirst().getItem().is(Items.GLOW_BERRIES)
-                        && drops.getFirst().getItem().getCount() == 1, "Harvest did not drop exactly one vanilla Glow Berries");
-                require("Glow Berries".equals(drops.getFirst().getItem().getHoverName().getString()), "Glow Berries item title changed");
+                require(drops.size() == 1 && drops.getFirst().is(Items.GLOW_BERRIES) && drops.getFirst().getCount() == 1,
+                        "Harvest did not submit exactly one vanilla Glow Berries drop to the level: " + drops);
+                require("Glow Berries".equals(drops.getFirst().getHoverName().getString()), "Glow Berries item title changed");
                 System.out.println("CAVE VINE HARVEST " + before + " -> " + after + " drop=minecraft:glow_berries");
                 harvested = true;
             } catch (Throwable failure) {
                 serverFailure = failure;
             }
         });
+    }
+
+    private void recordDrop(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide() || event.loadedFromDisk()) return;
+        var harvest = serverHarvest;
+        // Observe the vanilla addFreshEntity call without relying on the section becoming accessible.
+        if (harvest != null && event.getLevel() == harvest.level && event.getEntity() instanceof ItemEntity item
+                && item.blockPosition().equals(harvest.block)) {
+            harvest.stacks.add(item.getItem().copy());
+        }
     }
 
     private static String coords(BlockPos pos) {
