@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,7 +52,8 @@ public final class HotbarProbe {
     private enum Stage {
         LOAD, CUPID_CONTROLS, TOOL_CONTROLS, ORDINARY_CONTROLS, EQUIP, RAPID, HIGH_SLOT, BACK, SCROLLED, DROP_KEY, DROP,
         REEQUIP, SELECT_THROW, EMPTY, EMPTY_USE, THROW_KEY, FLIGHT,
-        AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, AXE_THROW, AXE_FLIGHT, TURN_BACK, DONE
+        AXE_SELECT, AXE_LAYOUT, AXE_SPIN, AXE_READY, HEART_SELECT, HEART_CAST, HEART_VERIFY, HEART_LOCKED,
+        AXE_THROW, AXE_FLIGHT, TURN_BACK, DONE
     }
 
     private static final UUID DIRK = UUID.fromString("206e7d9c-e43b-4568-990a-6f789760f17e");
@@ -65,6 +67,10 @@ public final class HotbarProbe {
     private static ItemStack[] beforeFrame;
     private static volatile Throwable serverFailure;
     private static volatile ReturnbloomProbe turnBack;
+    private static volatile HeartSpinProbe heartSpin;
+    private static HeartSpinProbe.Trial heartTrial;
+    private static long spinCueStart;
+    private static int blockedHeartUses;
     private static volatile boolean turnBackPassed;
     private static volatile ItemEntity dropped;
     private static volatile int launches;
@@ -288,6 +294,7 @@ public final class HotbarProbe {
                         var axe = new ItemStack(RevivalBlossoms.AXE.get());
                         CustomData.update(DataComponents.CUSTOM_DATA, axe, tag -> tag.putUUID("uwu_revival_id", AXE));
                         actor.getInventory().setItem(4, axe);
+                        heartSpin = new HeartSpinProbe(actor);
                         actor.containerMenu.broadcastChanges();
                     });
                     enter(Stage.AXE_SELECT, player.tickCount);
@@ -308,15 +315,65 @@ public final class HotbarProbe {
                     rightClick(client);
                 }
                 case AXE_SPIN -> {
-                    if (DawnpetalSpinCue.frame(player, 0F, true) == null) return;
+                    var cue = DawnpetalSpinCue.frame(player, 0F, true);
+                    if (cue == null) return;
                     require(inventory.selected == 4 && hasAxe(player.getMainHandItem()) && axeLaunches == 0,
                             "Slot 1 resolved to anything other than the held Axe's Spin");
+                    spinCueStart = cue.start();
                     enter(Stage.AXE_READY, player.tickCount);
                 }
                 case AXE_READY -> {
-                    if (player.tickCount - began < 80 || player.getCooldowns().isOnCooldown(RevivalBlossoms.AXE.get())) return;
-                    number(client, 1);
-                    enter(Stage.AXE_THROW, player.tickCount);
+                    if (player.tickCount - began < 36) return;
+                    heartSpin.verify(HeartSpinProbe.Trial.PLAIN, spinCueStart);
+                    heartTrial = HeartSpinProbe.Trial.HIT;
+                    serverAction(client, actor -> heartSpin.prepare(HeartSpinProbe.Trial.HIT));
+                    number(client, 2);
+                    enter(Stage.HEART_SELECT, player.tickCount);
+                }
+                case HEART_SELECT -> {
+                    require(inventory.selected == 4 && hasAxe(player.getMainHandItem()),
+                            "Heart Spin key changed the held inventory slot");
+                    requireCell(2);
+                    if (!heartSpin.prepared(heartTrial) || player.getAttackStrengthScale(0) < 1F) return;
+                    if (heartTrial == HeartSpinProbe.Trial.REJECTED
+                            && player.level().getGameTime() - spinCueStart < 123) return;
+                    enter(Stage.HEART_CAST, player.tickCount);
+                    rightClick(client);
+                }
+                case HEART_CAST -> {
+                    var cue = DawnpetalSpinCue.frame(player, 0F, true);
+                    if (cue == null) return;
+                    require(cue.start() > spinCueStart, "Heart Spin did not create its own accepted cast");
+                    spinCueStart = cue.start();
+                    enter(Stage.HEART_VERIFY, player.tickCount);
+                }
+                case HEART_VERIFY -> {
+                    if (player.tickCount - began < (heartTrial == HeartSpinProbe.Trial.HIT ? 50 : 34)) return;
+                    heartSpin.verify(heartTrial, spinCueStart);
+                    if (heartTrial == HeartSpinProbe.Trial.HIT) {
+                        heartSpin.printResult();
+                        require(player.level().getGameTime() - spinCueStart < 120, "Cooldown test missed its window");
+                        requireCell(2);
+                        enter(Stage.HEART_LOCKED, player.tickCount);
+                        rightClick(client);
+                    } else {
+                        System.out.println("DAWNPETAL HEART SPIN CONTROLS PASS ordinary Spin kept standard knockback,"
+                                + " early repeat blocked, rejected damage never lifted target");
+                        serverAction(client, actor -> heartSpin.finish());
+                        // Throw must still work while the just-cast Heart Spin is cooling down.
+                        number(client, 1);
+                        enter(Stage.AXE_THROW, player.tickCount);
+                    }
+                }
+                case HEART_LOCKED -> {
+                    require(DawnpetalSpinCue.frame(player, 0F, true) == null,
+                            "A second Heart Spin was accepted on its separate cooldown");
+                    if (player.tickCount - began < 14) return;
+                    require(blockedHeartUses == 1, "Cooldown was not exercised by one genuine right-click");
+                    heartSpin.verify(HeartSpinProbe.Trial.HIT, spinCueStart);
+                    heartTrial = HeartSpinProbe.Trial.REJECTED;
+                    serverAction(client, actor -> heartSpin.prepare(HeartSpinProbe.Trial.REJECTED));
+                    enter(Stage.HEART_SELECT, player.tickCount);
                 }
                 case AXE_THROW -> {
                     require(inventory.selected == 4 && axeLaunches == 0, "Slot 2 switched or used the Axe before right-click");
@@ -410,6 +467,8 @@ public final class HotbarProbe {
 
     private static void useEvent(InputEvent.InteractionKeyMappingTriggered event) {
         if (event.isUseItem() && (stage == Stage.EMPTY_USE || stage == Stage.FLIGHT)) useEvents++;
+        if (event.isUseItem() && stage == Stage.HEART_LOCKED
+                && event.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND) blockedHeartUses++;
     }
 
     public static void sentUse() {
@@ -437,8 +496,16 @@ public final class HotbarProbe {
         }
     }
 
+    public static void spinParticle(ServerPlayer viewer, ParticleOptions particle, double x, double y, double z,
+                                    int count, double dx, double dy, double dz, double speed, boolean delivered) {
+        HeartSpinProbe probe = heartSpin;
+        if (probe != null) probe.particle(viewer, particle, x, y, z, count, dx, dy, dz, speed, delivered);
+    }
+
     private static void serverTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        HeartSpinProbe probe = heartSpin;
+        if (probe != null) probe.observeTick(player);
         if (stage == Stage.TURN_BACK && turnBack != null && !turnBackPassed && serverFailure == null) {
             try {
                 turnBackPassed = turnBack.tick();

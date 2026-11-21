@@ -5,9 +5,9 @@ import net.minecraft.world.entity.player.Player;
 
 /** Stable wire/slot IDs. Only the first four keys are contextual; unused slots never cast. */
 public enum DawnpetalAbility {
-    SPIN(0, 70), THROW(1, 100);
+    SPIN(0, 70), THROW(1, 100), HEART_SPIN(2, 120);
 
-    public static final List<DawnpetalAbility> POPULATED = List.of(SPIN, THROW);
+    public static final List<DawnpetalAbility> POPULATED = List.of(SPIN, THROW, HEART_SPIN);
     public final int index, cooldown;
     DawnpetalAbility(int index, int cooldown) { this.index = index; this.cooldown = cooldown; }
 

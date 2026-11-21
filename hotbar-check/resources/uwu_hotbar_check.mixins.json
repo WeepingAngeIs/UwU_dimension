@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "dev.uwu.hotbarcheck.mixin",
   "compatibilityLevel": "JAVA_21",
+  "mixins": ["SpinHeartPacketObserver"],
   "client": ["MouseCallbacks", "HotbarIconObserver", "AbilityNetworkObserver", "VanillaHotbarObserver"],
   "injectors": {"defaultRequire": 1}
 }
