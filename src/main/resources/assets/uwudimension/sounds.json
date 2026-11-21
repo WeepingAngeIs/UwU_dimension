@@ -27,6 +27,12 @@
       "uwudimension:dusk_3"
     ]
   },
+  "toaster_ding": {
+    "subtitle": "subtitles.uwudimension.toaster_ding",
+    "sounds": [
+      "uwudimension:toaster_ding"
+    ]
+  },
   "petal_hurt": {
     "subtitle": "subtitles.uwudimension.petal_voice",
     "sounds": [

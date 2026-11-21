@@ -44,6 +44,7 @@ public final class SettlementLayout extends SavedData {
     private final Map<Long,BitSet> beforeSilkwoodDrawers=new HashMap<>();
     private final Map<Long,BitSet> beforeSilkwoodShelves=new HashMap<>();
     private final Map<Long,BitSet> beforeSilkwoodFlowerBoxes=new HashMap<>();
+    private final Map<Long,BitSet> beforeBakerToasters=new HashMap<>();
     private final Set<Long> rejectedForest=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private int distance;
 
@@ -74,6 +75,7 @@ public final class SettlementLayout extends SavedData {
         loadRoomSnapshot(regions,"uwudimension_before_silkwood_drawers_v1.dat",data.beforeSilkwoodDrawers);
         loadRoomSnapshot(regions,"uwudimension_before_silkwood_shelves_v1.dat",data.beforeSilkwoodShelves);
         loadRoomSnapshot(regions,"uwudimension_before_silkwood_flower_boxes_v1.dat",data.beforeSilkwoodFlowerBoxes);
+        loadRoomSnapshot(regions,"uwudimension_before_baker_toasters_v1.dat",data.beforeBakerToasters);
         data.previous.forEach((key,bits)->{
             var region=new ChunkPos(key);
             for(int i=bits.nextSetBit(0);i>=0;i=bits.nextSetBit(i+1)){
@@ -161,6 +163,9 @@ public final class SettlementLayout extends SavedData {
     }
     static boolean useSilkwoodFlowerBox(ServerLevel level,GroveSites.Site site,int x1,int z1,int x2,int z2){
         return untouchedRoom(active(level).beforeSilkwoodFlowerBoxes,site,x1,z1,x2,z2);
+    }
+    static boolean useBakerToaster(ServerLevel level,GroveSites.Site site,int x1,int z1,int x2,int z2){
+        return untouchedRoom(active(level).beforeBakerToasters,site,x1,z1,x2,z2);
     }
     private static boolean untouchedRoom(Map<Long,BitSet> snapshot,GroveSites.Site site,int x1,int z1,int x2,int z2){
         var a=site.pos(x1,0,z1);

@@ -55,6 +55,7 @@ public final class UwUDimension {
         NativeDrawer.register(bus);
         NativeShelf.register(bus);
         NativeFlowerBox.register(bus);
+        BakerToaster.register(bus);
         NativeSeatMount.register(bus);
         GiantSakuraSapling.register(bus);
         Understory.register(bus);

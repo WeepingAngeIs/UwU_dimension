@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "uwudimension:block/baker_toaster"
+    },
+    "facing=east": {
+      "model": "uwudimension:block/baker_toaster",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "uwudimension:block/baker_toaster",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "uwudimension:block/baker_toaster",
+      "y": 270
+    }
+  }
+}

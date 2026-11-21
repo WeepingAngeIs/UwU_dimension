@@ -3,6 +3,9 @@ package dev.uwu.guardiancheck;
 import static dev.uwu.guardiancheck.GuardianArena.require;
 
 import dev.uwu.chestcheck.DuskChestProbe;
+import dev.uwu.cupidparity.CupidParityProbe;
+import dev.uwu.lanterncheck.LanternReadingHouseProbe;
+import dev.uwu.toastercheck.BakerToasterProbe;
 import dev.uwu.dimension.BlossomWarden;
 import dev.uwu.dimension.People;
 import java.lang.reflect.Field;
@@ -24,8 +27,13 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Drives real server ticks in a short disposable patrol lane and enclosed door lanes. */
 @Mod("uwu_guardian_home_check")
 public final class GuardianHomeProbe {
-    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_DECISION, NIGHT_ROUTE, NIGHT_HOME, MORNING, DOOR, KEEPER_DOOR, GUARDIAN_RESCUE, DUSK_CHEST, DONE }
-    private Phase phase = Boolean.getBoolean("uwu.check.duskChest") ? Phase.DUSK_CHEST : Phase.PREPARE;
+    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_DECISION, NIGHT_ROUTE, NIGHT_HOME, MORNING, DOOR, KEEPER_DOOR, GUARDIAN_RESCUE, DUSK_CHEST, TOASTERS, READINGS, CUPID, DONE }
+    private static final boolean DECOR = Boolean.getBoolean("uwu.check.decor");
+    private final BakerToasterProbe toaster = DECOR ? new BakerToasterProbe() : null;
+    private final LanternReadingHouseProbe readings = DECOR ? new LanternReadingHouseProbe() : null;
+    private final CupidParityProbe cupid = DECOR ? new CupidParityProbe() : null;
+    private Phase phase = DECOR ? Phase.TOASTERS :
+            (Boolean.getBoolean("uwu.check.duskChest") ? Phase.DUSK_CHEST : Phase.PREPARE);
     private int tick, phaseStarted;
     private ServerLevel level;
     private GuardianArena arena;
@@ -214,6 +222,17 @@ public final class GuardianHomeProbe {
                 case DUSK_CHEST -> {
                     if (duskChest == null) duskChest = new DuskChestProbe();
                     if (!duskChest.tick(event.getServer())) return;
+                    phase = Phase.DONE;
+                    event.getServer().halt(false);
+                }
+                case TOASTERS -> {
+                    if (toaster.tick(event.getServer())) next(Phase.READINGS);
+                }
+                case READINGS -> {
+                    if (readings.tick(toaster.level(), toaster.plans())) next(Phase.CUPID);
+                }
+                case CUPID -> {
+                    if (!cupid.tick(event.getServer())) return;
                     phase = Phase.DONE;
                     event.getServer().halt(false);
                 }

@@ -35,6 +35,44 @@
         "uwudimension:draw": 1
       },
       "model": "uwudimension:item/cupid_bow_draw2"
+    },
+    {
+      "predicate": {
+        "uwudimension:smooth_cupid": 1
+      },
+      "model": "uwudimension:item/smooth_cupid_bow"
+    },
+    {
+      "predicate": {
+        "uwudimension:smooth_cupid": 1,
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 0
+      },
+      "model": "uwudimension:item/smooth_cupid_bow_draw0"
+    },
+    {
+      "predicate": {
+        "uwudimension:smooth_cupid": 1,
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 0.4
+      },
+      "model": "uwudimension:item/smooth_cupid_bow_draw1"
+    },
+    {
+      "predicate": {
+        "uwudimension:smooth_cupid": 1,
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 0.75
+      },
+      "model": "uwudimension:item/smooth_cupid_bow_deep"
+    },
+    {
+      "predicate": {
+        "uwudimension:smooth_cupid": 1,
+        "uwudimension:drawing": 1,
+        "uwudimension:draw": 1
+      },
+      "model": "uwudimension:item/smooth_cupid_bow_draw2"
     }
   ],
   "display": {

@@ -6,7 +6,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +21,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -64,6 +68,14 @@ public final class Arsenal {
         }
     }
 
+    private static final CompoundTag SMOOTH_CUPID_STYLE = Util.make(new CompoundTag(),
+            tag -> tag.putBoolean("uwudimension:smooth_cupid", true));
+
+    static boolean hasSmoothCupidStyle(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        return data != null && data.matchedBy(SMOOTH_CUPID_STYLE);
+    }
+
     static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("uwudimension", path); }
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("uwudimension");
     private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, "uwudimension");
@@ -80,6 +92,11 @@ public final class Arsenal {
         bus.addListener((net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent e) -> e.put(HARE.get(), Rabbit.createAttributes().build()));
         bus.addListener((BuildCreativeModeTabContentsEvent e) -> {
             if (e.getTabKey().equals(CreativeModeTabs.COMBAT)) WEAPONS.values().forEach(w -> e.accept(w.get()));
+            if (e.getTabKey().location().equals(id("main"))) {
+                ItemStack smooth = WEAPONS.get(Relic.CUPID_BOW).get().getDefaultInstance();
+                CustomData.update(DataComponents.CUSTOM_DATA, smooth, tag -> tag.merge(SMOOTH_CUPID_STYLE));
+                e.accept(smooth);
+            }
         });
         NeoForge.EVENT_BUS.addListener(HeartMagic::tick);
         NeoForge.EVENT_BUS.addListener(HeartMagic::filterTarget);

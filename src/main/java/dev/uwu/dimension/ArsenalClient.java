@@ -53,6 +53,8 @@ public final class ArsenalClient {
                 stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("uwu_element"));
             ItemProperties.register(Arsenal.WEAPONS.get(Arsenal.Relic.VESPER_SCYTHE).get(), Arsenal.id("flower_credit"),
                 (stack,level,holder,seed)->flowerCredit(stack,level));
+            ItemProperties.register(Arsenal.WEAPONS.get(Arsenal.Relic.CUPID_BOW).get(), Arsenal.id("smooth_cupid"),
+                    (stack, level, holder, seed) -> Arsenal.hasSmoothCupidStyle(stack) ? 1F : 0F);
             for (Arsenal.Relic relic : new Arsenal.Relic[]{Arsenal.Relic.CUPID_BOW, Arsenal.Relic.RIPPLE_BOW}) {
                 var bow = Arsenal.WEAPONS.get(relic).get();
                 ItemProperties.register(bow, Arsenal.id("drawing"), (stack, level, holder, seed) ->

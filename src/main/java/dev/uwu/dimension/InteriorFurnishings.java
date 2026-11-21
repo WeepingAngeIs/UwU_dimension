@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.chunk.ImposterProtoChunk;
+import net.minecraft.world.level.chunk.ProtoChunk;
 
 /** Seating, storage, reading lights and glazed openings for settlements and public rooms. */
 final class InteriorFurnishings {
@@ -51,6 +53,33 @@ final class InteriorFurnishings {
             int roofY=y+(gothic?DuskHouse.roofHeight(h,-2):shell.roofHeight(-2*side,offset));
             v.box(x-2,y+3,roofZ,x-2,roofY-1,roofZ,v.air);
             v.block(x-2,roofY,roofZ,ReachArchitecture.window(dusk,offset));
+        }
+        if (h.job() == Blocks.SMOKER) furnishBaker(v, h, shell, dusk, newPetalRoom);
+    }
+
+    private static void furnishBaker(HeartwaterFeature.Valley v, BlossomVillage.House h, VillageHouse shell,
+                                     boolean dusk, boolean silkwoodDrawer) {
+        int x = h.x() + h.width() - 2;
+        int z = h.z() + h.side() * (h.depth() - 1);
+        int y = h.floor() + 2;
+        if (!v.inside(x, z) || !SettlementLayout.useBakerToaster(v.level.getLevel(), v.site,
+                h.x() - shell.radiusX, h.z() - shell.radiusZ, h.x() + shell.radiusX, h.z() + shell.radiusZ)) return;
+        if (v.planning()) {
+            v.survey.box(x, y - 1, z, x, y, z);
+            return;
+        }
+        if (!(v.chunk instanceof ProtoChunk) || v.chunk instanceof ImposterProtoChunk) return;
+        BlockPos position = v.site.pos(x, y, z);
+        BlockPos worktop = position.below();
+        if (!v.chunk.getBlockState(worktop).isAir() || v.chunk.getBlockEntityNbt(worktop) != null
+                || v.chunk.getBlockEntity(worktop) != null || !v.chunk.getBlockState(position).isAir()
+                || !v.chunk.getBlockState(position.above()).isAir()) return;
+
+        Direction intoRoom = v.face(h.side() > 0 ? Direction.NORTH : Direction.SOUTH);
+        if (BakerToaster.placeGenerated(v.level, v.chunk, position, intoRoom)) {
+            Block counter = dusk ? Blocks.DARK_OAK_PLANKS : Blocks.CHERRY_PLANKS;
+            if (silkwoodDrawer) counter = ReachArchitecture.PETAL.boards().get();
+            v.block(x, y - 1, z, counter);
         }
     }
 

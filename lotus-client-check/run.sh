@@ -14,6 +14,11 @@ timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew 
 grep -F 'LOTUS FIRST PERSON PASS' build/lotus-client.log
 grep -F 'LOTUS DYNAMIC LIGHT PASS' build/lotus-client.log
 grep -F 'LOTUS COMPANION MOMENTUM PASS' build/lotus-client.log
-grep -F 'JADE REACH FLUID CAPTIONS PASS' build/lotus-client.log
-grep -F 'JADE REACH BERRY CAPTIONS PASS' build/lotus-client.log
-grep -F 'CAVE VINE MODELS AND HARVEST PASS' build/lotus-client.log
+grep -F 'LANTERN COVER CLIENT PASS' build/lotus-client.log
+if [[ ${UWU_DECOR_CHECK:-false} != true ]]; then
+    grep -F 'JADE REACH FLUID CAPTIONS PASS' build/lotus-client.log
+    grep -F 'JADE REACH BERRY CAPTIONS PASS' build/lotus-client.log
+    grep -F 'CAVE VINE MODELS AND HARVEST PASS' build/lotus-client.log
+fi
+grep -F 'CUPID CREATIVE CHOICES PASS' build/lotus-client.log
+grep -F 'CUPID CREATIVE AND CLIENT POSES PASS' build/lotus-client.log

@@ -1,6 +1,10 @@
 {
   "parent": "minecraft:block/block",
   "ambientocclusion": true,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "cover": "uwudimension:item/lantern_for_both_shores_cover"
+  },
   "elements": [
     {
       "name": "morocco cover board",
@@ -1452,6 +1456,129 @@
         ],
         "axis": "x",
         "angle": -22.5
+      }
+    },
+    {
+      "name": "curved manuscript leaf 5 cover illustration",
+      "from": [
+        8,
+        1.65065,
+        4.9
+      ],
+      "to": [
+        9.190631,
+        1.65065,
+        11.29
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          1.63865,
+          8
+        ],
+        "axis": "z",
+        "angle": 22.5
+      },
+      "faces": {
+        "up": {
+          "uv": [
+            16.0,
+            16,
+            13.219589,
+            0
+          ],
+          "texture": "#cover"
+        }
+      }
+    },
+    {
+      "name": "curved manuscript leaf 6 cover illustration",
+      "from": [
+        9.1,
+        2.106285,
+        4.9
+      ],
+      "to": [
+        10.409695,
+        2.106285,
+        11.29
+      ],
+      "rotation": {
+        "origin": [
+          9.1,
+          2.094285,
+          8
+        ],
+        "axis": "z",
+        "angle": -22.5
+      },
+      "faces": {
+        "up": {
+          "uv": [
+            13.219589,
+            16,
+            10.161138,
+            0
+          ],
+          "texture": "#cover"
+        }
+      }
+    },
+    {
+      "name": "curved manuscript leaf 7 cover illustration",
+      "from": [
+        10.31,
+        1.605087,
+        4.9
+      ],
+      "to": [
+        13.55,
+        1.605087,
+        11.29
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            10.161138,
+            16,
+            1.971566,
+            0
+          ],
+          "texture": "#cover"
+        }
+      }
+    },
+    {
+      "name": "curved manuscript leaf 8 cover illustration",
+      "from": [
+        13.55,
+        1.605087,
+        4.9
+      ],
+      "to": [
+        14.394266,
+        1.605087,
+        11.29
+      ],
+      "rotation": {
+        "origin": [
+          13.55,
+          1.593087,
+          8
+        ],
+        "axis": "z",
+        "angle": -22.5
+      },
+      "faces": {
+        "up": {
+          "uv": [
+            1.971566,
+            16,
+            0.0,
+            0
+          ],
+          "texture": "#cover"
+        }
       }
     }
   ]

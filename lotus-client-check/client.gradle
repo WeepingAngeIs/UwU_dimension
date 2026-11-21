@@ -10,6 +10,7 @@ gradle.beforeProject { project ->
             client()
             gameDirectory = project.file('build/lotus-client')
             jvmArgument('-Xmx3G')
+            if (System.getenv('UWU_DECOR_CHECK') == 'true') jvmArgument('-Duwu.check.decor=true')
         }
     }
 }

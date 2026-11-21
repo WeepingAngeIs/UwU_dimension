@@ -35,10 +35,13 @@ fetch 'https://cdn.modrinth.com/data/ulloLmqG/versions/Q29JlZfU/another_furnitur
 cp "$release" "$root/build/guardian-check/guardian-home-probe.jar" mods/
 timeout --kill-after=15s 6m java -Xmx1G -jar installer.jar --installServer
 printf 'eula=true\n' >eula.txt
-printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-type=minecraft:flat\nview-distance=3\nsimulation-distance=3\nmax-tick-time=120000\nspawn-monsters=false\n' >server.properties
-timeout --kill-after=20s 12m java -Xms512m -Xmx3g -XX:+ExitOnOutOfMemoryError -Duwu.check.duskChest="${UWU_DUSK_CHEST_ONLY:-false}" @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$root/build/guardian-check/server.log"
+printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-type=minecraft:flat\nlevel-seed=152045\nview-distance=3\nsimulation-distance=3\nmax-tick-time=120000\nspawn-monsters=false\n' >server.properties
+timeout --kill-after=20s 12m java -Xms512m -Xmx3g -XX:+ExitOnOutOfMemoryError -Duwu.check.duskChest="${UWU_DUSK_CHEST_ONLY:-false}" -Duwu.check.decor="${UWU_DECOR_CHECK:-false}" @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$root/build/guardian-check/server.log"
 markers=('GUARDIAN HOME BINDING PASS' 'GUARDIAN HOME SCHEDULE PASS' 'GUARDIAN HOME DOORS PASS' 'GUARDIAN HOME SERVER PASS' 'KEEPER DOOR SERVER PASS' 'KEEPER HURT ROUTING PASS' 'GUARDIAN RESCUE PASS')
 if [[ ${UWU_DUSK_CHEST_ONLY:-false} == true ]]; then markers=('DUSK CHEST SERVER PASS'); fi
+if [[ ${UWU_DECOR_CHECK:-false} == true ]]; then
+    markers=('BAKER TOASTER SERVER PASS' 'LANTERN READING HOUSES PASS' 'CUPID BOW GAMEPLAY PARITY PASS')
+fi
 for marker in "${markers[@]}"; do
     grep -F "$marker" "$root/build/guardian-check/server.log"
 done
