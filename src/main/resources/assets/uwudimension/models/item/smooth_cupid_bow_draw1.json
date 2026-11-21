@@ -224,7 +224,7 @@
   },
   "perspectives": {
     "gui": {
-      "display": { "gui": { "rotation": [0, 0, -45] } },
+      "display": { "gui": { "rotation": [0, 0, -45], "scale": [1.08, 1.08, 1.08] } },
       "gui_light": "front",
       "textures": {
         "particle": "uwudimension:item/smooth_cupid_bow_draw1"
@@ -245,18 +245,18 @@
           "faces": {
             "south": {
               "uv": [
-                0,
-                0,
                 16,
+                0,
+                0,
                 16
               ],
               "texture": "#particle"
             },
             "north": {
               "uv": [
+                0,
+                0,
                 16,
-                0,
-                0,
                 16
               ],
               "texture": "#particle"

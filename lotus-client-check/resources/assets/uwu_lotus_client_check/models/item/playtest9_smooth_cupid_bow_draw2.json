@@ -1,0 +1,269 @@
+{
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "ambientocclusion": false,
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        25
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.28
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.28
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -80,
+        260,
+        -40
+      ],
+      "translation": [
+        -1,
+        -2,
+        2.5
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -80,
+        -280,
+        40
+      ],
+      "translation": [
+        -1,
+        -2,
+        2.5
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        0,
+        13,
+        7
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ]
+    }
+  },
+  "textures": {
+    "particle": "uwudimension:item/smooth_cupid_bow_draw2"
+  },
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "uwudimension:models/item/smooth_cupid_bow_draw2.obj",
+    "automatic_culling": false,
+    "shade_quads": false,
+    "flip_v": false,
+    "emissive_ambient": false,
+    "render_type": "minecraft:cutout",
+    "gui_light": "front",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          -90,
+          25
+        ],
+        "translation": [
+          1.13,
+          3.2,
+          1.13
+        ],
+        "scale": [
+          0.68,
+          0.68,
+          0.28
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          1.13,
+          3.2,
+          1.13
+        ],
+        "scale": [
+          0.68,
+          0.68,
+          0.28
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          -80,
+          260,
+          -40
+        ],
+        "translation": [
+          -1,
+          -2,
+          2.5
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          -80,
+          -280,
+          40
+        ],
+        "translation": [
+          -1,
+          -2,
+          2.5
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          2,
+          0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          0,
+          13,
+          7
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          180,
+          0
+        ]
+      }
+    },
+    "textures": {
+      "particle": "uwudimension:item/smooth_cupid_bow_draw2",
+      "palette": "uwudimension:item/smooth_cupid_palette",
+      "lace": "uwudimension:item/smooth_cupid_lace"
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "display": { "gui": { "rotation": [0, 0, -45] } },
+      "gui_light": "front",
+      "textures": {
+        "particle": "uwudimension:item/smooth_cupid_bow_draw2"
+      },
+      "elements": [
+        {
+          "from": [
+            0,
+            0,
+            7.99
+          ],
+          "to": [
+            16,
+            16,
+            8.01
+          ],
+          "shade": false,
+          "faces": {
+            "south": {
+              "uv": [
+                0,
+                0,
+                16,
+                16
+              ],
+              "texture": "#particle"
+            },
+            "north": {
+              "uv": [
+                16,
+                0,
+                0,
+                16
+              ],
+              "texture": "#particle"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

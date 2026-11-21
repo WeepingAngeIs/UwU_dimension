@@ -32,14 +32,16 @@ import net.neoforged.neoforge.common.NeoForge;
 /** Opens a disposable world and samples real owner-camera geometry and block light. */
 @Mod("uwu_lotus_client_check")
 public final class LotusClientProbe {
-    private enum Stage { LOAD, POSITION, DIRK_COUNTDOWN, REPLAY, JADE, CUPID, CUPID_SHRINE, DONE }
+    private enum Stage { LOAD, POSITION, DIRK_COUNTDOWN, REPLAY, JADE, CUPID, LANTERN, CUPID_SHRINE, DONE }
     private static Stage stage = Stage.LOAD;
     private static final boolean DIRK_ONLY = Boolean.getBoolean("uwu.check.dirkCountdown");
     private static final boolean SHRINE_ONLY = Boolean.getBoolean("uwu.check.shrine");
+    private static final boolean CUPID_LANTERN_ONLY = Boolean.getBoolean("uwu.check.cupidLantern");
     private static boolean opening;
     private static DirkCountdownProbe dirk;
     private static JadeFluidProbe jade;
     private static CupidBowProbe cupid;
+    private static LanternOpeningProbe lantern;
     private static CupidShrineClientProbe shrine;
     private static int stageTick;
     private static volatile Vec3 testPosition;
@@ -53,6 +55,10 @@ public final class LotusClientProbe {
     public LotusClientProbe() {
         NeoForge.EVENT_BUS.addListener(LotusClientProbe::tick);
         NeoForge.EVENT_BUS.addListener(LotusClientProbe::frame);
+        if (CUPID_LANTERN_ONLY) {
+            NeoForge.EVENT_BUS.addListener(CupidLanternVisualProbe::gui);
+            NeoForge.EVENT_BUS.addListener(CupidLanternVisualProbe::frame);
+        }
         if (DIRK_ONLY) NeoForge.EVENT_BUS.addListener(DirkCountdownProbe::replayBeforeFrame);
     }
 
@@ -96,10 +102,20 @@ public final class LotusClientProbe {
         if (stage == Stage.CUPID) {
             try {
                 if (cupid == null) cupid = new CupidBowProbe();
-                if (cupid.tick(client)) stage = Stage.DONE;
+                if (cupid.tick(client)) stage = CUPID_LANTERN_ONLY ? Stage.LANTERN : Stage.DONE;
             } catch (Throwable failure) {
                 client.options.keyUse.setDown(false);
                 System.err.println("CUPID CLIENT CHECK FAILED");
+                failure.printStackTrace();
+                stage = Stage.DONE;
+            }
+        }
+        if (stage == Stage.LANTERN) {
+            try {
+                if (lantern == null) lantern = new LanternOpeningProbe();
+                if (lantern.tick(client)) stage = Stage.DONE;
+            } catch (Throwable failure) {
+                System.err.println("LANTERN OPENING CHECK FAILED");
                 failure.printStackTrace();
                 stage = Stage.DONE;
             }
@@ -121,7 +137,7 @@ public final class LotusClientProbe {
         var player = client.player;
         if (player == null || client.level == null || client.screen != null
                 || stage == Stage.DIRK_COUNTDOWN || stage == Stage.JADE || stage == Stage.CUPID
-                || stage == Stage.CUPID_SHRINE || stage == Stage.DONE) return;
+                || stage == Stage.LANTERN || stage == Stage.CUPID_SHRINE || stage == Stage.DONE) return;
         try {
             if (serverError != null) throw new AssertionError("Server action failed", serverError);
             if (stage != Stage.LOAD) {
@@ -131,6 +147,28 @@ public final class LotusClientProbe {
             switch (stage) {
                 case LOAD -> {
                     if (player.tickCount < 85) return;
+                    if (CUPID_LANTERN_ONLY) {
+                        LanternCoverProbe.verify(client);
+                        CupidHeldScaleProbe.verify(client);
+                        client.options.setCameraType(CameraType.FIRST_PERSON);
+                        serverAction(client, actor -> {
+                            // A small platform in this workflow's disposable Overworld only.
+                            BlockPos floor = new BlockPos(0, 200, 0);
+                            for (int x = -4; x <= 4; x++) for (int z = -4; z <= 4; z++) {
+                                actor.serverLevel().setBlockAndUpdate(floor.offset(x, 0, z), Blocks.STONE.defaultBlockState());
+                            }
+                            testPosition = Vec3.atBottomCenterOf(floor.above());
+                            actor.teleportTo(testPosition.x, testPosition.y, testPosition.z);
+                            actor.setYRot(0);
+                            actor.setXRot(0);
+                            actor.fallDistance = 0;
+                            actor.serverLevel().setDayTime(6000);
+                            actor.serverLevel().setWeatherParameters(6000, 0, false, false);
+                        });
+                        stageTick = player.tickCount;
+                        stage = Stage.POSITION;
+                        return;
+                    }
                     if (SHRINE_ONLY) {
                         shrine = new CupidShrineClientProbe(client);
                         stage = Stage.CUPID_SHRINE;
@@ -156,6 +194,12 @@ public final class LotusClientProbe {
                 case POSITION -> {
                     if (testPosition == null || player.distanceToSqr(testPosition) > .04
                             || player.tickCount - stageTick < 12) return;
+                    if (CUPID_LANTERN_ONLY) {
+                        player.setYRot(0);
+                        player.setXRot(0);
+                        stage = Stage.CUPID;
+                        return;
+                    }
                     if (DIRK_ONLY) {
                         dirk = new DirkCountdownProbe(client, action -> serverAction(client, action));
                         stage = Stage.DIRK_COUNTDOWN;
@@ -203,7 +247,7 @@ public final class LotusClientProbe {
                             + ", block light " + baseLight + " -> " + peakLight + " -> " + current);
                     stage = Boolean.getBoolean("uwu.check.decor") ? Stage.CUPID : Stage.JADE;
                 }
-                case DIRK_COUNTDOWN, JADE, CUPID, CUPID_SHRINE, DONE -> {}
+                case DIRK_COUNTDOWN, JADE, CUPID, LANTERN, CUPID_SHRINE, DONE -> {}
             }
         } catch (Throwable failure) {
             System.err.println("LOTUS CLIENT CHECK FAILED");

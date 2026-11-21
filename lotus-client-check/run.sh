@@ -2,7 +2,10 @@
 set -euo pipefail
 game_dir=build/lotus-client
 log=build/lotus-client.log
-if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
+if [[ ${UWU_CUPID_LANTERN_CHECK:-false} == true ]]; then
+    game_dir=build/cupid-lantern-client
+    log=build/cupid-lantern-client.log
+elif [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
     game_dir=build/shrine-client
     log=build/shrine-client.log
 elif [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then
@@ -17,9 +20,21 @@ fetch() {
 fetch 'https://cdn.modrinth.com/data/EltpO5cN/versions/ST5FHZnD/lootr-neoforge-1.21.1-1.11.38.125.jar' lootr 091878598fa5cb51cd304bf9324afe46420d328b6f77a9ba38acc15e26945e9e
 fetch 'https://www.cursemaven.com/curse/maven/jade-324717/8591319/jade-324717-8591319.jar' jade 276f1f65a20d04f536989c4f311949d770b52c440c23c2b904a08860f3c93810
 printf 'version:3955\nonboardAccessibility:false\ntutorialStep:none\nrenderDistance:3\nsimulationDistance:5\nmaxFps:60\nenableVsync:false\npauseOnLostFocus:false\n' > "$game_dir/options.txt"
+if [[ ${UWU_CUPID_LANTERN_CHECK:-false} == true ]]; then
+    printf 'guiScale:1\n' >> "$game_dir/options.txt"
+fi
 printf 'earlyWindowControl = false\n' > "$game_dir/config/fml.toml"
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I lotus-client-check/client.gradle runLotusClient 2>&1 | tee "$log"
+if [[ ${UWU_CUPID_LANTERN_CHECK:-false} == true ]]; then
+    grep -F 'LANTERN COVER CLIENT PASS' "$log"
+    grep -F 'CUPID HELD SCALE PASS' "$log"
+    grep -F 'CUPID CREATIVE CHOICES PASS' "$log"
+    grep -F 'CUPID CREATIVE AND CLIENT POSES PASS' "$log"
+    grep -F 'CUPID HOTBAR RENDER PASS' "$log"
+    grep -F 'LANTERN OPENING CLIENT PASS' "$log"
+    exit 0
+fi
 if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
     grep -F 'CUPID SHRINE CLIENT PASS' "$log"
     grep -F 'CUPID STATUE SERVER PASS' "$log"

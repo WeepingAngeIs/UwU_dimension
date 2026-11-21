@@ -1,0 +1,70 @@
+name: UwU Cupid and Lantern isolated visual check
+on:
+  push:
+    branches: ['codex/fallback/cupid-lantern-playtest9-805cfd']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'WeepingAngeIs/z-UwU_dm' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.9-cupid-lantern.1'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.9-cupid-lantern.1.jar
+      UWU_CUPID_LANTERN_CHECK: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify the exact Playtest 9 source scope
+        run: python3 cupid-lantern-check/verify.py --source-only
+      - name: Build the isolated visual prototype and compare preserved Playtest 9 bytes
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 cupid-lantern-check/verify.py --jar "$UWU_JAR" --version "$VERSION"
+      - name: Prepare the disposable hosted client display
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+      - name: Render the bow silhouettes and check held scaling and the book opening
+        run: bash lotus-client-check/run.sh
+      - name: Preserve focused logs and rendered evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cupid-lantern-playtest9-evidence
+          path: |
+            build/cupid-lantern-evidence/
+            build/cupid-lantern-client.log
+            build/cupid-lantern-client/crash-reports/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Record the exact successful test JAR digest
+        id: packet
+        run: |
+          python3 cupid-lantern-check/verify.py --jar "$UWU_JAR" --version "$VERSION"
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the test JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 7
+          if-no-files-found: error
+      - name: Verify the uploaded digest
+        env:
+          SHA: ${{ steps.packet.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "CUPID LANTERN SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "Baseline e16af6a2a1a00cb68291b6c9611d4604a0b20171; isolated bow/book prototype only." >> "$GITHUB_STEP_SUMMARY"
