@@ -20,7 +20,7 @@ public interface LushRenderView {
     Holder<Biome> uwu$lushBiome(BlockPos pos);
 
     static boolean isCaveBiome(Holder<Biome> biome) {
-        return biome.is(Biomes.LUSH_CAVES) || biome.is(LANTERN_GROTTO);
+        return dev.uwu.dimension.lush.LushCaveScope.isCaveBiome(biome);
     }
 
     static @Nullable ClientLevel owner(BlockAndTintGetter view) {

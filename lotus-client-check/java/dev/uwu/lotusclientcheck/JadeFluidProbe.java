@@ -1,6 +1,7 @@
 package dev.uwu.lotusclientcheck;
 
 import dev.uwu.dimension.ReefLife;
+import dev.uwu.dimension.lush.UwUCaveBerries;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -21,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -73,7 +76,9 @@ final class JadeFluidProbe {
             vine(ReefLife.REACH, Biomes.LUSH_CAVES, false, false, false),
             vine(ReefLife.REACH, LANTERN_GROTTO, true, true, true),
             vine(ReefLife.REACH, LANTERN_GROTTO, true, false, false),
-            vine(ReefLife.REACH, Biomes.CHERRY_GROVE, true, true, false));
+            vine(ReefLife.REACH, Biomes.CHERRY_GROVE, true, true, false),
+            vine(ReefLife.REACH, ResourceKey.create(Registries.BIOME,
+                    ResourceLocation.fromNamespaceAndPath("uwudimension", "vesper_hollows")), false, true, false));
 
     private int next;
     private long deadline;
@@ -84,6 +89,7 @@ final class JadeFluidProbe {
     private volatile Target target;
     private volatile Throwable serverFailure;
     private String latestTitle = "";
+    private final CaveFloraProbe flora = new CaveFloraProbe();
 
     JadeFluidProbe() {
         require(ModList.get().isLoaded("jade"), "The pinned Jade overlay must be loaded");
@@ -137,8 +143,9 @@ final class JadeFluidProbe {
         System.out.println("JADE TARGET " + sample.dimension.location() + " " + sample.state + " -> " + latestTitle);
         if (sample.vine()) {
             checkVineModel(client, expected.block, block.getBlockState(), sample);
-            if (sample.ripe() && sample.cavePalette()) {
-                harvest(client, expected.block);
+            flora.check(client, expected.block, sample.biome, sample.cavePalette());
+            if (sample.ripe()) {
+                harvest(client, expected.block, sample);
                 return false;
             }
         }
@@ -153,7 +160,8 @@ final class JadeFluidProbe {
         if (next != samples.size()) return false;
         System.out.println("JADE REACH FLUID CAPTIONS PASS real crosshair targets; source, flowing, overworld and solid controls");
         System.out.println("JADE REACH BERRY CAPTIONS PASS ripe tip and body, bare controls and biome/dimension boundaries");
-        System.out.println("CAVE VINE MODELS AND HARVEST PASS real baked sprites and vanilla Glow Berries drops with light 14 -> 0");
+        flora.finish();
+        System.out.println("CAVE VINE MODELS AND HARVEST PASS real baked sprites, edible UwU Berry, native regrowth and vanilla outside controls; light 14 -> 0");
         return true;
     }
 
@@ -187,7 +195,7 @@ final class JadeFluidProbe {
                 + " " + state + " sprites=" + sprites + " emission=" + state.getLightEmission());
     }
 
-    private void harvest(Minecraft client, BlockPos pos) {
+    private void harvest(Minecraft client, BlockPos pos, Sample sample) {
         harvesting = true;
         var server = client.getSingleplayerServer();
         UUID playerId = client.player.getUUID();
@@ -203,16 +211,51 @@ final class JadeFluidProbe {
                 serverHarvest = new HarvestDrops(world, pos, drops);
                 try {
                     require(before.useWithoutItem(world, owner, hit).consumesAction(), "Vanilla vine harvest did not accept");
+                    var after = world.getBlockState(pos);
+                    require(after.is(before.getBlock()) && !after.getValue(CaveVines.BERRIES) && after.getLightEmission() == 0,
+                            "Harvest changed the block type or left fruit/light");
+                    var expected = sample.cavePalette() ? UwUCaveBerries.BERRY.get() : Items.GLOW_BERRIES;
+                    require(drops.size() == 1 && drops.getFirst().is(expected) && drops.getFirst().getCount() == 1,
+                            "Harvest submitted the wrong item or count: " + drops);
+                    String title = sample.cavePalette() ? "UwU Berry" : "Glow Berries";
+                    require(title.equals(drops.getFirst().getHoverName().getString()), "Incorrect harvested item title");
+                    require(!after.useWithoutItem(world, owner, hit).consumesAction() && drops.size() == 1,
+                            "An exhausted vine harvested a duplicate berry");
+                    var plant = (BonemealableBlock) after.getBlock();
+                    require(plant.isValidBonemealTarget(world, pos, after), "Harvested vine cannot regrow berries");
+                    plant.performBonemeal(world, world.random, pos, after);
+                    var ripeAgain = world.getBlockState(pos);
+                    require(ripeAgain.getValue(CaveVines.BERRIES) && ripeAgain.getLightEmission() == 14,
+                            "Native bonemeal regrowth did not restore fruit and light");
+                    require(ripeAgain.useWithoutItem(world, owner, hit).consumesAction(), "Regrown vine could not be harvested");
+                    require(drops.size() == 2 && drops.getLast().is(expected) && drops.getLast().getCount() == 1,
+                            "Regrown vine changed berry identity or count: " + drops);
+                    if (sample.cavePalette()) {
+                        var food = drops.getFirst().get(DataComponents.FOOD);
+                        require(food != null && food.nutrition() == 2, "UwU Berry lacks its edible food component");
+                        int oldFood = owner.getFoodData().getFoodLevel();
+                        float oldSaturation = owner.getFoodData().getSaturationLevel();
+                        boolean creative = owner.getAbilities().instabuild;
+                        try {
+                            owner.getAbilities().instabuild = false;
+                            owner.getFoodData().setFoodLevel(10);
+                            owner.getFoodData().setSaturation(0);
+                            var snack = new ItemStack(expected, 2);
+                            var remainder = snack.finishUsingItem(world, owner);
+                            require(remainder.is(expected) && remainder.getCount() == 1
+                                            && owner.getFoodData().getFoodLevel() == 12,
+                                    "Eating UwU Berry did not consume one item and restore food");
+                        } finally {
+                            owner.getAbilities().instabuild = creative;
+                            owner.getFoodData().setFoodLevel(oldFood);
+                            owner.getFoodData().setSaturation(oldSaturation);
+                        }
+                    }
+                    System.out.println("CAVE VINE HARVEST " + sample.dimension.location() + " " + sample.biome.location()
+                            + " " + before + " -> harvested/regrown/harvested drop=" + expected);
                 } finally {
                     serverHarvest = null;
                 }
-                var after = world.getBlockState(pos);
-                require(after.is(before.getBlock()) && !after.getValue(CaveVines.BERRIES) && after.getLightEmission() == 0,
-                        "Harvest changed the block type or left fruit/light");
-                require(drops.size() == 1 && drops.getFirst().is(Items.GLOW_BERRIES) && drops.getFirst().getCount() == 1,
-                        "Harvest did not submit exactly one vanilla Glow Berries drop to the level: " + drops);
-                require("Glow Berries".equals(drops.getFirst().getHoverName().getString()), "Glow Berries item title changed");
-                System.out.println("CAVE VINE HARVEST " + before + " -> " + after + " drop=minecraft:glow_berries");
                 harvested = true;
             } catch (Throwable failure) {
                 serverFailure = failure;

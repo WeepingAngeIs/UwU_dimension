@@ -46,6 +46,8 @@ public final class SettlementLayout extends SavedData {
     private final Map<Long,BitSet> beforeSilkwoodFlowerBoxes=new HashMap<>();
     private final Map<Long,BitSet> beforeBakerToasters=new HashMap<>();
     private final Map<Long,BitSet> beforeCupidShrines=new HashMap<>();
+    private final Map<Long,BitSet> beforeDuskFactions=new HashMap<>();
+    private final Map<Long,Boolean> duskFactions=new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> rejectedForest=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private int distance;
 
@@ -78,6 +80,9 @@ public final class SettlementLayout extends SavedData {
         loadRoomSnapshot(regions,"uwudimension_before_silkwood_flower_boxes_v1.dat",data.beforeSilkwoodFlowerBoxes);
         loadRoomSnapshot(regions,"uwudimension_before_baker_toasters_v1.dat",data.beforeBakerToasters);
         loadRoomSnapshot(regions,"uwudimension_before_cupid_shrines_v1.dat",data.beforeCupidShrines);
+        // Playtest 9 already has a lattice. Its occupied/partially generated sites are
+        // not in the older pre-lattice mask, so freeze a separate upgrade boundary.
+        loadRoomSnapshot(regions,"uwudimension_before_dusk_factions_v1.dat",data.beforeDuskFactions);
         data.previous.forEach((key,bits)->{
             var region=new ChunkPos(key);
             for(int i=bits.nextSetBit(0);i>=0;i=bits.nextSetBit(i+1)){
@@ -212,13 +217,16 @@ public final class SettlementLayout extends SavedData {
     }
     /** Reserving 300 blocks on either side covers the site's +/-144-block
      * jitter, the village's 114-block center offset and the largest roof/veranda.
-     * Each candidate has a single faction, including the first Petal district. */
+     * Each new candidate has one faction; saved districts retain their assignments. */
     static boolean admits(ServerLevel level,GroveSites.Site site,boolean dusk) {
+        if(!ReefLife.isSettlementRealm(level))return false;
         var data=active(level);
         var origin=GroveSites.first(level);
         int old=data.legacyMask(level,site);
         if(old!=0)return (old&(dusk?2:1))!=0;
-        if(!lattice(origin,site.gx(),site.gz(),dusk,data.distance))return false;
+        if(!latticeCell(origin,site.gx(),site.gz(),data.distance))return false;
+        boolean selected=data.duskFaction(level,origin,site);
+        if(selected!=dusk)return false;
         if(site.equals(origin))return true;
         // Older settlements are immovable. Reserve the surrounding cells when a
         // legacy district sits off the new lattice, even if its neighbor is still unexplored.
@@ -233,8 +241,45 @@ public final class SettlementLayout extends SavedData {
         return true;
     }
     static boolean mightHost(ServerLevel level,int gx,int gz,boolean dusk) {
+        if(!ReefLife.isSettlementRealm(level))return false;
         var data=active(level);
-        return data.oldCells.contains(ChunkPos.asLong(gx,gz)) || lattice(GroveSites.first(level),gx,gz,dusk,data.distance);
+        // Biomes can override the checkerboard faction in a new cell. Keep this a
+        // cheap spatial filter; admits() resolves one canonical faction afterward.
+        return data.oldCells.contains(ChunkPos.asLong(gx,gz)) || latticeCell(GroveSites.first(level),gx,gz,data.distance);
+    }
+    private boolean duskFaction(ServerLevel level,GroveSites.Site origin,GroveSites.Site site){
+        if(duskFactions.size()>4096)duskFactions.clear();
+        return duskFactions.computeIfAbsent(ChunkPos.asLong(site.gx(),site.gz()),key->{
+            boolean gridDusk=lattice(origin,site.gx(),site.gz(),true,distance);
+            // The complete possible footprint covers both faction surveys, roofs,
+            // verandas and the entry shoulder. Even one old chunk freezes the site.
+            // It is deliberately conservative: never move half an old settlement.
+            if(!untouchedRoom(beforeDuskFactions,site,-211,-205,211,35))return gridDusk;
+            if(gridDusk || GroveSites.duskLand(level,site.x(),site.entryY(),site.z()))return true;
+            // A grove anchor can sit across a biome edge from its proposed houses.
+            // Inspect the actual Petal plan, not the map roofs or the tag alone.
+            return BlossomVillage.survey(level,site,false).map(plan->duskFootprint(level,plan)).orElse(false);
+        });
+    }
+    private static boolean duskFootprint(ServerLevel level,BlossomVillage.Plan plan){
+        var site=plan.site();
+        int half=plan.road().length/2;
+        for(int i=0;i<plan.road().length;i++)for(int dz=-1;dz<=1;dz++){
+            int x=plan.x()+i-half,z=plan.z()+plan.bends()[i]+dz;
+            if(GroveSites.duskLand(level,site.wx(x,z),plan.road()[i],site.wz(x,z)))return true;
+        }
+        for(var house:plan.houses()){
+            var shape=VillageHouse.STYLES.get(house.style());
+            for(int dx=-shape.radiusX;dx<=shape.radiusX;dx++)for(int dz=-shape.radiusZ;dz<=shape.radiusZ;dz++){
+                int x=house.x()+dx,z=house.z()+dz;
+                if(GroveSites.duskLand(level,site.wx(x,z),house.floor(),site.wz(x,z)))return true;
+            }
+        }
+        return false;
+    }
+    private static boolean latticeCell(GroveSites.Site origin,int gx,int gz,int distance){
+        int stride=stride(distance);
+        return Math.floorMod(gx-origin.gx(),stride)==0 && Math.floorMod(gz-origin.gz(),stride)==0;
     }
     private static boolean lattice(GroveSites.Site origin,int gx,int gz,boolean dusk,int distance){
         int stride=stride(distance), x=gx-origin.gx(), z=gz-origin.gz();

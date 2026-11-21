@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="uwu_dusk_check"
+version="1.0"
+displayName="Disposable Dusk generation and historical settlement check"
+[[dependencies.uwu_dusk_check]]
+modId="uwudimension"
+type="required"
+ordering="AFTER"
+side="SERVER"

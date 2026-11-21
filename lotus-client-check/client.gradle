@@ -10,11 +10,14 @@ gradle.beforeProject { project ->
             client()
             def dirkCountdown = System.getenv('UWU_DIRK_COUNTDOWN_CHECK') == 'true'
             def shrineCheck = System.getenv('UWU_SHRINE_CLIENT_CHECK') == 'true'
-            gameDirectory = project.file(shrineCheck ? 'build/shrine-client' :
-                    (dirkCountdown ? 'build/dirk-countdown-client' : 'build/lotus-client'))
+            def caveCheck = System.getenv('UWU_CAVE_CLIENT_CHECK') == 'true'
+            gameDirectory = project.file(caveCheck ? 'build/cave-client' :
+                    (shrineCheck ? 'build/shrine-client' :
+                    (dirkCountdown ? 'build/dirk-countdown-client' : 'build/lotus-client')))
             jvmArgument('-Xmx3G')
             if (dirkCountdown) jvmArgument('-Duwu.check.dirkCountdown=true')
             if (shrineCheck) jvmArgument('-Duwu.check.shrine=true')
+            if (caveCheck) jvmArgument('-Duwu.check.cave=true')
             if (System.getenv('UWU_DECOR_CHECK') == 'true') jvmArgument('-Duwu.check.decor=true')
         }
     }

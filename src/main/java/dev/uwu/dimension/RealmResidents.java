@@ -10,7 +10,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-/** Factory replacement keeps UUID/NBT intact before registration; deferred fallback covers direct constructors. */
+/** Adapt only new, positioned residents. Disk-loaded residents keep their saved type and NBT. */
 public final class RealmResidents {
     public static final String ORIGIN="uwu.keeper_origin";
     private static final Set<Villager> pending=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -32,6 +32,9 @@ public final class RealmResidents {
         pendingUndead.removeIf(v -> v.getServer() == event.getServer());
     }
     private static void join(EntityJoinLevelEvent event){
+        // This includes existing vanilla residents and undead. Never migrate them
+        // merely because their chunk loads after a world-generation policy update.
+        if(event.loadedFromDisk())return;
         if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.VILLAGER&&event.getEntity() instanceof Villager v)pending.add(v);
         else if(applies(event.getLevel())&&event.getEntity().getType()==EntityType.ZOMBIE_VILLAGER
                 &&event.getEntity() instanceof ZombieVillager zombie)pendingUndead.add(zombie);
@@ -42,7 +45,7 @@ public final class RealmResidents {
             if(!applies(zombie.level())){pendingUndead.remove(zombie);continue;}
             if(!(zombie.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(zombie.blockPosition()))continue;
             if(level.getEntity(zombie.getUUID())!=zombie)continue;
-            boolean dusk=zombie.getPersistentData().getCompound(ORIGIN).getBoolean("WasDusk");
+            boolean dusk=duskForCure(zombie);
             var custom=(dusk?People.DUSK_ZOMBIE:People.PETAL_ZOMBIE).get().create(level);if(custom==null)continue;
             var saved=new CompoundTag();zombie.saveWithoutId(saved);custom.load(saved);
             var passengers=List.copyOf(zombie.getPassengers());var vehicle=zombie.getVehicle();
@@ -63,7 +66,7 @@ public final class RealmResidents {
             if(!applies(v.level())){pending.remove(v);continue;}
             if(!(v.level() instanceof ServerLevel level)||level.getServer()!=event.getServer()||!level.hasChunkAt(v.blockPosition()))continue;
             if(level.getEntity(v.getUUID())!=v)continue;
-            var keeper=People.PETAL_KEEPER.get().create(level);if(keeper==null)continue;
+            var keeper=(duskForNewResident(level,v.blockPosition())?People.DUSK_KEEPER:People.PETAL_KEEPER).get().create(level);if(keeper==null)continue;
             var saved=new CompoundTag();v.saveWithoutId(saved);keeper.markAdaptedResident();keeper.load(saved);
             // Preserve exact live POI references; ordinary brain validation still runs afterward.
             for(var memory:List.of(net.minecraft.world.entity.ai.memory.MemoryModuleType.HOME,
@@ -88,6 +91,25 @@ public final class RealmResidents {
                 }
             }
         }
+    }
+    /** New births/spawns use Dusk territory; existing resident identities never pass here. */
+    public static boolean duskForNewResident(Level world,net.minecraft.core.BlockPos pos){
+        if(!(world instanceof ServerLevel level)||!applies(level))return false;
+        int floor=GroveSites.height(level,pos.getX(),pos.getZ());
+        if(GroveSites.duskLand(level,pos.getX(),floor,pos.getZ()))return true;
+        // Retain the faction of a native Dusk village on other settlement land too.
+        var site=GroveSites.forChunk(level,new net.minecraft.world.level.ChunkPos(pos));
+        if(!site.usable())return false;
+        return BlossomVillage.plan(level,site,true)
+                .map(plan->Math.abs((long)pos.getX()-plan.plaza().getX())<=64
+                        && Math.abs((long)pos.getZ()-plan.plaza().getZ())<=64).orElse(false);
+    }
+    public static boolean duskForCure(ZombieVillager zombie){
+        if(zombie.getType()==People.DUSK_ZOMBIE.get())return true;
+        var origin=zombie.getPersistentData().getCompound(ORIGIN);
+        if(origin.contains("WasDusk"))return origin.getBoolean("WasDusk");
+        if(zombie.getType()==People.PETAL_ZOMBIE.get())return false;
+        return duskForNewResident(zombie.level(),zombie.blockPosition());
     }
     private static void converted(LivingConversionEvent.Post event){
         if (!(event.getEntity().level() instanceof ServerLevel)) return;

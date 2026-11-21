@@ -44,6 +44,7 @@ public final class UwUDimension {
         CupidWishes.register();
         ReefLife.register(bus);
         dev.uwu.dimension.lush.LushGeodes.register(bus);
+        dev.uwu.dimension.lush.UwUCaveBerries.register(bus);
         ReachLife.register(bus);
         SakuraCraft.register(bus);
         SakuraMaterials.register(bus);

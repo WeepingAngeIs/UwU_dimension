@@ -1,0 +1,17 @@
+gradle.projectsEvaluated {
+    def project = gradle.rootProject
+    def compile = project.tasks.register('compileDuskProbe', JavaCompile) {
+        dependsOn project.tasks.named('classes')
+        source(project.fileTree('dusk-check/java') { include '**/*.java' })
+        classpath = project.sourceSets.main.compileClasspath + project.sourceSets.main.output
+        destinationDirectory.set(project.layout.buildDirectory.dir('dusk-check/classes'))
+        javaCompiler.set(project.tasks.named('compileJava', JavaCompile).flatMap { it.javaCompiler })
+        options.release.set(21)
+    }
+    project.tasks.register('duskProbeJar', Jar) {
+        archiveFileName.set('dusk-probe.jar')
+        destinationDirectory.set(project.layout.buildDirectory.dir('dusk-check'))
+        from(compile.flatMap { it.destinationDirectory })
+        from(project.file('dusk-check/resources'))
+    }
+}

@@ -3,7 +3,7 @@ set -euo pipefail
 root=$(pwd)
 candidate=$(realpath "${1:?Supply the combined shrine JAR}")
 test -f "$candidate"
-if [[ ${UWU_SHRINE_FRESH_ONLY:-false} != true ]]; then
+if [[ ${UWU_SHRINE_FRESH_ONLY:-false} != true && ${UWU_SHRINE_ORDERS_ONLY:-false} != true ]]; then
     baseline=$(realpath "${2:?Supply the verified Playtest 6 JAR}")
     test -f "$baseline"
 fi
@@ -42,5 +42,6 @@ run_stage village "$candidate" shrine-village 'PETAL SHRINE SERVER PASS order=vi
 shoulder=$(sed -n 's/.*PETAL SHRINE SERVER PASS order=shoulder anchor=/anchor=/p' "$root/build/shrine-check/shoulder.log")
 village=$(sed -n 's/.*PETAL SHRINE SERVER PASS order=village anchor=/anchor=/p' "$root/build/shrine-check/village.log")
 test -n "$shoulder" && test "$shoulder" = "$village"
+if [[ ${UWU_SHRINE_ORDERS_ONLY:-false} == true ]]; then exit 0; fi
 run_stage seed-legacy "$baseline" shrine-legacy 'PETAL SHRINE LEGACY WORLD SEEDED'
 run_stage legacy "$candidate" shrine-legacy 'PETAL SHRINE LEGACY WORLD PASS'

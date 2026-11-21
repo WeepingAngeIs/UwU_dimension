@@ -2,7 +2,10 @@
 set -euo pipefail
 game_dir=build/lotus-client
 log=build/lotus-client.log
-if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
+if [[ ${UWU_CAVE_CLIENT_CHECK:-false} == true ]]; then
+    game_dir=build/cave-client
+    log=build/cave-client.log
+elif [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
     game_dir=build/shrine-client
     log=build/shrine-client.log
 elif [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then
@@ -20,6 +23,14 @@ printf 'version:3955\nonboardAccessibility:false\ntutorialStep:none\nrenderDista
 printf 'earlyWindowControl = false\n' > "$game_dir/config/fml.toml"
 export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I lotus-client-check/client.gradle runLotusClient 2>&1 | tee "$log"
+if [[ ${UWU_CAVE_CLIENT_CHECK:-false} == true ]]; then
+    if grep -Ei 'OutOfMemoryError|CHECK FAILED|single server tick has taken' "$log"; then exit 1; fi
+    grep -F 'JADE REACH FLUID CAPTIONS PASS' "$log"
+    grep -F 'JADE REACH BERRY CAPTIONS PASS' "$log"
+    grep -F 'CAVE VINE MODELS AND HARVEST PASS' "$log"
+    grep -F 'CAVE FLORA PALETTE PASS' "$log"
+    exit 0
+fi
 if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
     grep -F 'CUPID SHRINE CLIENT PASS' "$log"
     grep -F 'CUPID STATUE SERVER PASS' "$log"

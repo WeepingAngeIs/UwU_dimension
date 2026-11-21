@@ -63,6 +63,23 @@ public final class LushCaveModels {
         terrain(event, SakuraMaterials.GRASS.get(),
                 caveTexture(atlas, "uwudimension:block/sakura_grass_top", "grass_block_top", true),
                 caveTexture(atlas, "uwudimension:block/sakura_grass_overlay", "grass_block_side_overlay", true));
+        // Inventory of the Reach's vanilla lush-cave and lantern-grotto feature outputs.
+        // Cover every texture used by every state, including tilted leaves, both small
+        // dripleaf halves and azalea's inherited central plant texture.
+        flora(event, Blocks.BIG_DRIPLEAF, "big_dripleaf_top", "big_dripleaf_side", "big_dripleaf_tip", "big_dripleaf_stem");
+        flora(event, Blocks.BIG_DRIPLEAF_STEM, "big_dripleaf_stem");
+        flora(event, Blocks.SMALL_DRIPLEAF, "small_dripleaf_top", "small_dripleaf_side", "small_dripleaf_stem_top",
+                "small_dripleaf_stem_bottom", "big_dripleaf_stem");
+        flora(event, Blocks.AZALEA, "azalea_top", "azalea_side", "azalea_plant");
+        flora(event, Blocks.FLOWERING_AZALEA, "flowering_azalea_top", "flowering_azalea_side", "azalea_plant");
+        flora(event, Blocks.AZALEA_LEAVES, "azalea_leaves");
+        flora(event, Blocks.FLOWERING_AZALEA_LEAVES, "flowering_azalea_leaves");
+        flora(event, Blocks.SPORE_BLOSSOM, "spore_blossom", "spore_blossom_base");
+        flora(event, Blocks.GLOW_LICHEN, "glow_lichen");
+        flora(event, Blocks.HANGING_ROOTS, "hanging_roots");
+        flora(event, Blocks.VINE, "vine");
+        flora(event, Blocks.OAK_LOG, "oak_log", "oak_log_top");
+        flora(event, Blocks.ROOTED_DIRT, "rooted_dirt");
         geode(event, Blocks.SMOOTH_BASALT, "smooth_basalt", "outer_shell");
         geode(event, Blocks.CALCITE, "calcite", "middle_shell");
         geode(event, Blocks.AMETHYST_BLOCK, "amethyst_block", "inner_lining");
@@ -71,6 +88,15 @@ public final class LushCaveModels {
         geode(event, Blocks.MEDIUM_AMETHYST_BUD, "medium_amethyst_bud", "medium_bud");
         geode(event, Blocks.LARGE_AMETHYST_BUD, "large_amethyst_bud", "large_bud");
         geode(event, Blocks.AMETHYST_CLUSTER, "amethyst_cluster", "cluster");
+    }
+
+    private static void flora(ModelEvent.ModifyBakingResult event, Block owner, String... textures) {
+        Surface[] faces = new Surface[textures.length];
+        for (int i = 0; i < textures.length; i++) {
+            faces[i] = caveTexture(event.getTextureGetter(), "minecraft:block/" + textures[i],
+                    "flora/" + textures[i], true);
+        }
+        terrain(event, owner, faces);
     }
 
     private static void vines(Map<ModelResourceLocation, BakedModel> models, Function<Material, TextureAtlasSprite> atlas,

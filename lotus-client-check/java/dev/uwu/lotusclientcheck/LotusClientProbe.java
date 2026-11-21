@@ -36,6 +36,7 @@ public final class LotusClientProbe {
     private static Stage stage = Stage.LOAD;
     private static final boolean DIRK_ONLY = Boolean.getBoolean("uwu.check.dirkCountdown");
     private static final boolean SHRINE_ONLY = Boolean.getBoolean("uwu.check.shrine");
+    private static final boolean CAVE_ONLY = Boolean.getBoolean("uwu.check.cave");
     private static boolean opening;
     private static DirkCountdownProbe dirk;
     private static JadeFluidProbe jade;
@@ -86,7 +87,7 @@ public final class LotusClientProbe {
         if (stage == Stage.JADE) {
             try {
                 if (jade == null) jade = new JadeFluidProbe();
-                if (jade.tick(client)) stage = Stage.CUPID;
+                if (jade.tick(client)) stage = CAVE_ONLY ? Stage.DONE : Stage.CUPID;
             } catch (Throwable failure) {
                 System.err.println("JADE FLUID CHECK FAILED");
                 failure.printStackTrace();
@@ -131,6 +132,10 @@ public final class LotusClientProbe {
             switch (stage) {
                 case LOAD -> {
                     if (player.tickCount < 85) return;
+                    if (CAVE_ONLY) {
+                        stage = Stage.JADE;
+                        return;
+                    }
                     if (SHRINE_ONLY) {
                         shrine = new CupidShrineClientProbe(client);
                         stage = Stage.CUPID_SHRINE;

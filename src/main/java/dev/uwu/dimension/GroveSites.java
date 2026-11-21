@@ -14,6 +14,8 @@ import java.util.Random;
 public final class GroveSites {
     private static final net.minecraft.tags.TagKey<net.minecraft.world.level.biome.Biome> SETTLEMENT_LAND =
             net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("sakura_settlement_land"));
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.level.biome.Biome> DUSK_TURF =
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BIOME, UwUDimension.id("dusk_turf"));
     public static final int SPACING=768;
     private static final class Maps {
         final Map<Long,Site> sites=new ConcurrentHashMap<>();
@@ -41,6 +43,14 @@ public final class GroveSites {
                 net.minecraft.core.QuartPos.fromBlock(x),net.minecraft.core.QuartPos.fromBlock(y),
                 net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler());
         return biome.is(net.minecraft.world.level.biome.Biomes.CHERRY_GROVE) || biome.is(SETTLEMENT_LAND);
+    }
+    /** Same quart-biome rule as the generated Dusk turf, without reading or loading chunks. */
+    static boolean duskLand(ServerLevel level,int x,int y,int z){
+        if(!ReefLife.isSettlementRealm(level))return false;
+        var chunks=level.getChunkSource();
+        return chunks.getGenerator().getBiomeSource().getNoiseBiome(
+                net.minecraft.core.QuartPos.fromBlock(x),net.minecraft.core.QuartPos.fromBlock(y),
+                net.minecraft.core.QuartPos.fromBlock(z),chunks.randomState().sampler()).is(DUSK_TURF);
     }
     public static Site site(ServerLevel level,int gx,int gz){
         Maps m=maps(level);

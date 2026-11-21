@@ -1,0 +1,24 @@
+{
+  "baseline": "e16af6a2a1a00cb68291b6c9611d4604a0b20171",
+  "production_files": [
+    "build.gradle",
+    "src/main/java/dev/uwu/dimension/GroveSites.java",
+    "src/main/java/dev/uwu/dimension/Keeper.java",
+    "src/main/java/dev/uwu/dimension/RealmResidents.java",
+    "src/main/java/dev/uwu/dimension/SettlementLayout.java",
+    "src/main/java/dev/uwu/dimension/UwUDimension.java",
+    "src/main/java/dev/uwu/dimension/lush/LushCaveScope.java",
+    "src/main/java/dev/uwu/dimension/lush/UwUCaveBerries.java",
+    "src/main/java/dev/uwu/dimension/lush/client/CaveFloraSprites.java",
+    "src/main/java/dev/uwu/dimension/lush/client/LushCaveModels.java",
+    "src/main/java/dev/uwu/dimension/lush/client/LushRenderView.java",
+    "src/main/java/dev/uwu/dimension/mixin/CaveVinesHarvestMixin.java",
+    "src/main/java/dev/uwu/dimension/mixin/RealmCureMixin.java",
+    "src/main/java/dev/uwu/dimension/mixin/RealmVillagerFactoryMixin.java",
+    "src/main/resources/META-INF/neoforge.mods.toml",
+    "src/main/resources/assets/minecraft/atlases/blocks.json",
+    "src/main/resources/assets/uwudimension/lang/en_us.json",
+    "src/main/resources/assets/uwudimension/models/item/uwu_berry.json",
+    "src/main/resources/uwudimension.mixins.json"
+  ]
+}

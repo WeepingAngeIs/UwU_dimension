@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "ForestFluidPickerAccessor",
+    "CaveVinesHarvestMixin",
     "LushGeodeConfiguredMixin",
     "LushGeodeFeatureWriteMixin",
     "LushGeodeGrowthMixin",
@@ -28,7 +29,6 @@
     "SakuraTreeRootsMixin",
     "AxolotlAuraMixin",
     "RevivalSealMixin",
-    "RealmVillagerFactoryMixin",
     "RealmVillageStructuresMixin",
     "RealmCureMixin",
     "GuardianFlightConnectionMixin",

@@ -628,7 +628,9 @@ public final class Keeper extends Villager {
     }
 
     @Override @Nullable public Keeper getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        Keeper child = (dusk() ? People.DUSK_KEEPER : People.PETAL_KEEPER).get().create(level);
+        // A new child follows Dusk territory without retyping either existing parent.
+        boolean childDusk = dusk() || RealmResidents.duskForNewResident(level, blockPosition());
+        Keeper child = (childDusk ? People.DUSK_KEEPER : People.PETAL_KEEPER).get().create(level);
         if (child != null && village != null) child.bindVillage(village);
         return child;
     }

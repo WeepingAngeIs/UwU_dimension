@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "uwudimension:block/uwu_cave/cave_vines_lit_glow"
+  }
+}
