@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -438,7 +439,10 @@ public final class DuskChestProbe {
         }
 
         @Override public void send(Packet<?> packet, PacketSendListener listener) {
-            if (packet instanceof ClientboundChunkBatchFinishedPacket) {
+            if (packet instanceof ClientboundBundlePacket bundle) {
+                // NeoForge wraps every chunk together with its auxiliary lighting payload.
+                bundle.subPackets().forEach(part -> send(part, null));
+            } else if (packet instanceof ClientboundChunkBatchFinishedPacket) {
                 ++batches;
             } else if (packet instanceof ClientboundSoundPacket sound) {
                 var key = sound.getSound().value().getLocation();
