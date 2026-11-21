@@ -50,7 +50,10 @@ final class HeartSpinProbe {
         Vec3 origin = actor.position();
         target = EntityType.COW.create(actor.serverLevel());
         require(target != null, "Could not create the Spin sweep witness");
-        target.setNoAi(true);
+        // NoAI also disables vanilla travel. Remove decisions while keeping gravity and knockback.
+        target.goalSelector.removeAllGoals(goal -> true);
+        target.targetSelector.removeAllGoals(goal -> true);
+        require(target.isControlledByLocalInstance(), "Spin witness must use normal server physics");
         target.setPersistenceRequired();
         target.setInvulnerable(next == Trial.REJECTED);
         target.moveTo(origin.x, origin.y, origin.z + 2.25, 0, 0);
