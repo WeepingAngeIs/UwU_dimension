@@ -37,14 +37,6 @@ jobs:
           git merge-base --is-ancestor e16af6a2a1a00cb68291b6c9611d4604a0b20171 HEAD
           bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
           python3 fallback-check/verify.py "$UWU_JAR" "$RUNNER_TEMP/playtest-9.jar" "$VERSION" --classes build/classes/java/main
-      - name: Check new Dusk placement and preserved Playtest 9 settlements separately
-        run: bash dusk-check/run-server.sh "$UWU_JAR" "$RUNNER_TEMP/playtest-9.jar"
-      - name: Check native shrine generation in both chunk orders, reload and Dusk exclusion
-        env:
-          UWU_SHRINE_ORDERS_ONLY: 'true'
-        run: bash shrine-check/run-server.sh "$UWU_JAR"
-      - name: Verify all three fixed waterfalls on fresh native terrain
-        run: bash waterfall-check/run.sh "$UWU_JAR"
       - name: Prepare the disposable cave client display
         run: |
           if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
@@ -55,6 +47,14 @@ jobs:
         env:
           UWU_CAVE_CLIENT_CHECK: 'true'
         run: bash lotus-client-check/run.sh
+      - name: Check new Dusk placement and preserved Playtest 9 settlements separately
+        run: bash dusk-check/run-server.sh "$UWU_JAR" "$RUNNER_TEMP/playtest-9.jar"
+      - name: Check native shrine generation in both chunk orders, reload and Dusk exclusion
+        env:
+          UWU_SHRINE_ORDERS_ONLY: 'true'
+        run: bash shrine-check/run-server.sh "$UWU_JAR"
+      - name: Verify all three fixed waterfalls on fresh native terrain
+        run: bash waterfall-check/run.sh "$UWU_JAR"
       - name: Record the tested source, scope and JAR digest
         id: packet
         run: |

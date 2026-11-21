@@ -199,7 +199,9 @@ public final class LushCaveModels {
                 if (surface != null) {
                     if (result == null) {
                         result = new ArrayList<>(quads.size() + 1);
-                        result.addAll(quads.subList(0, i));
+                        // Multipart plants can return NeoForge's ConcatenatedListView,
+                        // whose subList is unsupported, including an empty prefix.
+                        for (int previous = 0; previous < i; previous++) result.add(quads.get(previous));
                     }
                     result.addAll(surface.replacements(quad));
                 } else if (result != null) {
