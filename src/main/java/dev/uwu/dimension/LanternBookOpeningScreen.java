@@ -180,8 +180,13 @@ final class LanternBookOpeningScreen extends Screen {
             // GUI quads have one facing. Turn the reverse face back toward the camera on the SAME plane.
             poses.translate(COVER_WIDTH, 0, 0);
             poses.mulPose(Axis.YP.rotationDegrees(180));
-            graphics.fill(0, -16, COVER_WIDTH, 16, 0xFFDBA7BB);
-            graphics.fill(1, -15, COVER_WIDTH - 1, 15, 0xFFF5D3DD);
+            // Each region owns its pixels. Overlapping coplanar GUI quads can depth-fight
+            // once the cover is rotated, producing stripes across the flat inside face.
+            graphics.fill(0, -16, COVER_WIDTH, -15, 0xFFDBA7BB);
+            graphics.fill(0, 15, COVER_WIDTH, 16, 0xFFDBA7BB);
+            graphics.fill(0, -15, 1, 15, 0xFFDBA7BB);
+            graphics.fill(COVER_WIDTH - 1, -15, COVER_WIDTH, 15, 0xFFDBA7BB);
+            graphics.fill(1, -15, COVER_WIDTH - 2, 15, 0xFFF5D3DD);
             graphics.fill(COVER_WIDTH - 2, -15, COVER_WIDTH - 1, 15, 0xFFC98CA6);
         }
         poses.popPose();
@@ -196,8 +201,12 @@ final class LanternBookOpeningScreen extends Screen {
             poses.translate(PAGE_WIDTH, 0, 0);
             poses.mulPose(Axis.YP.rotationDegrees(180));
         }
-        graphics.fill(0, -15, PAGE_WIDTH, 15, 0xFFD9BFB3);
-        graphics.fill(1, -14, PAGE_WIDTH - 1, 14, color);
+        // Keep the border, paper, and crease disjoint on the leaf's physical plane.
+        graphics.fill(0, -15, PAGE_WIDTH, -14, 0xFFD9BFB3);
+        graphics.fill(0, 14, PAGE_WIDTH, 15, 0xFFD9BFB3);
+        graphics.fill(0, -14, 1, 14, 0xFFD9BFB3);
+        graphics.fill(PAGE_WIDTH - 1, -14, PAGE_WIDTH, 14, 0xFFD9BFB3);
+        graphics.fill(2, -14, PAGE_WIDTH - 1, 14, color);
         graphics.fill(1, -14, 2, 14, 0xFFE8D3C8);
         poses.popPose();
     }
