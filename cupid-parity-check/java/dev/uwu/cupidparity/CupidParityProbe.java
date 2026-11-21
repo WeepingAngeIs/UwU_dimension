@@ -91,12 +91,19 @@ public final class CupidParityProbe {
                 draw(first, Stage.DRAW_FIRST);
             }
             case DRAW_FIRST, DRAW_SECOND -> {
-                if (elapsed() < 21) return false;
+                // The in-memory actor has no network listener ticking its normal client-action loop.
+                archer.doTick();
+                require(archer.isUsingItem() && archer.getUseItem() == bow, "Actual bow use was interrupted");
+                if (archer.getTicksUsingItem() < 20) {
+                    require(elapsed() <= 24, "Cupid did not advance a native draw after player ticks");
+                    return false;
+                }
                 boolean opening = stage == Stage.DRAW_FIRST;
-                require(archer.isUsingItem(), "Actual bow use was interrupted");
+                int before = bow.getDamageValue();
                 archer.releaseUsingItem();
                 require(!archer.getCooldowns().isOnCooldown(bow.getItem()), "Cupid Bow gained a release cooldown");
-                require(bow.getDamageValue() == (opening ? 1 : 2), "Cupid use did not spend one durability");
+                require(bow.getDamageValue() == before + 1, "Cupid use did not spend one durability: "
+                        + before + " -> " + bow.getDamageValue() + ", smooth=" + smooth);
                 next(opening ? Stage.HIT_FIRST : Stage.HIT_SECOND);
             }
             case HIT_FIRST -> {
