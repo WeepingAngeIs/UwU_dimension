@@ -119,15 +119,30 @@ final class DuskProbe {
 
     /** Deliberately find an old Petal checkerboard cell in the actual Velvet biome. */
     private BlossomVillage.Plan findPlan(boolean old) {
+        if (old) {
+            // Native Playtest 9 site witnessed in Actions run 44937032628. Reuse
+            // that regression fixture: discovering it again surveys hundreds of
+            // terrain columns in one tick and can trip a busy runner's watchdog.
+            require(level.getSeed() == 152045L, "Historical fixture requires seed 152045");
+            var site = GroveSites.site(level, 20, 23);
+            require(site.usable() && site.x() == 15253 && site.z() == 17787 && site.turns() == 0,
+                    "Historical native site drifted");
+            var candidate = BlossomVillage.plan(level, site, false)
+                    .orElseThrow(() -> new AssertionError("Historical Petal plan missing"));
+            require(candidate.plaza().equals(new BlockPos(15149, 95, 17751)), "Historical plaza drifted");
+            require(velvet(candidate.plaza().below()), "Historical fixture is not in Velvet Highlands");
+            require(BlossomVillage.plan(level, site, true).isEmpty(), "Baseline site admitted Dusk");
+            return candidate;
+        }
         var origin = GroveSites.first(level);
         int stride = Math.ceilDiv(SettlementLayout.minimum(level) + 600, GroveSites.SPACING);
         for (int ring = 0; ring <= 24; ring++) for (int dx = -ring; dx <= ring; dx++) for (int dz = -ring; dz <= ring; dz++) {
             if (Math.max(Math.abs(dx), Math.abs(dz)) != ring || ((dx + dz) & 1) != 0) continue;
             var site = GroveSites.site(level, origin.gx() + dx * stride, origin.gz() + dz * stride);
             if (!site.usable()) continue;
-            var candidate = BlossomVillage.plan(level, site, !old);
+            var candidate = BlossomVillage.plan(level, site, true);
             if (candidate.isEmpty() || !velvet(candidate.get().plaza().below())) continue;
-            if (!old) require(BlossomVillage.plan(level, site, false).isEmpty(), "A new Velvet cell admitted both factions");
+            require(BlossomVillage.plan(level, site, false).isEmpty(), "A new Velvet cell admitted both factions");
             return candidate.get();
         }
         throw new AssertionError("No habitable Velvet settlement in bounded checkerboard search on seed " + level.getSeed());
