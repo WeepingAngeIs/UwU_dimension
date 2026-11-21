@@ -81,7 +81,11 @@ final class LanternBookOpeningScreen extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() { return false; }
+    public boolean isPauseScreen() {
+        // GUI ticks continue while a singleplayer world is paused, just as in the native reader.
+        // Keep the same combat/world-time behavior throughout the presentation.
+        return reader.isPauseScreen();
+    }
 
     @Override
     public boolean keyPressed(int key, int scanCode, int modifiers) {

@@ -58,6 +58,7 @@ public final class LotusClientProbe {
         if (CUPID_LANTERN_ONLY) {
             NeoForge.EVENT_BUS.addListener(CupidLanternVisualProbe::gui);
             NeoForge.EVENT_BUS.addListener(CupidLanternVisualProbe::frame);
+            NeoForge.EVENT_BUS.addListener(CupidLanternVisualProbe::camera);
         }
         if (DIRK_ONLY) NeoForge.EVENT_BUS.addListener(DirkCountdownProbe::replayBeforeFrame);
     }

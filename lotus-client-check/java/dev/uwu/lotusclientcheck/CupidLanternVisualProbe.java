@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
@@ -24,6 +25,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 
 /** Actual client pixels, including a 16 GUI-pixel comparison of the exact shipped portraits. */
 @EventBusSubscriber(modid = "uwu_lotus_client_check", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -35,6 +37,7 @@ public final class CupidLanternVisualProbe {
     private static ItemStack classic, smooth;
     private static boolean iconsPending, iconsDrawn, iconsSaved;
     private static Throwable failure;
+    private static float orbitYaw;
 
     private CupidLanternVisualProbe() {}
 
@@ -61,6 +64,26 @@ public final class CupidLanternVisualProbe {
         rethrow();
         if (!name.matches("[a-zA-Z0-9_-]+")) throw new IllegalArgumentException("Invalid evidence name");
         if (!SAVED.contains(name)) PENDING.add(name);
+    }
+
+    static boolean saved(String name) {
+        rethrow();
+        return SAVED.contains(name);
+    }
+
+    static void orbit(float degrees) {
+        orbitYaw = degrees;
+    }
+
+    static void camera(ViewportEvent.ComputeCameraAngles event) {
+        var client = Minecraft.getInstance();
+        if (!Boolean.getBoolean("uwu.check.cupidLantern") || orbitYaw == 0
+                || client.options.getCameraType() != CameraType.THIRD_PERSON_FRONT
+                || event.getCamera().getEntity() != client.player) return;
+        // NeoForge 1.21.1 posts this event in Camera.setup before the detached-camera
+        // move. Native positioning therefore orbits around the player using this angle.
+        // Changing only a late view matrix would instead turn the camera off its subject.
+        event.setYaw(event.getYaw() + orbitYaw);
     }
 
     static void rethrow() {
@@ -147,9 +170,21 @@ public final class CupidLanternVisualProbe {
                         pixels.writeToFile(OUTPUT.resolve(name + ".png"));
                         var client = Minecraft.getInstance();
                         var player = client.player;
+                        var camera = client.gameRenderer.getMainCamera();
+                        if (orbitYaw != 0) {
+                            require(player != null && client.options.getCameraType() == CameraType.THIRD_PERSON_FRONT,
+                                    "Oblique evidence did not have a third-person subject");
+                            double actualOrbit = Math.IEEEremainder(camera.getYRot()
+                                    - player.getViewYRot(camera.getPartialTickTime()) - 180, 360);
+                            require(Math.abs(actualOrbit - orbitYaw) < .01,
+                                    "The actual detached camera did not orbit: expected=" + orbitYaw + " actual=" + actualOrbit);
+                        }
                         Files.writeString(OUTPUT.resolve("frames.tsv"), name + "\t"
                                         + (player == null ? "no-player" : player.tickCount + "\t" + player.getTicksUsingItem()
-                                        + "\t" + player.getUsedItemHand()) + "\t" + client.options.getCameraType() + "\n",
+                                        + "\t" + player.getUsedItemHand()) + "\t" + client.options.getCameraType()
+                                        + "\t" + orbitYaw + "\t" + camera.getYRot() + "\t" + camera.getXRot()
+                                        + "\t" + camera.getPosition() + "\t" + client.options.fov().get()
+                                        + "\t" + (player == null ? 0 : player.getAttackStrengthScale(0)) + "\n",
                                 StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                         SAVED.add(name);
                     }

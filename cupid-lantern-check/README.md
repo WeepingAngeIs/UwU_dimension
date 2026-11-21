@@ -16,7 +16,7 @@ The client setting `heldScale` in `uwudimension-cupid-visuals-client.toml` has d
 
 ## Marked illustrated book
 
-Using the existing marked written book starts a 52-tick presentation: 12 ticks lifting from the held-hand side, 14 ticks opening the cover, 18 ticks fluttering three blank decorative leaves, and 8 ticks settling into the native reader's actual page 1.
+The native server-authorized open-book packet starts a 52-tick presentation for the existing marked written book: 12 ticks lifting from the held-hand side, 14 ticks opening the cover, 18 ticks fluttering three blank decorative leaves, and 8 ticks settling into the native reader's actual page 1. Interception happens on the client thread immediately before the native reader is shown, using the packet's selected hand.
 
 The cover uses the existing animated atlas art. The decorative leaves have no story index. The native reader remains on index 0 until normal navigation becomes available. Escape cancels. Space, Enter, or left-click skips the presentation directly to page 1. Resize preserves progress. Changing the held book or leaving the level cancels. The story, illustrations, ordinary written/writable books, and placed-book interaction remain unchanged. The tablet is not referenced by the implementation.
 
@@ -27,7 +27,7 @@ Run only through the branch's `UwU Cupid and Lantern isolated visual check` GitH
 The workflow reuses the existing disposable client fixture and `CupidBowProbe`, restricted to this workstream. It covers:
 
 - The exact original, Playtest 9 detailed, and revised baked models rendered at 16 GUI pixels, with all five draw portraits and enlarged copies for inspection.
-- Real draw/release and both hands in first and third person; detailed default/maximum size screenshots.
+- Real draw/release and both hands in first and third person; detailed default/maximum size screenshots, settled equip frames, and oblique third-person views for depth clearance.
 - Actual emitted vertices at 0.75/1.0/1.5 scale, fixed first-person grip, bounded third-person forward motion, and unaffected original/ordinary bow and non-held contexts.
 - Resource reload, Creative choices, five distinct draw meshes, marked/renamed/ordinary book models, real book use in either hand, decorative page isolation, normal next/back navigation, cancellation, reopen, resize, and skip.
 - Byte-for-byte preservation of 4,067 packaged entries outside the approved scope, compared with the successful baseline JAR from [run 44883224098](https://github.com/WeepingAngeIs/z-UwU_dm/actions/runs/44883224098). Its SHA-256 is `7e402979865fa5e56edc5f24d26fff9704e99fa53b9f821b8e074241bb4cd9d8`.

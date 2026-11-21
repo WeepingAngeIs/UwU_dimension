@@ -112,6 +112,7 @@ final class LanternOpeningProbe {
             if (trial.kind == Kind.NATURAL) openingSide = side;
             if (trial.kind == Kind.RENAMED_OFF_HAND) require(side == -openingSide, "Off-hand book lifted from the wrong side");
             BookViewScreen reader = (BookViewScreen) field(screen, "reader").get(screen);
+            require(screen.isPauseScreen() == reader.isPauseScreen(), "Opening changed the native reader's pause behavior");
             require(page(reader) == 0, "Decorative flutter advanced the actual story page");
             require(ItemStack.isSameItemSameComponents(held, expected), "Opening changed the signed story or marker");
 

@@ -52,10 +52,11 @@ final class CupidBowProbe {
     }
 
     private static final boolean FOCUSED = Boolean.getBoolean("uwu.check.cupidLantern");
-    private record Trial(boolean smooth, InteractionHand hand, CameraType camera, double scale) {
+    private record Trial(boolean smooth, InteractionHand hand, CameraType camera, double scale, float orbit) {
         String label() {
             return "cupid-" + (smooth ? "detailed" : "original") + "-" + hand.name().toLowerCase()
-                    + "-" + camera.name().toLowerCase() + "-scale" + (int) (scale * 100);
+                    + "-" + camera.name().toLowerCase() + "-scale" + (int) (scale * 100)
+                    + (orbit == 0 ? "" : "-orbit" + (orbit < 0 ? "minus" : "plus") + (int) Math.abs(orbit));
         }
     }
     private static final List<Trial> TRIALS = trials();
@@ -66,7 +67,18 @@ final class CupidBowProbe {
                 : List.of(CameraType.FIRST_PERSON)) {
             for (boolean detailed : List.of(false, true)) {
                 for (double scale : FOCUSED && detailed ? List.of(1D, 1.5D) : List.of(1D)) {
-                    for (InteractionHand hand : InteractionHand.values()) result.add(new Trial(detailed, hand, camera, scale));
+                    for (InteractionHand hand : InteractionHand.values()) result.add(new Trial(detailed, hand, camera, scale, 0));
+                }
+            }
+        }
+        if (FOCUSED) {
+            // Actual camera orbits show both sides of the bow/arm depth relationship without
+            // changing the held model, player pose, or the native survival draw/release path.
+            for (float orbit : new float[]{-45, 45}) {
+                for (double scale : new double[]{1, 1.5}) {
+                    for (InteractionHand hand : InteractionHand.values()) {
+                        result.add(new Trial(true, hand, CameraType.THIRD_PERSON_FRONT, scale, orbit));
+                    }
                 }
             }
         }
@@ -88,6 +100,7 @@ final class CupidBowProbe {
     private final Set<String> renderedPoses = new HashSet<>();
     private double savedScale;
     private CameraType savedCamera;
+    private int savedFov;
     private int originalWear;
     private CompletableFuture<Void> reload;
     private volatile Throwable serverFailure;
@@ -99,6 +112,7 @@ final class CupidBowProbe {
         if (classic == null) {
             savedScale = CupidBowVisualConfig.HELD_SCALE.get();
             savedCamera = client.options.getCameraType();
+            savedFov = client.options.fov().get();
             verifyCreativeChoices(client);
             var rest = client.getItemRenderer().getModel(classic, client.level, null, 11);
             for (var context : MOUNTS) {
@@ -115,6 +129,8 @@ final class CupidBowProbe {
         if (FOCUSED && !CupidLanternVisualProbe.icons(classic, smooth)) return false;
 
         if (trialIndex == TRIALS.size()) {
+            CupidLanternVisualProbe.orbit(0);
+            client.options.fov().set(savedFov);
             if (reload == null) {
                 require(new HashSet<>(smoothGeometry.values()).size() == Pose.values().length,
                         "Smooth drawing did not produce five distinct baked position meshes: " + smoothGeometry);
@@ -138,6 +154,8 @@ final class CupidBowProbe {
         Trial trial = TRIALS.get(trialIndex);
         if (!requested) {
             client.options.setCameraType(trial.camera);
+            CupidLanternVisualProbe.orbit(trial.orbit);
+            client.options.fov().set(trial.orbit == 0 ? savedFov : 50);
             CupidBowVisualConfig.HELD_SCALE.set(trial.scale);
             requested = true;
             deadline = System.nanoTime() + 20_000_000_000L;
@@ -161,6 +179,7 @@ final class CupidBowProbe {
                 + " useTicks=" + player.getTicksUsingItem() + " stack=" + stack);
         if (!cupid(stack) || marked(stack) != trial.smooth) return false;
         if (released) {
+            if (FOCUSED && !CupidLanternVisualProbe.saved(trial.label() + "-release")) return false;
             if (player.tickCount - releasedAt < (FOCUSED ? 3 : 0)) return false;
             finishTrial();
             return false;
@@ -168,11 +187,19 @@ final class CupidBowProbe {
         if (!drawing) {
             var otherHand = trial.hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
             if (!player.getItemInHand(otherHand).isEmpty() || player.isUsingItem()) return false;
+            if (!ItemStack.isSameItemSameComponents(stack, trial.smooth ? smooth : classic)) return false;
             require(stack.getUseAnimation() == UseAnim.BOW, "Cupid lost its normal draw animation");
             verifyPose(client, stack, trial.smooth, Pose.REST, player);
             if (restingAt < 0) restingAt = player.tickCount;
-            if (FOCUSED && player.tickCount - restingAt == 7) CupidLanternVisualProbe.request(trial.label() + "-rest");
-            if (player.tickCount - restingAt < (FOCUSED ? 8 : 0)) return false;
+            if (FOCUSED) {
+                // Main-hand equip height follows attack recovery, which lasts longer than the
+                // old eight-tick wait. Also wait for a completed render, not just another tick:
+                // several catch-up ticks can run before a frame on the software-rendered client.
+                if (player.tickCount - restingAt < 16 || player.getAttackStrengthScale(0) < .99F) return false;
+                String restingFrame = trial.label() + "-rest";
+                CupidLanternVisualProbe.request(restingFrame);
+                if (!CupidLanternVisualProbe.saved(restingFrame)) return false;
+            }
             originalWear = stack.getDamageValue();
             client.options.keyUse.setDown(true);
             require(client.gameMode.useItem(player, trial.hand).consumesAction(), "Cupid draw could not start for " + trial);
@@ -207,6 +234,7 @@ final class CupidBowProbe {
     }
 
     private void finishTrial() {
+        CupidLanternVisualProbe.orbit(0);
         drawTicks.clear();
         renderedPoses.clear();
         requested = false;
