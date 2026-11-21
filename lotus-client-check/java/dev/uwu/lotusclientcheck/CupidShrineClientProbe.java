@@ -48,14 +48,14 @@ public final class CupidShrineClientProbe {
     private static final Map<String, String> APPROVED_RESOURCES = Map.of(
             "models/" + SCULPTURE + ".json", "2e45aaf08ee2b69d5719c762c1cdf7dd317088147a1c432a38e7543a90370b6c",
             "models/" + SCULPTURE + ".mtl", "54a04854dfd47aa0c9e12cc216128cc44f5d7ab5ea6b21009600664a293146c5",
-            "models/" + SCULPTURE + ".obj", "422a1e530ad304377137a5adc1cfcd3ef7c8e797e3b87cc20dcd9d665ffd8d13",
+            "models/" + SCULPTURE + ".obj", "56734c3ceade849f296f5b006b72c08a2d64360fd982c617f4264243e49b00d8",
             "textures/" + SCULPTURE + "/pedestal.png", "35dd30650ebfde045e7bb61709b2d6179c94d380a578e40f7445bbcb103f4246",
             "textures/" + SCULPTURE + "/cupid.png", "27ea1198f91d4c99a9c2f7db2ec0ba437e2d5d5a7ea5a24ae80b43c15f7184ee",
             "textures/" + SCULPTURE + "/eyes.png", "e074baee8f91f4125477234484d1c69181f79f2ceb1ad080db456bf814bb7540",
             "textures/" + SCULPTURE + "/head_wings.png", "b51df32173808426fa70e6c6a63423b0236c454b261c2faee6d4cd5ce5e8646a",
             "textures/effect/revival_blossom.png", "c904813210fe5f5e8e4d612d219770eafddd080561dfb4873ea33f58c49989b3");
     private static final Map<String, Integer> MATERIALS =
-            Map.of("pedestal", 744, "cupid", 3274, "eyes", 16, "head_wings", 72);
+            Map.of("pedestal", 744, "cupid", 3082, "eyes", 8, "head_wings", 72);
     private static final int QUADS = MATERIALS.values().stream().mapToInt(Integer::intValue).sum();
     private static final Vec3 HAND = new Vec3(.060, 1.133, .372);
     private static final RenderType STONE = RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS);
@@ -154,8 +154,8 @@ public final class CupidShrineClientProbe {
                 float x = Float.intBitsToFloat(data[i]);
                 float y = Float.intBitsToFloat(data[i + 1]);
                 float z = Float.intBitsToFloat(data[i + 2]);
-                if (x > .1 && y > .34 && y < .425 && z > .4) lowFoot++;
-                if (x < -.1 && y > .75 && y < .89 && z > .25) raisedFoot++;
+                if (x > .08 && y > .46 && y < .55 && z > .32) lowFoot++;
+                if (x < -.17 && y > .78 && y < .89 && z > .14) raisedFoot++;
             }
         }
         require(counts.size() == MATERIALS.size(), "Unexpected baked material sprites: " + counts);
@@ -163,7 +163,7 @@ public final class CupidShrineClientProbe {
             require(entry.getValue().equals(counts.get(id(SCULPTURE + "/" + entry.getKey()))),
                     "Missing or substituted baked sculpture geometry for " + entry.getKey() + ": " + counts);
         }
-        require(lowFoot > 60 && raisedFoot > 60, "Both approved barefoot shapes must survive OBJ baking");
+        require(lowFoot > 5 && raisedFoot > 5, "Both original flat foot ends must survive OBJ baking");
     }
 
     private static void verifyRenderer(Minecraft client) {

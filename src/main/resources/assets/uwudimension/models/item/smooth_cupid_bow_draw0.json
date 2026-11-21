@@ -224,6 +224,7 @@
   },
   "perspectives": {
     "gui": {
+      "display": { "gui": { "rotation": [0, 0, -45] } },
       "gui_light": "front",
       "textures": {
         "particle": "uwudimension:item/smooth_cupid_bow_draw0"

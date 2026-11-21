@@ -106,7 +106,7 @@ public final class LotusClientProbe {
         }
         if (stage == Stage.CUPID_SHRINE) {
             try {
-                if (shrine.tick(client)) stage = Stage.DONE;
+                if (shrine.tick(client)) stage = Stage.CUPID;
             } catch (Throwable failure) {
                 System.err.println("CUPID SHRINE CLIENT CHECK FAILED");
                 failure.printStackTrace();

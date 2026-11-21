@@ -204,7 +204,12 @@ final class CupidBowProbe {
                 "Item override did not select " + texture + " (selected " + model.getParticleIcon().contents().name() + ")");
         if (!isSmooth) return;
 
-        var gui = transformed(model, ItemDisplayContext.GUI, new PoseStack());
+        var guiPose = new PoseStack();
+        var gui = transformed(model, ItemDisplayContext.GUI, guiPose);
+        // The smooth portrait is upright, while the original portrait already lies on a diagonal.
+        var top = guiPose.last().pose().transformDirection(0, 1, 0, new org.joml.Vector3f());
+        require(top.x > 0 && top.y > 0 && Math.abs(top.x - top.y) < 1E-5F,
+                "Smooth hotbar portrait did not follow the original rising diagonal: " + top);
         var portrait = quads(gui, stack);
         require(portrait.size() == 2 && sprites(portrait).equals(Set.of(texture)),
                 "Smooth creative portrait did not use the selected flat art for " + pose);
