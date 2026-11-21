@@ -32,9 +32,11 @@ import net.neoforged.neoforge.common.NeoForge;
 /** Opens a disposable world and samples real owner-camera geometry and block light. */
 @Mod("uwu_lotus_client_check")
 public final class LotusClientProbe {
-    private enum Stage { LOAD, POSITION, REPLAY, JADE, CUPID, DONE }
+    private enum Stage { LOAD, POSITION, DIRK_COUNTDOWN, REPLAY, JADE, CUPID, DONE }
     private static Stage stage = Stage.LOAD;
+    private static final boolean DIRK_ONLY = Boolean.getBoolean("uwu.check.dirkCountdown");
     private static boolean opening;
+    private static DirkCountdownProbe dirk;
     private static JadeFluidProbe jade;
     private static CupidBowProbe cupid;
     private static int stageTick;
@@ -49,6 +51,7 @@ public final class LotusClientProbe {
     public LotusClientProbe() {
         NeoForge.EVENT_BUS.addListener(LotusClientProbe::tick);
         NeoForge.EVENT_BUS.addListener(LotusClientProbe::frame);
+        if (DIRK_ONLY) NeoForge.EVENT_BUS.addListener(DirkCountdownProbe::replayBeforeFrame);
     }
 
     private static void tick(ClientTickEvent.Post event) {
@@ -66,6 +69,16 @@ public final class LotusClientProbe {
                     button.onPress();
                     break;
                 }
+            }
+        }
+        if (stage == Stage.DIRK_COUNTDOWN) {
+            try {
+                if (serverError != null) throw new AssertionError("Dirk server action failed", serverError);
+                if (dirk.tick(client)) stage = Stage.DONE;
+            } catch (Throwable failure) {
+                System.err.println("DIRK COUNTDOWN CHECK FAILED");
+                failure.printStackTrace();
+                stage = Stage.DONE;
             }
         }
         if (stage == Stage.JADE) {
@@ -96,7 +109,7 @@ public final class LotusClientProbe {
         Minecraft client = Minecraft.getInstance();
         var player = client.player;
         if (player == null || client.level == null || client.screen != null
-                || stage == Stage.JADE || stage == Stage.CUPID || stage == Stage.DONE) return;
+                || stage == Stage.DIRK_COUNTDOWN || stage == Stage.JADE || stage == Stage.CUPID || stage == Stage.DONE) return;
         try {
             if (serverError != null) throw new AssertionError("Server action failed", serverError);
             if (stage != Stage.LOAD) {
@@ -107,8 +120,10 @@ public final class LotusClientProbe {
                 case LOAD -> {
                     if (player.tickCount < 85) return;
                     require(RevivalBloom.DURATION_TICKS == 34, "Unexpected bloom duration");
-                    CompanionMotionProbe.verify();
-                    LanternCoverProbe.verify(client);
+                    if (!DIRK_ONLY) {
+                        CompanionMotionProbe.verify();
+                        LanternCoverProbe.verify(client);
+                    }
                     require(!ModList.get().isLoaded("lambdynlights"), "Block-light test needs no dynamic lighting mod");
                     client.options.setCameraType(CameraType.FIRST_PERSON);
                     serverAction(client, actor -> {
@@ -124,6 +139,11 @@ public final class LotusClientProbe {
                 case POSITION -> {
                     if (testPosition == null || player.distanceToSqr(testPosition) > .04
                             || player.tickCount - stageTick < 12) return;
+                    if (DIRK_ONLY) {
+                        dirk = new DirkCountdownProbe(client, action -> serverAction(client, action));
+                        stage = Stage.DIRK_COUNTDOWN;
+                        return;
+                    }
                     lightSample = BlockPos.containing(testPosition.add(2, 1, 0));
                     baseLight = client.level.getBrightness(LightLayer.BLOCK, lightSample);
                     peakLight = baseLight;
@@ -166,7 +186,7 @@ public final class LotusClientProbe {
                             + ", block light " + baseLight + " -> " + peakLight + " -> " + current);
                     stage = Boolean.getBoolean("uwu.check.decor") ? Stage.CUPID : Stage.JADE;
                 }
-                case JADE, CUPID, DONE -> {}
+                case DIRK_COUNTDOWN, JADE, CUPID, DONE -> {}
             }
         } catch (Throwable failure) {
             System.err.println("LOTUS CLIENT CHECK FAILED");

@@ -8,8 +8,10 @@ gradle.beforeProject { project ->
         project.neoForge.mods.create('uwu_lotus_client_check') { sourceSet(probe) }
         project.neoForge.runs.create('lotusClient') {
             client()
-            gameDirectory = project.file('build/lotus-client')
+            def dirkCountdown = System.getenv('UWU_DIRK_COUNTDOWN_CHECK') == 'true'
+            gameDirectory = project.file(dirkCountdown ? 'build/dirk-countdown-client' : 'build/lotus-client')
             jvmArgument('-Xmx3G')
+            if (dirkCountdown) jvmArgument('-Duwu.check.dirkCountdown=true')
             if (System.getenv('UWU_DECOR_CHECK') == 'true') jvmArgument('-Duwu.check.decor=true')
         }
     }
