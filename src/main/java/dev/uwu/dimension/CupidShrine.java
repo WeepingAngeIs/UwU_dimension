@@ -8,9 +8,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -36,16 +38,20 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 /** One native shrine block persists the statue's owner position and facing. */
 public final class CupidShrine {
     static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("uwudimension");
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("uwudimension");
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, "uwudimension");
     public static final DeferredBlock<Block> BLOCK = BLOCKS.register("cupid_shrine",
             () -> new MarkerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.POLISHED_DIORITE)
-                    .noOcclusion().noLootTable()));
+                    .strength(-1.0F, 3_600_000.0F).noOcclusion().noLootTable()));
+    private static final DeferredHolder<Item, BlockItem> STATUE_ITEM = ITEMS.register("cupid_shrine",
+            () -> new StatueItem(BLOCK.get()));
     static final DeferredHolder<BlockEntityType<?>, BlockEntityType<Marker>> ENTITY =
             ENTITIES.register("cupid_shrine", () -> BlockEntityType.Builder.of(Marker::new, BLOCK.get()).build(null));
 
@@ -53,7 +59,25 @@ public final class CupidShrine {
 
     static void register(IEventBus bus) {
         BLOCKS.register(bus);
+        ITEMS.register(bus);
         ENTITIES.register(bus);
+        bus.addListener(CupidShrine::addCreativeItem);
+    }
+
+    private static void addCreativeItem(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().location().equals(UwUDimension.id("main"))) event.accept(STATUE_ITEM.get());
+    }
+
+    private static final class StatueItem extends BlockItem {
+        StatueItem(Block block) {
+            super(block, new Item.Properties());
+        }
+
+        @Override public InteractionResult place(BlockPlaceContext context) {
+            Player player = context.getPlayer();
+            if (player == null || !player.isCreative()) return InteractionResult.FAIL;
+            return super.place(context);
+        }
     }
 
     public static BlockState state(Direction facing) {
@@ -105,6 +129,10 @@ public final class CupidShrine {
             builder.add(FACING);
         }
 
+        @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
+            return state(context.getHorizontalDirection().getOpposite());
+        }
+
         @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new Marker(pos, state); }
 
         @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
@@ -124,12 +152,6 @@ public final class CupidShrine {
         @Override protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
             BlockPos support = pos.below();
             return level.getBlockState(support).isFaceSturdy(level, support, Direction.UP);
-        }
-
-        @Override protected BlockState updateShape(BlockState state, Direction direction, BlockState neighbor,
-                                                   LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-            if (direction == Direction.DOWN && !state.canSurvive(level, pos)) return Blocks.AIR.defaultBlockState();
-            return super.updateShape(state, direction, neighbor, level, pos, neighborPos);
         }
 
         @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,

@@ -2,9 +2,11 @@
 set -euo pipefail
 root=$(pwd)
 candidate=$(realpath "${1:?Supply the combined shrine JAR}")
-baseline=$(realpath "${2:?Supply the verified Playtest 6 JAR}")
 test -f "$candidate"
-test -f "$baseline"
+if [[ ${UWU_SHRINE_FRESH_ONLY:-false} != true ]]; then
+    baseline=$(realpath "${2:?Supply the verified Playtest 6 JAR}")
+    test -f "$baseline"
+fi
 bash ./gradlew --no-daemon --max-workers=2 -I shrine-check/probe.gradle petalShrineProbeJar
 
 server=$(mktemp -d "${RUNNER_TEMP:-/tmp}/uwu-petal-shrine.XXXXXXXX")
@@ -35,6 +37,7 @@ run_stage() {
 }
 
 run_stage shoulder "$candidate" shrine-shoulder 'PETAL SHRINE SERVER PASS order=shoulder'
+if [[ ${UWU_SHRINE_FRESH_ONLY:-false} == true ]]; then exit 0; fi
 run_stage village "$candidate" shrine-village 'PETAL SHRINE SERVER PASS order=village'
 shoulder=$(sed -n 's/.*PETAL SHRINE SERVER PASS order=shoulder anchor=/anchor=/p' "$root/build/shrine-check/shoulder.log")
 village=$(sed -n 's/.*PETAL SHRINE SERVER PASS order=village anchor=/anchor=/p' "$root/build/shrine-check/village.log")

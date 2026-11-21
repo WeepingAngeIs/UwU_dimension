@@ -22,7 +22,8 @@ export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null
 timeout --kill-after=20s 10m xvfb-run -a -s '-screen 0 800x600x24' bash gradlew --no-daemon --max-workers=2 -I lotus-client-check/client.gradle runLotusClient 2>&1 | tee "$log"
 if [[ ${UWU_SHRINE_CLIENT_CHECK:-false} == true ]]; then
     grep -F 'CUPID SHRINE CLIENT PASS' "$log"
-    grep -F 'CUPID CREATIVE AND CLIENT POSES PASS' "$log"
+    grep -F 'CUPID STATUE SERVER PASS' "$log"
+    grep -F 'CUPID STATUE CREATIVE LISTING PASS' "$log"
     exit 0
 fi
 if [[ ${UWU_DIRK_COUNTDOWN_CHECK:-false} == true ]]; then

@@ -32,7 +32,7 @@ public final class CupidShrineRenderer implements BlockEntityRenderer<CupidShrin
                                  MultiBufferSource buffers, int light, int overlay) {
         var level = shrine.getLevel();
         var state = shrine.getBlockState();
-        if (level == null || !level.dimension().equals(ReefLife.REACH) || !state.is(CupidShrine.BLOCK.get())) return;
+        if (level == null || !state.is(CupidShrine.BLOCK.get())) return;
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         // The model faces south at zero, with Minecraft's facing yaw turning the other way.
         float yaw = -state.getValue(CupidShrine.FACING).toYRot();

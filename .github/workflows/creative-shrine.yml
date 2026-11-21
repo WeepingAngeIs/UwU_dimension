@@ -1,0 +1,64 @@
+name: UwU Dimension Creative Cupid Shrine playtest
+on:
+  push:
+    branches: ['codex/integration/uwu-creative-shrine']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    if: github.repository == 'weepingangeis/z-uwu_dm' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 34
+    env:
+      VERSION: '1.5.0-beta.13-combined-rc.2-playtest.9'
+      UWU_JAR: build/libs/UwU-Dimension-1.21.1-1.5.0-beta.13-combined-rc.2-playtest.9.jar
+      UWU_SHRINE_CLIENT_CHECK: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and verify the scope against Playtest 8
+        id: build
+        run: |
+          bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
+          python3 shrine-check/verify-creative.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+      - name: Check a newly generated Petal shrine and its effects
+        env:
+          UWU_SHRINE_FRESH_ONLY: 'true'
+        run: bash shrine-check/run-server.sh "$UWU_JAR"
+      - name: Prepare the disposable client display
+        id: display
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          if ! command -v xvfb-run >/dev/null || ! command -v xauth >/dev/null || ! dpkg-query -W libgl1-mesa-dri libopenal1 >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb xauth libgl1-mesa-dri libopenal1
+          fi
+      - name: Check Creative inventory, placement and removal, Survival mining protection and shrine rendering
+        if: ${{ !cancelled() && steps.display.outcome == 'success' }}
+        run: bash lotus-client-check/run.sh
+      - name: Record the exact JAR digest
+        id: packet
+        run: |
+          python3 shrine-check/verify-creative.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
+          echo "sha=$(sha256sum "$UWU_JAR" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Return the verified test JAR
+        id: deliver
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: ${{ env.UWU_JAR }}
+          archive: false
+          retention-days: 1
+          if-no-files-found: error
+      - name: Verify the uploaded JAR digest
+        env:
+          SHA: ${{ steps.packet.outputs.sha }}
+          UPLOAD_SHA: ${{ steps.deliver.outputs.artifact-digest }}
+        run: |
+          test "$SHA" = "${UPLOAD_SHA#sha256:}"
+          echo "CREATIVE SHRINE SHA256 $SHA" >> "$GITHUB_STEP_SUMMARY"

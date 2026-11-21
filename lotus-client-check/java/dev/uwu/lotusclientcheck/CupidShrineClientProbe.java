@@ -94,6 +94,7 @@ public final class CupidShrineClientProbe {
                 }
                 require(owner.teleportTo(level, FEET.x, FEET.y, FEET.z, Set.of(), 180, 8),
                         "Could not travel to the fixture platform");
+                CupidStatueItemProbe.verifyServer(owner, CENTER.south(4));
             } catch (Throwable failure) {
                 preparationFailure = failure;
             }
@@ -110,6 +111,7 @@ public final class CupidShrineClientProbe {
             for (BlockPos pos : MARKERS.values()) {
                 if (client.level.getBlockEntity(pos) == null) return false;
             }
+            CupidStatueItemProbe.verifyCreativeListing(client);
             verifyResourceIdentity(client);
             verifyBakedModel(client);
             verifyRenderer(client);
