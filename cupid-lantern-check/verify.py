@@ -57,10 +57,15 @@ def records(raw, prefix):
 
 
 def geometry(jar):
-    removed = set()
-    for start, end in ((649, 728), (1017, 1096), (3999, 4078), (4367, 4446)):
-        removed.update(range(start - 1, end))
     for suffix in POSES:
+        # Draw1/deep have four earlier faces, and draw2 has eight, before the lower limb.
+        # These are the same four rounded-square components, with pose-specific face indices.
+        lower_offset = {'': 0, '_draw0': 0, '_draw1': 4, '_deep': 4, '_draw2': 8}[suffix]
+        removed = set()
+        for start, end in ((649, 728), (1017, 1096),
+                           (3999 + lower_offset, 4078 + lower_offset),
+                           (4367 + lower_offset, 4446 + lower_offset)):
+            removed.update(range(start - 1, end))
         path = MODEL_PREFIX + suffix + '.obj'
         old = baseline('src/main/resources/' + path)
         new = jar.read(path)
