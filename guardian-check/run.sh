@@ -3,6 +3,24 @@ set -euo pipefail
 root=$(pwd)
 release=$(realpath "${1:?Supply the path to the built production JAR}")
 test -f "$release"
+python3 - "$release" <<'PY'
+import json
+import sys
+from zipfile import ZipFile
+
+with ZipFile(sys.argv[1]) as jar:
+    sounds = json.loads(jar.read("assets/uwudimension/sounds.json"))
+    for faction, pitch in (("petal", 1.17), ("dusk", 0.73)):
+        assert sounds[f"{faction}_hurt"] == {
+            "subtitle": f"subtitles.uwudimension.{faction}_voice",
+            "sounds": [{"name": f"uwudimension:{faction}_voice", "type": "event", "pitch": pitch}],
+        }
+        original = [f"uwudimension:{faction}_{i}" for i in range(1, 4)]
+        assert sounds[f"{faction}_voice"]["sounds"] == original
+        for sound in original:
+            jar.getinfo("assets/uwudimension/sounds/" + sound.split(":")[1] + ".ogg")
+print("KEEPER HURT ASSETS PASS each hurt event aliases the original voice with its own pitch")
+PY
 bash ./gradlew --no-daemon --max-workers=2 -I guardian-check/probe.gradle guardianHomeProbeJar
 server=$(mktemp -d "${RUNNER_TEMP:-/tmp}/uwu-guardian-home.XXXXXXXX")
 cd "$server"
@@ -19,7 +37,7 @@ timeout --kill-after=15s 6m java -Xmx1G -jar installer.jar --installServer
 printf 'eula=true\n' >eula.txt
 printf 'server-ip=127.0.0.1\nserver-port=25599\nonline-mode=false\nlevel-type=minecraft:flat\nview-distance=3\nsimulation-distance=3\nmax-tick-time=120000\nspawn-monsters=false\n' >server.properties
 timeout --kill-after=20s 12m java -Xms512m -Xmx3g -XX:+ExitOnOutOfMemoryError @libraries/net/neoforged/neoforge/21.1.249/unix_args.txt nogui 2>&1 | tee "$root/build/guardian-check/server.log"
-for marker in 'GUARDIAN HOME BINDING PASS' 'GUARDIAN HOME SCHEDULE PASS' 'GUARDIAN HOME DOORS PASS' 'GUARDIAN HOME SERVER PASS' 'KEEPER DOOR SERVER PASS'; do
+for marker in 'GUARDIAN HOME BINDING PASS' 'GUARDIAN HOME SCHEDULE PASS' 'GUARDIAN HOME DOORS PASS' 'GUARDIAN HOME SERVER PASS' 'KEEPER DOOR SERVER PASS' 'KEEPER HURT ROUTING PASS' 'GUARDIAN RESCUE PASS'; do
     grep -F "$marker" "$root/build/guardian-check/server.log"
 done
 if grep -Ei 'OutOfMemoryError|GUARDIAN HOME CHECK FAILED|single server tick has taken' "$root/build/guardian-check/server.log"; then

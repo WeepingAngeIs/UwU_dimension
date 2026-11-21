@@ -25,7 +25,7 @@ jobs:
         run: |
           bash ./gradlew --no-daemon --no-build-cache --max-workers=2 jar
           python3 playtest-3/verify.py "$UWU_JAR" "$VERSION" --classes build/classes/java/main
-      - name: Verify Keeper Silkwood passage and Guardian regression
+      - name: Verify Keeper passages, hurt voices and Guardian rescue
         run: bash guardian-check/run.sh "$UWU_JAR"
       - name: Prepare the disposable client display
         id: display

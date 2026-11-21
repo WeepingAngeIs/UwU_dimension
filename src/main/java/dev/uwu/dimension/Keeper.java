@@ -250,7 +250,7 @@ public final class Keeper extends Villager {
         runToUwuRefuge(level);
         if (this.horizontalCollision && this.onGround() && !doors.guiding()) this.jumpFromGround();
         if (this.tickCount % 60 == 0) {
-            this.playSound(SoundEvents.VILLAGER_HURT, 1.0F, 1.2F + this.random.nextFloat() * 0.2F);
+            this.playSound(keeperHurtSound(), 1.0F, getVoicePitch());
         }
     }
 
@@ -640,7 +640,8 @@ public final class Keeper extends Villager {
     @Override public SoundEvent getNotifyTradeSound() { return dusk() ? People.DUSK_VOICE.get() : People.PETAL_VOICE.get(); }
     @Override protected SoundEvent getTradeUpdatedSound(boolean valid) { return getNotifyTradeSound(); }
     @Override protected SoundEvent getAmbientSound() { return getNotifyTradeSound(); }
-    @Override protected SoundEvent getHurtSound(DamageSource source) { return getNotifyTradeSound(); }
+    @Override protected SoundEvent getHurtSound(DamageSource source) { return keeperHurtSound(); }
+    private SoundEvent keeperHurtSound() { return dusk() ? People.DUSK_HURT.get() : People.PETAL_HURT.get(); }
     @Override public int getAmbientSoundInterval() { return 260; }
 
     @Override public void addAdditionalSaveData(CompoundTag data) {

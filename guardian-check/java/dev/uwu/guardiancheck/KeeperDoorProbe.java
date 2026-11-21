@@ -29,6 +29,7 @@ final class KeeperDoorProbe {
             new Lane("silkwood_door", DoorHingeSide.LEFT, false, false),
             new Lane("silkwood_door", DoorHingeSide.RIGHT, true, false),
             new Lane("velvetwood_door", DoorHingeSide.RIGHT, true, true));
+    private final KeeperVoiceProbe voices = new KeeperVoiceProbe();
     private GuardianArena arena;
     private int ticks;
     private boolean started;
@@ -47,6 +48,7 @@ final class KeeperDoorProbe {
         require(ticks <= 560, "Keeper doorway timed out: " + lanes.stream().map(Lane::describe).toList());
         if (!started) {
             if (!arena.entitiesReady()) return false;
+            voices.verify(level, lanes.getFirst().bed.east(1));
             for (Lane lane : lanes) lane.spawn(level);
             started = true;
             return false;

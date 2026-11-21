@@ -15,6 +15,18 @@
       "uwudimension:dusk_3"
     ]
   },
+  "petal_hurt": {
+    "subtitle": "subtitles.uwudimension.petal_voice",
+    "sounds": [
+      { "name": "uwudimension:petal_voice", "type": "event", "pitch": 1.17 }
+    ]
+  },
+  "dusk_hurt": {
+    "subtitle": "subtitles.uwudimension.dusk_voice",
+    "sounds": [
+      { "name": "uwudimension:dusk_voice", "type": "event", "pitch": 0.73 }
+    ]
+  },
   "music.heartwater": {
     "sounds": [
       {

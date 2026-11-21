@@ -4,7 +4,8 @@ from pathlib import Path
 from zipfile import ZipFile
 
 REQUIRED = (
-    'DawnpetalAbilities', 'DawnpetalAbility', 'Keeper', 'KeeperDoorPassage',
+    'BlossomWarden', 'DawnpetalAbilities', 'DawnpetalAbility', 'GuardianRescueNavigation',
+    'Keeper', 'KeeperDoorPassage', 'People',
     'ReturnbloomFacing', 'ReturnbloomTurnBack', 'RevivalBlossomClient', 'RevivalBlossomMotion',
     'RevivalBlossoms', 'SharedAbilityHotbar', 'compat/SakuraFluidJadePlugin',
     'mixin/DaggerAttackMixin', 'mixin/DawnpetalBetterCombatMixin', 'mixin/DawnpetalPacketRangeMixin',
@@ -12,10 +13,13 @@ REQUIRED = (
 )
 REMOVED = ('ReturnbloomPrime', 'ReturnbloomPrimedHitEvent')
 METADATA = 'META-INF/neoforge.mods.toml'
-CHANGED_RESOURCES = (METADATA, 'uwudimension.mixins.json', 'assets/uwudimension/lang/en_us.json')
+CHANGED_RESOURCES = (
+    METADATA, 'uwudimension.mixins.json',
+    'assets/uwudimension/lang/en_us.json', 'assets/uwudimension/sounds.json',
+)
 PREFIX = 'dev/uwu/dimension/'
-PLAYTEST_2_DIGEST = '37d4cb4abb9a63a54b45b3614b4b0ef14f4c27d7ed1b5349a28ec8f8b771dc36'
-PLAYTEST_2_ENTRIES = 3962
+PLAYTEST_2_DIGEST = '0b00490b54c8d85bc39735a29de93fe3f958217f9a812f92c2d7ad691e062ace'
+PLAYTEST_2_ENTRIES = 3955
 
 
 def changed_class(name):
@@ -39,7 +43,7 @@ def verify(jar_path, version, classes):
         for entry in preserved:
             digest.update(entry.encode() + b'\0' + sha256(jar.read(entry)).digest())
         assert len(preserved) == PLAYTEST_2_ENTRIES and digest.hexdigest() == PLAYTEST_2_DIGEST, (
-            'Content outside the four approved edits differs from playtest 2'
+            'Content outside the approved edit scope differs from playtest 2'
         )
         if classes:
             for name in entries:

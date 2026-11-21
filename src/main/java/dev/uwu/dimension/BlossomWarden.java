@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,8 @@ public final class BlossomWarden extends PathfinderMob {
     /** Ticks without closing the gap before the guardian intercepts instead of waiting on a blocked route. */
     private static final int STALL_LIMIT = 60;
     private static final int PATROL_RETURN_RANGE = 50;
+    private static final int RESCUE_TICKS = 60;
+    private static final double RESCUE_RANGE_SQUARED = 64 * 64;
     private static final byte IDLE = 0, CHASE = 1, GRIP = 2, THROW = 3;
     private static final EntityDataAccessor<Byte> POSE = SynchedEntityData.defineId(BlossomWarden.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> FEMALE =
@@ -112,7 +115,14 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private final ArrayDeque<UUID> offenders = new ArrayDeque<>();
-    private final Map<UUID, Long> unreachableUntil = new HashMap<>();
+    private final Map<UUID, PursuitDelay> unreachableUntil = new HashMap<>();
+    private final Map<UUID, Long> rescueAlerts = new LinkedHashMap<>();
+    @Nullable private Rescue rescue;
+    private long rescueRepathAt;
+    private boolean rescueGrab;
+
+    private record Rescue(UUID target, Vec3 origin, long expires) {}
+    private record PursuitDelay(long expires, boolean blockedEvenInReach) {}
     private BlockPos court;
     private ResourceLocation villageDimension;
     private boolean recordedVillage;
@@ -141,7 +151,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     @Override protected PathNavigation createNavigation(Level level) {
-        var ground = new GroundPathNavigation(this, level);
+        var ground = new GuardianRescueNavigation(this, level);
         ground.setCanPassDoors(false);
         return ground;
     }
@@ -232,7 +242,7 @@ public final class BlossomWarden extends PathfinderMob {
                 e -> e.isAlive() && (home == null || home.equals(e.guardCourt()))).stream()
                 .min(Comparator.comparingDouble(victim::distanceToSqr)).orElse(null);
         }
-        if (guard != null) guard.accuse(culprit);
+        if (guard != null) guard.alertRescue(culprit);
         else if (home != null) directory(level).report(home, culprit.getUUID());
     }
 
@@ -283,9 +293,78 @@ public final class BlossomWarden extends PathfinderMob {
         return null;
     }
 
+    private boolean canPursue(LivingEntity culprit) {
+        return culprit != this && culprit.isAlive() && culprit.level() == level()
+                && !temporarilyUnreachable(culprit) && !culprit.getPersistentData().contains(GuardianFlight.STATE);
+    }
+
     private void accuse(LivingEntity culprit) {
-        if (culprit == this || !culprit.isAlive() || temporarilyUnreachable(culprit) || culprit.getPersistentData().contains(GuardianFlight.STATE) || offenders.contains(culprit.getUUID())) return;
-        accuse(culprit.getUUID());
+        if (canPursue(culprit)) accuse(culprit.getUUID());
+    }
+
+    private void alertRescue(LivingEntity culprit) {
+        if (!canPursue(culprit) || culprit.isSpectator()) return;
+        UUID id = culprit.getUUID();
+        if (rescue != null && rescue.target.equals(id)) return;
+        if (gripping() || throwing() || rescue != null) {
+            if (!id.equals(offender())) rescueAlerts.putIfAbsent(id, level().getGameTime() + RESCUE_TICKS);
+            return;
+        }
+        beginRescue(id);
+    }
+
+    private void beginRescue(UUID id) {
+        offenders.remove(id);
+        offenders.addFirst(id);
+        setTarget(null);
+        getNavigation().stop();
+        pursueTicks = missingTicks = stallTicks = 0;
+        bestGap = Double.MAX_VALUE;
+        long now = level().getGameTime();
+        rescue = new Rescue(id, position(), now + RESCUE_TICKS);
+        rescueRepathAt = now;
+        transition(CHASE);
+    }
+
+    boolean rescueSprinting() { return rescue != null; }
+
+    private void stopRescue() {
+        rescue = null;
+        getNavigation().stop();
+        setSpeed(0);
+        setDeltaMovement(0, getDeltaMovement().y, 0);
+    }
+
+    private void checkRescue(ServerLevel level) {
+        long now = level.getGameTime();
+        if (rescue != null) {
+            if (!rescue.target.equals(offender())) {
+                stopRescue();
+            } else if (now >= rescue.expires
+                    || !(level.getEntity(rescue.target) instanceof LivingEntity target)
+                    || !canPursue(target) || target.isSpectator()
+                    || target.distanceToSqr(rescue.origin) > RESCUE_RANGE_SQUARED
+                    || distanceToSqr(rescue.origin) > RESCUE_RANGE_SQUARED) {
+                // Failed rescues drop this target instead of invoking ordinary warp interception.
+                unreachableUntil.put(rescue.target, new PursuitDelay(now + 100, true));
+                stopRescue();
+                finish(level, false);
+            }
+        }
+        if (rescue == null && !gripping() && !throwing() && !rescueAlerts.isEmpty()) {
+            var pending = rescueAlerts.entrySet().iterator();
+            while (pending.hasNext()) {
+                var alert = pending.next();
+                UUID id = alert.getKey();
+                long expiry = alert.getValue();
+                pending.remove();
+                if (now < expiry && level.getEntity(id) instanceof LivingEntity target
+                        && canPursue(target) && !target.isSpectator()) {
+                    beginRescue(id);
+                    return;
+                }
+            }
+        }
     }
 
     private void accuse(UUID id) {
@@ -295,6 +374,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private void transition(byte phase) {
+        if (phase == IDLE || phase == CHASE) rescueGrab = false;
         entityData.set(POSE, phase);
         motionTicks = 0;
     }
@@ -307,6 +387,7 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     @Override public void aiStep() {
+        if (level() instanceof ServerLevel server) checkRescue(server);
         super.aiStep();
         if (!level().isClientSide) {
             var regen=getEffect(net.minecraft.world.effect.MobEffects.REGENERATION);
@@ -355,6 +436,18 @@ public final class BlossomWarden extends PathfinderMob {
             getLookControl().setLookAt(culprit, 30, 30);
             ++pursueTicks;
             boolean inReach = distanceToSqr(culprit) <= reachSquared(culprit);
+            if (rescueSprinting() && (!inReach || !hasLineOfSight(culprit))) {
+                long now = level.getGameTime();
+                if (now >= rescueRepathAt) {
+                    getNavigation().moveTo(culprit, 1);
+                    rescueRepathAt = now + 6;
+                }
+                return;
+            }
+            if (rescueSprinting()) {
+                rescueGrab = true;
+                stopRescue();
+            }
             // If the gap stops closing (water, a cliff, no usable route), intercept now instead of waiting 600 ticks.
             double gap = Math.sqrt(distanceToSqr(culprit));
             if (gap < bestGap - .5) { bestGap = gap; stallTicks = 0; }
@@ -363,7 +456,7 @@ public final class BlossomWarden extends PathfinderMob {
                 Vec3 landing = interceptPosition(level, culprit);
                 if (landing == null) {
                     // Give the other threats a turn while this target remains boxed in.
-                    unreachableUntil.put(culprit.getUUID(), level.getGameTime()+100);
+                    unreachableUntil.put(culprit.getUUID(), new PursuitDelay(level.getGameTime() + 100, false));
                     finish(level);
                     return;
                 }
@@ -428,12 +521,13 @@ public final class BlossomWarden extends PathfinderMob {
     }
 
     private boolean temporarilyUnreachable(LivingEntity target) {
-        return unreachableUntil.getOrDefault(target.getUUID(), 0L) > level().getGameTime()
-                && distanceToSqr(target) > reachSquared(target);
+        PursuitDelay delay = unreachableUntil.get(target.getUUID());
+        return delay != null && delay.expires > level().getGameTime()
+                && (delay.blockedEvenInReach || distanceToSqr(target) > reachSquared(target));
     }
 
     private void acquireThreat(ServerLevel level) {
-        unreachableUntil.values().removeIf(expiry -> expiry <= level.getGameTime());
+        unreachableUntil.values().removeIf(delay -> delay.expires <= level.getGameTime());
         BlockPos origin = guardCourt();
         AABB area = new AABB(origin).inflate(GuardianVillageHomes.PRECINCT_RADIUS);
         List<Keeper> keepers = level.getEntitiesOfClass(Keeper.class, area,
@@ -481,13 +575,19 @@ public final class BlossomWarden extends PathfinderMob {
         }
     }
     private void finish(ServerLevel level) {
-        offenders.removeFirst();
+        finish(level, !rescueGrab);
+    }
+
+    private void finish(ServerLevel level, boolean emergencyReturn) {
+        rescueAlerts.remove(offenders.removeFirst());
+        rescueGrab = false;
+        if (rescueSprinting()) stopRescue();
         setTarget(null);
         getNavigation().stop();
         pursueTicks=0; missingTicks=0; stallTicks=0; bestGap=Double.MAX_VALUE;
         transition(offenders.isEmpty()?IDLE:CHASE);
         BlockPos returnCourt = guardCourt();
-        if (offenders.isEmpty() && level.hasChunkAt(returnCourt)) {
+        if (emergencyReturn && offenders.isEmpty() && level.hasChunkAt(returnCourt)) {
             Vec3 home = Vec3.atBottomCenterOf(returnCourt);
             AABB homeBox = getBoundingBox().move(home.subtract(position()));
             if (distanceToSqr(home) > PATROL_RETURN_RANGE*PATROL_RETURN_RANGE
@@ -517,8 +617,13 @@ public final class BlossomWarden extends PathfinderMob {
         if (court != null) tag.putLong("VillageCourt",court.asLong());
         if (villageDimension != null) tag.putString("VillageHomeDimension", villageDimension.toString());
         ListTag list = new ListTag();
-        for (UUID id:offenders) { var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry); }
+        for (UUID id:offenders) {
+            // Unloading a sprint must never turn it into an ordinary warp chase on reload.
+            if (rescue != null && rescue.target.equals(id)) continue;
+            var entry = new CompoundTag(); entry.putUUID("Offender",id); list.add(entry);
+        }
         tag.put("Offenders",list); tag.putByte("GripPhase",entityData.get(POSE)); tag.putInt("PursueTicks",pursueTicks);
+        if (rescueGrab) tag.putBoolean("RescueGrab", true);
         tag.putInt("MotionTicks",motionTicks); tag.putDouble("Takeoff",takeoffY);
         tag.putDouble("TossX",destination.x); tag.putDouble("TossY",destination.y); tag.putDouble("TossZ",destination.z);
     }
@@ -540,10 +645,13 @@ public final class BlossomWarden extends PathfinderMob {
                 if (villageDimension != null) clearRestriction();
             }
         }
+        rescue = null;
+        rescueAlerts.clear();
         offenders.clear();
         var list=tag.getList("Offenders",Tag.TAG_COMPOUND);
         for(int i=0;i<list.size();i++) if(list.getCompound(i).hasUUID("Offender")) offenders.add(list.getCompound(i).getUUID("Offender"));
         entityData.set(POSE,offenders.isEmpty()?IDLE:tag.getByte("GripPhase")); pursueTicks=tag.getInt("PursueTicks");
+        rescueGrab = (gripping() || throwing()) && tag.getBoolean("RescueGrab");
         motionTicks=tag.getInt("MotionTicks"); takeoffY=tag.getDouble("Takeoff");
         destination=new Vec3(tag.getDouble("TossX"),tag.getDouble("TossY"),tag.getDouble("TossZ"));
     }

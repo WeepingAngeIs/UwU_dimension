@@ -24,6 +24,8 @@ public final class People {
     public static final DeferredHolder<EntityType<?>, EntityType<KeeperZombieVillager>> DUSK_ZOMBIE = zombieKeeper("dusk_zombie_villager");
     public static final DeferredHolder<SoundEvent, SoundEvent> PETAL_VOICE = voice("petal_voice");
     public static final DeferredHolder<SoundEvent, SoundEvent> DUSK_VOICE = voice("dusk_voice");
+    public static final DeferredHolder<SoundEvent, SoundEvent> PETAL_HURT = voice("petal_hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> DUSK_HURT = voice("dusk_hurt");
 
     public static final DeferredHolder<EntityType<?>,EntityType<BlossomWarden>> BLOSSOM_WARDEN =
             TYPES.register("blossom_warden", () -> EntityType.Builder.<BlossomWarden>of(BlossomWarden::new, MobCategory.CREATURE)
