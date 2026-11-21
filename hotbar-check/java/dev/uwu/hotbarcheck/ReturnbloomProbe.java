@@ -2,6 +2,7 @@ package dev.uwu.hotbarcheck;
 
 import dev.uwu.dimension.RelicFlight;
 import dev.uwu.dimension.RevivalBlossoms;
+import net.bettercombat.logic.PlayerAttackHelper;
 import net.bettercombat.network.Packets;
 import net.bettercombat.network.ServerNetwork;
 import net.minecraft.core.BlockPos;
@@ -19,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Runs the original Better Combat server request path in the disposable hotbar world. */
 final class ReturnbloomProbe {
-    private enum Step { OTHER, MISS, REJECTED, THROW, CATCH, GROUP, EARLY, READY, DONE }
+    private enum Step { OTHER, OFFHAND, MISS, REJECTED, THROW, CATCH, GROUP, EARLY, READY, DONE }
     private static final String KEY = "uwu.returnbloom_turn_back_until";
     private static final float SIDEWAYS = 95;
     private final ServerPlayer player;
@@ -61,6 +62,19 @@ final class ReturnbloomProbe {
                 float health = left.getHealth();
                 player.attack(left);
                 require(left.getHealth() < health && !turned(left) && cooldown() == 0, "Ordinary sword triggered Turn Back");
+                player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(RevivalBlossoms.DIRK.get()));
+                advance(Step.OFFHAND, 20);
+            }
+            case OFFHAND -> {
+                place(left, -.7, 2.3);
+                var attack = PlayerAttackHelper.getCurrentAttack(player, 1);
+                require(attack != null && attack.isOffHand() && attack.itemStack().is(RevivalBlossoms.DIRK.get()),
+                        "Offhand control did not select the real Better Combat Dirk attack");
+                float health = left.getHealth();
+                request(1, left);
+                require(left.getHealth() < health && !turned(left) && cooldown() == 0,
+                        "Better Combat's offhand Dirk triggered Turn Back");
+                player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
                 equip(new ItemStack(RevivalBlossoms.DIRK.get()));
                 advance(Step.MISS, 20);
             }
@@ -123,7 +137,7 @@ final class ReturnbloomProbe {
                 right.discard();
                 thrownAt.discard();
                 System.out.println("RETURNBLOOM TURN BACK PASS two victims per Better Combat swing, 120 ticks,"
-                        + " miss/rejected hit/projectile/other weapon controls");
+                        + " miss/rejected hit/projectile/other weapon/offhand controls");
                 step = Step.DONE;
                 return true;
             }
@@ -142,9 +156,13 @@ final class ReturnbloomProbe {
     }
 
     private void request(Cow... targets) {
+        request(0, targets);
+    }
+
+    private void request(int combo, Cow... targets) {
         int[] ids = java.util.Arrays.stream(targets).mapToInt(Cow::getId).toArray();
         int cursor = ids.length > 0 ? ids[0] : -1;
-        var packet = new Packets.C2S_AttackRequest(0, false, player.getInventory().selected, cursor, ids);
+        var packet = new Packets.C2S_AttackRequest(combo, false, player.getInventory().selected, cursor, ids);
         ServerNetwork.handleAttackRequest(packet, player.serverLevel().getServer(), player, player.connection);
     }
 

@@ -55,11 +55,12 @@ public final class ReturnbloomTurnBack {
     }
 
     public static void betterCombat(ServerPlayer player, ItemStack selected, boolean mainHand, Runnable attack) {
-        if (!player.getMainHandItem().is(RevivalBlossoms.DIRK.get())) {
+        if (!player.getMainHandItem().is(RevivalBlossoms.DIRK.get())
+                && !selected.is(RevivalBlossoms.DIRK.get())) {
             attack.run();
             return;
         }
-        // Offhand and rejected selections suppress the vanilla wrapper for the entire native batch.
+        // Better Combat substitutes the attacking offhand stack into the main slot during its batch.
         swing(player, mainHand && selected == player.getMainHandItem(), attack);
     }
 

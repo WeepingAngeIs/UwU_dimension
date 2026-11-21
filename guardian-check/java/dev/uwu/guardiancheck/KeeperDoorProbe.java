@@ -130,8 +130,11 @@ final class KeeperDoorProbe {
                     "Door hinge changed: " + id);
             boolean open = lower.getValue(DoorBlock.OPEN);
             require(open == upper.getValue(DoorBlock.OPEN), "Door halves desynchronized: " + id);
-            if (open && !lastOpen) ++opens;
-            lastOpen = open;
+            if (open != lastOpen) {
+                if (open) ++opens;
+                System.out.println("KEEPER DOOR " + (open ? "OPEN" : "CLOSED") + " " + describe());
+                lastOpen = open;
+            }
             var speed = keeper.getEffect(MobEffects.MOVEMENT_SPEED);
             observedFear |= speed != null && speed.getAmplifier() >= 3;
             if (opens == 0 || open || keeper.getX() < door.getX() + 1.35) return;

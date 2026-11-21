@@ -24,6 +24,7 @@ final class KeeperDoorPassage {
 
     private final Keeper keeper;
     @Nullable private Passage passage;
+    @Nullable private Passage heldOpen;
     @Nullable private BlockPos blockedDoor;
     private long retryAt;
 
@@ -81,6 +82,7 @@ final class KeeperDoorPassage {
         if (now >= retryAt) blockedDoor = null;
         Path route = keeper.getNavigation().getPath();
         boolean walking = keeper.getTarget() == null && !keeper.isTrading() && !keeper.isSleeping();
+        closeRetainedDoor(level, walking, now);
         if (passage == null && walking && route != null && !route.isDone()) passage = findDoor(level, route);
         Passage current = passage;
         if (current == null) return;
@@ -101,13 +103,13 @@ final class KeeperDoorPassage {
             passage = null;
             return;
         }
-        if (now >= current.deadline || route == null && progress < -.5) {
+        if (now >= current.deadline) {
             retryRoute(current, now);
             return;
         }
 
-        // First let the normal navigator approach a step or landing up to the door's height.
-        if (Math.abs(keeper.getY() - current.door.getY()) > .55) return;
+        // Leave a temporary path gap or height change to the native navigator.
+        if (route == null && progress < -.5 || Math.abs(keeper.getY() - current.door.getY()) > .55) return;
         if (current.attempts == 0 && !chooseLane(current, now)) {
             retryRoute(current, now);
             return;
@@ -160,7 +162,9 @@ final class KeeperDoorPassage {
             if (approach > .4) continue;
             boolean opened = !door.getValue(DoorBlock.OPEN);
             if (opened) ((DoorBlock) door.getBlock()).setOpen(keeper, level, door, lower, true);
-            return new Passage(level, lower, door, direction, opened);
+            boolean retained = heldOpen != null && heldOpen.door.equals(lower) && door.is(heldOpen.block);
+            if (retained) heldOpen = null;
+            return new Passage(level, lower, door, direction, opened || retained);
         }
         return null;
     }
@@ -212,10 +216,25 @@ final class KeeperDoorPassage {
     private void retryRoute(Passage current, long now) {
         blockedDoor = current.door;
         retryAt = now + RETRY_DELAY;
-        closeWhenClear(current);
+        // Repath may still lead through this door. Keep our opening until the Keeper
+        // crosses or abandons it, so a blocked approach cannot cycle the door.
+        if (current.opened) heldOpen = current;
         passage = null;
         // Keep WALK_TARGET, its speed and Brain activity. The normal navigator recalculates its route.
         keeper.getNavigation().recomputePath();
+    }
+
+    private void closeRetainedDoor(ServerLevel level, boolean walking, long now) {
+        Passage current = heldOpen;
+        if (current == null) return;
+        if (level != current.level) {
+            heldOpen = null;
+            return;
+        }
+        boolean passed = current.progress(keeper.position()) > .5 + keeper.getBbWidth() * .5;
+        if (passed || !walking || now >= retryAt + MAX_GUIDE_TICKS) {
+            if (closeWhenClear(current)) heldOpen = null;
+        }
     }
 
     private boolean closeWhenClear(Passage current) {
