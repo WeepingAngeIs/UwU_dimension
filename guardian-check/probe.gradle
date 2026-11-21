@@ -2,6 +2,7 @@ gradle.projectsEvaluated {
     def project = gradle.rootProject
     def compile = project.tasks.register('compileGuardianHomeProbe', JavaCompile) {
         source(project.fileTree('guardian-check/java') { include '**/*.java' })
+        source(project.fileTree('chest-check/java') { include '**/*.java' })
         classpath = project.sourceSets.main.compileClasspath + project.sourceSets.main.output
         destinationDirectory.set(project.layout.buildDirectory.dir('guardian-check/classes'))
         javaCompiler.set(project.tasks.named('compileJava', JavaCompile).flatMap { it.javaCompiler })

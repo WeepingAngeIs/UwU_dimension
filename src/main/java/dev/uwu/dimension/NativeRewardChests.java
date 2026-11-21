@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -42,6 +44,10 @@ final class NativeRewardChests {
     static final DeferredBlock<RewardChestBlock> PETAL = BLOCKS.register("petal_reward_chest", NativeRewardChests::makeBlock);
     static final DeferredBlock<RewardChestBlock> DUSK = BLOCKS.register("dusk_reward_chest", NativeRewardChests::makeBlock);
     static final DeferredBlock<RewardChestBlock> PEARL = BLOCKS.register("pearl_reward_chest", NativeRewardChests::makeBlock);
+    static final Supplier<SoundEvent> DUSK_OPEN = UwUDimension.SOUNDS.register("dusk_chest_open",
+            () -> SoundEvent.createVariableRangeEvent(UwUDimension.id("dusk_chest_open")));
+    static final Supplier<SoundEvent> DUSK_CLOSE = UwUDimension.SOUNDS.register("dusk_chest_close",
+            () -> SoundEvent.createVariableRangeEvent(UwUDimension.id("dusk_chest_close")));
     static final Supplier<BlockEntityType<NativeRewardChestBlockEntity>> BLOCK_ENTITY =
             ENTITIES.register("native_reward_chest", () -> BlockEntityType.Builder.of(
                     NativeRewardChestBlockEntity::new, PETAL.get(), DUSK.get(), PEARL.get()).build(null));
@@ -90,6 +96,8 @@ final class NativeRewardChests {
 
     private static void open(ServerPlayer player, NativeRewardChestBlockEntity chest) {
         ServerLevel level = player.serverLevel();
+        boolean dusk = chest.getBlockState().is(DUSK.get());
+        if (dusk && player.containerMenu instanceof NativeRewardChestMenu current && current.isViewerOf(chest)) return;
         var assignment = chest.assignment();
         if (assignment == null || !reconcile(level, chest, assignment)) return;
         var access = new NativeChestRewards.Access(chest, assignment.site().worldNamespace(), assignment.site(),
@@ -100,6 +108,9 @@ final class NativeRewardChests {
             if (!access.valid(player)) return;
             if (player.openMenu(new SimpleMenuProvider((id, inventory, owner) ->
                     new NativeRewardChestMenu(id, inventory, access, snapshot), TITLE)).isPresent()) {
+                if (dusk && player.containerMenu instanceof NativeRewardChestMenu menu) {
+                    chest.viewerOpened(menu);
+                }
                 LoreDiscovery.nativeRewardOpened(player, chest.getBlockPos());
             }
         }, () -> {
@@ -131,6 +142,19 @@ final class NativeRewardChests {
 
         @Override public NativeRewardChestBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
             return new NativeRewardChestBlockEntity(pos, state);
+        }
+
+        @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+            if (state.is(DUSK.get()) && level.getBlockEntity(pos) instanceof NativeRewardChestBlockEntity chest) {
+                chest.recheckViewers(level);
+            }
+        }
+
+        @Override protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int event, int value) {
+            if (state.is(DUSK.get()) && level.getBlockEntity(pos) instanceof NativeRewardChestBlockEntity chest) {
+                return chest.triggerEvent(event, value);
+            }
+            return super.triggerEvent(state, level, pos, event, value);
         }
 
         @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,

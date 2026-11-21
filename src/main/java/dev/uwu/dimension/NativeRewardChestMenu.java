@@ -60,6 +60,19 @@ public final class NativeRewardChestMenu extends ChestMenu {
         return player == owner && access.valid(owner);
     }
 
+    boolean isViewerOf(NativeRewardChestBlockEntity chest) {
+        return access.chest() == chest && owner.containerMenu == this && !owner.hasDisconnected() && stillValid(owner);
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (player == owner && access.chest() instanceof NativeRewardChestBlockEntity chest
+                && chest.getBlockState().is(NativeRewardChests.DUSK.get())) {
+            chest.viewerClosed(this);
+        }
+    }
+
     @Override
     public boolean isValidSlotIndex(int slot) {
         return slot == -1 || slot == -999 || slot >= 0 && slot < slots.size();

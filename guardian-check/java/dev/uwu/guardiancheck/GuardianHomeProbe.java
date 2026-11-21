@@ -2,6 +2,7 @@ package dev.uwu.guardiancheck;
 
 import static dev.uwu.guardiancheck.GuardianArena.require;
 
+import dev.uwu.chestcheck.DuskChestProbe;
 import dev.uwu.dimension.BlossomWarden;
 import dev.uwu.dimension.People;
 import java.lang.reflect.Field;
@@ -23,13 +24,14 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Drives real server ticks in a short disposable patrol lane and enclosed door lanes. */
 @Mod("uwu_guardian_home_check")
 public final class GuardianHomeProbe {
-    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_DECISION, NIGHT_ROUTE, NIGHT_HOME, MORNING, DOOR, KEEPER_DOOR, GUARDIAN_RESCUE, DONE }
-    private Phase phase = Phase.PREPARE;
+    private enum Phase { PREPARE, LOAD_ARENA, PERSONAL, BIND, DAY_EDGE, DAY_CAP, DAY_HOME, IDLE_START, IDLE_BEFORE, IDLE_AFTER, NIGHT, NIGHT_DECISION, NIGHT_ROUTE, NIGHT_HOME, MORNING, DOOR, KEEPER_DOOR, GUARDIAN_RESCUE, DUSK_CHEST, DONE }
+    private Phase phase = Boolean.getBoolean("uwu.check.duskChest") ? Phase.DUSK_CHEST : Phase.PREPARE;
     private int tick, phaseStarted;
     private ServerLevel level;
     private GuardianArena arena;
     private final KeeperDoorProbe keepers = new KeeperDoorProbe();
     private GuardianRescueProbe rescue;
+    private DuskChestProbe duskChest;
     private BlockPos court, eggStart, remoteEggStart, femaleHome, maleHome, ironHome;
     private BlockPos femaleDoor, maleDoor, ironDoor;
     private BlossomWarden natural, nearbyEgg, remoteEgg, female, male, iron;
@@ -206,6 +208,12 @@ public final class GuardianHomeProbe {
                 }
                 case GUARDIAN_RESCUE -> {
                     if (!rescue.tick()) return;
+                    phase = Phase.DONE;
+                    event.getServer().halt(false);
+                }
+                case DUSK_CHEST -> {
+                    if (duskChest == null) duskChest = new DuskChestProbe();
+                    if (!duskChest.tick(event.getServer())) return;
                     phase = Phase.DONE;
                     event.getServer().halt(false);
                 }

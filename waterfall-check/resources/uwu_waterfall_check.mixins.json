@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.uwu.waterfallcheck.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["FluidTickObserver"],
+  "injectors": {"defaultRequire": 1}
+}

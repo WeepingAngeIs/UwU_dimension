@@ -15,3 +15,5 @@ grep -F 'LOTUS FIRST PERSON PASS' build/lotus-client.log
 grep -F 'LOTUS DYNAMIC LIGHT PASS' build/lotus-client.log
 grep -F 'LOTUS COMPANION MOMENTUM PASS' build/lotus-client.log
 grep -F 'JADE REACH FLUID CAPTIONS PASS' build/lotus-client.log
+grep -F 'JADE REACH BERRY CAPTIONS PASS' build/lotus-client.log
+grep -F 'CAVE VINE MODELS AND HARVEST PASS' build/lotus-client.log

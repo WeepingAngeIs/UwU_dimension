@@ -1,0 +1,83 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "skin": "uwudimension:block/dusk_reward_chest",
+    "particle": "#skin"
+  },
+  "elements": [
+    {
+      "name": "Lid",
+      "from": [1, 9, 1],
+      "to": [15, 13, 15],
+      "faces": {
+        "north": {"uv": [0.0, 0.0, 7.0, 2.0], "texture": "#skin"},
+        "south": {"uv": [8.0, 0.0, 15.0, 2.0], "texture": "#skin"},
+        "west": {"uv": [8.0, 0.0, 15.0, 2.0], "texture": "#skin"},
+        "east": {"uv": [8.0, 0.0, 15.0, 2.0], "texture": "#skin"},
+        "up": {"uv": [0.0, 8.0, 7.0, 15.0], "texture": "#skin"},
+        "down": {"uv": [8.5, 11, 15, 14.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Crown",
+      "from": [2, 13, 2],
+      "to": [14, 14, 14],
+      "faces": {
+        "north": {"uv": [13.0, 8.0, 13.5, 8.5], "texture": "#skin"},
+        "south": {"uv": [13.0, 8.0, 13.5, 8.5], "texture": "#skin"},
+        "east": {"uv": [13.0, 8.0, 13.5, 8.5], "texture": "#skin"},
+        "west": {"uv": [13.0, 8.0, 13.5, 8.5], "texture": "#skin"},
+        "up": {"uv": [0.5, 8.5, 6.5, 14.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Clasp",
+      "from": [6, 6, 0.5],
+      "to": [10, 11, 1],
+      "faces": {
+        "north": {"uv": [8.0, 8.0, 10.0, 10.5], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"},
+        "up": {"uv": [12.5, 8.0, 13.0, 8.5], "texture": "#skin"},
+        "down": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"},
+        "south": {"uv": [12, 8, 12.5, 8.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Clasp stud",
+      "from": [7, 7, 0.125],
+      "to": [9, 10, 0.5],
+      "faces": {
+        "north": {"uv": [10.0, 8.0, 11.0, 9.5], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"},
+        "up": {"uv": [12.5, 8.0, 13.0, 8.5], "texture": "#skin"},
+        "down": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Left hinge strap, upper leaf",
+      "from": [3, 9, 15],
+      "to": [5, 11, 15.5],
+      "faces": {
+        "south": {"uv": [11.0, 8.0, 12.0, 9.0], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.0, 12.5, 8.25], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.0, 12.5, 8.25], "texture": "#skin"},
+        "up": {"uv": [12.5, 8.0, 13.0, 8.5], "texture": "#skin"},
+        "down": {"uv": [12, 8, 12.5, 8.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Right hinge strap, upper leaf",
+      "from": [11, 9, 15],
+      "to": [13, 11, 15.5],
+      "faces": {
+        "south": {"uv": [11.0, 8.0, 12.0, 9.0], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.0, 12.5, 8.25], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.0, 12.5, 8.25], "texture": "#skin"},
+        "up": {"uv": [12.5, 8.0, 13.0, 8.5], "texture": "#skin"},
+        "down": {"uv": [12, 8, 12.5, 8.5], "texture": "#skin"}
+      }
+    }
+  ]
+}

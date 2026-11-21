@@ -103,6 +103,8 @@
   "entity.uwudimension.dusk_zombie_villager": "Dusk Zombie Villager",
   "subtitles.uwudimension.petal_voice": "Petal Keeper chirps",
   "subtitles.uwudimension.dusk_voice": "Dusk Keeper hums",
+  "subtitles.uwudimension.dusk_chest_open": "Dusk chest opens",
+  "subtitles.uwudimension.dusk_chest_close": "Dusk chest closes",
   "entity.uwudimension.bellwake": "Bellwake",
   "block.uwudimension.drift_blossom": "Drift Blossom",
   "block.uwudimension.nacre_rose": "Rose Nacre",

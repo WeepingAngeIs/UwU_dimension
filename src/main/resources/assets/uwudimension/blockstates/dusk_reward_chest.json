@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "uwudimension:block/dusk_reward_chest"
+      "model": "uwudimension:block/dusk_reward_chest_body"
     },
     "facing=east": {
-      "model": "uwudimension:block/dusk_reward_chest",
+      "model": "uwudimension:block/dusk_reward_chest_body",
       "y": 90
     },
     "facing=south": {
-      "model": "uwudimension:block/dusk_reward_chest",
+      "model": "uwudimension:block/dusk_reward_chest_body",
       "y": 180
     },
     "facing=west": {
-      "model": "uwudimension:block/dusk_reward_chest",
+      "model": "uwudimension:block/dusk_reward_chest_body",
       "y": 270
     }
   }

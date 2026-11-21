@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -210,9 +211,7 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 if(!lane && (mix(x,z,seed)&7)==0)block(x,target+1,z,Blocks.PINK_PETALS);
                 if(z==lip&&Math.abs(x)<=2){
                     box(x,floor+1,z,x,floor+7,z,ReachArchitecture.PEARL.get());
-                    block(x,floor+8,z,Blocks.WATER);
                 }
-                if(z==lip-1&&Math.abs(x)<=1)box(x,floor+1,z,x,floor+7,z,falling);
             }
             for(int z=lip-10;z<lip-1;z++)for(int x=-2;x<=2;x++){
                 block(x,floor,z,Math.abs(x)==2?ReachArchitecture.SCALE.get():ReachArchitecture.PEARL.get());
@@ -237,7 +236,23 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 if(z>=first&&z<53)box(-2,floor,z,2,floor,z,stair(ReachArchitecture.steps(false),Direction.NORTH));
                 if(z>=lip && z<=52) ReachChambers.entrance(this,z,floor,lip);
             }
-            for(int x=-1;x<=1;x++)box(x,site.entryY()+1,lip-1,x,site.entryY()+6,lip-1,falling);
+            // Finish the spring after the tunnel and its arch. The three lanes of water
+            // cross the lip face-to-face and land in a half-block-deep walkable runnel.
+            int floor = site.entryY();
+            if (overlaps(-2, lip - 1, 2, lip + 1)) {
+                Block bank = SakuraMaterials.STONE.get();
+                box(-2, floor + 7, lip, 2, floor + 9, lip + 1, bank);
+                box(-2, floor + 9, lip - 1, 2, floor + 9, lip - 1, bank);
+                for (int x : new int[]{-2, 2}) block(x, floor + 8, lip - 1, bank);
+                for (int x = -1; x <= 1; x++) {
+                    put(x, floor + 8, lip, water);
+                    put(x, floor + 8, lip - 1, water.setValue(LiquidBlock.LEVEL, 1));
+                    box(x, floor + 1, lip - 1, x, floor + 7, lip - 1, falling);
+                    put(x, floor, lip - 1, Blocks.SMOOTH_QUARTZ_SLAB.defaultBlockState().setValue(SlabBlock.WATERLOGGED, true));
+                    tickOutletHead(x, floor + 8, lip);
+                    tickOutletHead(x, floor + 8, lip - 1);
+                }
+            }
         }
         void pools(){
             cavern(0,67,19,15,52,14,false);
@@ -279,7 +294,8 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
                 passage(x,floor,126,x,floor+5,128);
                 if(x<=14&&x>-15)box(x,floor,126,x,floor,128,stair(ReachArchitecture.steps(false),Direction.EAST));
             }
-            for(int dz=-1;dz<=1;dz++)box(-34,-47,129+dz,-34,-35,129+dz,falling);
+            // A notch in the west wall feeds the existing lower spring.
+            caveOutlet(-39, 129, -37, -48, 1, SakuraMaterials.STONE.get());
             for(int x=-37;x<-20;x+=4)block(x,-48,123,GLASS.get());
             for(int x=16;x<=41;x++){
                 int floor=52-Math.clamp(x-17,0,23);
@@ -289,7 +305,48 @@ public final class HeartwaterFeature extends Feature<NoneFeatureConfiguration> {
             buriedStairs();
             for(int z=70;z<=105;z+=6)block(42,30-Math.clamp(z-80,0,29),z,GLASS.get());
             for(int z=113;z<138;z+=4)block(18,-19,z,GLASS.get());
-            for(int z=112;z<=114;z++)box(48,1,z,48,14,z,falling);
+            // The gallery begins at z=112. The entire sheet now lands in water north of its deck.
+            caveOutlet(55, 108, 13, 0, -1, SakuraMaterials.SLATE.get());
+        }
+
+        private void caveOutlet(int mouthX, int centerZ, int headY, int poolY, int outwardX, Block rock) {
+            int sourceX = mouthX - outwardX;
+            int backX = sourceX - outwardX;
+            int lowX = Math.min(backX, mouthX);
+            int highX = Math.max(backX, mouthX);
+            if (!overlaps(lowX, centerZ - 2, highX, centerZ + 2)) return;
+
+            // Set the spring one block into the arch. Its solid sill stops a second fall under the source.
+            for (int x = lowX; x <= highX; x++) {
+                for (int z = centerZ - 2; z <= centerZ + 2; z++) {
+                    if (!inside(x, z)) continue;
+                    int bottom = headY - 1;
+                    if (x == mouthX) bottom = Math.abs(z - centerZ) == 2 ? headY : headY + 1;
+                    for (int y = bottom; y <= headY + 1; y++) {
+                        // Keep intact ceiling rock and its tideglass flecks in the face of the new notch.
+                        if (!planning()) {
+                            cursor.set(wx(x,z), y, wz(x,z));
+                            if (chunk.getBlockState(cursor).isCollisionShapeFullBlock(level, cursor)) continue;
+                        }
+                        block(x, y, z, rock);
+                    }
+                }
+            }
+
+            for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                put(sourceX, headY, z, water);
+                put(mouthX, headY, z, water.setValue(LiquidBlock.LEVEL, 1));
+                box(mouthX, poolY + 1, z, mouthX, headY - 1, z, falling);
+                tickOutletHead(sourceX, headY, z);
+                tickOutletHead(mouthX, headY, z);
+            }
+        }
+
+        private void tickOutletHead(int x, int y, int z) {
+            if (!planning() && inside(x, z)) {
+                BlockPos pos = new BlockPos(wx(x, z), y, wz(x, z));
+                level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            }
         }
         void buriedStairs(){
             for(int z=68;z<=109;z++){

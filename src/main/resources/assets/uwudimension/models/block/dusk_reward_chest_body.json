@@ -1,0 +1,89 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "skin": "uwudimension:block/dusk_reward_chest",
+    "particle": "#skin"
+  },
+  "elements": [
+    {
+      "name": "Lower shell",
+      "from": [1, 0, 1],
+      "to": [15, 9, 15],
+      "faces": {
+        "north": {"uv": [0.0, 2.0, 7.0, 6.5], "texture": "#skin"},
+        "south": {"uv": [8.0, 2.0, 15.0, 6.5], "texture": "#skin"},
+        "west": {"uv": [8.0, 2.0, 15.0, 6.5], "texture": "#skin"},
+        "east": {"uv": [8.0, 2.0, 15.0, 6.5], "texture": "#skin"},
+        "down": {"uv": [0.0, 8.0, 7.0, 15.0], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Left hinge strap, fixed foot",
+      "from": [3, 7, 15],
+      "to": [5, 9, 15.5],
+      "faces": {
+        "south": {"uv": [11.0, 9.0, 12.0, 10.0], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.25, 12.5, 8.5], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.25, 12.5, 8.5], "texture": "#skin"},
+        "up": {"uv": [12, 8, 12.5, 8.5], "texture": "#skin"},
+        "down": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Right hinge strap, fixed foot",
+      "from": [11, 7, 15],
+      "to": [13, 9, 15.5],
+      "faces": {
+        "south": {"uv": [11.0, 9.0, 12.0, 10.0], "texture": "#skin"},
+        "east": {"uv": [12.0, 8.25, 12.5, 8.5], "texture": "#skin"},
+        "west": {"uv": [12.0, 8.25, 12.5, 8.5], "texture": "#skin"},
+        "up": {"uv": [12, 8, 12.5, 8.5], "texture": "#skin"},
+        "down": {"uv": [12.0, 8.0, 12.5, 8.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Front rim and lining",
+      "from": [1, 2, 1],
+      "to": [15, 9, 2],
+      "faces": {
+        "up": {"uv": [0, 8, 7, 8.5], "texture": "#skin"},
+        "south": {"uv": [8.5, 3, 14.5, 5.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Back rim and lining",
+      "from": [1, 2, 14],
+      "to": [15, 9, 15],
+      "faces": {
+        "up": {"uv": [0, 14.5, 7, 15], "texture": "#skin"},
+        "north": {"uv": [8.5, 3, 14.5, 5.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Left rim and lining",
+      "from": [1, 2, 2],
+      "to": [2, 9, 14],
+      "faces": {
+        "up": {"uv": [0, 8.5, 0.5, 14.5], "texture": "#skin"},
+        "east": {"uv": [8.5, 3, 14.5, 5.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Right rim and lining",
+      "from": [14, 2, 2],
+      "to": [15, 9, 14],
+      "faces": {
+        "up": {"uv": [6.5, 8.5, 7, 14.5], "texture": "#skin"},
+        "west": {"uv": [8.5, 3, 14.5, 5.5], "texture": "#skin"}
+      }
+    },
+    {
+      "name": "Recessed floor",
+      "from": [2, 1, 2],
+      "to": [14, 2, 14],
+      "faces": {
+        "up": {"uv": [8.5, 11, 14.5, 15], "texture": "#skin"}
+      }
+    }
+  ]
+}
